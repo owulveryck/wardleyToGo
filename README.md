@@ -124,3 +124,4 @@ EOF
 </svg>
 ```
 
+![](sample.svg)
