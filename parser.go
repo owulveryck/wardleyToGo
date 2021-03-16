@@ -202,7 +202,7 @@ func (e edge) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 	fromCoord := e.F.(element).GetCoordinates()
 	toCoord := e.T.(element).GetCoordinates()
 	s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
-		u(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
+		(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
 		toCoord[1]*(width-padLeft)/100+padLeft,
 		(height-padLeft)-toCoord[0]*(height-padLeft)/100,
 		`stroke="grey"`, `stroke-width="1"`)
