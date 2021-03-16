@@ -39,7 +39,7 @@ note +a generic note appeared [0.16, 0.36]
 style wardley
 `
 	p := newParser(strings.NewReader(src))
-	p.Parse()
+	p.parse()
 }
 
 func Test_parser_parseComponent(t *testing.T) {

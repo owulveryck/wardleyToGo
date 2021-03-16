@@ -1,15 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"text/scanner"
+
+	svg "github.com/ajstarks/svgo"
+	"gonum.org/v1/gonum/graph"
+	"gonum.org/v1/gonum/graph/simple"
 )
 
 type parser struct {
-	s *scanner.Scanner
+	s        *scanner.Scanner
+	currID   int
+	g        *simple.DirectedGraph
+	nodeDict map[string]graph.Node
+	edges    []edge
 }
 
 func newParser(r io.Reader) *parser {
@@ -21,21 +28,62 @@ func newParser(r io.Reader) *parser {
 	}
 }
 
-func (p *parser) Parse() {
+func (p *parser) parse() {
+	p.nodeDict = make(map[string]graph.Node)
+	p.edges = make([]edge, 0)
+	p.g = simple.NewDirectedGraph()
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		switch p.s.TokenText() {
 		case "component":
-			fmt.Println(p.parseComponent())
+			e := p.parseComponent()
+			e.id = int64(p.currID)
+			p.currID++
+			p.g.AddNode(e)
+			p.nodeDict[e.label] = e
 		case "anchor":
-			p.parseAnchor()
+			e := p.parseAnchor()
+			e.id = int64(p.currID)
+			p.currID++
+			p.g.AddNode(e)
+			p.nodeDict[e.label] = e
 		default:
-			p.parseDefault()
+			e := p.parseDefault(p.s.TokenText())
+			switch e := e.(type) {
+			case edge:
+				p.edges = append(p.edges, e)
+			}
 		}
+	}
+	p.createEdges()
+}
+
+func (p *parser) createEdges() {
+	for _, edge := range p.edges {
+		edge.F = p.nodeDict[edge.fromLabel]
+		edge.T = p.nodeDict[edge.toLabel]
+		p.g.SetEdge(edge)
 	}
 }
 
-func (p *parser) parseDefault() {
-
+func (p *parser) parseDefault(firstElement string) interface{} {
+	var e edge
+	var b strings.Builder
+	b.WriteString(firstElement)
+	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
+		if tok == scanner.Ident {
+			b.WriteRune(' ')
+			b.WriteString(p.s.TokenText())
+		}
+		if tok == '>' {
+			e.fromLabel = strings.TrimLeft(b.String(), " ")
+			b.Reset()
+		}
+	}
+	if e.fromLabel != "" {
+		e.toLabel = strings.TrimLeft(b.String(), " ")
+		return e
+	}
+	return nil
 }
 
 func (p *parser) parseComponent() *component {
@@ -122,4 +170,40 @@ func (p *parser) parseAnchor() *anchor {
 	}
 	a.label = strings.TrimRight(b.String(), " ")
 	return a
+}
+
+type edge struct {
+	toLabel   string
+	fromLabel string
+	T         graph.Node
+	F         graph.Node
+	edgeLabel string
+}
+
+func (e edge) From() graph.Node {
+	return e.F
+}
+
+func (e edge) ReversedEdge() graph.Edge {
+	return edge{
+		F:         e.T,
+		T:         e.F,
+		toLabel:   e.fromLabel,
+		fromLabel: e.toLabel,
+		edgeLabel: e.edgeLabel,
+	}
+}
+
+func (e edge) To() graph.Node {
+	return e.T
+}
+
+func (e edge) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
+	fromCoord := e.F.(element).GetCoordinates()
+	toCoord := e.T.(element).GetCoordinates()
+	s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
+		u(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
+		toCoord[1]*(width-padLeft)/100+padLeft,
+		(height-padLeft)-toCoord[0]*(height-padLeft)/100,
+		`stroke="grey"`, `stroke-width="1"`)
 }
