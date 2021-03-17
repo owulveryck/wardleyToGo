@@ -1,25 +1,27 @@
-package main
+package parser
 
 import (
 	"reflect"
 	"strings"
 	"testing"
 	"text/scanner"
+
+	"github.com/owulveryck/wardleyToGo/internal/wardley"
 )
 
 func TestParse(t *testing.T) {
 	const src = `
 title Tea Shop
-anchor Business [0.95, 0.63]
-anchor Public [0.95, 0.78]
-component Cup of Tea [0.79, 0.61] label [19, -4]
-component Cup [0.73, 0.78]
-component Tea [0.63, 0.81]
-component Hot Water [0.52, 0.80]
-component Water [0.38, 0.82]
-component Kettle [0.43, 0.35] label [-57, 4]
+wardley.Anchor Business [0.95, 0.63]
+wardley.Anchor Public [0.95, 0.78]
+wardley.Component Cup of Tea [0.79, 0.61] label [19, -4]
+wardley.Component Cup [0.73, 0.78]
+wardley.Component Tea [0.63, 0.81]
+wardley.Component Hot Water [0.52, 0.80]
+wardley.Component Water [0.38, 0.82]
+wardley.Component Kettle [0.43, 0.35] label [-57, 4]
 evolve Kettle 0.62 label [16, 7]
-component Power [0.1, 0.7] label [-27, 20]
+wardley.Component Power [0.1, 0.7] label [-27, 20]
 evolve Power 0.89 label [-12, 21]
 Business->Cup of Tea
 Public->Cup of Tea
@@ -38,7 +40,7 @@ note +a generic note appeared [0.16, 0.36]
 
 style wardley
 `
-	p := newParser(strings.NewReader(src))
+	p := NewParser(strings.NewReader(src))
 	p.parse()
 }
 
@@ -57,14 +59,14 @@ func Test_parser_parseComponent(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *component
+		want   *wardley.Component
 	}{
 		{
 			"simple without coordinates",
 			fields{
 				s: newScanner(`bla`),
 			},
-			&component{
+			&wardley.Component{
 				coords:     [2]int{-1, -1},
 				label:      `bla`,
 				labelCoord: [2]int{-1, -1},
@@ -75,7 +77,7 @@ func Test_parser_parseComponent(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla`),
 			},
-			&component{
+			&wardley.Component{
 				coords:     [2]int{-1, -1},
 				label:      `bla bla`,
 				labelCoord: [2]int{-1, -1},
@@ -86,7 +88,7 @@ func Test_parser_parseComponent(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&component{
+			&wardley.Component{
 				coords:     [2]int{40, 30},
 				label:      `bla bla`,
 				labelCoord: [2]int{-1, -1},
@@ -97,7 +99,7 @@ func Test_parser_parseComponent(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3] label [12,12]`),
 			},
-			&component{
+			&wardley.Component{
 				coords:     [2]int{40, 30},
 				label:      `bla bla`,
 				labelCoord: [2]int{12, 12},
@@ -106,7 +108,7 @@ func Test_parser_parseComponent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &parser{
+			p := &Parser{
 				s: tt.fields.s,
 			}
 			if got := p.parseComponent(); !reflect.DeepEqual(got, tt.want) {
@@ -131,14 +133,14 @@ func Test_parser_parseAnchor(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *anchor
+		want   *wardley.Anchor
 	}{
 		{
 			"simple without coordinates",
 			fields{
 				s: newScanner(`bla`),
 			},
-			&anchor{
+			&wardley.Anchor{
 				coords: [2]int{-1, -1},
 				label:  `bla`,
 			},
@@ -148,7 +150,7 @@ func Test_parser_parseAnchor(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla`),
 			},
-			&anchor{
+			&wardley.Anchor{
 				coords: [2]int{-1, -1},
 				label:  `bla bla`,
 			},
@@ -158,7 +160,7 @@ func Test_parser_parseAnchor(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&anchor{
+			&wardley.Anchor{
 				coords: [2]int{40, 30},
 				label:  `bla bla`,
 			},
@@ -166,7 +168,7 @@ func Test_parser_parseAnchor(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &parser{
+			p := &Parser{
 				s: tt.fields.s,
 			}
 			if got := p.parseAnchor(); !reflect.DeepEqual(got, tt.want) {
