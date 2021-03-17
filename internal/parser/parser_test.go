@@ -12,16 +12,16 @@ import (
 func TestParse(t *testing.T) {
 	const src = `
 title Tea Shop
-wardley.Anchor Business [0.95, 0.63]
-wardley.Anchor Public [0.95, 0.78]
-wardley.Component Cup of Tea [0.79, 0.61] label [19, -4]
-wardley.Component Cup [0.73, 0.78]
-wardley.Component Tea [0.63, 0.81]
-wardley.Component Hot Water [0.52, 0.80]
-wardley.Component Water [0.38, 0.82]
-wardley.Component Kettle [0.43, 0.35] label [-57, 4]
+anchor Business [0.95, 0.63]
+anchor Public [0.95, 0.78]
+component Cup of Tea [0.79, 0.61] label [19, -4]
+component Cup [0.73, 0.78]
+component Tea [0.63, 0.81]
+component Hot Water [0.52, 0.80]
+component Water [0.38, 0.82]
+component Kettle [0.43, 0.35] label [-57, 4]
 evolve Kettle 0.62 label [16, 7]
-wardley.Component Power [0.1, 0.7] label [-27, 20]
+component Power [0.1, 0.7] label [-27, 20]
 evolve Power 0.89 label [-12, 21]
 Business->Cup of Tea
 Public->Cup of Tea
