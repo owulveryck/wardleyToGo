@@ -13,18 +13,7 @@ func main() {
 	padLeft := 25
 	padBottom := 30
 
-	w := svgmap.NewSVGMap(os.Stdout)
-	w.Init(width, height, padLeft, padBottom)
 	p := parser.NewParser(os.Stdin)
-	p.Parse()
-	it := p.G.Nodes()
-	for it.Next() {
-		w.WriteElement(it.Node().(svgmap.SVGer))
-	}
-	edgesIt := p.G.Edges()
-	for edgesIt.Next() {
-		w.WriteElement(edgesIt.Edge().(svgmap.SVGer))
-	}
-	w.Close()
-
+	m := p.Parse() // the map
+	svgmap.Encode(m, os.Stdout, width, height, padLeft, padBottom)
 }
