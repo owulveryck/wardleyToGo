@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	svgmap "github.com/owulveryck/wardleyToGo/internal/encoding/svg"
@@ -14,6 +15,9 @@ func main() {
 	padBottom := 30
 
 	p := parser.NewParser(os.Stdin)
-	m := p.Parse() // the map
+	m, err := p.Parse() // the map
+	if err != nil {
+		log.Fatal(err)
+	}
 	svgmap.Encode(m, os.Stdout, width, height, padLeft, padBottom)
 }

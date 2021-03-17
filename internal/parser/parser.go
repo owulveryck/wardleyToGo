@@ -1,7 +1,9 @@
 package parser
 
 import (
+	"fmt"
 	"io"
+	"log"
 	"strconv"
 	"strings"
 	"text/scanner"
@@ -28,47 +30,64 @@ func NewParser(r io.Reader) *Parser {
 	}
 }
 
-func (p *Parser) Parse() *wardley.Map {
+func (p *Parser) Parse() (*wardley.Map, error) {
 	p.nodeDict = make(map[string]graph.Node)
 	p.edges = make([]edge, 0)
 	p.g = simple.NewDirectedGraph()
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		switch p.s.TokenText() {
 		case "component":
-			e := p.parseComponent()
+			e, err := p.parseComponent()
+			if err != nil {
+				return nil, err
+			}
 			e.Id = int64(p.currID)
 			p.currID++
 			p.g.AddNode(e)
 			p.nodeDict[e.Label] = e
 		case "anchor":
-			e := p.parseAnchor()
+			e, err := p.parseAnchor()
+			if err != nil {
+				return nil, err
+			}
 			e.Id = int64(p.currID)
 			p.currID++
 			p.g.AddNode(e)
 			p.nodeDict[e.Label] = e
 		default:
-			e := p.parseDefault(p.s.TokenText())
+			e, err := p.parseDefault(p.s.TokenText())
+			if err != nil {
+				log.Println("Warning", err)
+			}
 			switch e := e.(type) {
 			case edge:
 				p.edges = append(p.edges, e)
 			}
 		}
 	}
-	p.createEdges()
+	err := p.createEdges()
 	return &wardley.Map{
 		DirectedGraph: p.g,
-	}
+	}, err
 }
 
-func (p *Parser) createEdges() {
+func (p *Parser) createEdges() error {
+	var ok bool
 	for _, edge := range p.edges {
-		edge.F = p.nodeDict[edge.fromLabel]
-		edge.T = p.nodeDict[edge.toLabel]
+		edge.F, ok = p.nodeDict[edge.fromLabel]
+		if !ok {
+			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
+		}
+		edge.T, ok = p.nodeDict[edge.toLabel]
+		if !ok {
+			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
+		}
 		p.g.SetEdge(edge)
 	}
+	return nil
 }
 
-func (p *Parser) parseDefault(firstElement string) interface{} {
+func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
 	var e edge
 	var b strings.Builder
 	b.WriteString(firstElement)
@@ -84,12 +103,12 @@ func (p *Parser) parseDefault(firstElement string) interface{} {
 	}
 	if e.fromLabel != "" {
 		e.toLabel = strings.TrimLeft(b.String(), " ")
-		return e
+		return e, nil
 	}
-	return nil
+	return nil, fmt.Errorf("unhandled element at line %v: %v", p.s.Line, b.String())
 }
 
-func (p *Parser) parseComponent() *wardley.Component {
+func (p *Parser) parseComponent() (*wardley.Component, error) {
 	c := &wardley.Component{
 		Coords:      [2]int{-1, -1},
 		LabelCoords: [2]int{-1, -1},
@@ -107,7 +126,7 @@ func (p *Parser) parseComponent() *wardley.Component {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			if c.Coords[0] == -1 {
 				c.Coords[0] = int(f * 100)
@@ -121,7 +140,7 @@ func (p *Parser) parseComponent() *wardley.Component {
 		if tok == scanner.Int {
 			i, err := strconv.Atoi(p.s.TokenText())
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			if c.LabelCoords[0] == -1 {
 				c.LabelCoords[0] = i
@@ -134,10 +153,10 @@ func (p *Parser) parseComponent() *wardley.Component {
 		}
 	}
 	c.Label = strings.TrimRight(b.String(), " ")
-	return c
+	return c, nil
 }
 
-func (p *Parser) parseAnchor() *wardley.Anchor {
+func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
 	a := &wardley.Anchor{
 		Coords: [2]int{-1, -1},
 	}
@@ -159,7 +178,7 @@ func (p *Parser) parseAnchor() *wardley.Anchor {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			if a.Coords[0] == -1 {
 				a.Coords[0] = int(f * 100)
@@ -172,5 +191,5 @@ func (p *Parser) parseAnchor() *wardley.Anchor {
 		}
 	}
 	a.Label = strings.TrimRight(b.String(), " ")
-	return a
+	return a, nil
 }

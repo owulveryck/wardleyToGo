@@ -10,7 +10,30 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	const src = `
+	t.Run("bad graph 1", func(t *testing.T) {
+		const src = `
+component Cup of Tea [0.79, 0.61] label [19, -4]
+Cup of Tea->Cup
+`
+		p := NewParser(strings.NewReader(src))
+		_, err := p.Parse()
+		if err == nil {
+			t.Fatal(err)
+		}
+	})
+	t.Run("bad graph 2", func(t *testing.T) {
+		const src = `
+component A [0.79, 0.61] label [19, -4]
+A->B
+`
+		p := NewParser(strings.NewReader(src))
+		_, err := p.Parse()
+		if err == nil {
+			t.Fatal(err)
+		}
+	})
+	t.Run("Tea Shop", func(t *testing.T) {
+		const src = `
 title Tea Shop
 anchor Business [0.95, 0.63]
 anchor Public [0.95, 0.78]
@@ -40,8 +63,12 @@ note +a generic note appeared [0.16, 0.36]
 
 style wardley
 `
-	p := NewParser(strings.NewReader(src))
-	p.Parse()
+		p := NewParser(strings.NewReader(src))
+		_, err := p.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func Test_parser_parseComponent(t *testing.T) {
@@ -111,7 +138,7 @@ func Test_parser_parseComponent(t *testing.T) {
 			p := &Parser{
 				s: tt.fields.s,
 			}
-			if got := p.parseComponent(); !reflect.DeepEqual(got, tt.want) {
+			if got, _ := p.parseComponent(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("parser.parseComponent() = %v, want %v", got, tt.want)
 			}
 		})
@@ -171,7 +198,7 @@ func Test_parser_parseAnchor(t *testing.T) {
 			p := &Parser{
 				s: tt.fields.s,
 			}
-			if got := p.parseAnchor(); !reflect.DeepEqual(got, tt.want) {
+			if got, _ := p.parseAnchor(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("parser.parseAnchor() = %v, want %v", got, tt.want)
 			}
 		})
