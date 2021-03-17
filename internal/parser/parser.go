@@ -14,7 +14,7 @@ import (
 type Parser struct {
 	s        *scanner.Scanner
 	currID   int
-	G        *simple.DirectedGraph
+	g        *simple.DirectedGraph
 	nodeDict map[string]graph.Node
 	edges    []edge
 }
@@ -28,23 +28,23 @@ func NewParser(r io.Reader) *Parser {
 	}
 }
 
-func (p *Parser) Parse() {
+func (p *Parser) Parse() *wardley.Map {
 	p.nodeDict = make(map[string]graph.Node)
 	p.edges = make([]edge, 0)
-	p.G = simple.NewDirectedGraph()
+	p.g = simple.NewDirectedGraph()
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		switch p.s.TokenText() {
 		case "component":
 			e := p.parseComponent()
 			e.Id = int64(p.currID)
 			p.currID++
-			p.G.AddNode(e)
+			p.g.AddNode(e)
 			p.nodeDict[e.Label] = e
 		case "anchor":
 			e := p.parseAnchor()
 			e.Id = int64(p.currID)
 			p.currID++
-			p.G.AddNode(e)
+			p.g.AddNode(e)
 			p.nodeDict[e.Label] = e
 		default:
 			e := p.parseDefault(p.s.TokenText())
@@ -55,13 +55,16 @@ func (p *Parser) Parse() {
 		}
 	}
 	p.createEdges()
+	return &wardley.Map{
+		DirectedGraph: p.g,
+	}
 }
 
 func (p *Parser) createEdges() {
 	for _, edge := range p.edges {
 		edge.F = p.nodeDict[edge.fromLabel]
 		edge.T = p.nodeDict[edge.toLabel]
-		p.G.SetEdge(edge)
+		p.g.SetEdge(edge)
 	}
 }
 

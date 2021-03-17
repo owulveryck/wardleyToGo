@@ -1,3 +1,7 @@
+## wardleyToGo
+
+simple tools to play with Wardley maps in Go
+
 ```
 ❯ go run . << EOF
 title Tea Shop

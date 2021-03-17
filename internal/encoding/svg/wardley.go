@@ -4,9 +4,11 @@ import (
 	"io"
 
 	svg "github.com/ajstarks/svgo"
+	"github.com/owulveryck/wardleyToGo/internal/wardley"
 )
 
-type SVGMap struct {
+// svgMap is an object representing the map in SVG
+type svgMap struct {
 	*svg.SVG
 	width     int
 	height    int
@@ -14,13 +16,15 @@ type SVGMap struct {
 	padBottom int
 }
 
-func NewSVGMap(w io.Writer) *SVGMap {
-	return &SVGMap{
+// newSvgMap creates an empty map. The caller must call Init to fill it with the axis and Close.
+func newSvgMap(w io.Writer) *svgMap {
+	return &svgMap{
 		SVG: svg.New(w),
 	}
 }
 
-func (w *SVGMap) Init(width, height, padLeft, padBottom int) {
+//init the map according to this geometry
+func (w *svgMap) init(width, height, padLeft, padBottom int) {
 	w.width = width
 	w.height = height
 	w.padLeft = padLeft
@@ -74,7 +78,8 @@ func (w *SVGMap) Init(width, height, padLeft, padBottom int) {
 	w.Group(`font-family="Consolas, Lucida Console, monospace"`, `font-weight="14px"`, `font-size="13px"`)
 }
 
-func (w *SVGMap) Close() {
+// close the map (add the closing tags to the SVG)
+func (w *svgMap) close() {
 	w.Gend()
 	w.End()
 }
@@ -84,6 +89,22 @@ type SVGer interface {
 	SVG(s *svg.SVG, width, height, padLeft, padBottom int)
 }
 
-func (w *SVGMap) WriteElement(e SVGer) {
+// writeElement on the map
+func (w *svgMap) writeElement(e SVGer) {
 	e.SVG(w.SVG, w.width, w.height, w.padLeft, w.padBottom)
+}
+
+// Encode the map
+func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) {
+	out := newSvgMap(w)
+	out.init(width, height, padLeft, padBottom)
+	it := m.Nodes()
+	for it.Next() {
+		out.writeElement(it.Node().(SVGer))
+	}
+	edgesIt := m.Edges()
+	for edgesIt.Next() {
+		out.writeElement(edgesIt.Edge().(SVGer))
+	}
+	out.close()
 }
