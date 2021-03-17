@@ -1,4 +1,4 @@
-package main
+package svgmap
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	svg "github.com/ajstarks/svgo"
 )
 
-type wardley struct {
+type SVGMap struct {
 	*svg.SVG
 	width     int
 	height    int
@@ -14,13 +14,13 @@ type wardley struct {
 	padBottom int
 }
 
-func newWardley(w io.Writer) *wardley {
-	return &wardley{
+func NewSVGMap(w io.Writer) *SVGMap {
+	return &SVGMap{
 		SVG: svg.New(w),
 	}
 }
 
-func (w *wardley) Init(width, height, padLeft, padBottom int) {
+func (w *SVGMap) Init(width, height, padLeft, padBottom int) {
 	w.width = width
 	w.height = height
 	w.padLeft = padLeft
@@ -74,7 +74,7 @@ func (w *wardley) Init(width, height, padLeft, padBottom int) {
 	w.Group(`font-family="Consolas, Lucida Console, monospace"`, `font-weight="14px"`, `font-size="13px"`)
 }
 
-func (w *wardley) Close() {
+func (w *SVGMap) Close() {
 	w.Gend()
 	w.End()
 }
@@ -84,6 +84,6 @@ type SVGer interface {
 	SVG(s *svg.SVG, width, height, padLeft, padBottom int)
 }
 
-func (w *wardley) writeElement(e SVGer) {
+func (w *SVGMap) WriteElement(e SVGer) {
 	e.SVG(w.SVG, w.width, w.height, w.padLeft, w.padBottom)
 }

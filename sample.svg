@@ -44,21 +44,6 @@
 <text x="1000" y="790" text-anchor="end" font-weight="bold" font-style="normal" >Evolution</text>
 </g>
 <g font-family="Consolas, Lucida Console, monospace" font-weight="14px" font-size="13px" >
-<g transform="translate(639,39)">
-<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
-</g>
-<g transform="translate(785,210)">
-<text x="10" y="10" >Cup</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(805,372)">
-<text x="10" y="10" >Hot Water</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(824,481)">
-<text x="10" y="10" >Water</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
 <g transform="translate(707,698)">
 <text x="27" y="20" >Power</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
@@ -66,25 +51,40 @@
 <g transform="translate(785,39)">
 <text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Public</text>
 </g>
-<g transform="translate(619,163)">
-<text x="19" y="4" >Cup of Tea</text>
+<g transform="translate(785,210)">
+<text x="10" y="10" >Cup</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 <g transform="translate(814,287)">
 <text x="10" y="10" >Tea</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
+<g transform="translate(805,372)">
+<text x="10" y="10" >Hot Water</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
 <g transform="translate(366,442)">
 <text x="57" y="4" >Kettle</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
-<line x1="785" y1="39" x2="619" y2="163" stroke="grey" stroke-width="1" />
+<g transform="translate(639,39)">
+<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
+</g>
+<g transform="translate(619,163)">
+<text x="19" y="4" >Cup of Tea</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<g transform="translate(824,481)">
+<text x="10" y="10" >Water</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<line x1="639" y1="39" x2="619" y2="163" stroke="grey" stroke-width="1" />
 <line x1="619" y1="163" x2="785" y2="210" stroke="grey" stroke-width="1" />
 <line x1="619" y1="163" x2="814" y2="287" stroke="grey" stroke-width="1" />
 <line x1="619" y1="163" x2="805" y2="372" stroke="grey" stroke-width="1" />
-<line x1="366" y1="442" x2="707" y2="698" stroke="grey" stroke-width="1" />
-<line x1="639" y1="39" x2="619" y2="163" stroke="grey" stroke-width="1" />
 <line x1="805" y1="372" x2="824" y2="481" stroke="grey" stroke-width="1" />
 <line x1="805" y1="372" x2="366" y2="442" stroke="grey" stroke-width="1" />
+<line x1="366" y1="442" x2="707" y2="698" stroke="grey" stroke-width="1" />
+<line x1="785" y1="39" x2="619" y2="163" stroke="grey" stroke-width="1" />
 </g>
 </svg>
