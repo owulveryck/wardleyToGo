@@ -1,5 +1,6 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/owulveryck/wardleyToGo.svg)](https://pkg.go.dev/github.com/owulveryck/wardleyToGo)
 [![Go](https://github.com/owulveryck/wardleyToGo/actions/workflows/go.yml/badge.svg)](https://github.com/owulveryck/wardleyToGo/actions/workflows/go.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo?ref=badge_shield)
 
 ## wardleyToGo
 
@@ -41,3 +42,6 @@ EOF
 
 
 ![](sample.svg)
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo?ref=badge_large)
