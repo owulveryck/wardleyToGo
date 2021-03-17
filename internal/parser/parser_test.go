@@ -41,7 +41,7 @@ note +a generic note appeared [0.16, 0.36]
 style wardley
 `
 	p := NewParser(strings.NewReader(src))
-	p.parse()
+	p.Parse()
 }
 
 func Test_parser_parseComponent(t *testing.T) {
@@ -67,9 +67,9 @@ func Test_parser_parseComponent(t *testing.T) {
 				s: newScanner(`bla`),
 			},
 			&wardley.Component{
-				coords:     [2]int{-1, -1},
-				label:      `bla`,
-				labelCoord: [2]int{-1, -1},
+				Coords:      [2]int{-1, -1},
+				Label:       `bla`,
+				LabelCoords: [2]int{-1, -1},
 			},
 		},
 		{
@@ -78,9 +78,9 @@ func Test_parser_parseComponent(t *testing.T) {
 				s: newScanner(`bla   bla`),
 			},
 			&wardley.Component{
-				coords:     [2]int{-1, -1},
-				label:      `bla bla`,
-				labelCoord: [2]int{-1, -1},
+				Coords:      [2]int{-1, -1},
+				Label:       `bla bla`,
+				LabelCoords: [2]int{-1, -1},
 			},
 		},
 		{
@@ -89,9 +89,9 @@ func Test_parser_parseComponent(t *testing.T) {
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
 			&wardley.Component{
-				coords:     [2]int{40, 30},
-				label:      `bla bla`,
-				labelCoord: [2]int{-1, -1},
+				Coords:      [2]int{40, 30},
+				Label:       `bla bla`,
+				LabelCoords: [2]int{-1, -1},
 			},
 		},
 		{
@@ -100,9 +100,9 @@ func Test_parser_parseComponent(t *testing.T) {
 				s: newScanner(`bla   bla [0.4, 0.3] label [12,12]`),
 			},
 			&wardley.Component{
-				coords:     [2]int{40, 30},
-				label:      `bla bla`,
-				labelCoord: [2]int{12, 12},
+				Coords:      [2]int{40, 30},
+				Label:       `bla bla`,
+				LabelCoords: [2]int{12, 12},
 			},
 		},
 	}
@@ -141,8 +141,8 @@ func Test_parser_parseAnchor(t *testing.T) {
 				s: newScanner(`bla`),
 			},
 			&wardley.Anchor{
-				coords: [2]int{-1, -1},
-				label:  `bla`,
+				Coords: [2]int{-1, -1},
+				Label:  `bla`,
 			},
 		},
 		{
@@ -151,8 +151,8 @@ func Test_parser_parseAnchor(t *testing.T) {
 				s: newScanner(`bla   bla`),
 			},
 			&wardley.Anchor{
-				coords: [2]int{-1, -1},
-				label:  `bla bla`,
+				Coords: [2]int{-1, -1},
+				Label:  `bla bla`,
 			},
 		},
 		{
@@ -161,8 +161,8 @@ func Test_parser_parseAnchor(t *testing.T) {
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
 			&wardley.Anchor{
-				coords: [2]int{40, 30},
-				label:  `bla bla`,
+				Coords: [2]int{40, 30},
+				Label:  `bla bla`,
 			},
 		},
 	}
