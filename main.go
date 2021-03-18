@@ -10,7 +10,7 @@ import (
 
 func main() {
 	width := 1000
-	height := 800
+	height := 700
 	padLeft := 25
 	padBottom := 30
 

@@ -9,8 +9,8 @@ type Anchor struct {
 	Label  string
 }
 
-func (a *Anchor) GetCoordinates() [2]int {
-	return a.Coords
+func (a *Anchor) GetCoordinates() []int {
+	return []int{a.Coords[0], a.Coords[1]}
 }
 
 func (c *Anchor) ID() int64 {

@@ -26,3 +26,4 @@ annotations [0.60, 0.02]
 note +a generic note appeared [0.16, 0.36]
 
 style wardley
+streamalignedteam team A [0.47, 0.28, 0.38, 0.45]
