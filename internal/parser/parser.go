@@ -54,6 +54,33 @@ func (p *Parser) Parse() (*wardley.Map, error) {
 			p.currID++
 			p.g.AddNode(e)
 			p.nodeDict[e.Label] = e
+		case "streamalignedteam":
+			e, err := p.parseStreamAligned()
+			if err != nil {
+				return nil, err
+			}
+			e.Id = int64(p.currID)
+			p.currID++
+			p.g.AddNode(e)
+			p.nodeDict[e.Label] = e
+		case "enablingteam":
+			e, err := p.parseEnabling()
+			if err != nil {
+				return nil, err
+			}
+			e.Id = int64(p.currID)
+			p.currID++
+			p.g.AddNode(e)
+			p.nodeDict[e.Label] = e
+		case "platformteam":
+			e, err := p.parsePlatform()
+			if err != nil {
+				return nil, err
+			}
+			e.Id = int64(p.currID)
+			p.currID++
+			p.g.AddNode(e)
+			p.nodeDict[e.Label] = e
 		default:
 			e, err := p.parseDefault(p.s.TokenText())
 			if err != nil {
@@ -110,11 +137,12 @@ func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
 
 func (p *Parser) parseComponent() (*wardley.Component, error) {
 	c := &wardley.Component{
-		Coords:      [2]int{-1, -1},
-		LabelCoords: [2]int{-1, -1},
+		Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+		LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
+	var prevTok rune
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
 		if tok == '[' {
 			inLabel = false
@@ -128,29 +156,34 @@ func (p *Parser) parseComponent() (*wardley.Component, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.Coords[0] == -1 {
+			if c.Coords[0] == wardley.UndefinedCoord {
 				c.Coords[0] = int(f * 100)
 				continue
 			}
-			if c.Coords[1] == -1 {
+			if c.Coords[1] == wardley.UndefinedCoord {
 				c.Coords[1] = int(f * 100)
 				continue
 			}
 		}
 		if tok == scanner.Int {
-			i, err := strconv.Atoi(p.s.TokenText())
+			sign := ""
+			if prevTok == '-' {
+				sign = "-"
+			}
+			i, err := strconv.Atoi(sign + p.s.TokenText())
 			if err != nil {
 				return nil, err
 			}
-			if c.LabelCoords[0] == -1 {
+			if c.LabelCoords[0] == wardley.UndefinedCoord {
 				c.LabelCoords[0] = i
 				continue
 			}
-			if c.LabelCoords[1] == -1 {
+			if c.LabelCoords[1] == wardley.UndefinedCoord {
 				c.LabelCoords[1] = i
 				continue
 			}
 		}
+		prevTok = tok
 	}
 	c.Label = strings.TrimRight(b.String(), " ")
 	return c, nil
@@ -158,7 +191,7 @@ func (p *Parser) parseComponent() (*wardley.Component, error) {
 
 func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
 	a := &wardley.Anchor{
-		Coords: [2]int{-1, -1},
+		Coords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
@@ -180,11 +213,11 @@ func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Coords[0] == -1 {
+			if a.Coords[0] == wardley.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == -1 {
+			if a.Coords[1] == wardley.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}
