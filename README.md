@@ -30,13 +30,7 @@ Hot Water->Water
 Hot Water->Kettle 
 Kettle->Power
 
-annotation 1 [[0.43,0.49],[0.08,0.79]] Standardising power allows Kettles to evolve faster
-annotation 2 [0.48, 0.85] Hot water is obvious and well known
-annotations [0.60, 0.02]
-
-note +a generic note appeared [0.16, 0.36]
-
-style wardley
+streamalignedteam team A [0.47, 0.28, 0.38, 0.45]
 EOF
 ```
 

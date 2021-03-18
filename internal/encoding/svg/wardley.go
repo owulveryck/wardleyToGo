@@ -98,13 +98,17 @@ func (w *svgMap) writeElement(e SVGer) {
 func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) {
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
-	it := m.Nodes()
-	for it.Next() {
-		out.writeElement(it.Node().(SVGer))
-	}
+	out.Gid("links")
 	edgesIt := m.Edges()
 	for edgesIt.Next() {
 		out.writeElement(edgesIt.Edge().(SVGer))
 	}
+	out.Gend()
+	out.Gid("components")
+	it := m.Nodes()
+	for it.Next() {
+		out.writeElement(it.Node().(SVGer))
+	}
+	out.Gend()
 	out.close()
 }
