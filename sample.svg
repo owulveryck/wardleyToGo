@@ -44,29 +44,30 @@
 <text x="1000" y="690" text-anchor="end" font-weight="bold" font-style="normal" >Evolution</text>
 </g>
 <g font-family="Consolas, Lucida Console, monospace" font-weight="14px" font-size="13px" >
+<g id="components">
+<g transform="translate(580,108)">
+<rect x="0" y="0" width="205" height="68" rx="15" ry="15" fill="rgb(252, 237, 190)" opacity="0.8" stroke="rgb(250,216,120)" stroke-opacity="0.7" stroke-width="5px" />
+</g>
+<g transform="translate(249,324)">
+<rect x="0" y="0" width="195" height="135" rx="15" ry="15" fill="rgb(217, 190, 206)" opacity="0.8" stroke="rgb(200,159,182)" stroke-opacity="0.7" stroke-width="5px" />
+</g>
+<g transform="translate(619,554)">
+<rect x="0" y="0" width="322" height="108" fill="rgb(170, 185, 215)" opacity="0.8" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px" />
+</g>
+</g>
 <g id="links">
-<line x1="619" y1="142" x2="785" y2="183" stroke="grey" stroke-width="1" />
-<line x1="619" y1="142" x2="814" y2="250" stroke="grey" stroke-width="1" />
-<line x1="619" y1="142" x2="805" y2="324" stroke="grey" stroke-width="1" />
 <line x1="805" y1="324" x2="824" y2="419" stroke="grey" stroke-width="1" />
 <line x1="805" y1="324" x2="366" y2="385" stroke="grey" stroke-width="1" />
 <line x1="366" y1="385" x2="707" y2="608" stroke="grey" stroke-width="1" />
-<line x1="639" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
 <line x1="785" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
+<line x1="619" y1="142" x2="785" y2="183" stroke="grey" stroke-width="1" />
+<line x1="619" y1="142" x2="814" y2="250" stroke="grey" stroke-width="1" />
+<line x1="619" y1="142" x2="805" y2="324" stroke="grey" stroke-width="1" />
+<line x1="639" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
 </g>
-<g id="components">
-<g transform="translate(580,108)">
-<rect x="0" y="0" width="205" height="68" rx="15" ry="15" fill="rgb(240, 215, 155)" opacity="0.7" stroke="rgb(245,198,93)" stroke-opacity="0.7" stroke-width="5px" />
-</g>
-<g transform="translate(249,324)">
-<rect x="0" y="0" width="195" height="135" rx="15" ry="15" fill="rgb(184, 71, 214)" opacity="0.7" stroke="rgb(111,85,155)" stroke-opacity="0.7" stroke-width="5px" />
-</g>
-<g transform="translate(619,142)">
-<text x="19" y="-4" >Cup of Tea</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(785,183)">
-<text x="10" y="10" >Cup</text>
+<g id="annotations">
+<g transform="translate(814,250)">
+<text x="10" y="10" >Tea</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 <g transform="translate(805,324)">
@@ -81,18 +82,22 @@
 <text x="-57" y="4" >Kettle</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
-<g transform="translate(639,34)">
-<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
+<g transform="translate(707,608)">
+<text x="-27" y="20" >Power</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 <g transform="translate(785,34)">
 <text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Public</text>
 </g>
-<g transform="translate(814,250)">
-<text x="10" y="10" >Tea</text>
+<g transform="translate(619,142)">
+<text x="19" y="-4" >Cup of Tea</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
-<g transform="translate(707,608)">
-<text x="-27" y="20" >Power</text>
+<g transform="translate(639,34)">
+<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
+</g>
+<g transform="translate(785,183)">
+<text x="10" y="10" >Cup</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 </g>
