@@ -14,8 +14,50 @@ A typical flow is to create the map with the online tool and to copy paste it to
 ❯ cat sample.txt | go run . 
 ```
 
+This generates an SVG of the map
 ![sample](sample.svg)
+**And**
+all the paths connection the elements:
 
+```text
+Public -- Cup of Tea -- Hot Water
+Public -- Cup of Tea -- Hot Water -- Water
+Public -- Cup of Tea -- Hot Water -- [evolved]Kettle
+Public -- Cup of Tea -- Hot Water -- Kettle -- [evolved]Power
+Public -- Cup of Tea
+Public -- Cup of Tea -- Hot Water -- Kettle
+Public -- Cup of Tea -- Cup
+Public -- Cup of Tea -- Tea
+Public -- Cup of Tea -- Hot Water -- Kettle -- Power
+Cup of Tea -- Hot Water
+Cup of Tea -- Hot Water -- Water
+Cup of Tea -- Hot Water -- [evolved]Kettle
+Cup of Tea -- Hot Water -- [evolved]Kettle -- [evolved]Power
+Cup of Tea -- Cup
+Cup of Tea -- Hot Water -- Kettle
+Cup of Tea -- Tea
+Cup of Tea -- Hot Water -- Kettle -- Power
+Hot Water -- Water
+Hot Water -- [evolved]Kettle
+Hot Water -- [evolved]Kettle -- [evolved]Power
+Hot Water -- Kettle
+Hot Water -- [evolved]Kettle -- Power
+[evolved]Kettle -- Power
+[evolved]Kettle -- [evolved]Power
+Business -- Cup of Tea -- Hot Water -- Kettle -- Power
+Business -- Cup of Tea -- Tea
+Business -- Cup of Tea
+Business -- Cup of Tea -- Hot Water
+Business -- Cup of Tea -- Hot Water -- Water
+Business -- Cup of Tea -- Hot Water -- [evolved]Kettle
+Business -- Cup of Tea -- Hot Water -- [evolved]Kettle -- [evolved]Power
+Business -- Cup of Tea -- Cup
+Business -- Cup of Tea -- Hot Water -- Kettle
+Kettle -- [evolved]Kettle
+Kettle -- [evolved]Power
+Kettle -- Power
+Power -- [evolved]Power
+```
 
 ## Usage
 
