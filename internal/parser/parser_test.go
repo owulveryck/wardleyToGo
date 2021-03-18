@@ -45,7 +45,7 @@ component Water [0.38, 0.82]
 component Kettle [0.43, 0.35] label [-57, 4]
 evolve Kettle 0.62 label [16, 7]
 component Power [0.1, 0.7] label [-27, 20]
-evolve Power 0.89 label [-12, 21]
+evolve Power 0.89 label [wardley.UndefinedCoord2, 21]
 Business->Cup of Tea
 Public->Cup of Tea
 Cup of Tea->Cup
@@ -94,9 +94,9 @@ func Test_parser_parseComponent(t *testing.T) {
 				s: newScanner(`bla`),
 			},
 			&wardley.Component{
-				Coords:      [2]int{-1, -1},
+				Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 				Label:       `bla`,
-				LabelCoords: [2]int{-1, -1},
+				LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 			},
 		},
 		{
@@ -105,9 +105,9 @@ func Test_parser_parseComponent(t *testing.T) {
 				s: newScanner(`bla   bla`),
 			},
 			&wardley.Component{
-				Coords:      [2]int{-1, -1},
+				Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{-1, -1},
+				LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 			},
 		},
 		{
@@ -118,7 +118,7 @@ func Test_parser_parseComponent(t *testing.T) {
 			&wardley.Component{
 				Coords:      [2]int{40, 30},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{-1, -1},
+				LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 			},
 		},
 		{
@@ -168,7 +168,7 @@ func Test_parser_parseAnchor(t *testing.T) {
 				s: newScanner(`bla`),
 			},
 			&wardley.Anchor{
-				Coords: [2]int{-1, -1},
+				Coords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 				Label:  `bla`,
 			},
 		},
@@ -178,7 +178,7 @@ func Test_parser_parseAnchor(t *testing.T) {
 				s: newScanner(`bla   bla`),
 			},
 			&wardley.Anchor{
-				Coords: [2]int{-1, -1},
+				Coords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
