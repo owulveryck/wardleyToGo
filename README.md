@@ -37,7 +37,7 @@ A typical flow is to create the map with the online tool and to copy paste it to
 
 `component Name [Visibility (Y Axis), Maturity (X Axis)] inertia`
 
-#### To evolve a component (not yet implemented)
+#### To evolve a component 
 
 `evole Name (X Axis)`
 
