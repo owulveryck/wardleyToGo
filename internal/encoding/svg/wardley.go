@@ -106,8 +106,19 @@ func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) 
 	out.Gend()
 	out.Gid("components")
 	it := m.Nodes()
+	// First place the orphan nodes as they are probably anotations
 	for it.Next() {
-		out.writeElement(it.Node().(SVGer))
+		n := it.Node()
+		if m.To(n.ID()).Len() == 0 && m.From(n.ID()).Len() == 0 {
+			out.writeElement(it.Node().(SVGer))
+		}
+	}
+	it.Reset()
+	for it.Next() {
+		n := it.Node()
+		if m.To(n.ID()).Len() != 0 || m.From(n.ID()).Len() != 0 {
+			out.writeElement(it.Node().(SVGer))
+		}
 	}
 	out.Gend()
 	out.close()
