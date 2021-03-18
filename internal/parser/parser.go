@@ -72,6 +72,15 @@ func (p *Parser) Parse() (*wardley.Map, error) {
 			p.currID++
 			p.g.AddNode(e)
 			p.nodeDict[e.Label] = e
+		case "platformteam":
+			e, err := p.parsePlatform()
+			if err != nil {
+				return nil, err
+			}
+			e.Id = int64(p.currID)
+			p.currID++
+			p.g.AddNode(e)
+			p.nodeDict[e.Label] = e
 		default:
 			e, err := p.parseDefault(p.s.TokenText())
 			if err != nil {
