@@ -56,49 +56,63 @@
 </g>
 </g>
 <g id="links">
-<line x1="639" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
-<line x1="785" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
 <line x1="619" y1="142" x2="785" y2="183" stroke="grey" stroke-width="1" />
 <line x1="619" y1="142" x2="814" y2="250" stroke="grey" stroke-width="1" />
 <line x1="619" y1="142" x2="805" y2="324" stroke="grey" stroke-width="1" />
+<line x1="629" y1="385" x2="707" y2="608" stroke="red" stroke-width="1" />
+<line x1="629" y1="385" x2="892" y2="608" stroke="red" stroke-width="1" />
+<line x1="639" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
 <line x1="805" y1="324" x2="824" y2="419" stroke="grey" stroke-width="1" />
 <line x1="805" y1="324" x2="366" y2="385" stroke="grey" stroke-width="1" />
+<line x1="805" y1="324" x2="629" y2="385" stroke="red" stroke-width="1" />
 <line x1="366" y1="385" x2="707" y2="608" stroke="grey" stroke-width="1" />
+<line x1="366" y1="385" x2="892" y2="608" stroke="red" stroke-width="1" />
+<line x1="366" y1="385" x2="629" y2="385" stroke-dasharray="5 5" stroke="red" stroke-width="1" marker-end="url(#arrow)" />
+<line x1="785" y1="34" x2="619" y2="142" stroke="grey" stroke-width="1" />
+<line x1="707" y1="608" x2="892" y2="608" stroke-dasharray="5 5" stroke="red" stroke-width="1" marker-end="url(#arrow)" />
 </g>
 <g id="annotations">
-<g transform="translate(785,34)">
-<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Public</text>
-</g>
 <g transform="translate(619,142)">
 <text x="19" y="-4" >Cup of Tea</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
-<g transform="translate(785,183)">
-<text x="10" y="10" >Cup</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+<g transform="translate(629,385)">
+<text x="16" y="7" fill="red" >Kettle</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="red" fill="white" />
+</g>
+<g transform="translate(639,34)">
+<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
 </g>
 <g transform="translate(805,324)">
 <text x="10" y="10" >Hot Water</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(824,419)">
-<text x="10" y="10" >Water</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 <g transform="translate(366,385)">
 <text x="-57" y="4" >Kettle</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
+<g transform="translate(785,34)">
+<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Public</text>
+</g>
+<g transform="translate(824,419)">
+<text x="10" y="10" >Water</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
 <g transform="translate(707,608)">
 <text x="-27" y="20" >Power</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
-<g transform="translate(639,34)">
-<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
+<g transform="translate(785,183)">
+<text x="10" y="10" >Cup</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 <g transform="translate(814,250)">
 <text x="10" y="10" >Tea</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<g transform="translate(892,608)">
+<text x="-12" y="21" fill="red" >Power</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="red" fill="white" />
 </g>
 </g>
 </g>
