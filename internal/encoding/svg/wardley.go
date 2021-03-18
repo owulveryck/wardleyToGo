@@ -98,12 +98,7 @@ func (w *svgMap) writeElement(e SVGer) {
 func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) {
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
-	out.Gid("links")
-	edgesIt := m.Edges()
-	for edgesIt.Next() {
-		out.writeElement(edgesIt.Edge().(SVGer))
-	}
-	out.Gend()
+
 	out.Gid("components")
 	it := m.Nodes()
 	// First place the orphan nodes as they are probably anotations
@@ -113,7 +108,15 @@ func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) 
 			out.writeElement(it.Node().(SVGer))
 		}
 	}
+	out.Gend()
+	out.Gid("links")
+	edgesIt := m.Edges()
+	for edgesIt.Next() {
+		out.writeElement(edgesIt.Edge().(SVGer))
+	}
+	out.Gend()
 	it.Reset()
+	out.Gid("annotations")
 	for it.Next() {
 		n := it.Node()
 		if m.To(n.ID()).Len() != 0 || m.From(n.ID()).Len() != 0 {
