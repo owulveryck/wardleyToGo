@@ -10,6 +10,10 @@ type StreamAlignedTeam struct {
 	Label  string
 }
 
+func (s *StreamAlignedTeam) String() string {
+	return s.Label
+}
+
 func (s *StreamAlignedTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
 	x1 := s.Coords[1]*(width-padLeft)/100 + padLeft
 	y1 := (height - padLeft) - s.Coords[0]*(height-padLeft)/100
@@ -28,6 +32,10 @@ type EnablingTeam struct {
 	Id     int64
 	Coords [4]int
 	Label  string
+}
+
+func (e *EnablingTeam) String() string {
+	return e.Label
 }
 
 func (e *EnablingTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
@@ -62,6 +70,9 @@ func (p *PlatformTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) 
 
 func (p *PlatformTeam) ID() int64 {
 	return p.Id
+}
+func (p *PlatformTeam) String() string {
+	return p.Label
 }
 
 type ComplicatedSubsystemTeam struct{}

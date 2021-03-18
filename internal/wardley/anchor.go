@@ -22,3 +22,7 @@ func (c *Anchor) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 	s.Text(0, 0, c.Label, `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)
 	s.Gend()
 }
+
+func (c *Anchor) String() string {
+	return c.Label
+}
