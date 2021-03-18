@@ -39,6 +39,10 @@ func (c *Component) GetCoordinates() []int {
 	return []int{c.Coords[0], c.Coords[1]}
 }
 
+func (c *Component) String() string {
+	return c.Label
+}
+
 type EvolvedComponent struct {
 	Id          int64
 	Coords      [2]int
@@ -67,4 +71,8 @@ func (e *EvolvedComponent) SVG(s *svg.SVG, width, height, padLeft, padBottom int
 
 func (e *EvolvedComponent) GetCoordinates() []int {
 	return []int{e.Coords[0], e.Coords[1]}
+}
+
+func (c *EvolvedComponent) String() string {
+	return "[evolved]" + c.Label
 }
