@@ -18,7 +18,8 @@ A parser package is in charge of reading the DSL from an `io.Reader` (stdin in t
 
 The `encoding/svg` package turn the graph into its SVG representation (hopefully similar to what onlinewardleynap generates). It is the responsibility of eeach component of the graph to fulfill the `SVGer` interface an to represent itself as SVG.
 
-**Note about the API**: the API is unstable as it is mainly a prrrof f concept. Therefore all the packages are in the `internal` subdirectory to aboid any direct dependency from other package. If you want to test/hack/whatever, feel free to clone and contribute to the package.
+**Note about the API**: the API is unstable as it is mainly a proof f concept. Therefore all the packages are in the `internal` subdirectory to aboid any direct dependency from other package. If you want to test/hack/whatever, feel free to clone and contribute to the package.
+The godoc may give you some indication on how the components are glued together.
 
 ## Example
 
