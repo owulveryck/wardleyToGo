@@ -4,9 +4,21 @@
 
 ## wardleyToGo
 
-simple tools to play with Wardley maps in Go. The syntax is a copy of [onlinewardleymaps](https://onlinewardleymaps.com/). Note all the DSL is implemented as of today.
+simple tools to play with Wardley maps in Go. The syntax is a copy of [onlinewardleymaps](https://onlinewardleymaps.com/). 
 
-A typical flow is to create the map with the online tool and to copy paste it to use with the tool.
+_Note_: Not all the DSL is implemented as of today.
+
+A typical flow is to create the map with the online tool and to copy paste it to use with this code.
+
+### About
+
+The entry point is a direct graph.
+
+A parser package is in charge of reading the DSL from an `io.Reader` (stdin in the example). It creates the graph structure.
+
+The `encoding/svg` package turn the graph into its SVG representation (hopefully similar to what onlinewardleynap generates). It is the responsibility of eeach component of the graph to fulfill the `SVGer` interface an to represent itself as SVG.
+
+**Note about the API**: the API is unstable as it is mainly a prrrof f concept. Therefore all the packages are in the `internal` subdirectory to aboid any direct dependency from other package. If you want to test/hack/whatever, feel free to clone and contribute to the package.
 
 ## Example
 
@@ -59,7 +71,7 @@ Kettle -- Power
 Power -- [evolved]Power
 ```
 
-## Usage
+## Usage - DSL
 
 ### Wardley Map
 
