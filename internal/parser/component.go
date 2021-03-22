@@ -8,11 +8,8 @@ import (
 	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseComponent() (*plan.Component, error) {
-	c := &plan.Component{
-		Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-		LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-	}
+func (p *Parser) parseComponent() error {
+	c := plan.NewComponent(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	var prevTok rune
@@ -27,7 +24,7 @@ func (p *Parser) parseComponent() (*plan.Component, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			if c.Coords[0] == plan.UndefinedCoord {
 				c.Coords[0] = int(f * 100)
@@ -45,7 +42,7 @@ func (p *Parser) parseComponent() (*plan.Component, error) {
 			}
 			i, err := strconv.Atoi(sign + p.s.TokenText())
 			if err != nil {
-				return nil, err
+				return err
 			}
 			if c.LabelCoords[0] == plan.UndefinedCoord {
 				c.LabelCoords[0] = i
@@ -59,5 +56,7 @@ func (p *Parser) parseComponent() (*plan.Component, error) {
 		prevTok = tok
 	}
 	c.Label = strings.TrimRight(b.String(), " ")
-	return c, nil
+	p.g.AddNode(c)
+	p.nodeDict[c.Label] = c
+	return nil
 }

@@ -10,14 +10,22 @@ const UndefinedCoord = -maxInt - 1
 
 // A Component is an element of the map
 type Component struct {
-	Id          int64
+	id          int64
 	Coords      [2]int
 	Label       string
 	LabelCoords [2]int
 }
 
+func NewComponent(id int64) *Component {
+	return &Component{
+		id:          id,
+		Coords:      [2]int{UndefinedCoord, UndefinedCoord},
+		LabelCoords: [2]int{UndefinedCoord, UndefinedCoord},
+	}
+}
+
 func (c *Component) ID() int64 {
-	return c.Id
+	return c.id
 }
 
 func (c *Component) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
@@ -44,14 +52,22 @@ func (c *Component) String() string {
 }
 
 type EvolvedComponent struct {
-	Id          int64
+	id          int64
 	Coords      [2]int
 	Label       string
 	LabelCoords [2]int
 }
 
 func (e *EvolvedComponent) ID() int64 {
-	return e.Id
+	return e.id
+}
+
+func NewEvolvedComponent(id int64) *EvolvedComponent {
+	return &EvolvedComponent{
+		id:          id,
+		Coords:      [2]int{UndefinedCoord, UndefinedCoord},
+		LabelCoords: [2]int{UndefinedCoord, UndefinedCoord},
+	}
 }
 
 func (e *EvolvedComponent) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {

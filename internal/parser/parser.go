@@ -13,12 +13,14 @@ import (
 )
 
 type Parser struct {
-	s              *scanner.Scanner
-	currID         int
-	g              *simple.DirectedGraph
-	nodeDict       map[string]graph.Node
-	nodeEvolveDict map[string]graph.Node
-	edges          []plan.Edge
+	s                    *scanner.Scanner
+	title                string
+	g                    *simple.DirectedGraph
+	nodeDict             map[string]graph.Node
+	nodeEvolveDict       map[string]graph.Node
+	edges                []plan.Edge
+	annotations          []*plan.Annotation
+	annotationsPlacement [2]int
 }
 
 func NewParser(r io.Reader) *Parser {
@@ -26,80 +28,45 @@ func NewParser(r io.Reader) *Parser {
 	s.Init(r)
 	s.Whitespace ^= 1 << '\n' // don't skip tabs and new lines
 	return &Parser{
-		s: &s,
+		s:              &s,
+		nodeDict:       make(map[string]graph.Node),
+		nodeEvolveDict: make(map[string]graph.Node),
+		edges:          make([]plan.Edge, 0),
+		annotations:    make([]*plan.Annotation, 0),
+		g:              simple.NewDirectedGraph(),
 	}
 }
 
 func (p *Parser) Parse() (*plan.Map, error) {
-	p.nodeDict = make(map[string]graph.Node)
-	p.nodeEvolveDict = make(map[string]graph.Node)
-	p.edges = make([]plan.Edge, 0)
-	p.g = simple.NewDirectedGraph()
+	parsers := map[string]func() error{
+		"title":             p.parseTitle,
+		"component":         p.parseComponent,
+		"evolve":            p.parseEvolve,
+		"anchor":            p.parseAnchor,
+		"streamalignedteam": p.parseStreamAligned,
+		"enablingteam":      p.parseEnabling,
+		"platformteam":      p.parsePlatform,
+		"annotation":        p.parseAnnotation,
+		"annotations":       p.parseAnnotations,
+	}
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
-		switch p.s.TokenText() {
-		case "component":
-			e, err := p.parseComponent()
+		if tok == '\n' {
+			continue
+		}
+		if parser, ok := parsers[p.s.TokenText()]; ok {
+			err := parser()
 			if err != nil {
 				return nil, err
 			}
-			e.Id = int64(p.currID)
-			p.currID++
-			p.g.AddNode(e)
-			p.nodeDict[e.Label] = e
-		case "evolve":
-			e, err := p.parseEvolve()
-			if err != nil {
-				return nil, err
-			}
-			e.Id = int64(p.currID)
-			p.currID++
-			p.g.AddNode(e)
-			p.nodeEvolveDict[e.Label] = e
-		case "anchor":
-			e, err := p.parseAnchor()
-			if err != nil {
-				return nil, err
-			}
-			e.Id = int64(p.currID)
-			p.currID++
-			p.g.AddNode(e)
-			p.nodeDict[e.Label] = e
-		case "streamalignedteam":
-			e, err := p.parseStreamAligned()
-			if err != nil {
-				return nil, err
-			}
-			e.Id = int64(p.currID)
-			p.currID++
-			p.g.AddNode(e)
-			p.nodeDict[e.Label] = e
-		case "enablingteam":
-			e, err := p.parseEnabling()
-			if err != nil {
-				return nil, err
-			}
-			e.Id = int64(p.currID)
-			p.currID++
-			p.g.AddNode(e)
-			p.nodeDict[e.Label] = e
-		case "platformteam":
-			e, err := p.parsePlatform()
-			if err != nil {
-				return nil, err
-			}
-			e.Id = int64(p.currID)
-			p.currID++
-			p.g.AddNode(e)
-			p.nodeDict[e.Label] = e
-		default:
-			e, err := p.parseDefault(p.s.TokenText())
-			if err != nil {
-				log.Println("Warning", err)
-			}
-			switch e := e.(type) {
-			case plan.Edge:
-				p.edges = append(p.edges, e)
-			}
+			continue
+		}
+		e, err := p.parseDefault(p.s.TokenText())
+		if err != nil {
+			log.Println("Warning", err)
+		}
+		switch e := e.(type) {
+		case plan.Edge:
+			p.edges = append(p.edges, e)
 		}
 	}
 	err := p.completeEvolve()
@@ -111,7 +78,10 @@ func (p *Parser) Parse() (*plan.Map, error) {
 		return nil, err
 	}
 	return &plan.Map{
-		DirectedGraph: p.g,
+		Title:                p.title,
+		DirectedGraph:        p.g,
+		Annotations:          p.annotations,
+		AnnotationsPlacement: p.annotationsPlacement,
 	}, nil
 }
 

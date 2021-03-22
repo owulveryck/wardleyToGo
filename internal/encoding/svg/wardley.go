@@ -1,6 +1,7 @@
 package svgmap
 
 import (
+	"fmt"
 	"io"
 
 	svg "github.com/ajstarks/svgo"
@@ -36,7 +37,6 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 		{Offset: 100, Color: "rgb(196,196,196)", Opacity: 1.0}}
 
 	w.Start(width, height)
-	w.Title("Wardley")
 	w.Rect(0, 0, width, height, "fill:white")
 	w.Def()
 	w.LinearGradient("wardleyGradient", 0, 0, 100, 0, lg)
@@ -98,8 +98,9 @@ func (w *svgMap) writeElement(e SVGer) {
 func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
+	out.Title(m.Title)
 
-	out.Gid("components")
+	out.Gid("teamtopologies")
 	it := m.Nodes()
 	// First place the orphan nodes as they are probably anotations
 	for it.Next() {
@@ -116,7 +117,7 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 	}
 	out.Gend()
 	it.Reset()
-	out.Gid("annotations")
+	out.Gid("components")
 	for it.Next() {
 		n := it.Node()
 		if m.To(n.ID()).Len() != 0 || m.From(n.ID()).Len() != 0 {
@@ -124,5 +125,31 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 		}
 	}
 	out.Gend()
+	out.Gid("annotations")
+	for _, annotation := range m.Annotations {
+		out.writeElement(annotation)
+	}
+	// Add the annotation box
+	writeAnnotations(out, m, width, height, padLeft, padBottom)
+	out.Gend()
 	out.close()
+}
+
+func writeAnnotations(out *svgMap, m *plan.Map, width, height, padLeft, padBottom int) {
+	maxLen := 0
+	for _, annotation := range m.Annotations {
+		if len(annotation.Label) > maxLen {
+			maxLen = len(annotation.Label)
+		}
+	}
+	out.Translate(m.AnnotationsPlacement[1]*(width-padLeft)/100+padLeft, (height-padLeft)-m.AnnotationsPlacement[0]*(height-padLeft)/100)
+	out.Rect(-14, -14, 9*maxLen, len(m.Annotations)*19+19, `stroke="#595959"`, `stroke-width="1"`, `fill="#FFFFFF"`)
+	out.Text(0, 0, "Annotations:", `text-decoration="underline"`)
+	for i, annotation := range m.Annotations {
+		out.Text(0, 18*(i+1), fmt.Sprintf(" %v. %v", annotation.Identifier, annotation.Label))
+	}
+	/*
+		<rect x="-14" id="annotationsBoxWrap" y="-14" class="draggable" width="452.875" height="55" stroke="#595959" stroke-width="1" fill="#FFFFFF"></rect>
+	*/
+	out.Gend()
 }

@@ -1,14 +1,6 @@
 package parser
 
-import (
-	"reflect"
-	"strings"
-	"testing"
-	"text/scanner"
-
-	"github.com/owulveryck/wardleyToGo/internal/plan"
-)
-
+/*
 func Test_parser_parseAnchor(t *testing.T) {
 
 	newScanner := func(content string) *scanner.Scanner {
@@ -68,3 +60,5 @@ func Test_parser_parseAnchor(t *testing.T) {
 		})
 	}
 }
+
+*/

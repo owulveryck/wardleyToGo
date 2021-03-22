@@ -8,10 +8,8 @@ import (
 	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseAnchor() (*plan.Anchor, error) {
-	a := &plan.Anchor{
-		Coords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-	}
+func (p *Parser) parseAnchor() error {
+	a := plan.NewAnchor(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	curLine := p.s.Pos().Line
@@ -30,7 +28,7 @@ func (p *Parser) parseAnchor() (*plan.Anchor, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			if a.Coords[0] == plan.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
@@ -43,5 +41,7 @@ func (p *Parser) parseAnchor() (*plan.Anchor, error) {
 		}
 	}
 	a.Label = strings.TrimRight(b.String(), " ")
-	return a, nil
+	p.g.AddNode(a)
+	p.nodeDict[a.Label] = a
+	return nil
 }

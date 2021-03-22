@@ -13,6 +13,13 @@ func (a *Anchor) GetCoordinates() []int {
 	return []int{a.Coords[0], a.Coords[1]}
 }
 
+func NewAnchor(id int64) *Anchor {
+	return &Anchor{
+		Id:     id,
+		Coords: [2]int{UndefinedCoord, UndefinedCoord},
+	}
+}
+
 func (c *Anchor) ID() int64 {
 	return c.Id
 }

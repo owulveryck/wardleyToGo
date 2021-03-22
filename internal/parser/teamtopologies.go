@@ -8,10 +8,8 @@ import (
 	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseStreamAligned() (*plan.StreamAlignedTeam, error) {
-	a := &plan.StreamAlignedTeam{
-		Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
-	}
+func (p *Parser) parseStreamAligned() error {
+	streamAligned := plan.NewStreamAlignedTeam(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	curLine := p.s.Pos().Line
@@ -30,34 +28,34 @@ func (p *Parser) parseStreamAligned() (*plan.StreamAlignedTeam, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			if a.Coords[0] == plan.UndefinedCoord {
-				a.Coords[0] = int(f * 100)
+			if streamAligned.Coords[0] == plan.UndefinedCoord {
+				streamAligned.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == plan.UndefinedCoord {
-				a.Coords[1] = int(f * 100)
+			if streamAligned.Coords[1] == plan.UndefinedCoord {
+				streamAligned.Coords[1] = int(f * 100)
 				continue
 			}
-			if a.Coords[2] == plan.UndefinedCoord {
-				a.Coords[2] = int(f * 100)
+			if streamAligned.Coords[2] == plan.UndefinedCoord {
+				streamAligned.Coords[2] = int(f * 100)
 				continue
 			}
-			if a.Coords[3] == plan.UndefinedCoord {
-				a.Coords[3] = int(f * 100)
+			if streamAligned.Coords[3] == plan.UndefinedCoord {
+				streamAligned.Coords[3] = int(f * 100)
 				continue
 			}
 		}
 	}
-	a.Label = strings.TrimRight(b.String(), " ")
-	return a, nil
+	streamAligned.Label = strings.TrimRight(b.String(), " ")
+	p.g.AddNode(streamAligned)
+	p.nodeDict[streamAligned.Label] = streamAligned
+	return nil
 }
 
-func (p *Parser) parseEnabling() (*plan.EnablingTeam, error) {
-	a := &plan.EnablingTeam{
-		Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
-	}
+func (p *Parser) parseEnabling() error {
+	enabling := plan.NewEnablingTeam(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	curLine := p.s.Pos().Line
@@ -76,34 +74,34 @@ func (p *Parser) parseEnabling() (*plan.EnablingTeam, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			if a.Coords[0] == plan.UndefinedCoord {
-				a.Coords[0] = int(f * 100)
+			if enabling.Coords[0] == plan.UndefinedCoord {
+				enabling.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == plan.UndefinedCoord {
-				a.Coords[1] = int(f * 100)
+			if enabling.Coords[1] == plan.UndefinedCoord {
+				enabling.Coords[1] = int(f * 100)
 				continue
 			}
-			if a.Coords[2] == plan.UndefinedCoord {
-				a.Coords[2] = int(f * 100)
+			if enabling.Coords[2] == plan.UndefinedCoord {
+				enabling.Coords[2] = int(f * 100)
 				continue
 			}
-			if a.Coords[3] == plan.UndefinedCoord {
-				a.Coords[3] = int(f * 100)
+			if enabling.Coords[3] == plan.UndefinedCoord {
+				enabling.Coords[3] = int(f * 100)
 				continue
 			}
 		}
 	}
-	a.Label = strings.TrimRight(b.String(), " ")
-	return a, nil
+	enabling.Label = strings.TrimRight(b.String(), " ")
+	p.g.AddNode(enabling)
+	p.nodeDict[enabling.Label] = enabling
+	return nil
 }
 
-func (p *Parser) parsePlatform() (*plan.PlatformTeam, error) {
-	a := &plan.PlatformTeam{
-		Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
-	}
+func (p *Parser) parsePlatform() error {
+	platform := plan.NewPlatformTeam(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	curLine := p.s.Pos().Line
@@ -122,26 +120,28 @@ func (p *Parser) parsePlatform() (*plan.PlatformTeam, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			if a.Coords[0] == plan.UndefinedCoord {
-				a.Coords[0] = int(f * 100)
+			if platform.Coords[0] == plan.UndefinedCoord {
+				platform.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == plan.UndefinedCoord {
-				a.Coords[1] = int(f * 100)
+			if platform.Coords[1] == plan.UndefinedCoord {
+				platform.Coords[1] = int(f * 100)
 				continue
 			}
-			if a.Coords[2] == plan.UndefinedCoord {
-				a.Coords[2] = int(f * 100)
+			if platform.Coords[2] == plan.UndefinedCoord {
+				platform.Coords[2] = int(f * 100)
 				continue
 			}
-			if a.Coords[3] == plan.UndefinedCoord {
-				a.Coords[3] = int(f * 100)
+			if platform.Coords[3] == plan.UndefinedCoord {
+				platform.Coords[3] = int(f * 100)
 				continue
 			}
 		}
 	}
-	a.Label = strings.TrimRight(b.String(), " ")
-	return a, nil
+	platform.Label = strings.TrimRight(b.String(), " ")
+	p.g.AddNode(platform)
+	p.nodeDict[platform.Label] = platform
+	return nil
 }

@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	width := 1000
-	height := 700
+	width := 1500
+	height := 900
 	padLeft := 25
 	padBottom := 30
 
@@ -21,6 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(m.Title)
 	svgmap.Encode(m, os.Stdout, width, height, padLeft, padBottom)
 	allShortest := path.DijkstraAllPaths(m)
 	it1 := m.Nodes()

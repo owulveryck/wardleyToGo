@@ -5,7 +5,7 @@
 
 ## wardleyToGo
 
-simple tools to play with Wardley maps in Go. The syntax is a copy of [onlinewardleymaps](https://onlinewardleymaps.com/). 
+simple tools to play with Wardley maps in Go. The syntax is a copy of [onlinewardleymaps](https://onlinewardleymaps.com/).
 
 _Note_: Not all the DSL is implemented as of today.
 
@@ -77,7 +77,7 @@ Power -- [evolved]Power
 
 ### Wardley Map
 
-#### To set the title (not yet implemented)
+#### To set the title 
 
 `title My Wardley Map`
 
