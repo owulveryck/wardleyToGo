@@ -25,7 +25,7 @@ The godoc may give you some indication on how the components are glued together.
 ## Example
 
 ```shell
-❯ cat sample.txt | go run . 
+❯ cat sample.owm | go run . 
 ```
 
 This generates an SVG of the map

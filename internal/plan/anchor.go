@@ -4,7 +4,7 @@ import svg "github.com/ajstarks/svgo"
 
 // An Anchor of the map
 type Anchor struct {
-	Id     int64
+	id     int64
 	Coords [2]int
 	Label  string
 }
@@ -15,13 +15,13 @@ func (a *Anchor) GetCoordinates() []int {
 
 func NewAnchor(id int64) *Anchor {
 	return &Anchor{
-		Id:     id,
+		id:     id,
 		Coords: [2]int{UndefinedCoord, UndefinedCoord},
 	}
 }
 
 func (c *Anchor) ID() int64 {
-	return c.Id
+	return c.id
 }
 
 func (c *Anchor) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {

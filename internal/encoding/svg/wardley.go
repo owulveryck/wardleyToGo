@@ -36,7 +36,9 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 		{Offset: 70, Color: "rgb(255,255,255)", Opacity: 1.0},
 		{Offset: 100, Color: "rgb(196,196,196)", Opacity: 1.0}}
 
-	w.Start(width, height)
+	w.Start(width+150, height)
+	w.writeLegend()
+
 	w.Rect(0, 0, width, height, "fill:white")
 	w.Def()
 	w.LinearGradient("wardleyGradient", 0, 0, 100, 0, lg)
@@ -76,6 +78,51 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 	w.Text(width, height-padBottom/2+5, "Evolution", `text-anchor="end"`, `font-weight="bold"`, `font-style="normal"`)
 	w.Gend()
 	w.Group(`font-family="Consolas, Lucida Console, monospace"`, `font-weight="14px"`, `font-size="13px"`)
+}
+
+func (w *svgMap) writeLegend() {
+	w.Group(`font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif" font-size="13px">`)
+
+	p := &plan.StreamAlignedTeam{
+		Coords: [4]int{92, 90, 98, 99},
+	}
+	p.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 := p.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 := (w.height - w.padLeft) - p.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+5, y1+15, "Stream Aligned")
+	w.SVG.Text(x1+5, y1+35, "Team")
+
+	s := &plan.PlatformTeam{
+		Coords: [4]int{82, 90, 88, 99},
+	}
+	s.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 = s.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 = (w.height - w.padLeft) - s.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+5, y1+15, "Platform")
+	w.SVG.Text(x1+5, y1+35, "Team")
+
+	c := &plan.ComplicatedSubsystemTeam{
+		Coords: [4]int{72, 90, 78, 99},
+	}
+	c.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 = c.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 = (w.height - w.padLeft) - c.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+11, y1+15, "Complicated")
+	w.SVG.Text(x1+11, y1+35, "Subsystem")
+
+	e := &plan.EnablingTeam{
+		Coords: [4]int{62, 90, 68, 99},
+	}
+	e.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 = e.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 = (w.height - w.padLeft) - e.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+11, y1+15, "Enabling")
+	w.SVG.Text(x1+11, y1+35, "Team")
+	w.Gend()
 }
 
 // close the map (add the closing tags to the SVG)

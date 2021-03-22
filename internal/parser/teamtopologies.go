@@ -145,3 +145,49 @@ func (p *Parser) parsePlatform() error {
 	p.nodeDict[platform.Label] = platform
 	return nil
 }
+
+func (p *Parser) parseComplicatedSubsystem() error {
+	complicatedSubsystem := plan.NewComplicatedSubsystemTeam(p.g.NewNode().ID())
+	var b strings.Builder
+	inLabel := true
+	curLine := p.s.Pos().Line
+	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
+		if curLine != p.s.Pos().Line {
+			// emit the component
+			break
+		}
+		if tok == '[' {
+			inLabel = false
+		}
+		if tok == scanner.Ident && inLabel {
+			b.WriteString(p.s.TokenText())
+			b.WriteString(" ")
+		}
+		if tok == scanner.Float {
+			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
+			if err != nil {
+				return err
+			}
+			if complicatedSubsystem.Coords[0] == plan.UndefinedCoord {
+				complicatedSubsystem.Coords[0] = int(f * 100)
+				continue
+			}
+			if complicatedSubsystem.Coords[1] == plan.UndefinedCoord {
+				complicatedSubsystem.Coords[1] = int(f * 100)
+				continue
+			}
+			if complicatedSubsystem.Coords[2] == plan.UndefinedCoord {
+				complicatedSubsystem.Coords[2] = int(f * 100)
+				continue
+			}
+			if complicatedSubsystem.Coords[3] == plan.UndefinedCoord {
+				complicatedSubsystem.Coords[3] = int(f * 100)
+				continue
+			}
+		}
+	}
+	complicatedSubsystem.Label = strings.TrimRight(b.String(), " ")
+	p.g.AddNode(complicatedSubsystem)
+	p.nodeDict[complicatedSubsystem.Label] = complicatedSubsystem
+	return nil
+}

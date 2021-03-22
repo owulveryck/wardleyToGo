@@ -39,15 +39,16 @@ func NewParser(r io.Reader) *Parser {
 
 func (p *Parser) Parse() (*plan.Map, error) {
 	parsers := map[string]func() error{
-		"title":             p.parseTitle,
-		"component":         p.parseComponent,
-		"evolve":            p.parseEvolve,
-		"anchor":            p.parseAnchor,
-		"streamalignedteam": p.parseStreamAligned,
-		"enablingteam":      p.parseEnabling,
-		"platformteam":      p.parsePlatform,
-		"annotation":        p.parseAnnotation,
-		"annotations":       p.parseAnnotations,
+		"title":                    p.parseTitle,
+		"component":                p.parseComponent,
+		"evolve":                   p.parseEvolve,
+		"anchor":                   p.parseAnchor,
+		"streamAlignedTeam":        p.parseStreamAligned,
+		"enablingTeam":             p.parseEnabling,
+		"platformTeam":             p.parsePlatform,
+		"complicatedSubsystemTeam": p.parseComplicatedSubsystem,
+		"annotation":               p.parseAnnotation,
+		"annotations":              p.parseAnnotations,
 	}
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		if tok == '\n' {
