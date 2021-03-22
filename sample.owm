@@ -12,12 +12,12 @@ component Power [0.1, 0.7] label [-27, 20]
 evolve Power 0.89 label [-12, 21]
 Business->Cup of Tea
 Public->Cup of Tea
-Cup of Tea->Cup
-Cup of Tea->Tea
-Cup of Tea->Hot Water
+Cup of Tea-collaboration>Cup
+Cup of Tea-collaboration>Tea
+Cup of Tea-collaboration>Hot Water
 Hot Water->Water
-Hot Water->Kettle 
-Kettle->Power
+Hot Water-facilitating>Kettle 
+Kettle-xAsAService>Power
 
 annotation 1 [[0.43,0.49],[0.08,0.79]] Standardising power allows Kettles to evolve faster
 annotation 2 [0.48, 0.85] Hot water is obvious and well known

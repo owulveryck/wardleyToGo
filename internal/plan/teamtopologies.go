@@ -132,3 +132,17 @@ func abs(x int) int {
 	}
 	return x
 }
+
+func (p *ComplicatedSubsystemTeam) GetCoordinates() []int {
+	return []int{p.Coords[0], p.Coords[1], p.Coords[2], p.Coords[3]}
+}
+
+func (p *PlatformTeam) GetCoordinates() []int {
+	return []int{p.Coords[0], p.Coords[1], p.Coords[2], p.Coords[3]}
+}
+func (p *EnablingTeam) GetCoordinates() []int {
+	return []int{p.Coords[0], p.Coords[1], p.Coords[2], p.Coords[3]}
+}
+func (p *StreamAlignedTeam) GetCoordinates() []int {
+	return []int{p.Coords[0], p.Coords[1], p.Coords[2], p.Coords[3]}
+}
