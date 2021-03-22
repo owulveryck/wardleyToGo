@@ -96,8 +96,19 @@ func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
 			b.WriteRune(' ')
 			b.WriteString(p.s.TokenText())
 		}
-		if tok == '>' {
+		if tok == '-' {
 			e.FromLabel = strings.TrimLeft(b.String(), " ")
+			b.Reset()
+		}
+		if tok == '>' {
+			switch strings.TrimLeft(b.String(), " ") {
+			case "collaboration":
+				e.EdgeType = plan.CollaborationEdge
+			case "facilitating":
+				e.EdgeType = plan.FacilitatingEdge
+			case "xAsAService":
+				e.EdgeType = plan.XAsAServiceEdge
+			}
 			b.Reset()
 		}
 	}
