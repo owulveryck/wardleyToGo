@@ -35,11 +35,11 @@ func (p *Parser) createEdges() error {
 func (p *Parser) createRegularEdges() error {
 	var ok bool
 	for _, edge := range p.edges {
-		edge.F, ok = p.nodeDict[edge.fromLabel]
+		edge.F, ok = p.nodeDict[edge.FromLabel]
 		if !ok {
 			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
 		}
-		edge.T, ok = p.nodeDict[edge.toLabel]
+		edge.T, ok = p.nodeDict[edge.ToLabel]
 		if !ok {
 			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
 		}
@@ -55,10 +55,10 @@ func (p *Parser) createEvolvingComponentEdges() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		p.g.SetEdge(edge{
+		p.g.SetEdge(wardley.Edge{
 			F:        node,
 			T:        nodeEvolved,
-			edgeType: wardley.EvolvedComponentEdge,
+			EdgeType: wardley.EvolvedComponentEdge,
 		})
 	}
 	return nil
@@ -73,18 +73,18 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		fromIT := p.g.From(node.ID())
 		for fromIT.Next() {
-			p.g.SetEdge(edge{
+			p.g.SetEdge(wardley.Edge{
 				F:        nodeEvolved,
 				T:        fromIT.Node(),
-				edgeType: wardley.EvolvedEdge,
+				EdgeType: wardley.EvolvedEdge,
 			})
 		}
 		toIT := p.g.To(node.ID())
 		for toIT.Next() {
-			p.g.SetEdge(edge{
+			p.g.SetEdge(wardley.Edge{
 				F:        toIT.Node(),
 				T:        nodeEvolved,
-				edgeType: wardley.EvolvedEdge,
+				EdgeType: wardley.EvolvedEdge,
 			})
 		}
 	}

@@ -18,7 +18,7 @@ type Parser struct {
 	g              *simple.DirectedGraph
 	nodeDict       map[string]graph.Node
 	nodeEvolveDict map[string]graph.Node
-	edges          []edge
+	edges          []wardley.Edge
 }
 
 func NewParser(r io.Reader) *Parser {
@@ -33,7 +33,7 @@ func NewParser(r io.Reader) *Parser {
 func (p *Parser) Parse() (*wardley.Map, error) {
 	p.nodeDict = make(map[string]graph.Node)
 	p.nodeEvolveDict = make(map[string]graph.Node)
-	p.edges = make([]edge, 0)
+	p.edges = make([]wardley.Edge, 0)
 	p.g = simple.NewDirectedGraph()
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		switch p.s.TokenText() {
@@ -97,7 +97,7 @@ func (p *Parser) Parse() (*wardley.Map, error) {
 				log.Println("Warning", err)
 			}
 			switch e := e.(type) {
-			case edge:
+			case wardley.Edge:
 				p.edges = append(p.edges, e)
 			}
 		}
@@ -116,8 +116,8 @@ func (p *Parser) Parse() (*wardley.Map, error) {
 }
 
 func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
-	var e edge
-	e.edgeType = wardley.RegularEdge
+	var e wardley.Edge
+	e.EdgeType = wardley.RegularEdge
 	var b strings.Builder
 	b.WriteString(firstElement)
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
@@ -126,12 +126,12 @@ func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
 			b.WriteString(p.s.TokenText())
 		}
 		if tok == '>' {
-			e.fromLabel = strings.TrimLeft(b.String(), " ")
+			e.FromLabel = strings.TrimLeft(b.String(), " ")
 			b.Reset()
 		}
 	}
-	if e.fromLabel != "" {
-		e.toLabel = strings.TrimLeft(b.String(), " ")
+	if e.FromLabel != "" {
+		e.ToLabel = strings.TrimLeft(b.String(), " ")
 		return e, nil
 	}
 	return nil, fmt.Errorf("unhandled element at line %v: %v", p.s.Line, b.String())
