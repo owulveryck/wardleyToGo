@@ -146,6 +146,24 @@ func (w *svgMap) writeLegend() {
 	}
 	xAsAServiceEdge.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-42*(w.height-w.padLeft)/100+20, "xAsAService")
+	buildComponent := plan.Component{
+		Type:   plan.BuildComponent,
+		Coords: [2]int{30, 92},
+	}
+	buildComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+55, (w.height-w.padLeft)-30*(w.height-w.padLeft)/100+7, "build")
+	outsourceComponent := plan.Component{
+		Type:   plan.OutsourceComponent,
+		Coords: [2]int{23, 92},
+	}
+	outsourceComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+55, (w.height-w.padLeft)-23*(w.height-w.padLeft)/100+7, "outsource")
+	buyComponent := plan.Component{
+		Type:   plan.BuyComponent,
+		Coords: [2]int{16, 92},
+	}
+	buyComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+55, (w.height-w.padLeft)-16*(w.height-w.padLeft)/100+7, "buy")
 	w.Gend()
 }
 
