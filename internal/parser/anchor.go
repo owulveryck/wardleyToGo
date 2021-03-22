@@ -5,13 +5,11 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
-	a := &wardley.Anchor{
-		Coords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
-	}
+func (p *Parser) parseAnchor() error {
+	a := plan.NewAnchor(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	curLine := p.s.Pos().Line
@@ -30,18 +28,20 @@ func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			if a.Coords[0] == wardley.UndefinedCoord {
+			if a.Coords[0] == plan.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == wardley.UndefinedCoord {
+			if a.Coords[1] == plan.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}
 		}
 	}
 	a.Label = strings.TrimRight(b.String(), " ")
-	return a, nil
+	p.g.AddNode(a)
+	p.nodeDict[a.Label] = a
+	return nil
 }

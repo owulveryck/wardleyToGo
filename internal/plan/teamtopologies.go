@@ -1,4 +1,4 @@
-package wardley
+package plan
 
 import (
 	svg "github.com/ajstarks/svgo"
@@ -12,6 +12,13 @@ type StreamAlignedTeam struct {
 
 func (s *StreamAlignedTeam) String() string {
 	return s.Label
+}
+
+func NewStreamAlignedTeam(id int64) *StreamAlignedTeam {
+	return &StreamAlignedTeam{
+		Id:     id,
+		Coords: [4]int{UndefinedCoord, UndefinedCoord, UndefinedCoord, UndefinedCoord},
+	}
 }
 
 func (s *StreamAlignedTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
@@ -37,6 +44,12 @@ type EnablingTeam struct {
 func (e *EnablingTeam) String() string {
 	return e.Label
 }
+func NewEnablingTeam(id int64) *EnablingTeam {
+	return &EnablingTeam{
+		Id:     id,
+		Coords: [4]int{UndefinedCoord, UndefinedCoord, UndefinedCoord, UndefinedCoord},
+	}
+}
 
 func (e *EnablingTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
 	x1 := e.Coords[1]*(width-padLeft)/100 + padLeft
@@ -58,6 +71,13 @@ type PlatformTeam struct {
 	Label  string
 }
 
+func NewPlatformTeam(id int64) *PlatformTeam {
+	return &PlatformTeam{
+		Id:     id,
+		Coords: [4]int{UndefinedCoord, UndefinedCoord, UndefinedCoord, UndefinedCoord},
+	}
+}
+
 func (p *PlatformTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
 	x1 := p.Coords[1]*(width-padLeft)/100 + padLeft
 	y1 := (height - padLeft) - p.Coords[0]*(height-padLeft)/100
@@ -75,7 +95,35 @@ func (p *PlatformTeam) String() string {
 	return p.Label
 }
 
-type ComplicatedSubsystemTeam struct{}
+type ComplicatedSubsystemTeam struct {
+	Id     int64
+	Coords [4]int
+	Label  string
+}
+
+func NewComplicatedSubsystemTeam(id int64) *ComplicatedSubsystemTeam {
+	return &ComplicatedSubsystemTeam{
+		Id:     id,
+		Coords: [4]int{UndefinedCoord, UndefinedCoord, UndefinedCoord, UndefinedCoord},
+	}
+}
+
+func (p *ComplicatedSubsystemTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
+	x1 := p.Coords[1]*(width-padLeft)/100 + padLeft
+	y1 := (height - padLeft) - p.Coords[0]*(height-padLeft)/100
+	x2 := p.Coords[3]*(width-padLeft)/100 + padLeft
+	y2 := (height - padLeft) - p.Coords[2]*(height-padLeft)/100
+	svg.Translate(x1, y1)
+	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 35, 35, `fill="rgb(236, 210, 177)"`, `opacity="0.8"`, `stroke="rgb(210,149,84)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
+	svg.Gend()
+}
+
+func (p *ComplicatedSubsystemTeam) ID() int64 {
+	return p.Id
+}
+func (p *ComplicatedSubsystemTeam) String() string {
+	return p.Label
+}
 
 // Abs returns the absolute value of x.
 func abs(x int) int {

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
 func Test_parser_parseStreamAligned(t *testing.T) {
@@ -24,15 +24,15 @@ func Test_parser_parseStreamAligned(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *wardley.StreamAlignedTeam
+		want   *plan.StreamAlignedTeam
 	}{
 		{
 			"simple without coordinates",
 			fields{
 				s: newScanner(`bla`),
 			},
-			&wardley.StreamAlignedTeam{
-				Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.StreamAlignedTeam{
+				Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla`,
 			},
 		},
@@ -41,8 +41,8 @@ func Test_parser_parseStreamAligned(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla`),
 			},
-			&wardley.StreamAlignedTeam{
-				Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.StreamAlignedTeam{
+				Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
@@ -51,8 +51,8 @@ func Test_parser_parseStreamAligned(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&wardley.StreamAlignedTeam{
-				Coords: [4]int{40, 30, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.StreamAlignedTeam{
+				Coords: [4]int{40, 30, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
@@ -61,7 +61,7 @@ func Test_parser_parseStreamAligned(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3, 0.2, 0.1]`),
 			},
-			&wardley.StreamAlignedTeam{
+			&plan.StreamAlignedTeam{
 				Coords: [4]int{40, 30, 20, 10},
 				Label:  `bla bla`,
 			},
@@ -94,15 +94,15 @@ func Test_parser_parsePlatform(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *wardley.PlatformTeam
+		want   *plan.PlatformTeam
 	}{
 		{
 			"simple without coordinates",
 			fields{
 				s: newScanner(`bla`),
 			},
-			&wardley.PlatformTeam{
-				Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.PlatformTeam{
+				Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla`,
 			},
 		},
@@ -111,8 +111,8 @@ func Test_parser_parsePlatform(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla`),
 			},
-			&wardley.PlatformTeam{
-				Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.PlatformTeam{
+				Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
@@ -121,8 +121,8 @@ func Test_parser_parsePlatform(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&wardley.PlatformTeam{
-				Coords: [4]int{40, 30, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.PlatformTeam{
+				Coords: [4]int{40, 30, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
@@ -131,7 +131,7 @@ func Test_parser_parsePlatform(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3, 0.2, 0.1]`),
 			},
-			&wardley.PlatformTeam{
+			&plan.PlatformTeam{
 				Coords: [4]int{40, 30, 20, 10},
 				Label:  `bla bla`,
 			},
@@ -164,15 +164,15 @@ func Test_parser_parseEnabling(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *wardley.EnablingTeam
+		want   *plan.EnablingTeam
 	}{
 		{
 			"simple without coordinates",
 			fields{
 				s: newScanner(`bla`),
 			},
-			&wardley.EnablingTeam{
-				Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.EnablingTeam{
+				Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla`,
 			},
 		},
@@ -181,8 +181,8 @@ func Test_parser_parseEnabling(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla`),
 			},
-			&wardley.EnablingTeam{
-				Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.EnablingTeam{
+				Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
@@ -191,8 +191,8 @@ func Test_parser_parseEnabling(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&wardley.EnablingTeam{
-				Coords: [4]int{40, 30, wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.EnablingTeam{
+				Coords: [4]int{40, 30, plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 		},
@@ -201,7 +201,7 @@ func Test_parser_parseEnabling(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3, 0.2, 0.1]`),
 			},
-			&wardley.EnablingTeam{
+			&plan.EnablingTeam{
 				Coords: [4]int{40, 30, 20, 10},
 				Label:  `bla bla`,
 			},

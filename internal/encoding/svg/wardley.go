@@ -1,10 +1,11 @@
 package svgmap
 
 import (
+	"fmt"
 	"io"
 
 	svg "github.com/ajstarks/svgo"
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
 // svgMap is an object representing the map in SVG
@@ -35,8 +36,9 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 		{Offset: 70, Color: "rgb(255,255,255)", Opacity: 1.0},
 		{Offset: 100, Color: "rgb(196,196,196)", Opacity: 1.0}}
 
-	w.Start(width, height)
-	w.Title("Wardley")
+	w.Start(width+150, height)
+	w.writeLegend()
+
 	w.Rect(0, 0, width, height, "fill:white")
 	w.Def()
 	w.LinearGradient("wardleyGradient", 0, 0, 100, 0, lg)
@@ -78,6 +80,51 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 	w.Group(`font-family="Consolas, Lucida Console, monospace"`, `font-weight="14px"`, `font-size="13px"`)
 }
 
+func (w *svgMap) writeLegend() {
+	w.Group(`font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif" font-size="13px">`)
+
+	p := &plan.StreamAlignedTeam{
+		Coords: [4]int{92, 90, 98, 99},
+	}
+	p.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 := p.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 := (w.height - w.padLeft) - p.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+5, y1+15, "Stream Aligned")
+	w.SVG.Text(x1+5, y1+35, "Team")
+
+	s := &plan.PlatformTeam{
+		Coords: [4]int{82, 90, 88, 99},
+	}
+	s.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 = s.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 = (w.height - w.padLeft) - s.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+5, y1+15, "Platform")
+	w.SVG.Text(x1+5, y1+35, "Team")
+
+	c := &plan.ComplicatedSubsystemTeam{
+		Coords: [4]int{72, 90, 78, 99},
+	}
+	c.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 = c.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 = (w.height - w.padLeft) - c.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+11, y1+15, "Complicated")
+	w.SVG.Text(x1+11, y1+35, "Subsystem")
+
+	e := &plan.EnablingTeam{
+		Coords: [4]int{62, 90, 68, 99},
+	}
+	e.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	x1 = e.Coords[1]*(w.width+150-w.padLeft)/100 + w.padLeft
+	y1 = (w.height - w.padLeft) - e.Coords[0]*(w.height-w.padLeft)/100
+
+	w.SVG.Text(x1+11, y1+15, "Enabling")
+	w.SVG.Text(x1+11, y1+35, "Team")
+	w.Gend()
+}
+
 // close the map (add the closing tags to the SVG)
 func (w *svgMap) close() {
 	w.Gend()
@@ -95,11 +142,12 @@ func (w *svgMap) writeElement(e SVGer) {
 }
 
 // Encode the map
-func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) {
+func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
+	out.Title(m.Title)
 
-	out.Gid("components")
+	out.Gid("teamtopologies")
 	it := m.Nodes()
 	// First place the orphan nodes as they are probably anotations
 	for it.Next() {
@@ -116,7 +164,7 @@ func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) 
 	}
 	out.Gend()
 	it.Reset()
-	out.Gid("annotations")
+	out.Gid("components")
 	for it.Next() {
 		n := it.Node()
 		if m.To(n.ID()).Len() != 0 || m.From(n.ID()).Len() != 0 {
@@ -124,5 +172,31 @@ func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) 
 		}
 	}
 	out.Gend()
+	out.Gid("annotations")
+	for _, annotation := range m.Annotations {
+		out.writeElement(annotation)
+	}
+	// Add the annotation box
+	writeAnnotations(out, m, width, height, padLeft, padBottom)
+	out.Gend()
 	out.close()
+}
+
+func writeAnnotations(out *svgMap, m *plan.Map, width, height, padLeft, padBottom int) {
+	maxLen := 0
+	for _, annotation := range m.Annotations {
+		if len(annotation.Label) > maxLen {
+			maxLen = len(annotation.Label)
+		}
+	}
+	out.Translate(m.AnnotationsPlacement[1]*(width-padLeft)/100+padLeft, (height-padLeft)-m.AnnotationsPlacement[0]*(height-padLeft)/100)
+	out.Rect(-14, -14, 9*maxLen, len(m.Annotations)*19+19, `stroke="#595959"`, `stroke-width="1"`, `fill="#FFFFFF"`)
+	out.Text(0, 0, "Annotations:", `text-decoration="underline"`)
+	for i, annotation := range m.Annotations {
+		out.Text(0, 18*(i+1), fmt.Sprintf(" %v. %v", annotation.Identifier, annotation.Label))
+	}
+	/*
+		<rect x="-14" id="annotationsBoxWrap" y="-14" class="draggable" width="452.875" height="55" stroke="#595959" stroke-width="1" fill="#FFFFFF"></rect>
+	*/
+	out.Gend()
 }

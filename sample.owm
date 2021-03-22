@@ -26,6 +26,7 @@ annotations [0.60, 0.02]
 note +a generic note appeared [0.16, 0.36]
 
 style wardley
-streamalignedteam team A [0.84, 0.58, 0.74, 0.78]
-enablingteam team B [0.52, 0.23, 0.32, 0.43]
-platformteam team C [0.18, 0.61, 0.02, 0.94]
+streamAlignedTeam team A [0.84, 0.58, 0.74, 0.68]
+enablingTeam team B [0.52, 0.23, 0.32, 0.43]
+platformTeam team C [0.18, 0.61, 0.02, 0.94]
+complicatedSubsystemTeam team D [0.83, 0.73, 0.45, 0.90]

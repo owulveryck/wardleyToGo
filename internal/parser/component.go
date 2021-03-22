@@ -5,14 +5,11 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseComponent() (*wardley.Component, error) {
-	c := &wardley.Component{
-		Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
-		LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
-	}
+func (p *Parser) parseComponent() error {
+	c := plan.NewComponent(p.g.NewNode().ID())
 	var b strings.Builder
 	inLabel := true
 	var prevTok rune
@@ -27,13 +24,13 @@ func (p *Parser) parseComponent() (*wardley.Component, error) {
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			if c.Coords[0] == wardley.UndefinedCoord {
+			if c.Coords[0] == plan.UndefinedCoord {
 				c.Coords[0] = int(f * 100)
 				continue
 			}
-			if c.Coords[1] == wardley.UndefinedCoord {
+			if c.Coords[1] == plan.UndefinedCoord {
 				c.Coords[1] = int(f * 100)
 				continue
 			}
@@ -45,13 +42,13 @@ func (p *Parser) parseComponent() (*wardley.Component, error) {
 			}
 			i, err := strconv.Atoi(sign + p.s.TokenText())
 			if err != nil {
-				return nil, err
+				return err
 			}
-			if c.LabelCoords[0] == wardley.UndefinedCoord {
+			if c.LabelCoords[0] == plan.UndefinedCoord {
 				c.LabelCoords[0] = i
 				continue
 			}
-			if c.LabelCoords[1] == wardley.UndefinedCoord {
+			if c.LabelCoords[1] == plan.UndefinedCoord {
 				c.LabelCoords[1] = i
 				continue
 			}
@@ -59,5 +56,7 @@ func (p *Parser) parseComponent() (*wardley.Component, error) {
 		prevTok = tok
 	}
 	c.Label = strings.TrimRight(b.String(), " ")
-	return c, nil
+	p.g.AddNode(c)
+	p.nodeDict[c.Label] = c
+	return nil
 }

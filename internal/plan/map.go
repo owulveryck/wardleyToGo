@@ -1,6 +1,8 @@
-package wardley
+package plan
 
-import "gonum.org/v1/gonum/graph/simple"
+import (
+	"gonum.org/v1/gonum/graph/simple"
+)
 
 // . An element is anything that have coordinates
 type Element interface {
@@ -9,6 +11,8 @@ type Element interface {
 
 // a Map is a DirectedGraph with a bunch of anotations
 type Map struct {
+	Title string
 	*simple.DirectedGraph
-	Annotations []Element
+	Annotations          []*Annotation
+	AnnotationsPlacement [2]int
 }
