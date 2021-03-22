@@ -5,13 +5,13 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseEvolve() (*wardley.EvolvedComponent, error) {
-	c := &wardley.EvolvedComponent{
-		Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
-		LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+func (p *Parser) parseEvolve() (*plan.EvolvedComponent, error) {
+	c := &plan.EvolvedComponent{
+		Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+		LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
@@ -30,7 +30,7 @@ func (p *Parser) parseEvolve() (*wardley.EvolvedComponent, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.Coords[1] == wardley.UndefinedCoord {
+			if c.Coords[1] == plan.UndefinedCoord {
 				c.Coords[1] = int(f * 100)
 				continue
 			}
@@ -44,11 +44,11 @@ func (p *Parser) parseEvolve() (*wardley.EvolvedComponent, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.LabelCoords[0] == wardley.UndefinedCoord {
+			if c.LabelCoords[0] == plan.UndefinedCoord {
 				c.LabelCoords[0] = i
 				continue
 			}
-			if c.LabelCoords[1] == wardley.UndefinedCoord {
+			if c.LabelCoords[1] == plan.UndefinedCoord {
 				c.LabelCoords[1] = i
 				continue
 			}

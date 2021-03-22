@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
@@ -18,7 +18,7 @@ type Parser struct {
 	g              *simple.DirectedGraph
 	nodeDict       map[string]graph.Node
 	nodeEvolveDict map[string]graph.Node
-	edges          []wardley.Edge
+	edges          []plan.Edge
 }
 
 func NewParser(r io.Reader) *Parser {
@@ -30,10 +30,10 @@ func NewParser(r io.Reader) *Parser {
 	}
 }
 
-func (p *Parser) Parse() (*wardley.Map, error) {
+func (p *Parser) Parse() (*plan.Map, error) {
 	p.nodeDict = make(map[string]graph.Node)
 	p.nodeEvolveDict = make(map[string]graph.Node)
-	p.edges = make([]wardley.Edge, 0)
+	p.edges = make([]plan.Edge, 0)
 	p.g = simple.NewDirectedGraph()
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		switch p.s.TokenText() {
@@ -97,7 +97,7 @@ func (p *Parser) Parse() (*wardley.Map, error) {
 				log.Println("Warning", err)
 			}
 			switch e := e.(type) {
-			case wardley.Edge:
+			case plan.Edge:
 				p.edges = append(p.edges, e)
 			}
 		}
@@ -110,14 +110,14 @@ func (p *Parser) Parse() (*wardley.Map, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &wardley.Map{
+	return &plan.Map{
 		DirectedGraph: p.g,
 	}, nil
 }
 
 func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
-	var e wardley.Edge
-	e.EdgeType = wardley.RegularEdge
+	var e plan.Edge
+	e.EdgeType = plan.RegularEdge
 	var b strings.Builder
 	b.WriteString(firstElement)
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {

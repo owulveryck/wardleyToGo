@@ -5,12 +5,12 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseStreamAligned() (*wardley.StreamAlignedTeam, error) {
-	a := &wardley.StreamAlignedTeam{
-		Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+func (p *Parser) parseStreamAligned() (*plan.StreamAlignedTeam, error) {
+	a := &plan.StreamAlignedTeam{
+		Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
@@ -32,19 +32,19 @@ func (p *Parser) parseStreamAligned() (*wardley.StreamAlignedTeam, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Coords[0] == wardley.UndefinedCoord {
+			if a.Coords[0] == plan.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == wardley.UndefinedCoord {
+			if a.Coords[1] == plan.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}
-			if a.Coords[2] == wardley.UndefinedCoord {
+			if a.Coords[2] == plan.UndefinedCoord {
 				a.Coords[2] = int(f * 100)
 				continue
 			}
-			if a.Coords[3] == wardley.UndefinedCoord {
+			if a.Coords[3] == plan.UndefinedCoord {
 				a.Coords[3] = int(f * 100)
 				continue
 			}
@@ -54,9 +54,9 @@ func (p *Parser) parseStreamAligned() (*wardley.StreamAlignedTeam, error) {
 	return a, nil
 }
 
-func (p *Parser) parseEnabling() (*wardley.EnablingTeam, error) {
-	a := &wardley.EnablingTeam{
-		Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+func (p *Parser) parseEnabling() (*plan.EnablingTeam, error) {
+	a := &plan.EnablingTeam{
+		Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
@@ -78,19 +78,19 @@ func (p *Parser) parseEnabling() (*wardley.EnablingTeam, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Coords[0] == wardley.UndefinedCoord {
+			if a.Coords[0] == plan.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == wardley.UndefinedCoord {
+			if a.Coords[1] == plan.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}
-			if a.Coords[2] == wardley.UndefinedCoord {
+			if a.Coords[2] == plan.UndefinedCoord {
 				a.Coords[2] = int(f * 100)
 				continue
 			}
-			if a.Coords[3] == wardley.UndefinedCoord {
+			if a.Coords[3] == plan.UndefinedCoord {
 				a.Coords[3] = int(f * 100)
 				continue
 			}
@@ -100,9 +100,9 @@ func (p *Parser) parseEnabling() (*wardley.EnablingTeam, error) {
 	return a, nil
 }
 
-func (p *Parser) parsePlatform() (*wardley.PlatformTeam, error) {
-	a := &wardley.PlatformTeam{
-		Coords: [4]int{wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord, wardley.UndefinedCoord},
+func (p *Parser) parsePlatform() (*plan.PlatformTeam, error) {
+	a := &plan.PlatformTeam{
+		Coords: [4]int{plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord, plan.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
@@ -124,19 +124,19 @@ func (p *Parser) parsePlatform() (*wardley.PlatformTeam, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Coords[0] == wardley.UndefinedCoord {
+			if a.Coords[0] == plan.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == wardley.UndefinedCoord {
+			if a.Coords[1] == plan.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}
-			if a.Coords[2] == wardley.UndefinedCoord {
+			if a.Coords[2] == plan.UndefinedCoord {
 				a.Coords[2] = int(f * 100)
 				continue
 			}
-			if a.Coords[3] == wardley.UndefinedCoord {
+			if a.Coords[3] == plan.UndefinedCoord {
 				a.Coords[3] = int(f * 100)
 				continue
 			}

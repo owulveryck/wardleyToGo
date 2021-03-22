@@ -3,7 +3,7 @@ package parser
 import (
 	"fmt"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
 func (p *Parser) completeEvolve() error {
@@ -12,7 +12,7 @@ func (p *Parser) completeEvolve() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		nodeEvolve.(*wardley.EvolvedComponent).Coords[0] = node.(*wardley.Component).Coords[0]
+		nodeEvolve.(*plan.EvolvedComponent).Coords[0] = node.(*plan.Component).Coords[0]
 	}
 	return nil
 }
@@ -55,10 +55,10 @@ func (p *Parser) createEvolvingComponentEdges() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		p.g.SetEdge(wardley.Edge{
+		p.g.SetEdge(plan.Edge{
 			F:        node,
 			T:        nodeEvolved,
-			EdgeType: wardley.EvolvedComponentEdge,
+			EdgeType: plan.EvolvedComponentEdge,
 		})
 	}
 	return nil
@@ -73,18 +73,18 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		fromIT := p.g.From(node.ID())
 		for fromIT.Next() {
-			p.g.SetEdge(wardley.Edge{
+			p.g.SetEdge(plan.Edge{
 				F:        nodeEvolved,
 				T:        fromIT.Node(),
-				EdgeType: wardley.EvolvedEdge,
+				EdgeType: plan.EvolvedEdge,
 			})
 		}
 		toIT := p.g.To(node.ID())
 		for toIT.Next() {
-			p.g.SetEdge(wardley.Edge{
+			p.g.SetEdge(plan.Edge{
 				F:        toIT.Node(),
 				T:        nodeEvolved,
-				EdgeType: wardley.EvolvedEdge,
+				EdgeType: plan.EvolvedEdge,
 			})
 		}
 	}

@@ -5,12 +5,12 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
-	a := &wardley.Anchor{
-		Coords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+func (p *Parser) parseAnchor() (*plan.Anchor, error) {
+	a := &plan.Anchor{
+		Coords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 	}
 	var b strings.Builder
 	inLabel := true
@@ -32,11 +32,11 @@ func (p *Parser) parseAnchor() (*wardley.Anchor, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Coords[0] == wardley.UndefinedCoord {
+			if a.Coords[0] == plan.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == wardley.UndefinedCoord {
+			if a.Coords[1] == plan.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}

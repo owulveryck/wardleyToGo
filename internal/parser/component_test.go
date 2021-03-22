@@ -6,7 +6,7 @@ import (
 	"testing"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
 func Test_parser_parseComponent(t *testing.T) {
@@ -24,17 +24,17 @@ func Test_parser_parseComponent(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   *wardley.Component
+		want   *plan.Component
 	}{
 		{
 			"simple without coordinates",
 			fields{
 				s: newScanner(`bla`),
 			},
-			&wardley.Component{
-				Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.Component{
+				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla`,
-				LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 			},
 		},
 		{
@@ -42,10 +42,10 @@ func Test_parser_parseComponent(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla`),
 			},
-			&wardley.Component{
-				Coords:      [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+			&plan.Component{
+				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 			},
 		},
 		{
@@ -53,10 +53,10 @@ func Test_parser_parseComponent(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&wardley.Component{
+			&plan.Component{
 				Coords:      [2]int{40, 30},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{wardley.UndefinedCoord, wardley.UndefinedCoord},
+				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 			},
 		},
 		{
@@ -64,7 +64,7 @@ func Test_parser_parseComponent(t *testing.T) {
 			fields{
 				s: newScanner(`bla   bla [0.4, 0.3] label [12,12]`),
 			},
-			&wardley.Component{
+			&plan.Component{
 				Coords:      [2]int{40, 30},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{12, 12},

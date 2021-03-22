@@ -4,7 +4,7 @@ import (
 	"io"
 
 	svg "github.com/ajstarks/svgo"
-	"github.com/owulveryck/wardleyToGo/internal/wardley"
+	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
 // svgMap is an object representing the map in SVG
@@ -95,7 +95,7 @@ func (w *svgMap) writeElement(e SVGer) {
 }
 
 // Encode the map
-func Encode(m *wardley.Map, w io.Writer, width, height, padLeft, padBottom int) {
+func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
 
