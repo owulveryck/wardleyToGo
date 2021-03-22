@@ -127,7 +127,7 @@ Add areas indicating which type of working approach supports component developme
 
 `pioneers [<visibility>, <maturity>, <visibility2>, <maturity2>]`
 
-#### Build, buy, outsource components (not yet implemented)
+#### Build, buy, outsource components
 Highlight a component with a build, buy, or outsource method of execution
 
 * `build <component>`

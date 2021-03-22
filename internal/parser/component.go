@@ -11,13 +11,13 @@ import (
 func (p *Parser) parseComponent() error {
 	c := plan.NewComponent(p.g.NewNode().ID())
 	var b strings.Builder
-	inLabel := true
 	var prevTok rune
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
-		if tok == '[' {
-			inLabel = false
+		if tok == '[' && c.Label == "" {
+			c.Label = strings.TrimRight(b.String(), " ")
+			b.Reset()
 		}
-		if tok == scanner.Ident && inLabel {
+		if tok == scanner.Ident {
 			b.WriteString(p.s.TokenText())
 			b.WriteRune(' ')
 		}
@@ -33,6 +33,19 @@ func (p *Parser) parseComponent() error {
 			if c.Coords[1] == plan.UndefinedCoord {
 				c.Coords[1] = int(f * 100)
 				continue
+			}
+		}
+		if tok == '(' {
+			b.Reset()
+		}
+		if tok == ')' {
+			switch strings.TrimRight(b.String(), " ") {
+			case "build":
+				c.Type = plan.BuildComponent
+			case "buy":
+				c.Type = plan.BuyComponent
+			case "outsource":
+				c.Type = plan.OutsourceComponent
 			}
 		}
 		if tok == scanner.Int {
@@ -55,7 +68,7 @@ func (p *Parser) parseComponent() error {
 		}
 		prevTok = tok
 	}
-	c.Label = strings.TrimRight(b.String(), " ")
+
 	p.g.AddNode(c)
 	p.nodeDict[c.Label] = c
 	return nil

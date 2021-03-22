@@ -4,6 +4,15 @@ import (
 	svg "github.com/ajstarks/svgo"
 )
 
+type ComponentType int
+
+const (
+	RegularComponent ComponentType = iota
+	BuildComponent
+	BuyComponent
+	OutsourceComponent
+)
+
 const maxUint = ^uint(0)
 const maxInt = int(maxUint >> 1)
 const UndefinedCoord = -maxInt - 1
@@ -14,6 +23,7 @@ type Component struct {
 	Coords      [2]int
 	Label       string
 	LabelCoords [2]int
+	Type        ComponentType
 }
 
 func NewComponent(id int64) *Component {
@@ -39,6 +49,14 @@ func (c *Component) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 	}
 	s.Translate(c.Coords[1]*(width-padLeft)/100+padLeft, (height-padLeft)-c.Coords[0]*(height-padLeft)/100)
 	s.Text(labelCoordX, labelCoordY, c.Label)
+	switch c.Type {
+	case BuildComponent:
+		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`)
+	case BuyComponent:
+		s.Circle(0, 0, 20, `fill="#AAA5A9"`, `stroke="#D6D6D6"`)
+	case OutsourceComponent:
+		s.Circle(0, 0, 20, `fill="#444444"`, `stroke="#444444"`)
+	}
 	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="black"`, `fill="white"`)
 	s.Gend()
 }
@@ -56,6 +74,7 @@ type EvolvedComponent struct {
 	Coords      [2]int
 	Label       string
 	LabelCoords [2]int
+	Type        ComponentType
 }
 
 func (e *EvolvedComponent) ID() int64 {
@@ -81,6 +100,14 @@ func (e *EvolvedComponent) SVG(s *svg.SVG, width, height, padLeft, padBottom int
 	}
 	s.Translate(e.Coords[1]*(width-padLeft)/100+padLeft, (height-padLeft)-e.Coords[0]*(height-padLeft)/100)
 	s.Text(labelCoordX, labelCoordY, e.Label, `fill="red"`)
+	switch e.Type {
+	case BuildComponent:
+		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`)
+	case BuyComponent:
+		s.Circle(0, 0, 20, `fill="#AAA5A9"`, `stroke="#D6D6D6"`)
+	case OutsourceComponent:
+		s.Circle(0, 0, 20, `fill="#444444"`, `stroke="#444444"`)
+	}
 	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="red"`, `fill="white"`)
 	s.Gend()
 }
