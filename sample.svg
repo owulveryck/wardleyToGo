@@ -3,35 +3,32 @@
 <svg width="1450" height="800"
      xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink">
-<g font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif" font-size="13px"> >
+<g font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif" font-size="13px" >
 <g transform="translate(1307,62)">
-<rect x="0" y="0" width="128" height="46" rx="15" ry="15" fill="rgb(252, 237, 190)" opacity="0.8" stroke="rgb(250,216,120)" stroke-opacity="0.7" stroke-width="5px" />
+<rect x="0" y="0" width="128" height="46" rx="15" ry="15" fill="rgb(252, 237, 190)" opacity="0.9" stroke="rgb(250,216,120)" stroke-opacity="0.9" stroke-width="5px" />
 </g>
 <text x="1312" y="77" >Stream Aligned</text>
 <text x="1312" y="97" >Team</text>
 <g transform="translate(1307,140)">
-<rect x="0" y="0" width="128" height="47" fill="rgb(170, 185, 215)" opacity="0.8" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px" />
+<rect x="0" y="0" width="128" height="47" fill="rgb(170, 185, 215)" opacity="0.95" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px" />
 </g>
 <text x="1312" y="155" >Platform</text>
 <text x="1312" y="175" >Team</text>
 <g transform="translate(1307,217)">
-<rect x="0" y="0" width="128" height="46" rx="35" ry="35" fill="rgb(236, 210, 177)" opacity="0.8" stroke="rgb(210,149,84)" stroke-opacity="0.7" stroke-width="5px" />
+<rect x="0" y="0" width="128" height="46" rx="35" ry="35" fill="rgb(236, 210, 177)" opacity="0.9" stroke="rgb(210,149,84)" stroke-opacity="0.7" stroke-width="5px" />
 </g>
 <text x="1318" y="232" >Complicated</text>
 <text x="1318" y="252" >Subsystem</text>
 <g transform="translate(1307,295)">
-<rect x="0" y="0" width="128" height="47" rx="15" ry="15" fill="rgb(217, 190, 206)" opacity="0.8" stroke="rgb(200,159,182)" stroke-opacity="0.7" stroke-width="5px" />
+<rect x="0" y="0" width="128" height="47" rx="15" ry="15" fill="rgb(217, 190, 206)" opacity="0.95" stroke="rgb(200,159,182)" stroke-opacity="0.7" stroke-width="5px" />
 </g>
 <text x="1318" y="310" >Enabling</text>
 <text x="1318" y="330" >Team</text>
 <line x1="1307" y1="372" x2="1435" y2="372" stroke="grey" stroke-width="1" />
-<line x1="1307" y1="372" x2="1435" y2="372" stroke-dasharray="15 10" stroke="rgb(250,216,120)" stroke-width="10" />
 <text x="1312" y="392" >collaboration</text>
 <line x1="1307" y1="411" x2="1435" y2="411" stroke="grey" stroke-width="1" />
-<line x1="1307" y1="411" x2="1435" y2="411" stroke-dasharray="8 8" stroke="rgb(200,159,182)" stroke-width="10" />
 <text x="1312" y="431" >facilitating</text>
 <line x1="1307" y1="450" x2="1435" y2="450" stroke="grey" stroke-width="1" />
-<line x1="1307" y1="450" x2="1435" y2="450" stroke-dasharray="2 8" stroke="black" stroke-width="10" />
 <text x="1312" y="470" >xAsAService</text>
 <g transform="translate(1336,543)">
 <text x="0" y="0" ></text>
@@ -51,6 +48,12 @@
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
 <text x="1362" y="658" >buy</text>
+<g transform="translate(1336,706)">
+<text x="0" y="0" ></text>
+<circle cx="0" cy="0" r="14" fill="rgb(246,72,22)" />
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<text x="1362" y="713" >dataProduct</text>
 </g>
 <rect x="0" y="0" width="1300" height="800" style="fill:white" />
 <defs>
@@ -65,6 +68,9 @@
 </marker>
 <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10" >
 <path d="M0,-5L10,0L0,5" style="fill:black" />
+</marker>
+<marker id="hexagon" refX="0" refY="0" markerWidth="15" markerHeight="15" >
+<polygon points="723,314 543,625 183,625 3,314 183,2 543,2 723,314" fill="white" stroke="black" stroke-width="2" />
 </marker>
 </defs>
 <rect x="25" y="0" width="1275" height="770" style="fill:url(#wardleyGradient)" />
@@ -93,50 +99,81 @@
 </g>
 <g font-family="Consolas, Lucida Console, monospace" font-weight="14px" font-size="13px" >
 <title>Tea Shop</title>
-<g id="teamtopologies">
-<g transform="translate(751,124)">
-<rect x="0" y="0" width="141" height="78" rx="15" ry="15" fill="rgb(252, 237, 190)" opacity="0.8" stroke="rgb(250,216,120)" stroke-opacity="0.7" stroke-width="5px" />
-</g>
-<g transform="translate(318,372)">
-<rect x="0" y="0" width="255" height="155" rx="15" ry="15" fill="rgb(217, 190, 206)" opacity="0.8" stroke="rgb(200,159,182)" stroke-opacity="0.7" stroke-width="5px" />
-</g>
-<g transform="translate(802,636)">
-<rect x="0" y="0" width="421" height="124" fill="rgb(170, 185, 215)" opacity="0.8" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px" />
-</g>
-<g transform="translate(955,132)">
-<rect x="0" y="0" width="217" height="295" rx="35" ry="35" fill="rgb(236, 210, 177)" opacity="0.8" stroke="rgb(210,149,84)" stroke-opacity="0.7" stroke-width="5px" />
-</g>
-</g>
-<g id="links">
-<line x1="1019" y1="39" x2="802" y2="163" stroke="grey" stroke-width="1" />
+<g id="teamRelations">
+<line x1="1045" y1="372" x2="471" y2="442" stroke="grey" stroke-width="1" />
+<line x1="1045" y1="372" x2="471" y2="442" stroke-dasharray="8 8" stroke="rgb(200,159,182)" stroke-width="10" />
+<line x1="802" y1="163" x2="1019" y2="210" stroke="grey" stroke-width="1" />
+<line x1="802" y1="163" x2="1019" y2="210" stroke-dasharray="15 10" stroke="rgb(250,216,120)" stroke-width="10" />
 <line x1="802" y1="163" x2="1057" y2="287" stroke="grey" stroke-width="1" />
 <line x1="802" y1="163" x2="1057" y2="287" stroke-dasharray="15 10" stroke="rgb(250,216,120)" stroke-width="10" />
 <line x1="802" y1="163" x2="1045" y2="372" stroke="grey" stroke-width="1" />
 <line x1="802" y1="163" x2="1045" y2="372" stroke-dasharray="15 10" stroke="rgb(250,216,120)" stroke-width="10" />
-<line x1="802" y1="163" x2="1019" y2="210" stroke="grey" stroke-width="1" />
-<line x1="802" y1="163" x2="1019" y2="210" stroke-dasharray="15 10" stroke="rgb(250,216,120)" stroke-width="10" />
-<line x1="917" y1="698" x2="1159" y2="698" stroke-dasharray="5 5" stroke="red" stroke-width="1" marker-end="url(#arrow)" />
-<line x1="815" y1="442" x2="917" y2="698" stroke="red" stroke-width="1" />
-<line x1="815" y1="442" x2="1159" y2="698" stroke="red" stroke-width="1" />
-<line x1="828" y1="39" x2="802" y2="163" stroke="grey" stroke-width="1" />
-<line x1="1045" y1="372" x2="1070" y2="481" stroke="grey" stroke-width="1" />
-<line x1="1045" y1="372" x2="471" y2="442" stroke="grey" stroke-width="1" />
-<line x1="1045" y1="372" x2="471" y2="442" stroke-dasharray="8 8" stroke="rgb(200,159,182)" stroke-width="10" />
-<line x1="1045" y1="372" x2="815" y2="442" stroke="red" stroke-width="1" />
 <line x1="471" y1="442" x2="917" y2="698" stroke="grey" stroke-width="1" />
 <line x1="471" y1="442" x2="917" y2="698" stroke-dasharray="2 8" stroke="black" stroke-width="10" />
+</g>
+<g id="teamtopologies">
+<g transform="translate(751,124)">
+<rect x="0" y="0" width="141" height="78" rx="15" ry="15" fill="rgb(252, 237, 190)" opacity="0.9" stroke="rgb(250,216,120)" stroke-opacity="0.9" stroke-width="5px" />
+</g>
+<g transform="translate(802,636)">
+<rect x="0" y="0" width="421" height="124" fill="rgb(170, 185, 215)" opacity="0.95" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px" />
+</g>
+<g transform="translate(955,132)">
+<rect x="0" y="0" width="217" height="295" rx="35" ry="35" fill="rgb(236, 210, 177)" opacity="0.9" stroke="rgb(210,149,84)" stroke-opacity="0.7" stroke-width="5px" />
+</g>
+<g transform="translate(318,372)">
+<rect x="0" y="0" width="255" height="155" rx="15" ry="15" fill="rgb(217, 190, 206)" opacity="0.95" stroke="rgb(200,159,182)" stroke-opacity="0.7" stroke-width="5px" />
+</g>
+</g>
+<g id="links">
+<line x1="1045" y1="372" x2="1070" y2="481" stroke="grey" stroke-width="1" />
+<line x1="1045" y1="372" x2="471" y2="442" stroke="grey" stroke-width="1" />
+<line x1="1045" y1="372" x2="815" y2="442" stroke="red" stroke-width="1" />
+<line x1="917" y1="698" x2="1159" y2="698" stroke-dasharray="5 5" stroke="red" stroke-width="1" marker-end="url(#arrow)" />
+<line x1="828" y1="39" x2="802" y2="163" stroke="grey" stroke-width="1" />
+<line x1="1019" y1="39" x2="802" y2="163" stroke="grey" stroke-width="1" />
+<line x1="802" y1="163" x2="1019" y2="210" stroke="grey" stroke-width="1" />
+<line x1="802" y1="163" x2="1057" y2="287" stroke="grey" stroke-width="1" />
+<line x1="802" y1="163" x2="1045" y2="372" stroke="grey" stroke-width="1" />
 <line x1="471" y1="442" x2="1159" y2="698" stroke="red" stroke-width="1" />
 <line x1="471" y1="442" x2="815" y2="442" stroke-dasharray="5 5" stroke="red" stroke-width="1" marker-end="url(#arrow)" />
+<line x1="471" y1="442" x2="917" y2="698" stroke="grey" stroke-width="1" />
+<line x1="815" y1="442" x2="917" y2="698" stroke="red" stroke-width="1" />
+<line x1="815" y1="442" x2="1159" y2="698" stroke="red" stroke-width="1" />
 </g>
 <g id="components">
+<g transform="translate(828,39)">
+<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
+</g>
+<g transform="translate(1019,39)">
+<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Public</text>
+</g>
+<g transform="translate(802,163)">
+<text x="19" y="-4" >Cup of Tea</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<g transform="translate(1057,287)">
+<text x="10" y="10" >Tea</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<g transform="translate(1019,210)">
+<text x="19" y="-4" >Cup</text>
+<circle cx="0" cy="0" r="14" fill="rgb(246,72,22)" />
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
+<g transform="translate(471,442)">
+<text x="-73" y="4" >Kettle</text>
+<circle cx="0" cy="0" r="20" fill="#D6D6D6" stroke="#000000" />
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+</g>
 <g transform="translate(815,442)">
 <text x="22" y="9" fill="red" >Kettle</text>
 <circle cx="0" cy="0" r="20" fill="#AAA5A9" stroke="#D6D6D6" />
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="red" fill="white" />
 </g>
-<g transform="translate(1019,210)">
-<text x="10" y="10" >Cup</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
+<g transform="translate(1159,698)">
+<text x="-12" y="21" fill="red" >Power</text>
+<circle cx="0" cy="0" r="5" stroke-width="1" stroke="red" fill="white" />
 </g>
 <g transform="translate(1045,372)">
 <text x="10" y="10" >Hot Water</text>
@@ -146,33 +183,10 @@
 <text x="10" y="10" >Water</text>
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
 </g>
-<g transform="translate(828,39)">
-<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Business</text>
-</g>
-<g transform="translate(471,442)">
-<text x="-73" y="4" >Kettle</text>
-<circle cx="0" cy="0" r="20" fill="#D6D6D6" stroke="#000000" />
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(1057,287)">
-<text x="10" y="10" >Tea</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(802,163)">
-<text x="19" y="-4" >Cup of Tea</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
 <g transform="translate(917,698)">
 <text x="-29" y="30" >Power</text>
 <circle cx="0" cy="0" r="20" fill="#444444" stroke="#444444" />
 <circle cx="0" cy="0" r="5" stroke-width="1" stroke="black" fill="white" />
-</g>
-<g transform="translate(1159,698)">
-<text x="-12" y="21" fill="red" >Power</text>
-<circle cx="0" cy="0" r="5" stroke-width="1" stroke="red" fill="white" />
-</g>
-<g transform="translate(1019,39)">
-<text x="0" y="0" font-weight="14px" font-size="14px" text-anchor="middle" >Public</text>
 </g>
 </g>
 <g id="annotations">

@@ -43,28 +43,10 @@ func (e Edge) To() graph.Node {
 	return e.T
 }
 
-func (e Edge) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
+func (e Edge) SVGTT(s *svg.SVG, width, height, padLeft, padBottom int) {
 	fromCoord := e.F.(Element).GetCoordinates()
 	toCoord := e.T.(Element).GetCoordinates()
 	switch e.EdgeType {
-	case RegularEdge:
-		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
-			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
-			toCoord[1]*(width-padLeft)/100+padLeft,
-			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
-			`stroke="grey"`, `stroke-width="1"`)
-	case EvolvedComponentEdge:
-		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
-			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
-			toCoord[1]*(width-padLeft)/100+padLeft,
-			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
-			`stroke-dasharray="5 5"`, `stroke="red"`, `stroke-width="1"`, `marker-end="url(#arrow)"`)
-	case EvolvedEdge:
-		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
-			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
-			toCoord[1]*(width-padLeft)/100+padLeft,
-			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
-			`stroke="red"`, `stroke-width="1"`)
 	case CollaborationEdge:
 		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
 			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
@@ -98,5 +80,36 @@ func (e Edge) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 			toCoord[1]*(width-padLeft)/100+padLeft,
 			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
 			`stroke-dasharray="2 8"`, `stroke="black"`, `stroke-width="10"`)
+	}
+}
+
+func (e Edge) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
+	fromCoord := e.F.(Element).GetCoordinates()
+	toCoord := e.T.(Element).GetCoordinates()
+	switch e.EdgeType {
+	case RegularEdge:
+		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
+			toCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
+			`stroke="grey"`, `stroke-width="1"`)
+	case EvolvedComponentEdge:
+		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
+			toCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
+			`stroke-dasharray="5 5"`, `stroke="red"`, `stroke-width="1"`, `marker-end="url(#arrow)"`)
+	case EvolvedEdge:
+		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
+			toCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
+			`stroke="red"`, `stroke-width="1"`)
+	default:
+		s.Line(fromCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
+			toCoord[1]*(width-padLeft)/100+padLeft,
+			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
+			`stroke="grey"`, `stroke-width="1"`)
 	}
 }

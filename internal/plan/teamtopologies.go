@@ -27,7 +27,7 @@ func (s *StreamAlignedTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom 
 	x2 := s.Coords[3]*(width-padLeft)/100 + padLeft
 	y2 := (height - padLeft) - s.Coords[2]*(height-padLeft)/100
 	svg.Translate(x1, y1)
-	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 15, 15, `fill="rgb(252, 237, 190)"`, `opacity="0.8"`, `stroke="rgb(250,216,120)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
+	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 15, 15, `fill="rgb(252, 237, 190)"`, `opacity="0.9"`, `stroke="rgb(250,216,120)"`, `stroke-opacity="0.9"`, `stroke-width="5px"`)
 	svg.Gend()
 }
 
@@ -57,7 +57,7 @@ func (e *EnablingTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) 
 	x2 := e.Coords[3]*(width-padLeft)/100 + padLeft
 	y2 := (height - padLeft) - e.Coords[2]*(height-padLeft)/100
 	svg.Translate(x1, y1)
-	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 15, 15, `fill="rgb(217, 190, 206)"`, `opacity="0.8"`, `stroke="rgb(200,159,182)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
+	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 15, 15, `fill="rgb(217, 190, 206)"`, `opacity="0.95"`, `stroke="rgb(200,159,182)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
 	svg.Gend()
 }
 
@@ -84,7 +84,7 @@ func (p *PlatformTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) 
 	x2 := p.Coords[3]*(width-padLeft)/100 + padLeft
 	y2 := (height - padLeft) - p.Coords[2]*(height-padLeft)/100
 	svg.Translate(x1, y1)
-	svg.Rect(0, 0, abs(x2-x1), abs(y2-y1), `fill="rgb(170, 185, 215)"`, `opacity="0.8"`, `stroke="rgb(119,159,229)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
+	svg.Rect(0, 0, abs(x2-x1), abs(y2-y1), `fill="rgb(170, 185, 215)"`, `opacity="0.95"`, `stroke="rgb(119,159,229)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
 	svg.Gend()
 }
 
@@ -114,7 +114,7 @@ func (p *ComplicatedSubsystemTeam) SVG(svg *svg.SVG, width, height, padLeft, pad
 	x2 := p.Coords[3]*(width-padLeft)/100 + padLeft
 	y2 := (height - padLeft) - p.Coords[2]*(height-padLeft)/100
 	svg.Translate(x1, y1)
-	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 35, 35, `fill="rgb(236, 210, 177)"`, `opacity="0.8"`, `stroke="rgb(210,149,84)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
+	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 35, 35, `fill="rgb(236, 210, 177)"`, `opacity="0.9"`, `stroke="rgb(210,149,84)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
 	svg.Gend()
 }
 
