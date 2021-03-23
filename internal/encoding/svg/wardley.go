@@ -58,7 +58,7 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 
 	w.Rect(padLeft, 0, width-padLeft, height-padBottom, "fill:url(#wardleyGradient)")
 	w.TranslateRotate(0, height, 270)
-	w.Group(`font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif" font-size="13px">`)
+	w.Group(`font-family="Helvetica,Arial,sans-serif" font-size="13px">`)
 	w.Line(padBottom, padLeft, height, padLeft, `stroke="black"`, `stroke-width="1"`, `marker-end="url(#graphArrow)"`)
 	w.Line(height, width*100/575+padLeft, padBottom, width*100/575+padLeft, `stroke="#b8b8b8"`, `stroke-dasharray="2,2"`)
 	w.Line(height, width*100/250+padLeft, padBottom, width*100/250+padLeft, `stroke="#b8b8b8"`, `stroke-dasharray="2,2"`)
@@ -70,7 +70,7 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 	w.Gend()
 
 	w.Line(padLeft, height-padBottom, width, height-padBottom, `stroke="black"`, `stroke-width="1"`, `marker-end="url(#graphArrow)"`)
-	w.Group(`font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif"`, `font-size="13px"`, `font-style="italic"`)
+	w.Group(`font-family="Helvetica,Arial,sans-serif"`, `font-size="13px"`, `font-style="italic"`)
 	w.Text(padLeft+10, 15, "Uncharted", `font-style="normal"`, `font-size="11px"`, `font-weight="bold"`)
 	w.Text(width-20, 15, "Industrialised", `font-style="normal"`, `font-size="11px"`, `font-weight="bold"`, `text-anchor="end"`)
 
