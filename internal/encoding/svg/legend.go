@@ -50,7 +50,7 @@ func (w *svgMap) writeLegend() {
 		T:        &dummyElement{[]int{52, 99}},
 		EdgeType: plan.CollaborationEdge,
 	}
-	collaborationEdge.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	collaborationEdge.SVGTT(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-52*(w.height-w.padLeft)/100+20, "collaboration")
 
 	facilitatingEdge := plan.Edge{
@@ -58,7 +58,7 @@ func (w *svgMap) writeLegend() {
 		T:        &dummyElement{[]int{47, 99}},
 		EdgeType: plan.FacilitatingEdge,
 	}
-	facilitatingEdge.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	facilitatingEdge.SVGTT(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-47*(w.height-w.padLeft)/100+20, "facilitating")
 
 	xAsAServiceEdge := plan.Edge{
@@ -66,7 +66,7 @@ func (w *svgMap) writeLegend() {
 		T:        &dummyElement{[]int{42, 99}},
 		EdgeType: plan.XAsAServiceEdge,
 	}
-	xAsAServiceEdge.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
+	xAsAServiceEdge.SVGTT(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-42*(w.height-w.padLeft)/100+20, "xAsAService")
 	buildComponent := plan.Component{
 		Type:   plan.BuildComponent,
