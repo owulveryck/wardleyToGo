@@ -1,5 +1,14 @@
 package parser
 
+import (
+	"reflect"
+	"strings"
+	"testing"
+	"text/scanner"
+
+	"github.com/owulveryck/wardleyToGo/internal/plan"
+)
+
 /*
 func Test_parser_parseAnchor(t *testing.T) {
 
@@ -62,3 +71,68 @@ func Test_parser_parseAnchor(t *testing.T) {
 }
 
 */
+
+func Test_scanAnchor(t *testing.T) {
+	newScanner := func(content string) *scanner.Scanner {
+		var s scanner.Scanner
+		s.Whitespace ^= 1 << '\n' // don't skip tabs and new lines
+		s.Init(strings.NewReader(content))
+		return &s
+	}
+	type args struct {
+		s  *scanner.Scanner
+		id int64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *plan.Anchor
+		wantErr bool
+	}{
+		{
+			"simple without coordinates",
+			args{
+				s: newScanner(`bla`),
+			},
+			&plan.Anchor{
+				Coords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+				Label:  `bla`,
+			},
+			false,
+		},
+		{
+			"two words without coordinates",
+			args{
+				s: newScanner(`bla   bla`),
+			},
+			&plan.Anchor{
+				Coords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+				Label:  `bla bla`,
+			},
+			false,
+		},
+		{
+			"two words with coordinates",
+			args{
+				s: newScanner(`bla   bla [0.4, 0.3]`),
+			},
+			&plan.Anchor{
+				Coords: [2]int{40, 30},
+				Label:  `bla bla`,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := scanAnchor(tt.args.s, tt.args.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("scanAnchor() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("scanAnchor() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

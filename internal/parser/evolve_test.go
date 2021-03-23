@@ -9,7 +9,7 @@ import (
 	"github.com/owulveryck/wardleyToGo/internal/plan"
 )
 
-func Test_scanComponent(t *testing.T) {
+func Test_scanEvolve(t *testing.T) {
 	newScanner := func(content string) *scanner.Scanner {
 		var s scanner.Scanner
 		s.Whitespace ^= 1 << '\n' // don't skip tabs and new lines
@@ -23,7 +23,7 @@ func Test_scanComponent(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *plan.Component
+		want    *plan.EvolvedComponent
 		wantErr bool
 	}{
 		{
@@ -31,7 +31,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -43,7 +43,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -53,10 +53,10 @@ func Test_scanComponent(t *testing.T) {
 		{
 			"two words with coordinates",
 			args{
-				s: newScanner(`bla   bla [0.4, 0.3]`),
+				s: newScanner(`bla   bla 0.3`),
 			},
-			&plan.Component{
-				Coords:      [2]int{40, 30},
+			&plan.EvolvedComponent{
+				Coords:      [2]int{plan.UndefinedCoord, 30},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 			},
@@ -65,10 +65,10 @@ func Test_scanComponent(t *testing.T) {
 		{
 			"two words with coordinates and label coordinates",
 			args{
-				s: newScanner(`bla   bla [0.4, 0.3] label [12,12]`),
+				s: newScanner(`bla   bla 0.3 label [12,12]`),
 			},
-			&plan.Component{
-				Coords:      [2]int{40, 30},
+			&plan.EvolvedComponent{
+				Coords:      [2]int{plan.UndefinedCoord, 30},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{12, 12},
 			},
@@ -77,10 +77,10 @@ func Test_scanComponent(t *testing.T) {
 		{
 			"two words with coordinates and negative label coordinates",
 			args{
-				s: newScanner(`bla   bla [0.4, 0.3] label [-12,12]`),
+				s: newScanner(`bla   bla 0.3 label [-12,12]`),
 			},
-			&plan.Component{
-				Coords:      [2]int{40, 30},
+			&plan.EvolvedComponent{
+				Coords:      [2]int{plan.UndefinedCoord, 30},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{-12, 12},
 			},
@@ -92,7 +92,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (build)`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -105,7 +105,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (build)`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -118,7 +118,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (buy)`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -131,7 +131,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (outsource)`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -144,7 +144,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (dataProduct)`),
 			},
-			&plan.Component{
+			&plan.EvolvedComponent{
 				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
@@ -160,16 +160,17 @@ func Test_scanComponent(t *testing.T) {
 			nil,
 			true,
 		},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := scanComponent(tt.args.s, tt.args.id)
+			got, err := scanEvolve(tt.args.s, tt.args.id)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("scanComponent() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("scanEvolve() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("scanComponent() = %#v, want %#v", got, tt.want)
+				t.Errorf("scanEvolve() = %#v, want %#v", got, tt.want)
 			}
 		})
 	}
