@@ -2,7 +2,7 @@ title Tea Shop
 anchor Business [0.95, 0.63]
 anchor Public [0.95, 0.78]
 component Cup of Tea [0.79, 0.61] label [19, -4]
-component Cup [0.73, 0.78]
+component Cup [0.73, 0.78] (dataProduct)
 component Tea [0.63, 0.81]
 component Hot Water [0.52, 0.80]
 component Water [0.38, 0.82]

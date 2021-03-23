@@ -11,6 +11,7 @@ const (
 	BuildComponent
 	BuyComponent
 	OutsourceComponent
+	DataProductComponent
 )
 
 const maxUint = ^uint(0)
@@ -56,6 +57,8 @@ func (c *Component) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 		s.Circle(0, 0, 20, `fill="#AAA5A9"`, `stroke="#D6D6D6"`)
 	case OutsourceComponent:
 		s.Circle(0, 0, 20, `fill="#444444"`, `stroke="#444444"`)
+	case DataProductComponent:
+		s.Circle(0, 0, 14, `fill="rgb(246,72,22)"`)
 	}
 	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="black"`, `fill="white"`)
 	s.Gend()
@@ -107,6 +110,8 @@ func (e *EvolvedComponent) SVG(s *svg.SVG, width, height, padLeft, padBottom int
 		s.Circle(0, 0, 20, `fill="#AAA5A9"`, `stroke="#D6D6D6"`)
 	case OutsourceComponent:
 		s.Circle(0, 0, 20, `fill="#444444"`, `stroke="#444444"`)
+	case DataProductComponent:
+		s.Circle(0, 0, 14, `fill="rgb(246,72,22)"`)
 	}
 	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="red"`, `fill="white"`)
 	s.Gend()

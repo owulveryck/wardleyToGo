@@ -46,6 +46,8 @@ func (p *Parser) parseComponent() error {
 				c.Type = plan.BuyComponent
 			case "outsource":
 				c.Type = plan.OutsourceComponent
+			case "dataProduct":
+				c.Type = plan.DataProductComponent
 			}
 		}
 		if tok == scanner.Int {
