@@ -3,7 +3,7 @@ package svgmap
 import "github.com/owulveryck/wardleyToGo/internal/plan"
 
 func (w *svgMap) writeLegend() {
-	w.Group(`font-family="&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif"`, `font-size="13px"`)
+	w.Group(`font-family="Helvetica,Arial,sans-serif"`, `font-size="13px"`)
 
 	p := &plan.StreamAlignedTeam{
 		Coords: [4]int{92, 90, 98, 99},
