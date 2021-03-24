@@ -36,7 +36,7 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 		{Offset: 70, Color: "rgb(255,255,255)", Opacity: 1.0},
 		{Offset: 100, Color: "rgb(196,196,196)", Opacity: 1.0}}
 
-	w.Start(width+150, height)
+	w.Startraw(`width="100%"`, `height="100%"`, `class="wardley-map"`, `preserveAspectRatio="xMidYMid meet"`, fmt.Sprintf(`viewBox="0 0 %v %v"`, width+150, height+padBottom))
 	w.writeLegend()
 
 	w.Rect(0, 0, width, height, "fill:white")
@@ -138,13 +138,15 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 		}
 	}
 	out.Gend()
-	out.Gid("annotations")
-	for _, annotation := range m.Annotations {
-		out.writeElement(annotation)
+	if len(m.Annotations) != 0 {
+		out.Gid("annotations")
+		for _, annotation := range m.Annotations {
+			out.writeElement(annotation)
+		}
+		// Add the annotation box
+		writeAnnotations(out, m, width, height, padLeft, padBottom)
+		out.Gend()
 	}
-	// Add the annotation box
-	writeAnnotations(out, m, width, height, padLeft, padBottom)
-	out.Gend()
 	out.close()
 }
 
