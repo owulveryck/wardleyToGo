@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>WadleyToGo</title>
+    <meta name="author" content="Olivier Wulveryck">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="row">
+
+        <div class="left">
+            <textarea autofocus="true" id="edit" spellcheck="false" onkeydown="keyHandler(event);"
+                onkeyup="autorender();">component test</textarea>
+            <div class="hints">
+                (Shift-Enter to render and run.)&nbsp;&nbsp;&nbsp;&nbsp;
+                <br>
+                <input type="checkbox" id="autorender" value="checked" /> Compile and run after each keystroke
+            </div>
+            <div id="errors"></div>
+        </div>
+        <div class="right">
+            <div id="output" class="svg-container">
+            </div>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
