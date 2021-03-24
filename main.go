@@ -20,7 +20,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println(m.Title)
-	svgmap.Encode(m, os.Stdout, width, height, padLeft, padBottom)
+	svgmap.Encode(m, os.Stdout, width, height, padLeft, padBottom, false)
 	/*
 		allShortest := path.DijkstraAllPaths(m)
 		it1 := m.Nodes()

@@ -36,7 +36,7 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 		{Offset: 70, Color: "rgb(255,255,255)", Opacity: 1.0},
 		{Offset: 100, Color: "rgb(196,196,196)", Opacity: 1.0}}
 
-	w.Start(width+150, height)
+	w.Startraw(`width="100%"`, `height="100%"`, `class="wardley-map"`, `preserveAspectRatio="xMidYMid meet"`, fmt.Sprintf(`viewBox="0 0 %v %v"`, width+150, height+padBottom))
 	w.writeLegend()
 
 	w.Rect(0, 0, width, height, "fill:white")
@@ -85,6 +85,26 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 	w.Group(`font-family="Consolas, Lucida Console, monospace"`, `font-weight="14px"`, `font-size="13px"`)
 }
 
+func (w *svgMap) tooltips(width, height, padLeft, padBottom int) {
+	sizeW := float64(width-padLeft) / 100
+	sizeH := float64(height-padBottom) / 100
+	var placementW, placementH float64
+	for i := 0; i < 100; i++ {
+		placementH = 0
+		for j := 0; j < 100; j++ {
+			placementH += sizeH
+			w.SVG.Translate(int((placementW))+padLeft, int((placementH)))
+			w.SVG.Rect(0, 0, int(sizeW), int(sizeH),
+				`fill-opacity="0.0"`,
+				fmt.Sprintf(`onmousemove="showTooltip(evt, '[%.2f,%.2f]');"`, 1-placementH/float64(height-padBottom), placementW/float64(width-padLeft)), `onmouseout="hideTooltip();"`)
+			w.SVG.Gend()
+
+		}
+		placementW += sizeW
+	}
+
+}
+
 // close the map (add the closing tags to the SVG)
 func (w *svgMap) close() {
 	w.Gend()
@@ -102,7 +122,10 @@ func (w *svgMap) writeElement(e SVGer) {
 }
 
 // Encode the map
-func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
+func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int, withToolTip bool) {
+	if m == nil {
+		return
+	}
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
 	out.Title(m.Title)
@@ -138,13 +161,21 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 		}
 	}
 	out.Gend()
-	out.Gid("annotations")
-	for _, annotation := range m.Annotations {
-		out.writeElement(annotation)
+	if len(m.Annotations) != 0 {
+		out.Gid("annotations")
+		for _, annotation := range m.Annotations {
+			out.writeElement(annotation)
+		}
+		// Add the annotation box
+		writeAnnotations(out, m, width, height, padLeft, padBottom)
+		out.Gend()
 	}
-	// Add the annotation box
-	writeAnnotations(out, m, width, height, padLeft, padBottom)
-	out.Gend()
+
+	if withToolTip {
+		out.Group("tooltips")
+		out.tooltips(width, height, padLeft, padBottom)
+		out.Gend()
+	}
 	out.close()
 }
 
