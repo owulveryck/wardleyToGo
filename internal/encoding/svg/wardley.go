@@ -123,6 +123,9 @@ func (w *svgMap) writeElement(e SVGer) {
 
 // Encode the map
 func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int, withToolTip bool) {
+	if m == nil {
+		return
+	}
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
 	out.Title(m.Title)

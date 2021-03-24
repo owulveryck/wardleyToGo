@@ -49,7 +49,9 @@ function keyHandler(event) {
         } else {
             autoindent(e.target);
         }
+
     }
+
     return true;
 }
 
@@ -64,25 +66,50 @@ function autorender() {
 
 function render() {
     var prog = document.getElementById("edit").value;
+    var svg = generateSVG(prog);
+    document.getElementById("output").innerHTML = svg;
+    /*
     var req = new XMLHttpRequest();
     xmlreq = req;
     req.onreadystatechange = renderUpdate;
     req.open("POST", "/render", true);
     req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     req.send(prog);
+    */
+    save();
+
 }
 
+function save() {
+    var content = document.getElementById("edit").value;
+    //localStorage["user"] = user ;
+    localStorage.setItem("content", content);
+
+}
+
+function load() {
+    var content = localStorage.getItem("content");
+    document.getElementById("edit").value = content;
+}
+
+function start() {
+    load();
+    render();
+}
+document.onload = start;
+
+
 function showTooltip(evt, text) {
-  let tooltip = document.getElementById("tooltip");
-  tooltip.innerHTML = text;
-  tooltip.style.display = "block";
-  tooltip.style.left = evt.pageX + 10 + 'px';
-  tooltip.style.top = evt.pageY - 100 + 'px';
+    let tooltip = document.getElementById("tooltip");
+    tooltip.innerHTML = text;
+    tooltip.style.display = "block";
+    tooltip.style.left = evt.pageX + 10 + 'px';
+    tooltip.style.top = evt.pageY - 10 + 'px';
 }
 
 function hideTooltip() {
-  var tooltip = document.getElementById("tooltip");
-  tooltip.style.display = "none";
+    var tooltip = document.getElementById("tooltip");
+    tooltip.style.display = "none";
 }
 
 function insertAtCursor(myField, myValue) {
