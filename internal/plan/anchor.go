@@ -9,6 +9,7 @@ type Anchor struct {
 	Label  string
 }
 
+// GetCoordinates fulfils the Element interface
 func (a *Anchor) GetCoordinates() []int {
 	return []int{a.Coords[0], a.Coords[1]}
 }

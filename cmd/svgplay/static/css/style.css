@@ -16,6 +16,12 @@
     width: 80%;
 }
 
+#tooltip {
+    background: cornsilk;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+  }
 /* Clear floats after the columns */
 
 .row:after {

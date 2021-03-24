@@ -65,7 +65,7 @@ func render(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	svgmap.Encode(m, w, width, height, padLeft, padBottom)
+	svgmap.Encode(m, w, width, height, padLeft, padBottom, true)
 }
 
 var frontPage = template.Must(template.New("frontPage").Parse(frontPageText)) // HTML template

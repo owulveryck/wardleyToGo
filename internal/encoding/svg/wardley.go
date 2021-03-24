@@ -85,6 +85,26 @@ func (w *svgMap) init(width, height, padLeft, padBottom int) {
 	w.Group(`font-family="Consolas, Lucida Console, monospace"`, `font-weight="14px"`, `font-size="13px"`)
 }
 
+func (w *svgMap) tooltips(width, height, padLeft, padBottom int) {
+	sizeW := float64(width-padLeft) / 100
+	sizeH := float64(height-padBottom) / 100
+	var placementW, placementH float64
+	for i := 0; i < 100; i++ {
+		placementH = 0
+		for j := 0; j < 100; j++ {
+			placementH += sizeH
+			w.SVG.Translate(int((placementW))+padLeft, int((placementH)))
+			w.SVG.Rect(0, 0, int(sizeW), int(sizeH),
+				`fill-opacity="0.0"`,
+				fmt.Sprintf(`onmousemove="showTooltip(evt, '[%.2f,%.2f]');"`, 1-placementH/float64(height-padBottom), placementW/float64(width-padLeft)), `onmouseout="hideTooltip();"`)
+			w.SVG.Gend()
+
+		}
+		placementW += sizeW
+	}
+
+}
+
 // close the map (add the closing tags to the SVG)
 func (w *svgMap) close() {
 	w.Gend()
@@ -102,7 +122,7 @@ func (w *svgMap) writeElement(e SVGer) {
 }
 
 // Encode the map
-func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
+func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int, withToolTip bool) {
 	out := newSvgMap(w)
 	out.init(width, height, padLeft, padBottom)
 	out.Title(m.Title)
@@ -145,6 +165,12 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int) {
 		}
 		// Add the annotation box
 		writeAnnotations(out, m, width, height, padLeft, padBottom)
+		out.Gend()
+	}
+
+	if withToolTip {
+		out.Group("tooltips")
+		out.tooltips(width, height, padLeft, padBottom)
 		out.Gend()
 	}
 	out.close()
