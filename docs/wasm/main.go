@@ -31,6 +31,6 @@ func generateSVG(this js.Value, inputs []js.Value) interface{} {
 		log.Println(err)
 	}
 	var output bytes.Buffer
-	svgmap.Encode(m, &output, width, height, padLeft, padBottom, false)
+	svgmap.Encode(m, &output, width, height, padLeft, padBottom, true)
 	return js.ValueOf(output.String())
 }

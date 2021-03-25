@@ -93,10 +93,8 @@ function load() {
 }
 
 function start() {
-    load();
     render();
 }
-document.onload = start;
 
 
 function showTooltip(evt, text) {
