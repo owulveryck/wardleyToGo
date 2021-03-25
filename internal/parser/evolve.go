@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"text/scanner"
@@ -9,34 +10,46 @@ import (
 )
 
 func (p *Parser) parseEvolve() error {
-	c := plan.NewEvolvedComponent(p.g.NewNode().ID())
+	c, err := scanEvolve(p.s, p.g.NewNode().ID())
+	if err != nil {
+		return err
+	}
+	p.g.AddNode(c)
+	p.nodeEvolveDict[c.Label] = c
+	return nil
+}
+
+func scanEvolve(s *scanner.Scanner, id int64) (*plan.EvolvedComponent, error) {
+	c := plan.NewEvolvedComponent(id)
 	var b strings.Builder
 	var prevTok rune
-	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
-		if tok == '[' && c.Label == "" {
+	labelize := func(c *plan.EvolvedComponent, b *strings.Builder) {
+		if c.Label == "" {
 			c.Label = strings.TrimRight(b.String(), " ")
-			b.Reset()
 		}
-		if tok == scanner.Ident {
-			b.WriteString(p.s.TokenText())
+		b.Reset()
+	}
+	for tok := s.Scan(); tok != '\n' && tok != scanner.EOF; tok = s.Scan() {
+		switch tok {
+		case '[':
+			labelize(c, &b)
+		case scanner.Ident:
+			b.WriteString(s.TokenText())
 			b.WriteRune(' ')
-		}
-		if tok == scanner.Float {
+		case scanner.Float:
 			c.Label = strings.TrimRight(b.String(), " ")
 			b.Reset()
-			f, err := strconv.ParseFloat(p.s.TokenText(), 64)
+			f, err := strconv.ParseFloat(s.TokenText(), 64)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			if c.Coords[1] == plan.UndefinedCoord {
 				c.Coords[1] = int(f * 100)
 				continue
 			}
-		}
-		if tok == '(' {
-			b.Reset()
-		}
-		if tok == ')' {
+		case '(':
+			labelize(c, &b)
+		case ')':
 			switch strings.TrimRight(b.String(), " ") {
 			case "build":
 				c.Type = plan.BuildComponent
@@ -46,16 +59,17 @@ func (p *Parser) parseEvolve() error {
 				c.Type = plan.OutsourceComponent
 			case "dataProduct":
 				c.Type = plan.DataProductComponent
+			default:
+				return nil, fmt.Errorf("unhandled type %v", strings.TrimRight(b.String(), " "))
 			}
-		}
-		if tok == scanner.Int {
+		case scanner.Int:
 			sign := ""
 			if prevTok == '-' {
 				sign = "-"
 			}
-			i, err := strconv.Atoi(sign + p.s.TokenText())
+			i, err := strconv.Atoi(sign + s.TokenText())
 			if err != nil {
-				return err
+				return nil, err
 			}
 			if c.LabelCoords[0] == plan.UndefinedCoord {
 				c.LabelCoords[0] = i
@@ -68,7 +82,6 @@ func (p *Parser) parseEvolve() error {
 		}
 		prevTok = tok
 	}
-	p.g.AddNode(c)
-	p.nodeEvolveDict[c.Label] = c
-	return nil
+	labelize(c, &b)
+	return c, nil
 }

@@ -7,10 +7,14 @@ import (
 type ComponentType int
 
 const (
+	// This is a RegularComponent
 	RegularComponent ComponentType = iota
 	BuildComponent
+	// This is component off the shelf element
 	BuyComponent
+	// OutsourceComponent ...
 	OutsourceComponent
+	// DataProductComponent ...
 	DataProductComponent
 )
 
@@ -27,6 +31,7 @@ type Component struct {
 	Type        ComponentType
 }
 
+// NewComponent with the corresponding id and default UndefinedCoords
 func NewComponent(id int64) *Component {
 	return &Component{
 		id:          id,
@@ -64,6 +69,7 @@ func (c *Component) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 	s.Gend()
 }
 
+// GetCoordinates fulfils the Element interface
 func (c *Component) GetCoordinates() []int {
 	return []int{c.Coords[0], c.Coords[1]}
 }
@@ -117,6 +123,7 @@ func (e *EvolvedComponent) SVG(s *svg.SVG, width, height, padLeft, padBottom int
 	s.Gend()
 }
 
+// GetCoordinates fulfils the Element interface
 func (e *EvolvedComponent) GetCoordinates() []int {
 	return []int{e.Coords[0], e.Coords[1]}
 }
