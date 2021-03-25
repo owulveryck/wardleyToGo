@@ -11,6 +11,9 @@ _Note_: Not all the DSL is implemented as of today.
 
 A typical flow is to create the map with the online tool and to copy paste it to use with this code.
 
+## Demo
+
+Check the online demo at [https://owulveryck.github.io/wardleyToGo/](https://owulveryck.github.io/wardleyToGo/)
 ### About
 
 The entry point is a direct graph.
