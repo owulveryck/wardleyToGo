@@ -1,11 +1,11 @@
 package svgmap
 
-import "github.com/owulveryck/wardleyToGo/internal/plan"
+import "github.com/owulveryck/wardleyToGo"
 
 func (w *svgMap) writeLegend() {
 	w.Group(`font-family="Helvetica,Arial,sans-serif"`, `font-size="13px"`)
 
-	p := &plan.StreamAlignedTeam{
+	p := &wardleyToGo.StreamAlignedTeam{
 		Coords: [4]int{92, 90, 98, 99},
 	}
 	p.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
@@ -15,7 +15,7 @@ func (w *svgMap) writeLegend() {
 	w.SVG.Text(x1+5, y1+15, "Stream Aligned")
 	w.SVG.Text(x1+5, y1+35, "Team")
 
-	s := &plan.PlatformTeam{
+	s := &wardleyToGo.PlatformTeam{
 		Coords: [4]int{82, 90, 88, 99},
 	}
 	s.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
@@ -25,7 +25,7 @@ func (w *svgMap) writeLegend() {
 	w.SVG.Text(x1+5, y1+15, "Platform")
 	w.SVG.Text(x1+5, y1+35, "Team")
 
-	c := &plan.ComplicatedSubsystemTeam{
+	c := &wardleyToGo.ComplicatedSubsystemTeam{
 		Coords: [4]int{72, 90, 78, 99},
 	}
 	c.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
@@ -35,7 +35,7 @@ func (w *svgMap) writeLegend() {
 	w.SVG.Text(x1+11, y1+15, "Complicated")
 	w.SVG.Text(x1+11, y1+35, "Subsystem")
 
-	e := &plan.EnablingTeam{
+	e := &wardleyToGo.EnablingTeam{
 		Coords: [4]int{62, 90, 68, 99},
 	}
 	e.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
@@ -45,50 +45,50 @@ func (w *svgMap) writeLegend() {
 	w.SVG.Text(x1+11, y1+15, "Enabling")
 	w.SVG.Text(x1+11, y1+35, "Team")
 
-	collaborationEdge := plan.Edge{
+	collaborationEdge := wardleyToGo.Edge{
 		F:        &dummyElement{[]int{52, 90}},
 		T:        &dummyElement{[]int{52, 99}},
-		EdgeType: plan.CollaborationEdge,
+		EdgeType: wardleyToGo.CollaborationEdge,
 	}
 	collaborationEdge.SVGTT(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-52*(w.height-w.padLeft)/100+20, "collaboration")
 
-	facilitatingEdge := plan.Edge{
+	facilitatingEdge := wardleyToGo.Edge{
 		F:        &dummyElement{[]int{47, 90}},
 		T:        &dummyElement{[]int{47, 99}},
-		EdgeType: plan.FacilitatingEdge,
+		EdgeType: wardleyToGo.FacilitatingEdge,
 	}
 	facilitatingEdge.SVGTT(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-47*(w.height-w.padLeft)/100+20, "facilitating")
 
-	xAsAServiceEdge := plan.Edge{
+	xAsAServiceEdge := wardleyToGo.Edge{
 		F:        &dummyElement{[]int{42, 90}},
 		T:        &dummyElement{[]int{42, 99}},
-		EdgeType: plan.XAsAServiceEdge,
+		EdgeType: wardleyToGo.XAsAServiceEdge,
 	}
 	xAsAServiceEdge.SVGTT(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+5, (w.height-w.padLeft)-42*(w.height-w.padLeft)/100+20, "xAsAService")
-	buildComponent := plan.Component{
-		Type:   plan.BuildComponent,
+	buildComponent := wardleyToGo.Component{
+		Type:   wardleyToGo.BuildComponent,
 		Coords: [2]int{30, 92},
 	}
 	buildComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+55, (w.height-w.padLeft)-30*(w.height-w.padLeft)/100+7, "build")
-	outsourceComponent := plan.Component{
-		Type:   plan.OutsourceComponent,
+	outsourceComponent := wardleyToGo.Component{
+		Type:   wardleyToGo.OutsourceComponent,
 		Coords: [2]int{23, 92},
 	}
 	outsourceComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+55, (w.height-w.padLeft)-23*(w.height-w.padLeft)/100+7, "outsource")
-	buyComponent := plan.Component{
-		Type:   plan.BuyComponent,
+	buyComponent := wardleyToGo.Component{
+		Type:   wardleyToGo.BuyComponent,
 		Coords: [2]int{16, 92},
 	}
 	buyComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)
 	w.SVG.Text(90*(w.width+150-w.padLeft)/100+w.padLeft+55, (w.height-w.padLeft)-16*(w.height-w.padLeft)/100+7, "buy")
 
-	dataProductComponent := plan.Component{
-		Type:   plan.DataProductComponent,
+	dataProductComponent := wardleyToGo.Component{
+		Type:   wardleyToGo.DataProductComponent,
 		Coords: [2]int{9, 92},
 	}
 	dataProductComponent.SVG(w.SVG, w.width+150, w.height, w.padLeft, w.padBottom)

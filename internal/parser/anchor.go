@@ -5,7 +5,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 )
 
 func (p *Parser) parseAnchor() error {
@@ -18,8 +18,8 @@ func (p *Parser) parseAnchor() error {
 	return nil
 }
 
-func scanAnchor(s *scanner.Scanner, id int64) (*plan.Anchor, error) {
-	a := plan.NewAnchor(id)
+func scanAnchor(s *scanner.Scanner, id int64) (*wardleyToGo.Anchor, error) {
+	a := wardleyToGo.NewAnchor(id)
 	var b strings.Builder
 	inLabel := true
 	curLine := s.Pos().Line
@@ -40,11 +40,11 @@ func scanAnchor(s *scanner.Scanner, id int64) (*plan.Anchor, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Coords[0] == plan.UndefinedCoord {
+			if a.Coords[0] == wardleyToGo.UndefinedCoord {
 				a.Coords[0] = int(f * 100)
 				continue
 			}
-			if a.Coords[1] == plan.UndefinedCoord {
+			if a.Coords[1] == wardleyToGo.UndefinedCoord {
 				a.Coords[1] = int(f * 100)
 				continue
 			}

@@ -7,11 +7,11 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 )
 
 func (p *Parser) parseAnnotation() error {
-	var a *plan.Annotation
+	var a *wardleyToGo.Annotation
 	coords := make([]int, 0)
 	var b strings.Builder
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
@@ -20,7 +20,7 @@ func (p *Parser) parseAnnotation() error {
 			if err != nil {
 				return err
 			}
-			a = plan.NewAnnotation(i)
+			a = wardleyToGo.NewAnnotation(i)
 		}
 		if tok == scanner.Float {
 			f, err := strconv.ParseFloat(p.s.TokenText(), 64)

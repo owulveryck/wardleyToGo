@@ -1,4 +1,4 @@
-package plan
+package wardleyToGo
 
 import (
 	svg "github.com/ajstarks/svgo"
@@ -79,7 +79,7 @@ func (e Edge) SVGTT(s *svg.SVG, width, height, padLeft, padBottom int) {
 			(height-padLeft)-fromCoord[0]*(height-padLeft)/100,
 			toCoord[1]*(width-padLeft)/100+padLeft,
 			(height-padLeft)-toCoord[0]*(height-padLeft)/100,
-			`stroke-dasharray="2 8"`, `stroke="black"`, `stroke-width="10"`)
+			`stroke-dasharray="2 14"`, `stroke="grey"`, `stroke-width="20"`)
 	}
 }
 

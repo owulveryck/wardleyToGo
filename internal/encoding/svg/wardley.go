@@ -5,7 +5,7 @@ import (
 	"io"
 
 	svg "github.com/ajstarks/svgo"
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 )
 
 // svgMap is an object representing the map in SVG
@@ -122,7 +122,7 @@ func (w *svgMap) writeElement(e SVGer) {
 }
 
 // Encode the map
-func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int, withToolTip bool) {
+func Encode(m *wardleyToGo.Map, w io.Writer, width, height, padLeft, padBottom int, withToolTip bool) {
 	if m == nil {
 		return
 	}
@@ -132,7 +132,7 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int, wit
 	edgesIt := m.Edges()
 	out.Gid("teamRelations")
 	for edgesIt.Next() {
-		edgesIt.Edge().(plan.Edge).SVGTT(out.SVG, width, height, padLeft, padBottom)
+		edgesIt.Edge().(wardleyToGo.Edge).SVGTT(out.SVG, width, height, padLeft, padBottom)
 	}
 	out.Gend()
 
@@ -179,7 +179,7 @@ func Encode(m *plan.Map, w io.Writer, width, height, padLeft, padBottom int, wit
 	out.close()
 }
 
-func writeAnnotations(out *svgMap, m *plan.Map, width, height, padLeft, padBottom int) {
+func writeAnnotations(out *svgMap, m *wardleyToGo.Map, width, height, padLeft, padBottom int) {
 	maxLen := 0
 	for _, annotation := range m.Annotations {
 		if len(annotation.Label) > maxLen {

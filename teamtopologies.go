@@ -1,4 +1,4 @@
-package plan
+package wardleyToGo
 
 import (
 	svg "github.com/ajstarks/svgo"

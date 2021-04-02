@@ -6,7 +6,7 @@ import (
 	"testing"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 )
 
 /*
@@ -86,7 +86,7 @@ func Test_scanAnchor(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *plan.Anchor
+		want    *wardleyToGo.Anchor
 		wantErr bool
 	}{
 		{
@@ -94,8 +94,8 @@ func Test_scanAnchor(t *testing.T) {
 			args{
 				s: newScanner(`bla`),
 			},
-			&plan.Anchor{
-				Coords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Anchor{
+				Coords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:  `bla`,
 			},
 			false,
@@ -105,8 +105,8 @@ func Test_scanAnchor(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla`),
 			},
-			&plan.Anchor{
-				Coords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Anchor{
+				Coords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:  `bla bla`,
 			},
 			false,
@@ -116,7 +116,7 @@ func Test_scanAnchor(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&plan.Anchor{
+			&wardleyToGo.Anchor{
 				Coords: [2]int{40, 30},
 				Label:  `bla bla`,
 			},

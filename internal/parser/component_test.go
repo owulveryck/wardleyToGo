@@ -6,7 +6,7 @@ import (
 	"testing"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 )
 
 func Test_scanComponent(t *testing.T) {
@@ -23,7 +23,7 @@ func Test_scanComponent(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *plan.Component
+		want    *wardleyToGo.Component
 		wantErr bool
 	}{
 		{
@@ -31,10 +31,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 			},
 			false,
 		},
@@ -43,10 +43,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 			},
 			false,
 		},
@@ -55,10 +55,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&plan.Component{
+			&wardleyToGo.Component{
 				Coords:      [2]int{40, 30},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 			},
 			false,
 		},
@@ -67,7 +67,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3] label [12,12]`),
 			},
-			&plan.Component{
+			&wardleyToGo.Component{
 				Coords:      [2]int{40, 30},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{12, 12},
@@ -79,7 +79,7 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3] label [-12,12]`),
 			},
-			&plan.Component{
+			&wardleyToGo.Component{
 				Coords:      [2]int{40, 30},
 				Label:       `bla bla`,
 				LabelCoords: [2]int{-12, 12},
@@ -92,11 +92,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (build)`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-				Type:        plan.BuildComponent,
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+				Type:        wardleyToGo.BuildComponent,
 			},
 			false,
 		},
@@ -105,11 +105,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (build)`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-				Type:        plan.BuildComponent,
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+				Type:        wardleyToGo.BuildComponent,
 			},
 			false,
 		},
@@ -118,11 +118,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (buy)`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-				Type:        plan.BuyComponent,
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+				Type:        wardleyToGo.BuyComponent,
 			},
 			false,
 		},
@@ -131,11 +131,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (outsource)`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-				Type:        plan.OutsourceComponent,
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+				Type:        wardleyToGo.OutsourceComponent,
 			},
 			false,
 		},
@@ -144,11 +144,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (dataProduct)`),
 			},
-			&plan.Component{
-				Coords:      [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
+			&wardleyToGo.Component{
+				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
 				Label:       `bla bla`,
-				LabelCoords: [2]int{plan.UndefinedCoord, plan.UndefinedCoord},
-				Type:        plan.DataProductComponent,
+				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+				Type:        wardleyToGo.DataProductComponent,
 			},
 			false,
 		},

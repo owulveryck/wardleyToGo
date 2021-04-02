@@ -1,4 +1,4 @@
-package plan
+package wardleyToGo
 
 import (
 	"gonum.org/v1/gonum/graph/simple"

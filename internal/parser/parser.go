@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
@@ -18,8 +18,8 @@ type Parser struct {
 	g                    *simple.DirectedGraph
 	nodeDict             map[string]graph.Node
 	nodeEvolveDict       map[string]graph.Node
-	edges                []plan.Edge
-	annotations          []*plan.Annotation
+	edges                []wardleyToGo.Edge
+	annotations          []*wardleyToGo.Annotation
 	annotationsPlacement [2]int
 }
 
@@ -31,13 +31,13 @@ func NewParser(r io.Reader) *Parser {
 		s:              &s,
 		nodeDict:       make(map[string]graph.Node),
 		nodeEvolveDict: make(map[string]graph.Node),
-		edges:          make([]plan.Edge, 0),
-		annotations:    make([]*plan.Annotation, 0),
+		edges:          make([]wardleyToGo.Edge, 0),
+		annotations:    make([]*wardleyToGo.Annotation, 0),
 		g:              simple.NewDirectedGraph(),
 	}
 }
 
-func (p *Parser) Parse() (*plan.Map, error) {
+func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 	parsers := map[string]func() error{
 		"title":                    p.parseTitle,
 		"component":                p.parseComponent,
@@ -66,7 +66,7 @@ func (p *Parser) Parse() (*plan.Map, error) {
 			log.Println("Warning", err)
 		}
 		switch e := e.(type) {
-		case plan.Edge:
+		case wardleyToGo.Edge:
 			p.edges = append(p.edges, e)
 		}
 	}
@@ -78,7 +78,7 @@ func (p *Parser) Parse() (*plan.Map, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &plan.Map{
+	return &wardleyToGo.Map{
 		Title:                p.title,
 		DirectedGraph:        p.g,
 		Annotations:          p.annotations,
@@ -87,8 +87,8 @@ func (p *Parser) Parse() (*plan.Map, error) {
 }
 
 func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
-	var e plan.Edge
-	e.EdgeType = plan.RegularEdge
+	var e wardleyToGo.Edge
+	e.EdgeType = wardleyToGo.RegularEdge
 	var b strings.Builder
 	b.WriteString(firstElement)
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
@@ -103,11 +103,11 @@ func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
 		if tok == '>' {
 			switch strings.TrimLeft(b.String(), " ") {
 			case "collaboration":
-				e.EdgeType = plan.CollaborationEdge
+				e.EdgeType = wardleyToGo.CollaborationEdge
 			case "facilitating":
-				e.EdgeType = plan.FacilitatingEdge
+				e.EdgeType = wardleyToGo.FacilitatingEdge
 			case "xAsAService":
-				e.EdgeType = plan.XAsAServiceEdge
+				e.EdgeType = wardleyToGo.XAsAServiceEdge
 			}
 			b.Reset()
 		}

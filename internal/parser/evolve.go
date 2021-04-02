@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/internal/plan"
+	"github.com/owulveryck/wardleyToGo"
 )
 
 func (p *Parser) parseEvolve() error {
@@ -19,11 +19,11 @@ func (p *Parser) parseEvolve() error {
 	return nil
 }
 
-func scanEvolve(s *scanner.Scanner, id int64) (*plan.EvolvedComponent, error) {
-	c := plan.NewEvolvedComponent(id)
+func scanEvolve(s *scanner.Scanner, id int64) (*wardleyToGo.EvolvedComponent, error) {
+	c := wardleyToGo.NewEvolvedComponent(id)
 	var b strings.Builder
 	var prevTok rune
-	labelize := func(c *plan.EvolvedComponent, b *strings.Builder) {
+	labelize := func(c *wardleyToGo.EvolvedComponent, b *strings.Builder) {
 		if c.Label == "" {
 			c.Label = strings.TrimRight(b.String(), " ")
 		}
@@ -43,7 +43,7 @@ func scanEvolve(s *scanner.Scanner, id int64) (*plan.EvolvedComponent, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.Coords[1] == plan.UndefinedCoord {
+			if c.Coords[1] == wardleyToGo.UndefinedCoord {
 				c.Coords[1] = int(f * 100)
 				continue
 			}
@@ -52,13 +52,13 @@ func scanEvolve(s *scanner.Scanner, id int64) (*plan.EvolvedComponent, error) {
 		case ')':
 			switch strings.TrimRight(b.String(), " ") {
 			case "build":
-				c.Type = plan.BuildComponent
+				c.Type = wardleyToGo.BuildComponent
 			case "buy":
-				c.Type = plan.BuyComponent
+				c.Type = wardleyToGo.BuyComponent
 			case "outsource":
-				c.Type = plan.OutsourceComponent
+				c.Type = wardleyToGo.OutsourceComponent
 			case "dataProduct":
-				c.Type = plan.DataProductComponent
+				c.Type = wardleyToGo.DataProductComponent
 			default:
 				return nil, fmt.Errorf("unhandled type %v", strings.TrimRight(b.String(), " "))
 			}
@@ -71,11 +71,11 @@ func scanEvolve(s *scanner.Scanner, id int64) (*plan.EvolvedComponent, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.LabelCoords[0] == plan.UndefinedCoord {
+			if c.LabelCoords[0] == wardleyToGo.UndefinedCoord {
 				c.LabelCoords[0] = i
 				continue
 			}
-			if c.LabelCoords[1] == plan.UndefinedCoord {
+			if c.LabelCoords[1] == wardleyToGo.UndefinedCoord {
 				c.LabelCoords[1] = i
 				continue
 			}
