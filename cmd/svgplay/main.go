@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"text/template"
 
-	svgmap "github.com/owulveryck/wardleyToGo/internal/encoding/svg"
-	"github.com/owulveryck/wardleyToGo/internal/parser"
+	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/parser"
 )
 
 var (
