@@ -1,13 +1,15 @@
 package wardleyToGo
 
 import (
+	"image"
+
 	svg "github.com/ajstarks/svgo"
 )
 
 type StreamAlignedTeam struct {
-	Id     int64
-	Coords [4]int
-	Label  string
+	Id        int64
+	Placement image.Rectangle
+	Label     string
 }
 
 func (s *StreamAlignedTeam) String() string {

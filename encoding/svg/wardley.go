@@ -111,11 +111,6 @@ func (w *svgMap) close() {
 	w.End()
 }
 
-// SVGer is any object that can represent itself on a map
-type SVGer interface {
-	SVG(s *svg.SVG, width, height, padLeft, padBottom int)
-}
-
 // writeElement on the map
 func (w *svgMap) writeElement(e SVGer) {
 	e.SVG(w.SVG, w.width, w.height, w.padLeft, w.padBottom)

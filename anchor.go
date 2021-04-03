@@ -1,23 +1,30 @@
 package wardleyToGo
 
-import svg "github.com/ajstarks/svgo"
+import (
+	"image"
+	"strconv"
+
+	svg "github.com/ajstarks/svgo"
+	"gonum.org/v1/gonum/graph"
+)
+
+var (
+	_ SVGer      = &Anchor{}
+	_ graph.Node = &Anchor{}
+	_ Element    = &Anchor{}
+)
 
 // An Anchor of the map
 type Anchor struct {
-	id     int64
-	Coords [2]int
-	Label  string
-}
-
-// GetCoordinates fulfils the Element interface
-func (a *Anchor) GetCoordinates() []int {
-	return []int{a.Coords[0], a.Coords[1]}
+	id        int64
+	Placement image.Point
+	Label     string
 }
 
 func NewAnchor(id int64) *Anchor {
 	return &Anchor{
-		id:     id,
-		Coords: [2]int{UndefinedCoord, UndefinedCoord},
+		id:        id,
+		Placement: image.Pt(UndefinedCoord, UndefinedCoord),
 	}
 }
 
@@ -25,12 +32,19 @@ func (c *Anchor) ID() int64 {
 	return c.id
 }
 
-func (c *Anchor) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
-	s.Translate(c.Coords[1]*(width-padLeft)/100+padLeft, (height-padLeft)-c.Coords[0]*(height-padLeft)/100)
+func (c *Anchor) SVG(s *svg.SVG, bounds image.Rectangle) {
+	coords := calcCoords(c.Placement, bounds)
+	s.Gid(strconv.FormatInt(c.id, 10))
+	s.Translate(coords.X, coords.Y)
 	s.Text(0, 0, c.Label, `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)
+	s.Gend()
 	s.Gend()
 }
 
 func (c *Anchor) String() string {
 	return c.Label
+}
+
+func (c *Anchor) GetPosition() image.Point {
+	return c.Placement
 }
