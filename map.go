@@ -7,6 +7,7 @@ import (
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo/components"
+	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
 
@@ -71,4 +72,8 @@ func (m *Map) AddComponent(e components.Component) error {
 func (m *Map) SetEdge(e *Edge) error {
 	m.g.SetEdge(e)
 	return nil
+}
+
+func (m *Map) Nodes() graph.Nodes {
+	return m.g.Nodes()
 }
