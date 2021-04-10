@@ -1,4 +1,4 @@
-package wardleyToGo
+package components
 
 import (
 	"image"
@@ -75,7 +75,7 @@ func Test_calcCoords(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := calcCoords(tt.args.p, tt.args.bounds); !reflect.DeepEqual(got, tt.want) {
+			if got := CalcCoords(tt.args.p, tt.args.bounds); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("calcCoords() = %v, want %v", got, tt.want)
 			}
 		})

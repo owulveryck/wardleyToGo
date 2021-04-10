@@ -6,10 +6,28 @@ import (
 	svg "github.com/ajstarks/svgo"
 )
 
-type StreamAlignedTeam struct {
-	Id        int64
+type Team struct {
 	Placement image.Rectangle
 	Label     string
+}
+
+func makeTeam() Team {
+	return Team{
+		Placement: image.Rect(UndefinedCoord, UndefinedCoord, UndefinedCoord, UndefinedCoord),
+	}
+}
+
+func (t Team) svg(s *svg.SVG, bounds image.Rectangle) {
+	placement := calcCoords(t.Placement.Min, bounds)
+	s.Translate(placement.X, placement.Y)
+}
+func (t Team) svgEnd(s *svg.SVG, _ image.Rectangle) {
+	s.Gend()
+}
+
+type StreamAlignedTeam struct {
+	Id int64
+	Team
 }
 
 func (s *StreamAlignedTeam) String() string {
@@ -18,19 +36,15 @@ func (s *StreamAlignedTeam) String() string {
 
 func NewStreamAlignedTeam(id int64) *StreamAlignedTeam {
 	return &StreamAlignedTeam{
-		Id:     id,
-		Coords: [4]int{UndefinedCoord, UndefinedCoord, UndefinedCoord, UndefinedCoord},
+		Id:   id,
+		Team: makeTeam(),
 	}
 }
 
-func (s *StreamAlignedTeam) SVG(svg *svg.SVG, width, height, padLeft, padBottom int) {
-	x1 := s.Coords[1]*(width-padLeft)/100 + padLeft
-	y1 := (height - padLeft) - s.Coords[0]*(height-padLeft)/100
-	x2 := s.Coords[3]*(width-padLeft)/100 + padLeft
-	y2 := (height - padLeft) - s.Coords[2]*(height-padLeft)/100
-	svg.Translate(x1, y1)
-	svg.Roundrect(0, 0, abs(x2-x1), abs(y2-y1), 15, 15, `fill="rgb(252, 237, 190)"`, `opacity="0.9"`, `stroke="rgb(250,216,120)"`, `stroke-opacity="0.9"`, `stroke-width="5px"`)
-	svg.Gend()
+func (sa *StreamAlignedTeam) SVG(s *svg.SVG, bounds image.Rectangle) {
+	sa.svg(s, bounds)
+	s.Roundrect(0, 0, sa.Placement.Dx(), sa.Placement.Dy(), 15, 15, `fill="rgb(252, 237, 190)"`, `opacity="0.9"`, `stroke="rgb(250,216,120)"`, `stroke-opacity="0.9"`, `stroke-width="5px"`)
+	s.Gend()
 }
 
 func (s *StreamAlignedTeam) ID() int64 {

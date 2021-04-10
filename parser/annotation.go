@@ -42,7 +42,7 @@ func (p *Parser) parseAnnotation() error {
 		return fmt.Errorf("incomplete coordinates: %v", coords)
 	}
 	for i := 0; i < len(coords); i += 2 {
-		a.Coords = append(a.Coords, [2]int{coords[i], coords[i+1]})
+		a.Placements = append(a.Placements, [2]int{coords[i], coords[i+1]})
 	}
 	a.Label = strings.TrimRight(b.String(), " ")
 	p.annotations = append(p.annotations, a)

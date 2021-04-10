@@ -1,10 +1,11 @@
 package wardleyToGo
 
 import (
-	svg "github.com/ajstarks/svgo"
+	"github.com/owulveryck/wardleyToGo/components"
 	"gonum.org/v1/gonum/graph"
 )
 
+/*
 type EdgeType int
 
 const (
@@ -15,14 +16,13 @@ const (
 	FacilitatingEdge
 	XAsAServiceEdge
 )
+*/
 
 type Edge struct {
-	ToLabel   string
-	FromLabel string
 	T         graph.Node
 	F         graph.Node
 	EdgeLabel string
-	EdgeType  EdgeType
+	EdgeType  components.EdgeType
 }
 
 func (e Edge) From() graph.Node {
@@ -33,9 +33,8 @@ func (e Edge) ReversedEdge() graph.Edge {
 	return Edge{
 		F:         e.T,
 		T:         e.F,
-		ToLabel:   e.FromLabel,
-		FromLabel: e.ToLabel,
 		EdgeLabel: e.EdgeLabel,
+		EdgeType:  e.EdgeType,
 	}
 }
 
@@ -43,6 +42,7 @@ func (e Edge) To() graph.Node {
 	return e.T
 }
 
+/*
 func (e Edge) SVGTT(s *svg.SVG, width, height, padLeft, padBottom int) {
 	fromCoord := e.F.(Element).GetCoordinates()
 	toCoord := e.T.(Element).GetCoordinates()
@@ -113,3 +113,5 @@ func (e Edge) SVG(s *svg.SVG, width, height, padLeft, padBottom int) {
 			`stroke="grey"`, `stroke-width="1"`)
 	}
 }
+
+*/

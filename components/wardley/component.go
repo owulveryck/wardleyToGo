@@ -1,27 +1,16 @@
-package wardleyToGo
+package wardley
 
 import (
 	"image"
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
-	"gonum.org/v1/gonum/graph"
+	"github.com/owulveryck/wardleyToGo/components"
 )
-
-var (
-	_ SVGer      = &Component{}
-	_ graph.Node = &Component{}
-	_ Element    = &Component{}
-	_ graph.Node = &EvolvedComponent{}
-	_ SVGer      = &EvolvedComponent{}
-	_ Element    = &EvolvedComponent{}
-)
-
-type ComponentType int
 
 const (
 	// This is a RegularComponent
-	RegularComponent ComponentType = iota
+	RegularComponent components.ComponentType = iota | components.Wardley
 	// BuildComponent ...
 	BuildComponent
 	// Off the shelf element
@@ -42,7 +31,7 @@ type Component struct {
 	Placement     image.Point // The placement of the component on a rectangle 100x100
 	Label         string
 	LabePlacement image.Point // LabelPlacement is relative to the placement
-	Type          ComponentType
+	Type          components.ComponentType
 }
 
 // NewComponent with the corresponding id and default UndefinedCoords
@@ -60,7 +49,7 @@ func (c *Component) ID() int64 {
 
 // SVG is a representation of the component
 func (c *Component) SVG(s *svg.SVG, bounds image.Rectangle) {
-	coords := calcCoords(c.Placement, bounds)
+	coords := components.CalcCoords(c.Placement, bounds)
 	s.Gid(strconv.FormatInt(c.id, 10))
 	s.Translate(coords.X, coords.Y)
 	s.Text(c.LabePlacement.X, c.Placement.Y, c.Label)
@@ -100,7 +89,7 @@ func NewEvolvedComponent(id int64) *EvolvedComponent {
 }
 
 func (e *EvolvedComponent) SVG(s *svg.SVG, bounds image.Rectangle) {
-	coords := calcCoords(e.Placement, bounds)
+	coords := components.CalcCoords(e.Placement, bounds)
 	s.Gid(strconv.FormatInt(e.id, 10))
 	s.Translate(coords.X, coords.Y)
 	s.Text(e.LabePlacement.X, e.Placement.Y, e.Label, `fill="red"`)
