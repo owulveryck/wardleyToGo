@@ -21,10 +21,6 @@ const (
 	DataProductComponent
 )
 
-const maxUint = ^uint(0)
-const maxInt = int(maxUint >> 1)
-const UndefinedCoord = -maxInt - 1
-
 // A Component is an element of the map
 type Component struct {
 	id            int64
@@ -38,7 +34,7 @@ type Component struct {
 func NewComponent(id int64) *Component {
 	return &Component{
 		id:        id,
-		Placement: image.Pt(UndefinedCoord, UndefinedCoord),
+		Placement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 	}
 }
 

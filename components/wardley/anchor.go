@@ -18,7 +18,7 @@ type Anchor struct {
 func NewAnchor(id int64) *Anchor {
 	return &Anchor{
 		id:        id,
-		Placement: image.Pt(UndefinedCoord, UndefinedCoord),
+		Placement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 	}
 }
 

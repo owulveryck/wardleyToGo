@@ -5,19 +5,6 @@ import (
 	"gonum.org/v1/gonum/graph"
 )
 
-/*
-type EdgeType int
-
-const (
-	RegularEdge EdgeType = iota
-	EvolvedComponentEdge
-	EvolvedEdge
-	CollaborationEdge
-	FacilitatingEdge
-	XAsAServiceEdge
-)
-*/
-
 type Edge struct {
 	T         graph.Node
 	F         graph.Node
