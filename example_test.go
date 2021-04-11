@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"log"
 	"math"
 
 	"github.com/owulveryck/wardleyToGo"
@@ -25,10 +24,8 @@ func (d *dummyComponent) GetPosition() image.Point { return d.position }
 func (d *dummyComponent) ID() int64 { return d.id }
 
 func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
-	log.Println(dst)
-	log.Println(r)
-	log.Println(src)
-	log.Println(sp)
+	coords := utils.CalcCoords(d.position, dst.Bounds().Add(sp))
+	dst.Set(coords.X, coords.Y, color.Gray{Y: 255})
 }
 
 type dummyCollaboration struct{ simple.Edge }
@@ -59,8 +56,18 @@ func Example() {
 	m.SetCollaboration(newCollaboration(c2, c3))
 	m.SetCollaboration(newCollaboration(c1, c3))
 
+	// Creates a picture representation of the map
+	const width = 100
+	const height = 20
+
+	im := image.NewGray(image.Rectangle{Max: image.Point{X: width, Y: height}})
+	m.Drawer = &wardley{}
+
+	m.Draw(im, im.Bounds(), im, image.Point{X: 0, Y: 0})
 	// Very trivial example to draw a map on stdout
-	drawMap(m)
+	render(im)
+
+	//	drawMap(m)
 
 	// Find the shortest path betwen c0 and c3
 	p, _ := path.AStar(c0, c3, m, euclideanDistance)
@@ -93,20 +100,12 @@ func Example() {
 	//Shortest path from c0 to c3: -0-1-3
 }
 
-//drawMap on stdout
-func drawMap(m *wardleyToGo.Map) {
-	// Creates a picture representation of the map
-	const width = 100
-	const height = 20
+type wardley struct{}
 
-	im := image.NewGray(image.Rectangle{Max: image.Point{X: width, Y: height}})
-	nodes := m.Nodes()
-	for nodes.Next() {
-		n := nodes.Node().(wardleyToGo.Component)
-		// CalcCoords adapt the coordinates accrording to the map
-		coords := utils.CalcCoords(n.GetPosition(), im.Bounds())
-		im.SetGray(coords.X, coords.Y, color.Gray{Y: 255})
-	}
+func (w *wardley) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {}
+
+func render(im image.Image) {
+	width := im.Bounds().Dx()
 	pi := image.NewPaletted(im.Bounds(), []color.Color{
 		color.Gray{Y: 255},
 		color.Gray{Y: 160},
