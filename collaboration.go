@@ -1,32 +1,13 @@
 package wardleyToGo
 
 import (
-	"github.com/owulveryck/wardleyToGo/components"
 	"gonum.org/v1/gonum/graph"
 )
 
-type Edge struct {
-	T         graph.Node
-	F         graph.Node
-	EdgeLabel string
-	EdgeType  components.EdgeType
-}
-
-func (e Edge) From() graph.Node {
-	return e.F
-}
-
-func (e Edge) ReversedEdge() graph.Edge {
-	return Edge{
-		F:         e.T,
-		T:         e.F,
-		EdgeLabel: e.EdgeLabel,
-		EdgeType:  e.EdgeType,
-	}
-}
-
-func (e Edge) To() graph.Node {
-	return e.T
+// A Collaboration is an edge between two components with a certain type
+type Collaboration interface {
+	graph.Edge
+	GetType() EdgeType
 }
 
 /*

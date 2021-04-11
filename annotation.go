@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
-	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
 // An annotation is a set of placements of a certain label
@@ -22,9 +22,10 @@ func NewAnnotation(identifier int) *Annotation {
 	}
 }
 
+// Annotation fulfils the svgmap.SVGer interface
 func (a *Annotation) SVG(s *svg.SVG, bounds image.Rectangle) {
 	for _, coords := range a.Placements {
-		placement := components.CalcCoords(coords, bounds)
+		placement := utils.CalcCoords(coords, bounds)
 		s.Translate(placement.X, placement.Y)
 		s.Circle(0, 0, 15, `fill="white"`, `stroke="#595959"`, `stroke-width="2"`)
 		s.Text(0, 5, strconv.Itoa(a.Identifier), `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)

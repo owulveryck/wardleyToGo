@@ -5,12 +5,13 @@ import (
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
+	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
 )
 
 const (
 	// This is a RegularComponent
-	RegularComponent components.ComponentType = iota | components.Wardley
+	RegularComponent wardleyToGo.ComponentType = iota | components.Wardley
 	// BuildComponent ...
 	BuildComponent
 	// Off the shelf element
@@ -27,7 +28,7 @@ type Component struct {
 	Placement     image.Point // The placement of the component on a rectangle 100x100
 	Label         string
 	LabePlacement image.Point // LabelPlacement is relative to the placement
-	Type          components.ComponentType
+	Type          wardleyToGo.ComponentType
 }
 
 // NewComponent with the corresponding id and default UndefinedCoords

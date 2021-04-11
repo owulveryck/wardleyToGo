@@ -1,4 +1,4 @@
-package components
+package wardleyToGo
 
 // The EdgeType
 type EdgeType uint8

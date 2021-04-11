@@ -1,10 +1,12 @@
 package components
 
+import "github.com/owulveryck/wardleyToGo"
+
 const (
-	Undefined ComponentType = iota
-	Wardley                 = 32 << iota
+	Undefined wardleyToGo.ComponentType = iota
+	Wardley                             = 32 << iota
 	TeamTopologies
-	UnedfinedEdge EdgeType = iota
+	UnedfinedEdge uint8 = iota
 
 	maxUint        = ^uint(0)
 	maxInt         = int(maxUint >> 1)

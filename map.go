@@ -3,10 +3,8 @@ package wardleyToGo
 import (
 	"errors"
 	"image"
-	"strconv"
+	"image/draw"
 
-	svg "github.com/ajstarks/svgo"
-	"github.com/owulveryck/wardleyToGo/components"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
@@ -16,8 +14,11 @@ import (
 //  A := image.Point{}
 //  image.Rectangle{A, Pt(100, 100)}
 type Map struct {
-	id                   int64
-	Title                string
+	id    int64
+	Title string
+	// Drawer is the function that will draw the initial map
+	// allowing the placement of the axis, legend and so on
+	Drawer               draw.Drawer
 	Annotations          []*Annotation
 	AnnotationsPlacement image.Point
 	area                 image.Rectangle
@@ -48,9 +49,32 @@ func (m *Map) GetArea() image.Rectangle {
 	return m.area
 }
 
+// Draw aligns r.Min in dst with sp in src and then replaces the
+// rectangle r in dst with the result of drawing src on dst.
+// If the Components and Collaboration elemts of the maps are draw.Drawer, their methods
+// are called accordingly
+func (m *Map) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	if m.Drawer != nil {
+		m.Drawer.Draw(dst, r, src, sp)
+	}
+	nodes := m.Nodes()
+	for nodes.Next() {
+		if n, ok := nodes.Node().(draw.Drawer); ok {
+			n.Draw(dst, r, src, sp)
+		}
+	}
+	edges := m.Edges()
+	for edges.Next() {
+		if e, ok := edges.Edge().(draw.Drawer); ok {
+			e.Draw(dst, r, src, sp)
+		}
+	}
+}
+
 // SVG representation, class is subMapElement and element
+/*
 func (m *Map) SVG(s *svg.SVG, bounds image.Rectangle) {
-	coords := components.CalcCoords(m.GetPosition(), bounds)
+	coords := utils.CalcCoords(m.GetPosition(), bounds)
 	s.Gid(strconv.FormatInt(m.id, 10))
 	s.Translate(coords.X, coords.Y)
 	s.Text(10, 10, m.Title)
@@ -58,10 +82,11 @@ func (m *Map) SVG(s *svg.SVG, bounds image.Rectangle) {
 	s.Gend()
 	s.Gend()
 }
+*/
 
 // AddComponent add e to the graph. It returns an error if e is out-of-bounds,
 // meaning its coordinates are less than 0 or more that 100
-func (m *Map) AddComponent(e components.Component) error {
+func (m *Map) AddComponent(e Component) error {
 	if !e.GetPosition().In(image.Rect(0, 0, 100, 100)) {
 		return errors.New("component out of bounds")
 	}
@@ -69,11 +94,14 @@ func (m *Map) AddComponent(e components.Component) error {
 	return nil
 }
 
-func (m *Map) SetEdge(e *Edge) error {
+func (m *Map) SetCollaboration(e Collaboration) error {
 	m.g.SetEdge(e)
 	return nil
 }
 
 func (m *Map) Nodes() graph.Nodes {
 	return m.g.Nodes()
+}
+func (m *Map) Edges() graph.Edges {
+	return m.g.Edges()
 }
