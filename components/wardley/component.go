@@ -82,7 +82,8 @@ func (e *EvolvedComponent) ID() int64 {
 }
 
 func NewEvolvedComponent(id int64) *EvolvedComponent {
-	return &EvolvedComponent{NewComponent(id)}
+	c := NewComponent(id)
+	return &EvolvedComponent{c}
 }
 
 func (e *EvolvedComponent) SVG(s *svg.SVG, bounds image.Rectangle) {

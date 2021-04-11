@@ -6,7 +6,8 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
 func (p *Parser) parseComponent() error {
@@ -19,9 +20,9 @@ func (p *Parser) parseComponent() error {
 	return nil
 }
 
-func scanComponent(s *scanner.Scanner, id int64) (*wardleyToGo.Component, error) {
-	c := wardleyToGo.NewComponent(id)
-	labelize := func(c *wardleyToGo.Component, b *strings.Builder) {
+func scanComponent(s *scanner.Scanner, id int64) (*wardley.Component, error) {
+	c := wardley.NewComponent(id)
+	labelize := func(c *wardley.Component, b *strings.Builder) {
 		if c.Label == "" {
 			c.Label = strings.TrimRight(b.String(), " ")
 		}
@@ -41,12 +42,12 @@ func scanComponent(s *scanner.Scanner, id int64) (*wardleyToGo.Component, error)
 			if err != nil {
 				return nil, err
 			}
-			if c.Coords[0] == wardleyToGo.UndefinedCoord {
-				c.Coords[0] = int(f * 100)
+			if c.Placement.X == components.UndefinedCoord {
+				c.Placement.X = int(f * 100)
 				continue
 			}
-			if c.Coords[1] == wardleyToGo.UndefinedCoord {
-				c.Coords[1] = int(f * 100)
+			if c.Placement.Y == components.UndefinedCoord {
+				c.Placement.Y = int(f * 100)
 				continue
 			}
 		case '(':
@@ -55,13 +56,13 @@ func scanComponent(s *scanner.Scanner, id int64) (*wardleyToGo.Component, error)
 		case ')':
 			switch strings.TrimRight(b.String(), " ") {
 			case "build":
-				c.Type = wardleyToGo.BuildComponent
+				c.Type = wardley.BuildComponent
 			case "buy":
-				c.Type = wardleyToGo.BuyComponent
+				c.Type = wardley.BuyComponent
 			case "outsource":
-				c.Type = wardleyToGo.OutsourceComponent
+				c.Type = wardley.OutsourceComponent
 			case "dataProduct":
-				c.Type = wardleyToGo.DataProductComponent
+				c.Type = wardley.DataProductComponent
 			default:
 				return nil, fmt.Errorf("unhandled type %v", strings.TrimRight(b.String(), " "))
 			}
@@ -74,12 +75,12 @@ func scanComponent(s *scanner.Scanner, id int64) (*wardleyToGo.Component, error)
 			if err != nil {
 				return nil, err
 			}
-			if c.LabelCoords[0] == wardleyToGo.UndefinedCoord {
-				c.LabelCoords[0] = i
+			if c.LabePlacement.X == components.UndefinedCoord {
+				c.LabePlacement.X = i
 				continue
 			}
-			if c.LabelCoords[1] == wardleyToGo.UndefinedCoord {
-				c.LabelCoords[1] = i
+			if c.LabePlacement.Y == components.UndefinedCoord {
+				c.LabePlacement.Y = i
 				continue
 			}
 		}

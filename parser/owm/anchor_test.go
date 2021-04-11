@@ -1,12 +1,14 @@
 package parser
 
 import (
+	"image"
 	"reflect"
 	"strings"
 	"testing"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
 /*
@@ -86,7 +88,7 @@ func Test_scanAnchor(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *wardleyToGo.Anchor
+		want    *wardley.Anchor
 		wantErr bool
 	}{
 		{
@@ -94,9 +96,9 @@ func Test_scanAnchor(t *testing.T) {
 			args{
 				s: newScanner(`bla`),
 			},
-			&wardleyToGo.Anchor{
-				Coords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:  `bla`,
+			&wardley.Anchor{
+				Placement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:     `bla`,
 			},
 			false,
 		},
@@ -105,9 +107,9 @@ func Test_scanAnchor(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla`),
 			},
-			&wardleyToGo.Anchor{
-				Coords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:  `bla bla`,
+			&wardley.Anchor{
+				Placement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:     `bla bla`,
 			},
 			false,
 		},
@@ -116,9 +118,9 @@ func Test_scanAnchor(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&wardleyToGo.Anchor{
-				Coords: [2]int{40, 30},
-				Label:  `bla bla`,
+			&wardley.Anchor{
+				Placement: image.Point{40, 30},
+				Label:     `bla bla`,
 			},
 			false,
 		},

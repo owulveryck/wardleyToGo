@@ -36,7 +36,7 @@ func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {
 	return &dummyCollaboration{Edge: simple.Edge{F: a, T: b}}
 }
 
-func Example() {
+func Example_canvas() {
 	// Create a new map
 	m := wardleyToGo.NewMap(0)
 	c0 := &dummyComponent{id: 0, position: image.Pt(25, 25)}

@@ -1,13 +1,6 @@
 package parser
 
-import (
-	"strconv"
-	"strings"
-	"text/scanner"
-
-	"github.com/owulveryck/wardleyToGo"
-)
-
+/*
 func (p *Parser) parseStreamAligned() error {
 	streamAligned := wardleyToGo.NewStreamAlignedTeam(p.g.NewNode().ID())
 	var b strings.Builder
@@ -191,3 +184,4 @@ func (p *Parser) parseComplicatedSubsystem() error {
 	p.nodeDict[complicatedSubsystem.Label] = complicatedSubsystem
 	return nil
 }
+*/

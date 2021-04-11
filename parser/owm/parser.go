@@ -2,12 +2,14 @@ package parser
 
 import (
 	"fmt"
+	"image"
 	"io"
 	"log"
 	"strings"
 	"text/scanner"
 
 	"github.com/owulveryck/wardleyToGo"
+	tt "github.com/owulveryck/wardleyToGo/components/teamtopologies"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
@@ -18,9 +20,9 @@ type Parser struct {
 	g                    *simple.DirectedGraph
 	nodeDict             map[string]graph.Node
 	nodeEvolveDict       map[string]graph.Node
-	edges                []wardleyToGo.Edge
+	edges                []wardleyToGo.Collaboration
 	annotations          []*wardleyToGo.Annotation
-	annotationsPlacement [2]int
+	annotationsPlacement image.Point
 }
 
 func NewParser(r io.Reader) *Parser {
@@ -31,7 +33,7 @@ func NewParser(r io.Reader) *Parser {
 		s:              &s,
 		nodeDict:       make(map[string]graph.Node),
 		nodeEvolveDict: make(map[string]graph.Node),
-		edges:          make([]wardleyToGo.Edge, 0),
+		edges:          make([]wardleyToGo.Collaboration, 0),
 		annotations:    make([]*wardleyToGo.Annotation, 0),
 		g:              simple.NewDirectedGraph(),
 	}
@@ -39,16 +41,18 @@ func NewParser(r io.Reader) *Parser {
 
 func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 	parsers := map[string]func() error{
-		"title":                    p.parseTitle,
-		"component":                p.parseComponent,
-		"evolve":                   p.parseEvolve,
-		"anchor":                   p.parseAnchor,
-		"streamAlignedTeam":        p.parseStreamAligned,
-		"enablingTeam":             p.parseEnabling,
-		"platformTeam":             p.parsePlatform,
-		"complicatedSubsystemTeam": p.parseComplicatedSubsystem,
-		"annotation":               p.parseAnnotation,
-		"annotations":              p.parseAnnotations,
+		"title":     p.parseTitle,
+		"component": p.parseComponent,
+		"evolve":    p.parseEvolve,
+		"anchor":    p.parseAnchor,
+		/*
+			"streamAlignedTeam":        p.parseStreamAligned,
+			"enablingTeam":             p.parseEnabling,
+			"platformTeam":             p.parsePlatform,
+			"complicatedSubsystemTeam": p.parseComplicatedSubsystem,
+		*/
+		"annotation":  p.parseAnnotation,
+		"annotations": p.parseAnnotations,
 	}
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		if tok == '\n' {
@@ -66,7 +70,7 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 			log.Println("Warning", err)
 		}
 		switch e := e.(type) {
-		case wardleyToGo.Edge:
+		case wardleyToGo.Collaboration:
 			p.edges = append(p.edges, e)
 		}
 	}
@@ -87,8 +91,8 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 }
 
 func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
-	var e wardleyToGo.Edge
-	e.EdgeType = wardleyToGo.RegularEdge
+	var e wardleyToGo.Collaboration
+	//e.EdgeType = wardleyToGo.RegularEdge
 	var b strings.Builder
 	b.WriteString(firstElement)
 	for tok := p.s.Scan(); tok != '\n' && tok != scanner.EOF; tok = p.s.Scan() {
@@ -103,11 +107,11 @@ func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
 		if tok == '>' {
 			switch strings.TrimLeft(b.String(), " ") {
 			case "collaboration":
-				e.EdgeType = wardleyToGo.CollaborationEdge
+				e.EdgeType = tt.CollaborationEdge
 			case "facilitating":
-				e.EdgeType = wardleyToGo.FacilitatingEdge
+				e.EdgeType = tt.FacilitatingEdge
 			case "xAsAService":
-				e.EdgeType = wardleyToGo.XAsAServiceEdge
+				e.EdgeType = tt.XAsAServiceEdge
 			}
 			b.Reset()
 		}

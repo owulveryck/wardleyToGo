@@ -1,12 +1,14 @@
 package parser
 
 import (
+	"image"
 	"reflect"
 	"strings"
 	"testing"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
 func Test_scanComponent(t *testing.T) {
@@ -23,7 +25,7 @@ func Test_scanComponent(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *wardleyToGo.Component
+		want    *wardley.Component
 		wantErr bool
 	}{
 		{
@@ -31,10 +33,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 			},
 			false,
 		},
@@ -43,10 +45,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 			},
 			false,
 		},
@@ -55,10 +57,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{40, 30},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
+			&wardley.Component{
+				Placement:     image.Point{40, 30},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 			},
 			false,
 		},
@@ -67,10 +69,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3] label [12,12]`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{40, 30},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{12, 12},
+			&wardley.Component{
+				Placement:     image.Point{40, 30},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{12, 12},
 			},
 			false,
 		},
@@ -79,10 +81,10 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla [0.4, 0.3] label [-12,12]`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{40, 30},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{-12, 12},
+			&wardley.Component{
+				Placement:     image.Point{40, 30},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{-12, 12},
 			},
 			false,
 		},
@@ -92,11 +94,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (build)`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Type:        wardleyToGo.BuildComponent,
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Type:          wardley.BuildComponent,
 			},
 			false,
 		},
@@ -105,11 +107,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (build)`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Type:        wardleyToGo.BuildComponent,
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Type:          wardley.BuildComponent,
 			},
 			false,
 		},
@@ -118,11 +120,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (buy)`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Type:        wardleyToGo.BuyComponent,
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Type:          wardley.BuyComponent,
 			},
 			false,
 		},
@@ -131,11 +133,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (outsource)`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Type:        wardleyToGo.OutsourceComponent,
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Type:          wardley.OutsourceComponent,
 			},
 			false,
 		},
@@ -144,11 +146,11 @@ func Test_scanComponent(t *testing.T) {
 			args{
 				s: newScanner(`bla   bla (dataProduct)`),
 			},
-			&wardleyToGo.Component{
-				Coords:      [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Label:       `bla bla`,
-				LabelCoords: [2]int{wardleyToGo.UndefinedCoord, wardleyToGo.UndefinedCoord},
-				Type:        wardleyToGo.DataProductComponent,
+			&wardley.Component{
+				Placement:     image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Label:         `bla bla`,
+				LabePlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
+				Type:          wardley.DataProductComponent,
 			},
 			false,
 		},

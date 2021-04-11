@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"image"
 	"strconv"
 	"strings"
 	"text/scanner"
@@ -42,7 +43,7 @@ func (p *Parser) parseAnnotation() error {
 		return fmt.Errorf("incomplete coordinates: %v", coords)
 	}
 	for i := 0; i < len(coords); i += 2 {
-		a.Placements = append(a.Placements, [2]int{coords[i], coords[i+1]})
+		a.Placements = append(a.Placements, image.Point{coords[i], coords[i+1]})
 	}
 	a.Label = strings.TrimRight(b.String(), " ")
 	p.annotations = append(p.annotations, a)
@@ -61,6 +62,6 @@ func (p *Parser) parseAnnotations() error {
 			coords = append(coords, c)
 		}
 	}
-	p.annotationsPlacement = [2]int{coords[0], coords[1]}
+	p.annotationsPlacement = image.Point{coords[0], coords[1]}
 	return nil
 }

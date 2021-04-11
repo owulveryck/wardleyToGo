@@ -6,7 +6,8 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
 func (p *Parser) parseEvolve() error {
@@ -19,11 +20,11 @@ func (p *Parser) parseEvolve() error {
 	return nil
 }
 
-func scanEvolve(s *scanner.Scanner, id int64) (*wardleyToGo.EvolvedComponent, error) {
-	c := wardleyToGo.NewEvolvedComponent(id)
+func scanEvolve(s *scanner.Scanner, id int64) (*wardley.EvolvedComponent, error) {
+	c := wardley.NewEvolvedComponent(id)
 	var b strings.Builder
 	var prevTok rune
-	labelize := func(c *wardleyToGo.EvolvedComponent, b *strings.Builder) {
+	labelize := func(c *wardley.EvolvedComponent, b *strings.Builder) {
 		if c.Label == "" {
 			c.Label = strings.TrimRight(b.String(), " ")
 		}
@@ -43,8 +44,8 @@ func scanEvolve(s *scanner.Scanner, id int64) (*wardleyToGo.EvolvedComponent, er
 			if err != nil {
 				return nil, err
 			}
-			if c.Coords[1] == wardleyToGo.UndefinedCoord {
-				c.Coords[1] = int(f * 100)
+			if c.Placement.Y == components.UndefinedCoord {
+				c.Placement.Y = int(f * 100)
 				continue
 			}
 		case '(':
@@ -52,13 +53,13 @@ func scanEvolve(s *scanner.Scanner, id int64) (*wardleyToGo.EvolvedComponent, er
 		case ')':
 			switch strings.TrimRight(b.String(), " ") {
 			case "build":
-				c.Type = wardleyToGo.BuildComponent
+				c.Type = wardley.BuildComponent
 			case "buy":
-				c.Type = wardleyToGo.BuyComponent
+				c.Type = wardley.BuyComponent
 			case "outsource":
-				c.Type = wardleyToGo.OutsourceComponent
+				c.Type = wardley.OutsourceComponent
 			case "dataProduct":
-				c.Type = wardleyToGo.DataProductComponent
+				c.Type = wardley.DataProductComponent
 			default:
 				return nil, fmt.Errorf("unhandled type %v", strings.TrimRight(b.String(), " "))
 			}
@@ -71,12 +72,12 @@ func scanEvolve(s *scanner.Scanner, id int64) (*wardleyToGo.EvolvedComponent, er
 			if err != nil {
 				return nil, err
 			}
-			if c.LabelCoords[0] == wardleyToGo.UndefinedCoord {
-				c.LabelCoords[0] = i
+			if c.LabePlacement.X == components.UndefinedCoord {
+				c.LabePlacement.X = i
 				continue
 			}
-			if c.LabelCoords[1] == wardleyToGo.UndefinedCoord {
-				c.LabelCoords[1] = i
+			if c.LabePlacement.Y == components.UndefinedCoord {
+				c.LabePlacement.Y = i
 				continue
 			}
 		}

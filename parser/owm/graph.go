@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
 func (p *Parser) completeEvolve() error {
@@ -12,7 +13,7 @@ func (p *Parser) completeEvolve() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		nodeEvolve.(*wardleyToGo.EvolvedComponent).Coords[0] = node.(*wardleyToGo.Component).Coords[0]
+		nodeEvolve.(*wardley.EvolvedComponent).Placement = node.(*wardley.Component).Placement
 	}
 	return nil
 }
