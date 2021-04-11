@@ -15,9 +15,9 @@ import (
 type Map struct {
 	id    int64
 	Title string
-	// Drawer is the function that will draw the initial map
+	// Canvas is the function that will draw the initial map
 	// allowing the placement of the axis, legend and so on
-	Drawer               draw.Drawer
+	Canvas               draw.Drawer
 	Annotations          []*Annotation
 	AnnotationsPlacement image.Point
 	area                 image.Rectangle
@@ -53,8 +53,8 @@ func (m *Map) GetArea() image.Rectangle {
 // If the Components and Collaboration elemts of the maps are draw.Drawer, their methods
 // are called accordingly
 func (m *Map) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
-	if m.Drawer != nil {
-		m.Drawer.Draw(dst, r, src, sp)
+	if m.Canvas != nil {
+		m.Canvas.Draw(dst, r, src, sp)
 	}
 	nodes := m.Nodes()
 	for nodes.Next() {
