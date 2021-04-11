@@ -6,9 +6,13 @@ import (
 	"image/color"
 	"image/draw"
 	"log"
+	"math"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"gonum.org/v1/gonum/graph"
+	"gonum.org/v1/gonum/graph/path"
+	"gonum.org/v1/gonum/graph/simple"
 )
 
 type dummyComponent struct {
@@ -27,16 +31,66 @@ func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image
 	log.Println(sp)
 }
 
+type dummyCollaboration struct{ simple.Edge }
+
+func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
+
+func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {
+	return &dummyCollaboration{Edge: simple.Edge{F: a, T: b}}
+}
+
 func Example() {
 	// Create a new map
 	m := wardleyToGo.NewMap(0)
 	c0 := &dummyComponent{id: 0, position: image.Pt(25, 25)}
 	c1 := &dummyComponent{id: 1, position: image.Pt(50, 50)}
+	c2 := &dummyComponent{id: 2, position: image.Pt(50, 75)}
+	c3 := &dummyComponent{id: 3, position: image.Pt(75, 75)}
 	m.AddComponent(c0)
 	m.AddComponent(c1)
+	m.AddComponent(c2)
+	m.AddComponent(c3)
+	// c0 -> c1
+	// c1 -> c2
+	// c2 -> c3
+	// c1 -> c3
+	m.SetCollaboration(newCollaboration(c0, c1))
+	m.SetCollaboration(newCollaboration(c1, c2))
+	m.SetCollaboration(newCollaboration(c2, c3))
+	m.SetCollaboration(newCollaboration(c1, c3))
 
 	// Very trivial example to draw a map on stdout
 	drawMap(m)
+
+	// Find the shortest path betwen c0 and c3
+	p, _ := path.AStar(c0, c3, m, euclideanDistance)
+	c0Toc3, _ := p.To(c3.ID())
+	fmt.Printf("Shortest path from c0 to c3: ")
+	for _, c := range c0Toc3 {
+		fmt.Printf("-%v", c.ID())
+	}
+	//Output:
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//█████████████████████████ ██████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//██████████████████████████████████████████████████ █████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//██████████████████████████████████████████████████ ████████████████████████ ████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//████████████████████████████████████████████████████████████████████████████████████████████████████
+	//Shortest path from c0 to c3: -0-1-3
 }
 
 //drawMap on stdout
@@ -69,4 +123,12 @@ func drawMap(m *wardleyToGo.Map) {
 			fmt.Print("\n")
 		}
 	}
+}
+
+var euclideanDistance path.Heuristic = func(x, y graph.Node) float64 {
+	xC := x.(wardleyToGo.Component).GetPosition()
+	yC := y.(wardleyToGo.Component).GetPosition()
+	a := xC.X - yC.X
+	b := xC.Y - yC.Y
+	return math.Sqrt(float64(a*a) + float64(b*b))
 }

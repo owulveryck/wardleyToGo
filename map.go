@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/draw"
 
-	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
 
@@ -22,15 +21,15 @@ type Map struct {
 	Annotations          []*Annotation
 	AnnotationsPlacement image.Point
 	area                 image.Rectangle
-	g                    *simple.DirectedGraph
+	*simple.DirectedGraph
 }
 
 // NewMap with initial area of 100x100
 func NewMap(id int64) *Map {
 	return &Map{
-		id:   id,
-		area: image.Rect(0, 0, 100, 100),
-		g:    simple.NewDirectedGraph(),
+		id:            id,
+		area:          image.Rect(0, 0, 100, 100),
+		DirectedGraph: simple.NewDirectedGraph(),
 	}
 }
 
@@ -90,18 +89,11 @@ func (m *Map) AddComponent(e Component) error {
 	if !e.GetPosition().In(image.Rect(0, 0, 100, 100)) {
 		return errors.New("component out of bounds")
 	}
-	m.g.AddNode(e)
+	m.DirectedGraph.AddNode(e)
 	return nil
 }
 
 func (m *Map) SetCollaboration(e Collaboration) error {
-	m.g.SetEdge(e)
+	m.DirectedGraph.SetEdge(e)
 	return nil
-}
-
-func (m *Map) Nodes() graph.Nodes {
-	return m.g.Nodes()
-}
-func (m *Map) Edges() graph.Edges {
-	return m.g.Edges()
 }
