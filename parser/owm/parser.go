@@ -1,4 +1,4 @@
-package parser
+package owm
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type Parser struct {
 	g                    *simple.DirectedGraph
 	nodeDict             map[string]graph.Node
 	nodeEvolveDict       map[string]graph.Node
-	edges                []wardleyToGo.Collaboration
+	edges                []edge
 	annotations          []*wardleyToGo.Annotation
 	annotationsPlacement image.Point
 }
@@ -33,7 +33,7 @@ func NewParser(r io.Reader) *Parser {
 		s:              &s,
 		nodeDict:       make(map[string]graph.Node),
 		nodeEvolveDict: make(map[string]graph.Node),
-		edges:          make([]wardleyToGo.Collaboration, 0),
+		edges:          make([]edge, 0),
 		annotations:    make([]*wardleyToGo.Annotation, 0),
 		g:              simple.NewDirectedGraph(),
 	}
@@ -41,18 +41,16 @@ func NewParser(r io.Reader) *Parser {
 
 func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 	parsers := map[string]func() error{
-		"title":     p.parseTitle,
-		"component": p.parseComponent,
-		"evolve":    p.parseEvolve,
-		"anchor":    p.parseAnchor,
-		/*
-			"streamAlignedTeam":        p.parseStreamAligned,
-			"enablingTeam":             p.parseEnabling,
-			"platformTeam":             p.parsePlatform,
-			"complicatedSubsystemTeam": p.parseComplicatedSubsystem,
-		*/
-		"annotation":  p.parseAnnotation,
-		"annotations": p.parseAnnotations,
+		"title":                    p.parseTitle,
+		"component":                p.parseComponent,
+		"evolve":                   p.parseEvolve,
+		"anchor":                   p.parseAnchor,
+		"streamAlignedTeam":        p.parseStreamAligned,
+		"enablingTeam":             p.parseEnabling,
+		"platformTeam":             p.parsePlatform,
+		"complicatedSubsystemTeam": p.parseComplicatedSubsystem,
+		"annotation":               p.parseAnnotation,
+		"annotations":              p.parseAnnotations,
 	}
 	for tok := p.s.Scan(); tok != scanner.EOF; tok = p.s.Scan() {
 		if tok == '\n' {
@@ -70,7 +68,7 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 			log.Println("Warning", err)
 		}
 		switch e := e.(type) {
-		case wardleyToGo.Collaboration:
+		case edge:
 			p.edges = append(p.edges, e)
 		}
 	}
@@ -91,7 +89,7 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 }
 
 func (p *Parser) parseDefault(firstElement string) (interface{}, error) {
-	var e wardleyToGo.Collaboration
+	var e edge
 	//e.EdgeType = wardleyToGo.RegularEdge
 	var b strings.Builder
 	b.WriteString(firstElement)

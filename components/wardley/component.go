@@ -24,18 +24,19 @@ const (
 
 // A Component is an element of the map
 type Component struct {
-	id            int64
-	Placement     image.Point // The placement of the component on a rectangle 100x100
-	Label         string
-	LabePlacement image.Point // LabelPlacement is relative to the placement
-	Type          wardleyToGo.ComponentType
+	id             int64
+	Placement      image.Point // The placement of the component on a rectangle 100x100
+	Label          string
+	LabelPlacement image.Point // LabelPlacement is relative to the placement
+	Type           wardleyToGo.ComponentType
 }
 
 // NewComponent with the corresponding id and default UndefinedCoords
 func NewComponent(id int64) *Component {
 	return &Component{
-		id:        id,
-		Placement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
+		id:             id,
+		Placement:      image.Pt(components.UndefinedCoord, components.UndefinedCoord),
+		LabelPlacement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 	}
 }
 
@@ -49,7 +50,7 @@ func (c *Component) SVG(s *svg.SVG, bounds image.Rectangle) {
 	coords := components.CalcCoords(c.Placement, bounds)
 	s.Gid(strconv.FormatInt(c.id, 10))
 	s.Translate(coords.X, coords.Y)
-	s.Text(c.LabePlacement.X, c.Placement.Y, c.Label)
+	s.Text(c.LabelPlacement.X, c.Placement.Y, c.Label)
 	switch c.Type {
 	case BuildComponent:
 		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`, `class="element, buildComponent"`)
@@ -90,7 +91,7 @@ func (e *EvolvedComponent) SVG(s *svg.SVG, bounds image.Rectangle) {
 	coords := components.CalcCoords(e.Placement, bounds)
 	s.Gid(strconv.FormatInt(e.id, 10))
 	s.Translate(coords.X, coords.Y)
-	s.Text(e.LabePlacement.X, e.Placement.Y, e.Label, `fill="red"`)
+	s.Text(e.LabelPlacement.X, e.Placement.Y, e.Label, `fill="red"`)
 	switch e.Type {
 	case BuildComponent:
 		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`, `class="element, buildComponent"`)

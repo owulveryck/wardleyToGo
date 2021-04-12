@@ -1,4 +1,4 @@
-package parser
+package owm
 
 import (
 	"fmt"
@@ -75,12 +75,12 @@ func scanComponent(s *scanner.Scanner, id int64) (*wardley.Component, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.LabePlacement.X == components.UndefinedCoord {
-				c.LabePlacement.X = i
+			if c.LabelPlacement.X == components.UndefinedCoord {
+				c.LabelPlacement.X = i
 				continue
 			}
-			if c.LabePlacement.Y == components.UndefinedCoord {
-				c.LabePlacement.Y = i
+			if c.LabelPlacement.Y == components.UndefinedCoord {
+				c.LabelPlacement.Y = i
 				continue
 			}
 		}

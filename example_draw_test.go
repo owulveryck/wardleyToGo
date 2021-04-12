@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/draw"
 	"math"
+	"strconv"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
@@ -21,6 +22,8 @@ type dummyComponent struct {
 
 func (d *dummyComponent) GetPosition() image.Point { return d.position }
 
+func (d *dummyComponent) String() string { return strconv.FormatInt(d.id, 10) }
+
 func (d *dummyComponent) ID() int64 { return d.id }
 
 func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
@@ -34,6 +37,28 @@ func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
 
 func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {
 	return &dummyCollaboration{Edge: simple.Edge{F: a, T: b}}
+}
+
+func ExampleMap_String() {
+	// Create a new map
+	m := wardleyToGo.NewMap(0)
+	c0 := &dummyComponent{id: 0, position: image.Pt(25, 25)}
+	c1 := &dummyComponent{id: 1, position: image.Pt(50, 50)}
+	c2 := &dummyComponent{id: 2, position: image.Pt(50, 75)}
+	c3 := &dummyComponent{id: 3, position: image.Pt(75, 75)}
+	m.AddComponent(c0)
+	m.AddComponent(c1)
+	m.AddComponent(c2)
+	m.AddComponent(c3)
+	// c0 -> c1
+	// c1 -> c2
+	// c2 -> c3
+	// c1 -> c3
+	m.SetCollaboration(newCollaboration(c0, c1))
+	m.SetCollaboration(newCollaboration(c1, c2))
+	m.SetCollaboration(newCollaboration(c2, c3))
+	m.SetCollaboration(newCollaboration(c1, c3))
+	fmt.Println(m)
 }
 
 func Example_canvas() {

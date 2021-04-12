@@ -12,7 +12,7 @@ type StreamAlignedTeam struct {
 
 func NewStreamAlignedTeam(id int64) *StreamAlignedTeam {
 	return &StreamAlignedTeam{
-		Team: newTeam(id),
+		Team: NewTeam(id),
 	}
 }
 

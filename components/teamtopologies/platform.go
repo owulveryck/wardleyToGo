@@ -12,7 +12,7 @@ type PlatformTeam struct {
 
 func NewPlatformTeam(id int64) *StreamAlignedTeam {
 	return &StreamAlignedTeam{
-		Team: newTeam(id),
+		Team: NewTeam(id),
 	}
 }
 

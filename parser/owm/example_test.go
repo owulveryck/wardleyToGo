@@ -1,0 +1,5 @@
+package owm
+
+func Example() {
+
+}

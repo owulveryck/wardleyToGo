@@ -2,8 +2,10 @@ package wardleyToGo
 
 import (
 	"errors"
+	"fmt"
 	"image"
 	"image/draw"
+	"strings"
 
 	"gonum.org/v1/gonum/graph/simple"
 )
@@ -22,6 +24,25 @@ type Map struct {
 	AnnotationsPlacement image.Point
 	area                 image.Rectangle
 	*simple.DirectedGraph
+}
+
+func (m *Map) String() string {
+	var b strings.Builder
+	b.WriteString("map {\n")
+	nodes := m.DirectedGraph.Nodes()
+	for nodes.Next() {
+		n := nodes.Node().(Component)
+		b.WriteString(fmt.Sprintf("\t%v '%v' [%v,%v];\n", n.ID(), n, n.GetPosition().X, n.GetPosition().Y))
+	}
+	b.WriteString("\n")
+	edges := m.DirectedGraph.Edges()
+	for edges.Next() {
+		e := edges.Edge().(Collaboration)
+		b.WriteString(fmt.Sprintf("\t%v -> %v [%v];\n", e.From().ID(), e.To().ID(), e.GetType()))
+
+	}
+	b.WriteString("}\n")
+	return b.String()
 }
 
 // NewMap with initial area of 100x100

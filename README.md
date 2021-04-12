@@ -1,198 +1,66 @@
+# WardleyToGo
+
 [![Go Reference](https://pkg.go.dev/badge/github.com/owulveryck/wardleyToGo.svg)](https://pkg.go.dev/github.com/owulveryck/wardleyToGo)
 [![Go](https://github.com/owulveryck/wardleyToGo/actions/workflows/go.yml/badge.svg)](https://github.com/owulveryck/wardleyToGo/actions/workflows/go.yml)
 [![codecov](https://codecov.io/gh/owulveryck/wardleyToGo/branch/main/graph/badge.svg?token=9BQW1KMGJS)](https://codecov.io/gh/owulveryck/wardleyToGo)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo?ref=badge_shield)
 
-## wardleyToGo
-
-simple tools to play with Wardley maps in Go. The syntax is a copy of [onlinewardleymaps](https://onlinewardleymaps.com/).
-
-_Note_: Not all the DSL is implemented as of today.
-
-A typical flow is to create the map with the online tool and to copy paste it to use with this code.
+A set of primitives to "code a map". In the context of the package "a map" represents a landscape.
+The landscape is made of "Components". Each component knows its own location on a map.
+Components can collaborate, meaning that they may be linked together. Therefore a map is also a graph.
+The entrypoint of this API is the 'Map' structure
 
 ## Demo
 
 Check the online demo at [https://owulveryck.github.io/wardleyToGo/](https://owulveryck.github.io/wardleyToGo/)
-### About
-
-The entry point is a direct graph.
-
-A parser package is in charge of reading the DSL from an `io.Reader` (stdin in the example). It creates the graph structure.
-
-The `encoding/svg` package turn the graph into its SVG representation (hopefully similar to what onlinewardleynap generates). It is the responsibility of eeach component of the graph to fulfill the `SVGer` interface an to represent itself as SVG.
-
-**Note about the API**: the API is unstable as it is mainly a proof f concept. Therefore all the packages are in the `internal` subdirectory to aboid any direct dependency from other package. If you want to test/hack/whatever, feel free to clone and contribute to the package.
-The godoc may give you some indication on how the components are glued together.
 
 ## Example
 
-```shell
-❯ cat sample.owm | go run . 
+First, create a component type
+[embedmd]:# (example_draw_test.go /type dummyComponent.*/ /d.id }/)
+```go
+type dummyComponent struct {
+	id       int64
+	position image.Point
+}
+
+func (d *dummyComponent) GetPosition() image.Point { return d.position }
+
+func (d *dummyComponent) ID() int64 { return d.id }
 ```
 
-This generates an SVG of the map
-![sample](sample.svg)
-**And**
-all the paths connection the elements:
+Then a collaboration structure (an edge)
 
-```text
-Public -- Cup of Tea -- Hot Water
-Public -- Cup of Tea -- Hot Water -- Water
-Public -- Cup of Tea -- Hot Water -- [evolved]Kettle
-Public -- Cup of Tea -- Hot Water -- Kettle -- [evolved]Power
-Public -- Cup of Tea
-Public -- Cup of Tea -- Hot Water -- Kettle
-Public -- Cup of Tea -- Cup
-Public -- Cup of Tea -- Tea
-Public -- Cup of Tea -- Hot Water -- Kettle -- Power
-Cup of Tea -- Hot Water
-Cup of Tea -- Hot Water -- Water
-Cup of Tea -- Hot Water -- [evolved]Kettle
-Cup of Tea -- Hot Water -- [evolved]Kettle -- [evolved]Power
-Cup of Tea -- Cup
-Cup of Tea -- Hot Water -- Kettle
-Cup of Tea -- Tea
-Cup of Tea -- Hot Water -- Kettle -- Power
-Hot Water -- Water
-Hot Water -- [evolved]Kettle
-Hot Water -- [evolved]Kettle -- [evolved]Power
-Hot Water -- Kettle
-Hot Water -- [evolved]Kettle -- Power
-[evolved]Kettle -- Power
-[evolved]Kettle -- [evolved]Power
-Business -- Cup of Tea -- Hot Water -- Kettle -- Power
-Business -- Cup of Tea -- Tea
-Business -- Cup of Tea
-Business -- Cup of Tea -- Hot Water
-Business -- Cup of Tea -- Hot Water -- Water
-Business -- Cup of Tea -- Hot Water -- [evolved]Kettle
-Business -- Cup of Tea -- Hot Water -- [evolved]Kettle -- [evolved]Power
-Business -- Cup of Tea -- Cup
-Business -- Cup of Tea -- Hot Water -- Kettle
-Kettle -- [evolved]Kettle
-Kettle -- [evolved]Power
-Kettle -- Power
-Power -- [evolved]Power
+[embedmd]:# (example_draw_test.go /type dummyCollaboration.*/ /^}$/)
+```go
+type dummyCollaboration struct{ simple.Edge }
+
+func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
+
+func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {
+	return &dummyCollaboration{Edge: simple.Edge{F: a, T: b}}
+}
 ```
 
-## Usage - DSL
+And finally create the map
 
-### Wardley Map
-
-#### To set the title 
-
-`title My Wardley Map`
-
-#### To create a component
-
-`component Name [Visibility (Y Axis), Maturity (X Axis)]`
-
-#### To create a market (not yet implemented)
-
-`market Name [Visibility (Y Axis), Maturity (X Axis)]`
-
-#### Inertia - component likely to face resistance to change. (not yet implemented)
-
-`component Name [Visibility (Y Axis), Maturity (X Axis)] inertia`
-
-#### To evolve a component 
-
-`evole Name (X Axis)`
-
-#### To link components
-
-`Start Component->End Component`
-
-#### To indicate flow (not yet implemented)
-
-`Start Component+<>End Component`
-
-#### To set component as pipeline (not yet implemented)
-
-`pipeline Component Name [X Axis (start), X Axis (end)]`
-
-#### To indicate flow - past components only (not yet implemented)
-
-`Start Component+<End Component`
-
-#### To indicate flow - future components only (not yet implemented)
-
-`Start Component+>End Component`
-
-#### To indicate flow - with label (not yet implemented)
-
-`Start Component+'insert text'>End Component`
-
-#### Pioneers, Settlers, Townplanners area (not yet implemented)
-
-Add areas indicating which type of working approach supports component development
-
-`pioneers [<visibility>, <maturity>, <visibility2>, <maturity2>]`
-
-#### Build, buy, outsource components
-Highlight a component with a build, buy, or outsource method of execution
-
-* `build <component>`
-* `buy <component>`
-* `outsource <component>`
-* `component Customer [0.9, 0.2] (buy)`
-* `component Customer [0.9, 0.2] (build)`
-* `component Customer [0.9, 0.2] (outsource)`
-* `evolve Customer 0.9 (outsource)`
-* `evolve Customer 0.9 (buy)`
-* `evolve Customer 0.9 (build)`
-
-#### Link submap to a component (not yet implemented)
-
-Add a reference link to a submap. A component becomes a link to an other Wardley Map
-
-* `submap Component [<visibility>, <maturity>] url(urlName)`
-* `url urlName [URL]`
-* `submap Website [0.83, 0.50] url(submapUrl)`
-* `url submapUrl [https://onlinewardleymaps.com/#clone:qu4VDDQryoZEnuw0ZZ]`
-
-#### Stages of Evolution
-
-Change the stages of evolution labels on the map
-
-* `evolution First->Second->Third->Fourth`
-* `evolution Novel->Emerging->Good->Best`
-
-#### Y-Axis Labels (not yet implemented)
-
-Change the text of the y-axis labels
-
-* `y-axis Label->Min->Max`
-* `y-axis Value Chain->Invisible->Visible`
-
-#### Add notes (not yet implemented)
-
-Add text to any part of the map
-
-* `note Note Text [0.9, 0.5]`
-* `note +future development [0.9, 0.5]`
-
-#### Available styles (not yet implemented)
-
-Change the look and feel of a map
-
-* `style wardley`
-* `style handwritten`
-* `style colour`
-
-### Team topologies
-
-A couple of additions has been made to add the team topologies shapes:
-
-#### Stream Aligned Team
-
-`streamalignedteam Team Name [<visibility>, <maturity>, <visibility2>, <maturity2>]`
-
-#### Platform Team
-
-`platformteam Team Name [<visibility>, <maturity>, <visibility2>, <maturity2>]`
-
-#### Enabling Team Team
-
-`enablingteam Team Name [<visibility>, <maturity>, <visibility2>, <maturity2>]`
+[embedmd]:# (example_draw_test.go /.*m \:= wardleyToGo.NewMap.*/ /.*c1, c3.*/)
+```go
+	m := wardleyToGo.NewMap(0)
+	c0 := &dummyComponent{id: 0, position: image.Pt(25, 25)}
+	c1 := &dummyComponent{id: 1, position: image.Pt(50, 50)}
+	c2 := &dummyComponent{id: 2, position: image.Pt(50, 75)}
+	c3 := &dummyComponent{id: 3, position: image.Pt(75, 75)}
+	m.AddComponent(c0)
+	m.AddComponent(c1)
+	m.AddComponent(c2)
+	m.AddComponent(c3)
+	// c0 -> c1
+	// c1 -> c2
+	// c2 -> c3
+	// c1 -> c3
+	m.SetCollaboration(newCollaboration(c0, c1))
+	m.SetCollaboration(newCollaboration(c1, c2))
+	m.SetCollaboration(newCollaboration(c2, c3))
+	m.SetCollaboration(newCollaboration(c1, c3))
+```

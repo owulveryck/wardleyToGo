@@ -13,11 +13,14 @@ type Team struct {
 	Label string
 }
 
-func newTeam(id int64) *Team {
+func NewTeam(id int64) *Team {
 	return &Team{
 		id:   id,
 		Area: image.Rect(components.UndefinedCoord, components.UndefinedCoord, components.UndefinedCoord, components.UndefinedCoord),
 	}
+}
+func (t *Team) ID() int64 {
+	return t.id
 }
 
 func (t *Team) String() string {
