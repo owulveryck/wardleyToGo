@@ -32,7 +32,14 @@ func (m *Map) String() string {
 	nodes := m.DirectedGraph.Nodes()
 	for nodes.Next() {
 		n := nodes.Node().(Component)
-		b.WriteString(fmt.Sprintf("\t%v '%v' [%v,%v];\n", n.ID(), n, n.GetPosition().X, n.GetPosition().Y))
+		if a, ok := n.(Area); ok {
+			b.WriteString(
+				fmt.Sprintf("\t%v '%v' [%v,%v,%v,%v];\n", a.ID(), a,
+					a.GetArea().Min.X, a.GetArea().Min.Y,
+					a.GetArea().Max.X, a.GetArea().Max.Y))
+		} else {
+			b.WriteString(fmt.Sprintf("\t%v '%v' [%v,%v];\n", n.ID(), n, n.GetPosition().X, n.GetPosition().Y))
+		}
 	}
 	b.WriteString("\n")
 	edges := m.DirectedGraph.Edges()
