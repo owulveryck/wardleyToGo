@@ -2,6 +2,7 @@ package wardley
 
 import (
 	"image"
+	"log"
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
@@ -45,9 +46,12 @@ func (c *Component) ID() int64 {
 	return c.id
 }
 
-// SVG is a representation of the component
-func (c *Component) SVG(s *svg.SVG, bounds image.Rectangle) {
+// SVGDraw is a representation of the component
+func (c *Component) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
+	log.Println(bounds)
+	log.Println(c.Placement)
 	coords := components.CalcCoords(c.Placement, bounds)
+	log.Println(coords)
 	s.Gid(strconv.FormatInt(c.id, 10))
 	s.Translate(coords.X, coords.Y)
 	s.Text(c.LabelPlacement.X, c.Placement.Y, c.Label)
@@ -87,7 +91,7 @@ func NewEvolvedComponent(id int64) *EvolvedComponent {
 	return &EvolvedComponent{c}
 }
 
-func (e *EvolvedComponent) SVG(s *svg.SVG, bounds image.Rectangle) {
+func (e *EvolvedComponent) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	coords := components.CalcCoords(e.Placement, bounds)
 	s.Gid(strconv.FormatInt(e.id, 10))
 	s.Translate(coords.X, coords.Y)

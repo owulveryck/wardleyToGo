@@ -1,8 +1,12 @@
 package wardley
 
 import (
+	"image"
+
+	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"gonum.org/v1/gonum/graph"
 )
 
@@ -45,4 +49,29 @@ func (c *Collaboration) ReversedEdge() graph.Edge {
 
 func (c *Collaboration) GetType() wardleyToGo.EdgeType {
 	return c.Type
+}
+
+func (c *Collaboration) SVGDraw(s *svg.SVG, r image.Rectangle) {
+	fromCoord := c.F.(wardleyToGo.Component).GetPosition()
+	toCoord := c.T.(wardleyToGo.Component).GetPosition()
+	coordsF := utils.CalcCoords(fromCoord, r)
+	coordsT := utils.CalcCoords(toCoord, r)
+	switch c.Type {
+	case RegularEdge:
+		s.Line(coordsF.X, coordsF.Y,
+			coordsT.X, coordsF.Y,
+			`stroke="grey"`, `stroke-width="1"`)
+	case EvolvedComponentEdge:
+		s.Line(coordsF.X, coordsF.Y,
+			coordsT.X, coordsF.Y,
+			`stroke-dasharray="5 5"`, `stroke="red"`, `stroke-width="1"`, `marker-end="url(#arrow)"`)
+	case EvolvedEdge:
+		s.Line(coordsF.X, coordsF.Y,
+			coordsT.X, coordsF.Y,
+			`stroke="red"`, `stroke-width="1"`)
+	default:
+		s.Line(coordsF.X, coordsF.Y,
+			coordsT.X, coordsF.Y,
+			`stroke="grey"`, `stroke-width="1"`)
+	}
 }

@@ -84,16 +84,17 @@ func (m *Map) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.
 	if m.Canvas != nil {
 		m.Canvas.Draw(dst, r, src, sp)
 	}
-	nodes := m.Nodes()
-	for nodes.Next() {
-		if n, ok := nodes.Node().(draw.Drawer); ok {
-			n.Draw(dst, r, src, sp)
-		}
-	}
+	// Draw edges first
 	edges := m.Edges()
 	for edges.Next() {
 		if e, ok := edges.Edge().(draw.Drawer); ok {
 			e.Draw(dst, r, src, sp)
+		}
+	}
+	nodes := m.Nodes()
+	for nodes.Next() {
+		if n, ok := nodes.Node().(draw.Drawer); ok {
+			n.Draw(dst, r, src, sp)
 		}
 	}
 }

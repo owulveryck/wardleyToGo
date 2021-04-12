@@ -81,10 +81,10 @@ func (p *Parser) createEvolvingComponentEdges() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		p.g.SetEdge(components.Collaboration{
-			F:        node,
-			T:        nodeEvolved,
-			EdgeType: wardley.EvolvedComponentEdge,
+		p.g.SetEdge(&wardley.Collaboration{
+			F:    node.(wardleyToGo.Component),
+			T:    nodeEvolved.(wardleyToGo.Component),
+			Type: wardley.EvolvedComponentEdge,
 		})
 	}
 	return nil
@@ -99,18 +99,18 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		fromIT := p.g.From(node.ID())
 		for fromIT.Next() {
-			p.g.SetEdge(components.Collaboration{
-				F:        nodeEvolved,
-				T:        fromIT.Node(),
-				EdgeType: wardley.EvolvedEdge,
+			p.g.SetEdge(&wardley.Collaboration{
+				F:    nodeEvolved.(wardleyToGo.Component),
+				T:    fromIT.Node().(wardleyToGo.Component),
+				Type: wardley.EvolvedEdge,
 			})
 		}
 		toIT := p.g.To(node.ID())
 		for toIT.Next() {
-			p.g.SetEdge(components.Collaboration{
-				F:        toIT.Node(),
-				T:        nodeEvolved,
-				EdgeType: wardley.EvolvedEdge,
+			p.g.SetEdge(&wardley.Collaboration{
+				F:    toIT.Node().(wardleyToGo.Component),
+				T:    nodeEvolved.(wardleyToGo.Component),
+				Type: wardley.EvolvedEdge,
 			})
 		}
 	}
