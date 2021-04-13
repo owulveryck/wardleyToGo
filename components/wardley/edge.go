@@ -5,21 +5,15 @@ import (
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"gonum.org/v1/gonum/graph"
 )
 
-const (
-	RegularEdge wardleyToGo.EdgeType = iota | wardleyToGo.EdgeType(components.Wardley)
-	EvolvedComponentEdge
-	EvolvedEdge
-)
-
 type Collaboration struct {
-	F, T  wardleyToGo.Component
-	Label string
-	Type  wardleyToGo.EdgeType
+	F, T           wardleyToGo.Component
+	Label          string
+	Type           wardleyToGo.EdgeType
+	RenderingLayer int
 }
 
 // From returns the from node of the edge.
@@ -45,6 +39,10 @@ func (c *Collaboration) ReversedEdge() graph.Edge {
 		Label: c.Label,
 		Type:  c.Type,
 	}
+}
+
+func (c *Collaboration) GetLayer() int {
+	return c.RenderingLayer
 }
 
 func (c *Collaboration) GetType() wardleyToGo.EdgeType {

@@ -48,6 +48,12 @@ func (p *Parser) createEdges() error {
 	if err != nil {
 		return err
 	}
+	e := p.g.Edges()
+	for e.Next() {
+		if e, ok := e.Edge().(*wardley.Collaboration); ok {
+			e.RenderingLayer = 5
+		}
+	}
 	return nil
 }
 

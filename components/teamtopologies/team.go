@@ -8,15 +8,21 @@ import (
 )
 
 type Team struct {
-	id    int64
-	Area  image.Rectangle
-	Label string
+	id             int64
+	Area           image.Rectangle
+	Label          string
+	RenderingLayer int //The position of the element on the picture
+}
+
+func (t *Team) GetLayer() int {
+	return t.RenderingLayer
 }
 
 func NewTeam(id int64) *Team {
 	return &Team{
-		id:   id,
-		Area: image.Rect(components.UndefinedCoord, components.UndefinedCoord, components.UndefinedCoord, components.UndefinedCoord),
+		id:             id,
+		Area:           image.Rect(components.UndefinedCoord, components.UndefinedCoord, components.UndefinedCoord, components.UndefinedCoord),
+		RenderingLayer: 1,
 	}
 }
 func (t *Team) ID() int64 {

@@ -10,9 +10,10 @@ import (
 
 // An Anchor of the map
 type Anchor struct {
-	id        int64
-	Placement image.Point
-	Label     string
+	id             int64
+	Placement      image.Point
+	Label          string
+	RenderingLayer int //The position of the element on the picture
 }
 
 func NewAnchor(id int64) *Anchor {
@@ -22,23 +23,27 @@ func NewAnchor(id int64) *Anchor {
 	}
 }
 
-func (c *Anchor) ID() int64 {
-	return c.id
+func (a *Anchor) GetLayer() int {
+	return a.RenderingLayer
 }
 
-func (c *Anchor) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
-	coords := components.CalcCoords(c.Placement, bounds)
-	s.Gid(strconv.FormatInt(c.id, 10))
+func (a *Anchor) ID() int64 {
+	return a.id
+}
+
+func (a *Anchor) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
+	coords := components.CalcCoords(a.Placement, bounds)
+	s.Gid(strconv.FormatInt(a.id, 10))
 	s.Translate(coords.X, coords.Y)
-	s.Text(0, 0, c.Label, `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)
+	s.Text(0, 0, a.Label, `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)
 	s.Gend()
 	s.Gend()
 }
 
-func (c *Anchor) String() string {
-	return c.Label
+func (a *Anchor) String() string {
+	return a.Label
 }
 
-func (c *Anchor) GetPosition() image.Point {
-	return c.Placement
+func (a *Anchor) GetPosition() image.Point {
+	return a.Placement
 }

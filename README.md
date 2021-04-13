@@ -3,7 +3,6 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/owulveryck/wardleyToGo.svg)](https://pkg.go.dev/github.com/owulveryck/wardleyToGo)
 [![Go](https://github.com/owulveryck/wardleyToGo/actions/workflows/go.yml/badge.svg)](https://github.com/owulveryck/wardleyToGo/actions/workflows/go.yml)
 [![codecov](https://codecov.io/gh/owulveryck/wardleyToGo/branch/main/graph/badge.svg?token=9BQW1KMGJS)](https://codecov.io/gh/owulveryck/wardleyToGo)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fowulveryck%2FwardleyToGo?ref=badge_shield)
 
 A set of primitives to "code a map". In the context of the package "a map" represents a landscape.
 The landscape is made of "Components". Each component knows its own location on a map.
@@ -39,8 +38,10 @@ type dummyCollaboration struct{ simple.Edge }
 
 func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
 
-func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {
-	return &dummyCollaboration{Edge: simple.Edge{F: a, T: b}}
+func (d *dummyCollaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	coordsF := utils.CalcCoords(d.F.(wardleyToGo.Component).GetPosition(), r)
+	coordsT := utils.CalcCoords(d.T.(wardleyToGo.Component).GetPosition(), r)
+	bresenham.Bresenham(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, color.Gray{Y: 128})
 }
 ```
 
@@ -170,3 +171,71 @@ map {
 }
 
 ```
+
+
+## Full sample
+
+This example instanciates a parser, reads a modified version of the online wardleymap and renders it as an SVG:
+
+[embedmd]:# (examples/svgoutput/sample.owm)
+```owm
+title Tea Shop
+anchor Business [0.95, 0.63]
+anchor Public [0.95, 0.78]
+component Cup of Tea [0.79, 0.61] label [19, -4]
+component Cup [0.73, 0.78] label [19,-4] (dataProduct)
+component Tea [0.63, 0.81]
+component Hot Water [0.52, 0.80]
+component Water [0.38, 0.82]
+component Kettle [0.43, 0.35] label [-73, 4] (build)
+evolve Kettle 0.62 label [22, 9] (buy)
+component Power [0.1, 0.7] label [-29, 30] (outsource)
+evolve Power 0.89 label [-12, 21]
+Business->Cup of Tea
+Public->Cup of Tea
+Cup of Tea-collaboration>Cup
+Cup of Tea-collaboration>Tea
+Cup of Tea-collaboration>Hot Water
+Hot Water->Water
+Hot Water-facilitating>Kettle 
+Kettle-xAsAService>Power
+build Kettle
+
+
+annotation 1 [[0.43,0.49],[0.08,0.79]] Standardising power allows Kettles to evolve faster
+annotation 2 [0.48, 0.85] Hot water is obvious and well known
+annotations [0.60, 0.02]
+
+note +a generic note appeared [0.16, 0.36]
+
+style wardley
+streamAlignedTeam stream aligned A [0.84, 0.18, 0.76, 0.95]
+enablingTeam team B [0.9, 0.30, 0.30, 0.40]
+platformTeam team C [0.18, 0.61, 0.02, 0.94]
+complicatedSubsystemTeam team D [0.92, 0.73, 0.45, 0.90]
+```
+
+[embedmd]:# (examples/svgoutput/main.go)
+```go
+package main
+
+import (
+	"image"
+	"log"
+	"os"
+
+	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/parser/owm"
+)
+
+func main() {
+	p := owm.NewParser(os.Stdin)
+	m, err := p.Parse() // the map
+	if err != nil {
+		log.Fatal(err)
+	}
+	svgmap.Encode(m, os.Stdout, 1050, 1050, image.Rect(25, 25, 1025, 1025))
+}
+```
+
+![output](examples/svgoutput/sample.svg)

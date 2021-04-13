@@ -56,7 +56,7 @@ func Test_scanAnchor(t *testing.T) {
 				s: newScanner(`bla   bla [0.4, 0.3]`),
 			},
 			&wardley.Anchor{
-				Placement: image.Point{40, 30},
+				Placement: image.Point{30, 60},
 				Label:     `bla bla`,
 			},
 			false,

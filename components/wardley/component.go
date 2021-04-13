@@ -10,16 +10,7 @@ import (
 )
 
 const (
-	// This is a RegularComponent
-	RegularComponent wardleyToGo.ComponentType = iota | components.Wardley
-	// BuildComponent ...
-	BuildComponent
-	// Off the shelf element
-	BuyComponent
-	// OutsourceComponent ...
-	OutsourceComponent
-	// DataProductComponent ...
-	DataProductComponent
+	DefaultComponentRenderingLayer int = 10
 )
 
 // A Component is an element of the map
@@ -29,6 +20,7 @@ type Component struct {
 	Label          string
 	LabelPlacement image.Point // LabelPlacement is relative to the placement
 	Type           wardleyToGo.ComponentType
+	RenderingLayer int //The position of the element on the picture
 }
 
 // NewComponent with the corresponding id and default UndefinedCoords
@@ -37,7 +29,12 @@ func NewComponent(id int64) *Component {
 		id:             id,
 		Placement:      image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 		LabelPlacement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
+		RenderingLayer: 10,
 	}
+}
+
+func (c *Component) GetLayer() int {
+	return c.RenderingLayer
 }
 
 // Component fulfils the graph.Node interface

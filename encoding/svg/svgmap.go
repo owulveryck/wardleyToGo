@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"sort"
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
@@ -32,17 +33,22 @@ func Encode(m *wardleyToGo.Map, w io.Writer, width, height int, canvas image.Rec
 	out.height = height
 	out.canvas = canvas
 	out.init()
+	elems := make([]SVGDrawer, 0)
 	e := m.Edges()
 	for e.Next() {
 		if e, ok := e.Edge().(SVGDrawer); ok {
-			e.SVGDraw(out.SVG, canvas)
+			elems = append(elems, e)
 		}
 	}
 	n := m.Nodes()
 	for n.Next() {
 		if n, ok := n.Node().(SVGDrawer); ok {
-			n.SVGDraw(out.SVG, canvas)
+			elems = append(elems, n)
 		}
+	}
+	sort.Sort(elements(elems))
+	for _, element := range elems {
+		element.SVGDraw(out.SVG, canvas)
 	}
 	out.Gend()
 	out.SVG.End()
