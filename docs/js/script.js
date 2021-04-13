@@ -95,7 +95,7 @@ function load() {
 function start() {
     render();
 }
-
+window.onload = start();
 
 function showTooltip(evt, text) {
     let tooltip = document.getElementById("tooltip");

@@ -17,7 +17,9 @@ func (d *dummyComponent) GetPosition() image.Point { return d.position }
 func (d *dummyComponent) ID() int64 { return d.id }
 
 func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+
 	coords := calcCoords(d.position, r)
+
 	blue := color.RGBA{0, 0, 255, 255}
 	draw.Draw(dst, image.Rect(coords.X, coords.Y, coords.X+2, coords.Y+2), &image.Uniform{blue}, image.Point{}, draw.Src)
 }
