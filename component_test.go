@@ -5,8 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-
-	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
 type dummyComponent struct {
@@ -19,7 +17,7 @@ func (d *dummyComponent) GetPosition() image.Point { return d.position }
 func (d *dummyComponent) ID() int64 { return d.id }
 
 func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
-	coords := utils.CalcCoords(d.position, r)
+	coords := calcCoords(d.position, r)
 	blue := color.RGBA{0, 0, 255, 255}
 	draw.Draw(dst, image.Rect(coords.X, coords.Y, coords.X+2, coords.Y+2), &image.Uniform{blue}, image.Point{}, draw.Src)
 }
@@ -68,4 +66,12 @@ func ExampleComponent_Draw() {
 	//██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 	//██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████
 
+}
+
+func calcCoords(p image.Point, bounds image.Rectangle) image.Point {
+	scale := bounds.Max.Sub(bounds.Min)
+	scaleX := float64(scale.X) / 100
+	scaleY := float64(scale.Y) / 100
+	dest := image.Pt(int(float64(p.X)*scaleX), int(float64(p.Y)*scaleY))
+	return dest.Add(bounds.Min)
 }
