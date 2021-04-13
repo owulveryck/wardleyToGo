@@ -2,10 +2,16 @@ package wardley
 
 import (
 	"image"
+	"image/color"
+	"image/draw"
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 // An Anchor of the map
@@ -46,4 +52,18 @@ func (a *Anchor) String() string {
 
 func (a *Anchor) GetPosition() image.Point {
 	return a.Placement
+}
+
+func (a *Anchor) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	placement := utils.CalcCoords(a.Placement, r)
+	//coords := components.CalcCoords(c.Placement, r)
+	// Create the circle with the correct
+	dot := fixed.P(placement.X-len(a.Label)*3, placement.Y)
+	d := font.Drawer{
+		Dst:  dst,
+		Src:  image.NewUniform(color.Black),
+		Face: basicfont.Face7x13,
+		Dot:  dot,
+	}
+	d.DrawString(a.Label)
 }

@@ -2,9 +2,12 @@ package wardley
 
 import (
 	"image"
+	"image/color"
+	"image/draw"
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/internal/drawing"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"gonum.org/v1/gonum/graph"
 )
@@ -71,5 +74,26 @@ func (c *Collaboration) SVGDraw(s *svg.SVG, r image.Rectangle) {
 		s.Line(coordsF.X, coordsF.Y,
 			coordsT.X, coordsT.Y,
 			`stroke="grey"`, `stroke-width="1"`)
+	}
+}
+
+// Draw aligns r.Min in dst with sp in src and then replaces the
+// rectangle r in dst with the result of drawing src on dst.
+func (c *Collaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	dash := [2]int{0, 0}
+	coordsF := utils.CalcCoords(c.F.(wardleyToGo.Component).GetPosition(), r)
+	coordsT := utils.CalcCoords(c.T.(wardleyToGo.Component).GetPosition(), r)
+	var col color.Color
+	switch c.Type {
+	case EvolvedComponentEdge:
+		col = color.RGBA{0xff, 0x00, 0x00, 0xff}
+		dash = [2]int{5, 5}
+		drawing.Arrow(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, col, dash)
+	case EvolvedEdge:
+		col = color.RGBA{0xff, 0x00, 0x00, 0xff}
+		drawing.Line(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, col, dash)
+	default:
+		col = color.Gray{Y: 128}
+		drawing.Line(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, col, dash)
 	}
 }

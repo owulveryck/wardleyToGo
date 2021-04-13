@@ -2,11 +2,18 @@ package wardley
 
 import (
 	"image"
+	"image/color"
+	"image/draw"
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/drawing"
+	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 const (
@@ -40,6 +47,47 @@ func (c *Component) GetLayer() int {
 // Component fulfils the graph.Node interface
 func (c *Component) ID() int64 {
 	return c.id
+}
+
+func drawCircle(dst draw.Image, r int, p image.Point, stroke, fill color.Color) {
+
+}
+
+// Draw aligns r.Min in dst with sp in src and then replaces the
+// rectangle r in dst with the result of drawing src on dst.
+func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	placement := utils.CalcCoords(c.Placement, r)
+	//coords := components.CalcCoords(c.Placement, r)
+	labelP := c.LabelPlacement
+	if labelP.X == components.UndefinedCoord {
+		labelP.X = 18
+	}
+	if labelP.Y == components.UndefinedCoord {
+		labelP.Y = 10
+	}
+	labelP = labelP.Add(placement)
+	// First create the circle with a correct resolution
+	switch c.Type {
+	case BuildComponent:
+		drawing.DrawCircle(dst, 10, placement, color.Black, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+	case BuyComponent:
+		drawing.DrawCircle(dst, 10, placement, color.RGBA{0xAA, 0xA5, 0xa9, 0xff}, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+	case OutsourceComponent:
+		drawing.DrawCircle(dst, 10, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{0x44, 0x44, 0x44, 0xff})
+	case DataProductComponent:
+		drawing.DrawCircle(dst, 7, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{246, 72, 22, 0xff})
+	}
+	drawing.DrawCircle(dst, 5, placement, color.Black, color.White)
+
+	// Create the circle with the correct
+	dot := fixed.P(labelP.X, labelP.Y)
+	d := font.Drawer{
+		Dst:  dst,
+		Src:  image.NewUniform(color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xFF}),
+		Face: basicfont.Face7x13,
+		Dot:  dot,
+	}
+	d.DrawString(c.Label)
 }
 
 // SVGDraw is a representation of the component
@@ -116,6 +164,43 @@ func (e *EvolvedComponent) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="red"`, `fill="white"`, `class="element, component"`)
 	s.Gend()
 	s.Gend()
+}
+
+// Draw aligns r.Min in dst with sp in src and then replaces the
+// rectangle r in dst with the result of drawing src on dst.
+func (c *EvolvedComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	placement := utils.CalcCoords(c.Placement, r)
+	//coords := components.CalcCoords(c.Placement, r)
+	labelP := c.LabelPlacement
+	if labelP.X == components.UndefinedCoord {
+		labelP.X = 18
+	}
+	if labelP.Y == components.UndefinedCoord {
+		labelP.Y = 10
+	}
+	labelP = labelP.Add(placement)
+	// First create the circle with a correct resolution
+	switch c.Type {
+	case BuildComponent:
+		drawing.DrawCircle(dst, 10, placement, color.Black, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+	case BuyComponent:
+		drawing.DrawCircle(dst, 10, placement, color.RGBA{0xAA, 0xA5, 0xa9, 0xff}, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+	case OutsourceComponent:
+		drawing.DrawCircle(dst, 10, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{0x44, 0x44, 0x44, 0xff})
+	case DataProductComponent:
+		drawing.DrawCircle(dst, 7, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{246, 72, 22, 0xff})
+	}
+	drawing.DrawCircle(dst, 5, placement, color.RGBA{0xff, 0, 0, 0xff}, color.White)
+
+	// Create the circle with the correct
+	dot := fixed.P(labelP.X, labelP.Y)
+	d := font.Drawer{
+		Dst:  dst,
+		Src:  image.NewUniform(color.RGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xFF}),
+		Face: basicfont.Face7x13,
+		Dot:  dot,
+	}
+	d.DrawString(c.Label)
 }
 
 // GetCoordinates fulfils the Element interface

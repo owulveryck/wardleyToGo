@@ -241,3 +241,28 @@ func main() {
 ```
 
 ![output](examples/svgoutput/sample.svg)
+
+## Generating image, png and so on.. (WIP)
+
+the map fulfills the `drawer.Drawer` interface. If the components fulfills the interface as well, they are displayend on an image.
+
+[embedmd]:# (examples/pngoutput/main.go /func main.*/ $)
+```go
+func main() {
+	p := owm.NewParser(os.Stdin)
+	m, err := p.Parse() // the map
+	if err != nil {
+		log.Fatal(err)
+	}
+	im := image.NewRGBA(image.Rect(0, 0, 1400, 1100))
+	canvas := image.Rect(100, 100, 1300, 1000)
+	createBackground(im, canvas)
+
+	m.Draw(im, canvas, im, image.Point{})
+	png.Encode(os.Stdout, im)
+}
+```
+
+see the [examples/pngoutput](examples/pngoutput) directory
+
+![png output](examples/pngoutput/test.png)
