@@ -16,6 +16,7 @@ Check the online demo at [https://owulveryck.github.io/wardleyToGo/](https://owu
 ## Example
 
 First, create a component type
+
 [embedmd]:# (example_draw_test.go /type dummyComponent.*/ /d.id }/)
 ```go
 type dummyComponent struct {
@@ -70,7 +71,7 @@ And finally create the map
 
 ## Parser example
 
-Create a map from the owm example:
+Create a map from the owm example (see [https://onlinewardleymaps.com/#h4hJOoRdO4hHSljIb9](https://onlinewardleymaps.com/#h4hJOoRdO4hHSljIb9) to build one):
 
 [embedmd]:# (examples/parser/sample.owm)
 ```owm
