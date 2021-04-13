@@ -6,5 +6,6 @@ require (
 	github.com/StephaneBunel/bresenham v0.0.0-20190213085234-b50c292e2054
 	github.com/ajstarks/svgo v0.0.0-20200725142600-7a3c8b57fecb
 	github.com/yuin/goldmark v1.2.1
+	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb
 	gonum.org/v1/gonum v0.9.0
 )
