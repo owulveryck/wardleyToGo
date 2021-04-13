@@ -12,7 +12,7 @@ func (p *Parser) completeEvolve() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		nodeEvolve.(*wardley.EvolvedComponent).Placement = node.(*wardley.Component).Placement
+		nodeEvolve.(*wardley.EvolvedComponent).Placement.Y = node.(*wardley.Component).Placement.Y
 	}
 	return nil
 }

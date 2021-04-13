@@ -59,19 +59,19 @@ func (c *Collaboration) SVGDraw(s *svg.SVG, r image.Rectangle) {
 	switch c.Type {
 	case RegularEdge:
 		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsF.Y,
+			coordsT.X, coordsT.Y,
 			`stroke="grey"`, `stroke-width="1"`)
 	case EvolvedComponentEdge:
 		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsF.Y,
+			coordsT.X, coordsT.Y,
 			`stroke-dasharray="5 5"`, `stroke="red"`, `stroke-width="1"`, `marker-end="url(#arrow)"`)
 	case EvolvedEdge:
 		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsF.Y,
+			coordsT.X, coordsT.Y,
 			`stroke="red"`, `stroke-width="1"`)
 	default:
 		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsF.Y,
+			coordsT.X, coordsT.Y,
 			`stroke="grey"`, `stroke-width="1"`)
 	}
 }

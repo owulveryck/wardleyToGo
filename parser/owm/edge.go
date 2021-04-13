@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph"
 )
@@ -63,11 +62,11 @@ func (p *Parser) createRegularEdges() error {
 		if !ok {
 			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
 		}
-		p.g.SetEdge(components.Collaboration{
-			F:         edge.F,
-			T:         edge.T,
-			EdgeType:  edge.EdgeType,
-			EdgeLabel: edge.EdgeLabel,
+		p.g.SetEdge(&wardley.Collaboration{
+			F:     edge.F.(wardleyToGo.Component),
+			T:     edge.T.(wardleyToGo.Component),
+			Type:  wardley.RegularEdge,
+			Label: edge.EdgeLabel,
 		})
 
 	}
@@ -99,6 +98,7 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		fromIT := p.g.From(node.ID())
 		for fromIT.Next() {
+			p.g.RemoveEdge(nodeEvolved.ID(), fromIT.Node().ID())
 			p.g.SetEdge(&wardley.Collaboration{
 				F:    nodeEvolved.(wardleyToGo.Component),
 				T:    fromIT.Node().(wardleyToGo.Component),
@@ -107,6 +107,7 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		toIT := p.g.To(node.ID())
 		for toIT.Next() {
+			p.g.RemoveEdge(toIT.Node().ID(), nodeEvolved.ID())
 			p.g.SetEdge(&wardley.Collaboration{
 				F:    toIT.Node().(wardleyToGo.Component),
 				T:    nodeEvolved.(wardleyToGo.Component),

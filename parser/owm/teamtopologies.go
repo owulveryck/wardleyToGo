@@ -51,7 +51,7 @@ func (p *Parser) parseTeam() (*tt.Team, error) {
 			}
 		}
 	}
-	team.Area = image.Rect(coords[0], coords[1], coords[2], coords[3])
+	team.Area = image.Rect(coords[1], 100-coords[0], coords[3], 100-coords[2])
 	team.Label = strings.TrimRight(b.String(), " ")
 	return team, nil
 

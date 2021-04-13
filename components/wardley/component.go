@@ -2,7 +2,6 @@ package wardley
 
 import (
 	"image"
-	"log"
 	"strconv"
 
 	svg "github.com/ajstarks/svgo"
@@ -48,13 +47,17 @@ func (c *Component) ID() int64 {
 
 // SVGDraw is a representation of the component
 func (c *Component) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
-	log.Println(bounds)
-	log.Println(c.Placement)
 	coords := components.CalcCoords(c.Placement, bounds)
-	log.Println(coords)
+	labelP := c.LabelPlacement
+	if labelP.X == components.UndefinedCoord {
+		labelP.X = 10
+	}
+	if labelP.Y == components.UndefinedCoord {
+		labelP.Y = 10
+	}
 	s.Gid(strconv.FormatInt(c.id, 10))
 	s.Translate(coords.X, coords.Y)
-	s.Text(c.LabelPlacement.X, c.Placement.Y, c.Label)
+	s.Text(labelP.X, labelP.Y, c.Label)
 	switch c.Type {
 	case BuildComponent:
 		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`, `class="element, buildComponent"`)
@@ -93,9 +96,16 @@ func NewEvolvedComponent(id int64) *EvolvedComponent {
 
 func (e *EvolvedComponent) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	coords := components.CalcCoords(e.Placement, bounds)
+	labelP := e.LabelPlacement
+	if labelP.X == components.UndefinedCoord {
+		labelP.X = 10
+	}
+	if labelP.Y == components.UndefinedCoord {
+		labelP.Y = 10
+	}
 	s.Gid(strconv.FormatInt(e.id, 10))
 	s.Translate(coords.X, coords.Y)
-	s.Text(e.LabelPlacement.X, e.Placement.Y, e.Label, `fill="red"`)
+	s.Text(labelP.X, labelP.Y, e.Label, `fill="red"`)
 	switch e.Type {
 	case BuildComponent:
 		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`, `class="element, buildComponent"`)

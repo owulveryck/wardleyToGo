@@ -4,6 +4,7 @@ import (
 	"image"
 
 	svg "github.com/ajstarks/svgo"
+	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
 type PlatformTeam struct {
@@ -16,8 +17,9 @@ func NewPlatformTeam(id int64) *StreamAlignedTeam {
 	}
 }
 
-func (sa *PlatformTeam) SVG(s *svg.SVG, bounds image.Rectangle) {
+func (sa *PlatformTeam) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	sa.svg(s, bounds)
-	s.Rect(0, 0, sa.Area.Dx(), sa.Area.Dy(), `fill="rgb(170, 185, 215)"`, `opacity="0.95"`, `stroke="rgb(119,159,229)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
+	w, h := utils.Scale(sa.Area.Dx(), sa.Area.Dy(), bounds)
+	s.Rect(0, 0, w, h, `fill="rgb(170, 185, 215)"`, `opacity="0.95"`, `stroke="rgb(119,159,229)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
 	sa.svgEnd(s, bounds)
 }

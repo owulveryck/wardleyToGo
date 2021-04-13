@@ -44,8 +44,8 @@ func scanEvolve(s *scanner.Scanner, id int64) (*wardley.EvolvedComponent, error)
 			if err != nil {
 				return nil, err
 			}
-			if c.Placement.Y == components.UndefinedCoord {
-				c.Placement.Y = int(f * 100)
+			if c.Placement.X == components.UndefinedCoord {
+				c.Placement.X = int(f * 100)
 				continue
 			}
 		case '(':

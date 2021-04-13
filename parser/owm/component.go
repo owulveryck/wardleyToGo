@@ -42,12 +42,12 @@ func scanComponent(s *scanner.Scanner, id int64) (*wardley.Component, error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.Placement.X == components.UndefinedCoord {
-				c.Placement.X = int(f * 100)
+			if c.Placement.Y == components.UndefinedCoord {
+				c.Placement.Y = 100 - int(f*100)
 				continue
 			}
-			if c.Placement.Y == components.UndefinedCoord {
-				c.Placement.Y = int(f * 100)
+			if c.Placement.X == components.UndefinedCoord {
+				c.Placement.X = int(f * 100)
 				continue
 			}
 		case '(':

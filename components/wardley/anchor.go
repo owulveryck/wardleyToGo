@@ -26,7 +26,7 @@ func (c *Anchor) ID() int64 {
 	return c.id
 }
 
-func (c *Anchor) SVG(s *svg.SVG, bounds image.Rectangle) {
+func (c *Anchor) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	coords := components.CalcCoords(c.Placement, bounds)
 	s.Gid(strconv.FormatInt(c.id, 10))
 	s.Translate(coords.X, coords.Y)

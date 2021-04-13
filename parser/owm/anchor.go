@@ -41,12 +41,12 @@ func scanAnchor(s *scanner.Scanner, id int64) (*wardley.Anchor, error) {
 			if err != nil {
 				return nil, err
 			}
-			if a.Placement.X == components.UndefinedCoord {
-				a.Placement.X = int(f * 100)
+			if a.Placement.Y == components.UndefinedCoord {
+				a.Placement.Y = 100 - int(f*100)
 				continue
 			}
-			if a.Placement.Y == components.UndefinedCoord {
-				a.Placement.Y = int(f * 100)
+			if a.Placement.X == components.UndefinedCoord {
+				a.Placement.X = int(f * 100)
 				continue
 			}
 		}

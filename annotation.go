@@ -23,7 +23,7 @@ func NewAnnotation(identifier int) *Annotation {
 }
 
 // Annotation fulfils the svgmap.SVGer interface
-func (a *Annotation) SVG(s *svg.SVG, bounds image.Rectangle) {
+func (a *Annotation) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	for _, coords := range a.Placements {
 		placement := utils.CalcCoords(coords, bounds)
 		s.Translate(placement.X, placement.Y)
