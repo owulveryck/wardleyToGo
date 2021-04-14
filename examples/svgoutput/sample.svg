@@ -28,7 +28,7 @@
 </defs>
 <rect x="25" y="25" width="1000" height="1000" style="fill:url(#wardleyGradient)" />
 <g transform="translate(25,1025) rotate(270)">
-<g font-family="Helvetica,Arial,sans-serif" font-size="13px"> >
+<g font-family="Helvetica,Arial,sans-serif" font-size="13px" >
 <line x1="0" y1="0" x2="1000" y2="0" stroke="black" stroke-width="1" marker-end="url(#graphArrow)" />
 <line x1="0" y1="173" x2="1000" y2="173" stroke="#b8b8b8" stroke-dasharray="2,2" />
 <line x1="0" y1="400" x2="1000" y2="400" stroke="#b8b8b8" stroke-dasharray="2,2" />
