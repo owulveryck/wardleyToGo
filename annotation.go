@@ -1,10 +1,12 @@
 package wardleyToGo
 
 import (
+	"encoding/xml"
 	"image"
+	"image/color"
 	"strconv"
 
-	svg "github.com/ajstarks/svgo"
+	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
@@ -22,16 +24,30 @@ func NewAnnotation(identifier int) *Annotation {
 	}
 }
 
-// Annotation fulfils the svgmap.SVGer interface
-func (a *Annotation) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
+func (a *Annotation) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	for _, coords := range a.Placements {
-		placement := utils.CalcCoords(coords, bounds)
-		s.Translate(placement.X, placement.Y)
-		s.Circle(0, 0, 15, `fill="white"`, `stroke="#595959"`, `stroke-width="2"`)
-		s.Text(0, 5, strconv.Itoa(a.Identifier), `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)
-		s.Gend()
-	}
+		placement := utils.CalcCoords(coords, canvas)
 
+		//s.Gid(strconv.FormatInt(a.id, 10))
+		e.Encode(svg.Transform{
+			Translate: placement,
+			Components: []interface{}{
+				svg.Circle{
+					R:           15,
+					Fill:        svg.White,
+					Stroke:      svg.Color{color.RGBA{0x59, 0x59, 0x59, 0xff}},
+					StrokeWidth: "2",
+				},
+				svg.Text{
+					P:          image.Point{0, 5},
+					Text:       []byte(strconv.Itoa(a.Identifier)),
+					FontSize:   "14px",
+					TextAnchor: svg.TextAnchorMiddle,
+				},
+			},
+		})
+	}
+	return nil
 }
 
 func (a *Annotation) String() string {

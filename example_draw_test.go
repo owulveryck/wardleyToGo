@@ -8,8 +8,8 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/StephaneBunel/bresenham"
 	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/internal/drawing"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/path"
@@ -39,7 +39,7 @@ func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
 func (d *dummyCollaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	coordsF := utils.CalcCoords(d.F.(wardleyToGo.Component).GetPosition(), r)
 	coordsT := utils.CalcCoords(d.T.(wardleyToGo.Component).GetPosition(), r)
-	bresenham.Bresenham(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, color.Gray{Y: 128})
+	drawing.Line(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, color.Gray{Y: 128}, [2]int{})
 }
 
 func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {

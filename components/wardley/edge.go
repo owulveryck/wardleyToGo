@@ -1,13 +1,14 @@
 package wardley
 
 import (
+	"encoding/xml"
 	"image"
 	"image/color"
 	"image/draw"
 
-	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
+	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"gonum.org/v1/gonum/graph"
 )
@@ -52,29 +53,27 @@ func (c *Collaboration) GetType() wardleyToGo.EdgeType {
 	return c.Type
 }
 
-func (c *Collaboration) SVGDraw(s *svg.SVG, r image.Rectangle) {
+func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	fromCoord := c.F.(wardleyToGo.Component).GetPosition()
 	toCoord := c.T.(wardleyToGo.Component).GetPosition()
-	coordsF := utils.CalcCoords(fromCoord, r)
-	coordsT := utils.CalcCoords(toCoord, r)
+	coordsF := utils.CalcCoords(fromCoord, canvas)
+	coordsT := utils.CalcCoords(toCoord, canvas)
+	line := svg.Line{
+		F:           coordsF,
+		T:           coordsT,
+		StrokeWidth: "1",
+	}
 	switch c.Type {
 	case RegularEdge:
-		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsT.Y,
-			`stroke="grey"`, `stroke-width="1"`)
+		line.Stroke = svg.Gray(128)
 	case EvolvedComponentEdge:
-		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsT.Y,
-			`stroke-dasharray="5 5"`, `stroke="red"`, `stroke-width="1"`, `marker-end="url(#arrow)"`)
+		line.MarkerEnd = "url(#arrow)"
+		line.StrokeDashArray = []int{5, 5}
+		line.Stroke = svg.Red
 	case EvolvedEdge:
-		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsT.Y,
-			`stroke="red"`, `stroke-width="1"`)
-	default:
-		s.Line(coordsF.X, coordsF.Y,
-			coordsT.X, coordsT.Y,
-			`stroke="grey"`, `stroke-width="1"`)
+		line.Stroke = svg.Red
 	}
+	return e.Encode(line)
 }
 
 // Draw aligns r.Min in dst with sp in src and then replaces the

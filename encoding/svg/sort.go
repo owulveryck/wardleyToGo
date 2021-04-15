@@ -2,10 +2,10 @@ package svgmap
 
 import "github.com/owulveryck/wardleyToGo/encoding"
 
-type elements []SVGDrawer
+type svgMarshalers []SVGMarshaler
 
 // Len is the number of elements in the collection.
-func (e elements) Len() int {
+func (e svgMarshalers) Len() int {
 	return len(e)
 }
 
@@ -24,7 +24,7 @@ func (e elements) Len() int {
 // Note that floating-point comparison (the < operator on float32 or float64 values)
 // is not a transitive ordering when not-a-number (NaN) values are involved.
 // See Float64Slice.Less for a correct implementation for floating-point values.
-func (e elements) Less(i int, j int) bool {
+func (e svgMarshalers) Less(i int, j int) bool {
 	iLayout := encoding.Background
 	jLayout := encoding.Background
 	if e, ok := e[i].(encoding.Layer); ok {
@@ -37,6 +37,6 @@ func (e elements) Less(i int, j int) bool {
 }
 
 // Swap swaps the elements with indexes i and j.
-func (e elements) Swap(i int, j int) {
+func (e svgMarshalers) Swap(i int, j int) {
 	e[i], e[j] = e[j], e[i]
 }

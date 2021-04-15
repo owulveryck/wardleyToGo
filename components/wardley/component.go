@@ -1,15 +1,15 @@
 package wardley
 
 import (
+	"encoding/xml"
 	"image"
 	"image/color"
 	"image/draw"
-	"strconv"
 
-	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
+	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
@@ -49,10 +49,6 @@ func (c *Component) ID() int64 {
 	return c.id
 }
 
-func drawCircle(dst draw.Image, r int, p image.Point, stroke, fill color.Color) {
-
-}
-
 // Draw aligns r.Min in dst with sp in src and then replaces the
 // rectangle r in dst with the result of drawing src on dst.
 func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
@@ -90,9 +86,12 @@ func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp 
 	d.DrawString(c.Label)
 }
 
-// SVGDraw is a representation of the component
-func (c *Component) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
-	coords := components.CalcCoords(c.Placement, bounds)
+func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
+	return c.marshalSVG(e, canvas, svg.Black)
+}
+
+func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
+	coords := components.CalcCoords(c.Placement, canvas)
 	labelP := c.LabelPlacement
 	if labelP.X == components.UndefinedCoord {
 		labelP.X = 10
@@ -100,22 +99,53 @@ func (c *Component) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
 	if labelP.Y == components.UndefinedCoord {
 		labelP.Y = 10
 	}
-	s.Gid(strconv.FormatInt(c.id, 10))
-	s.Translate(coords.X, coords.Y)
-	s.Text(labelP.X, labelP.Y, c.Label)
+	baseCircle := svg.Circle{
+		R:           5,
+		StrokeWidth: "1",
+		Stroke:      col,
+		Fill:        svg.White,
+	}
+	components := make([]interface{}, 0)
 	switch c.Type {
 	case BuildComponent:
-		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`, `class="element, buildComponent"`)
+		components = append(components, svg.Circle{
+			R:           20,
+			StrokeWidth: "1",
+			Stroke:      svg.Black,
+			Fill:        svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
+		})
 	case BuyComponent:
-		s.Circle(0, 0, 20, `fill="#AAA5A9"`, `stroke="#D6D6D6"`, `class="element, buyComponent"`)
+		components = append(components, svg.Circle{
+			R:           20,
+			StrokeWidth: "1",
+			Fill:        svg.Color{color.RGBA{0xaa, 0xa5, 0xa9, 0xff}},
+			Stroke:      svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
+		})
 	case OutsourceComponent:
-		s.Circle(0, 0, 20, `fill="#444444"`, `stroke="#444444"`, `class="element, outsourceComponent"`)
+		components = append(components, svg.Circle{
+			R:           20,
+			StrokeWidth: "1",
+			Fill:        svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
+			Stroke:      svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
+		})
 	case DataProductComponent:
-		s.Circle(0, 0, 14, `fill="rgb(246,72,22)"`, `class="element, dataProductComponent"`)
+		components = append(components, svg.Circle{
+			R:           14,
+			StrokeWidth: "1",
+			Fill:        svg.Color{color.RGBA{246, 72, 22, 0xff}},
+		})
 	}
-	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="black"`, `fill="white"`, `class="element, component"`)
-	s.Gend()
-	s.Gend()
+
+	components = append(components, baseCircle)
+	components = append(components, svg.Text{
+		P:    labelP,
+		Text: []byte(c.Label),
+		Fill: col,
+	})
+	return e.Encode(svg.Transform{
+		Translate:  coords,
+		Components: components,
+	})
 }
 
 func (c *Component) String() string {
@@ -137,33 +167,6 @@ func (e *EvolvedComponent) ID() int64 {
 func NewEvolvedComponent(id int64) *EvolvedComponent {
 	c := NewComponent(id)
 	return &EvolvedComponent{c}
-}
-
-func (e *EvolvedComponent) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
-	coords := components.CalcCoords(e.Placement, bounds)
-	labelP := e.LabelPlacement
-	if labelP.X == components.UndefinedCoord {
-		labelP.X = 10
-	}
-	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = 10
-	}
-	s.Gid(strconv.FormatInt(e.id, 10))
-	s.Translate(coords.X, coords.Y)
-	s.Text(labelP.X, labelP.Y, e.Label, `fill="red"`)
-	switch e.Type {
-	case BuildComponent:
-		s.Circle(0, 0, 20, `fill="#D6D6D6"`, `stroke="#000000"`, `class="element, buildComponent"`)
-	case BuyComponent:
-		s.Circle(0, 0, 20, `fill="#AAA5A9"`, `stroke="#D6D6D6"`, `class="element, buyComponent"`)
-	case OutsourceComponent:
-		s.Circle(0, 0, 20, `fill="#444444"`, `stroke="#444444"`, `class="element, outsourceComponent"`)
-	case DataProductComponent:
-		s.Circle(0, 0, 14, `fill="rgb(246,72,22)"`, `class="element, dataProductComponent"`)
-	}
-	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="red"`, `fill="white"`, `class="element, component"`)
-	s.Gend()
-	s.Gend()
 }
 
 // Draw aligns r.Min in dst with sp in src and then replaces the
@@ -210,4 +213,8 @@ func (e *EvolvedComponent) GetPosition() image.Point {
 
 func (e *EvolvedComponent) String() string {
 	return "[evolved]" + e.Label
+}
+
+func (c *EvolvedComponent) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
+	return c.marshalSVG(e, canvas, svg.Color{color.RGBA{255, 0, 0, 255}})
 }
