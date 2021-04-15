@@ -42,7 +42,7 @@ func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
 func (d *dummyCollaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	coordsF := utils.CalcCoords(d.F.(wardleyToGo.Component).GetPosition(), r)
 	coordsT := utils.CalcCoords(d.T.(wardleyToGo.Component).GetPosition(), r)
-	bresenham.Bresenham(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, color.Gray{Y: 128})
+	drawing.Line(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, color.Gray{Y: 128}, [2]int{})
 }
 ```
 
@@ -236,7 +236,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	svgmap.Encode(m, os.Stdout, 1050, 1050, image.Rect(25, 25, 1025, 1025))
+	e, err := svgmap.NewEncoder(os.Stdout, image.Rect(0, 0, 1100, 900), image.Rect(30, 50, 1070, 850))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer e.Close()
+	style := svgmap.NewWardleyStyle(svgmap.DefaultEvolution)
+	e.Init(style)
+	err = e.Encode(m)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 ```
 
