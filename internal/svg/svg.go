@@ -20,7 +20,7 @@ type SVG struct {
 	*/
 }
 
-func (s *SVG) StartSVG() xml.StartElement {
+func (s SVG) StartSVG() xml.StartElement {
 	element := xml.StartElement{
 		Name: xml.Name{
 			Space: "",
@@ -44,7 +44,7 @@ func (s *SVG) StartSVG() xml.StartElement {
 				Value: "http://www.w3.org/2000/svg",
 			},
 			{
-				Name:  xml.Name{Space: "xmlns", Local: "xlink"},
+				Name:  xml.Name{Local: "xmlns:xlink"},
 				Value: "http://www.w3.org/1999/xlink",
 			},
 			{

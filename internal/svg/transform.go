@@ -6,19 +6,28 @@ import (
 	"image"
 )
 
-type Translate struct {
-	image.Point
+type Transform struct {
+	Translate  image.Point
+	Rotate     int
 	Components []interface{}
 }
 
-func (t *Translate) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (t Transform) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	g := xml.StartElement{
 		Name: xml.Name{Local: "g"},
 	}
+	var transformation string
+	if !t.Translate.Eq(image.Point{}) {
+		transformation = transformation + fmt.Sprintf(` translate(%v,%v)`, t.Translate.X, t.Translate.Y)
+	}
+	if t.Rotate != 0 {
+		transformation = transformation + fmt.Sprintf(` rotate(%v)`, t.Rotate)
+	}
+
 	g.Attr = []xml.Attr{
 		{
 			Name:  xml.Name{Local: "transform"},
-			Value: fmt.Sprintf(`translate(%v,%v)`, t.X, t.Y),
+			Value: transformation,
 		},
 	}
 	e.EncodeToken(g)

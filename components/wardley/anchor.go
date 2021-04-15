@@ -1,13 +1,13 @@
 package wardley
 
 import (
+	"encoding/xml"
 	"image"
 	"image/color"
 	"image/draw"
-	"strconv"
 
-	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
@@ -37,13 +37,20 @@ func (a *Anchor) ID() int64 {
 	return a.id
 }
 
-func (a *Anchor) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
-	coords := components.CalcCoords(a.Placement, bounds)
-	s.Gid(strconv.FormatInt(a.id, 10))
-	s.Translate(coords.X, coords.Y)
-	s.Text(0, 0, a.Label, `font-weight="14px"`, `font-size="14px"`, `text-anchor="middle"`)
-	s.Gend()
-	s.Gend()
+func (a *Anchor) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
+	coords := components.CalcCoords(a.Placement, canvas)
+	//s.Gid(strconv.FormatInt(a.id, 10))
+	e.Encode(svg.Transform{
+		Translate: coords,
+		Components: []interface{}{
+			svg.Text{
+				Text:       []byte(a.Label),
+				FontSize:   "14px",
+				TextAnchor: svg.TextAnchorMiddle,
+			},
+		},
+	})
+	return nil
 }
 
 func (a *Anchor) String() string {

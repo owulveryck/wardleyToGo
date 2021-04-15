@@ -18,7 +18,7 @@ func must(a xml.Attr, _ error) xml.Attr {
 	return a
 }
 
-func (c *Circle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (c Circle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	element := xml.StartElement{
 		Name: xml.Name{Local: "circle"},
 	}

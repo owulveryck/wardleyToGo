@@ -15,7 +15,7 @@ type Rectangle struct {
 	Style       string
 }
 
-func (r *Rectangle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (r Rectangle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	element := xml.StartElement{
 		Name: xml.Name{Local: "rect"},
 	}

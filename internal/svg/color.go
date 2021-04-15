@@ -11,6 +11,16 @@ type Color struct {
 	color.Color
 }
 
+var (
+	Black = Color{color.Black}
+	Red   = Color{color.RGBA{0xff, 0x00, 0x00, 0xff}}
+	White = Color{color.White}
+)
+
+func Gray(Y uint8) Color {
+	return Color{color.Gray{Y: Y}}
+}
+
 func (c Color) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	if c.Color == nil {
 		return xml.Attr{}, nil
@@ -25,7 +35,7 @@ func (c Color) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	} else {
 		return xml.Attr{
 			Name:  name,
-			Value: fmt.Sprintf(`#%x%x%x`, uint8(r), uint8(g), uint8(b)),
+			Value: fmt.Sprintf(`rgb(%v,%v,%v)`, uint8(r), uint8(g), uint8(b)),
 		}, nil
 	}
 }

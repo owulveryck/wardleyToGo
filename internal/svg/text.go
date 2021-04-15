@@ -22,7 +22,7 @@ type Text struct {
 	FontSize   string
 }
 
-func (t *Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	element := xml.StartElement{
 		Name: xml.Name{Local: "text"},
 	}

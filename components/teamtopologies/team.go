@@ -3,7 +3,6 @@ package tt
 import (
 	"image"
 
-	svg "github.com/ajstarks/svgo"
 	"github.com/owulveryck/wardleyToGo/components"
 )
 
@@ -38,12 +37,4 @@ func (t *Team) GetPosition() image.Point {
 }
 func (t *Team) GetArea() image.Rectangle {
 	return t.Area
-}
-
-func (t *Team) svg(s *svg.SVG, bounds image.Rectangle) {
-	placement := components.CalcCoords(t.Area.Min, bounds)
-	s.Translate(placement.X, placement.Y)
-}
-func (t *Team) svgEnd(s *svg.SVG, _ image.Rectangle) {
-	s.Gend()
 }

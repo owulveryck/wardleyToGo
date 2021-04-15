@@ -4,11 +4,12 @@ package main
 
 import (
 	"bytes"
+	"image"
 	"log"
 	"syscall/js"
 
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
-	"github.com/yuin/goldmark/parser"
+	"github.com/owulveryck/wardleyToGo/parser/owm"
 )
 
 func main() {
@@ -20,17 +21,21 @@ func main() {
 
 func generateSVG(this js.Value, inputs []js.Value) interface{} {
 	message := inputs[0].String()
-	width := 1300
-	height := 800
-	padLeft := 25
-	padBottom := 30
 
-	p := parser.NewParser(bytes.NewBufferString(message))
+	p := owm.NewParser(bytes.NewBufferString(message))
 	m, err := p.Parse() // the map
 	if err != nil {
 		log.Println(err)
 	}
 	var output bytes.Buffer
-	svgmap.Encode(m, &output, width, height, padLeft, padBottom, true)
+	e, err := svgmap.NewEncoder(&output, image.Rect(0, 0, 1300, 800), image.Rect(30, 50, 1070, 850))
+	if err != nil {
+		log.Fatal(err)
+	}
+	style := svgmap.NewWardleyStyle(svgmap.DefaultEvolution)
+	e.Init(style)
+	e.Encode(m)
+	e.Close()
+
 	return js.ValueOf(output.String())
 }

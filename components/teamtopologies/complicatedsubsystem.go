@@ -1,9 +1,12 @@
 package tt
 
 import (
+	"encoding/xml"
 	"image"
+	"image/color"
 
-	svg "github.com/ajstarks/svgo"
+	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
@@ -17,9 +20,20 @@ func NewComplicatedSubsystemTeam(id int64) *StreamAlignedTeam {
 	}
 }
 
-func (sa *ComplicatedSubsystemTeam) SVGDraw(s *svg.SVG, bounds image.Rectangle) {
-	sa.svg(s, bounds)
-	w, h := utils.Scale(sa.Area.Dx(), sa.Area.Dy(), bounds)
-	s.Roundrect(0, 0, w, h, 35, 35, `fill="rgb(236, 210, 177)"`, `opacity="0.9"`, `stroke="rgb(210,149,84)"`, `stroke-opacity="0.7"`, `stroke-width="5px"`)
-	sa.svgEnd(s, bounds)
+func (c *ComplicatedSubsystemTeam) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
+	placement := components.CalcCoords(c.Area.Min, canvas)
+	w, h := utils.Scale(c.Area.Dx(), c.Area.Dy(), canvas)
+	return e.Encode(svg.Transform{
+		Translate: placement,
+		Components: []interface{}{
+			svg.Rectangle{
+				R:           image.Rect(0, 0, w, h),
+				Rx:          35,
+				Ry:          35,
+				Fill:        svg.Color{color.RGBA{236, 210, 177, 229}},
+				Stroke:      svg.Color{color.RGBA{210, 149, 84, 178}},
+				StrokeWidth: "5px",
+			},
+		},
+	})
 }
