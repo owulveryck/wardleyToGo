@@ -176,33 +176,33 @@ func Example() {
 	}
 	enc.Flush()
 	//Output:
-	// <svg width="100%" height="100%" viewBox="0 0 1050 1050" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
-	//     <rect x="0" y="0" width="1050" height="1050" fill="#808080" fill-opacity="1.0"></rect>
+	// 	<svg width="100%" height="100%" viewBox="0 0 1050 1050" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+	//     <rect x="0" y="0" width="1050" height="1050" fill="rgb(128,128,128)" fill-opacity="1.0"></rect>
 	//     <defs>
 	//         <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-	//             <stop offset="0%" stop-color="#c4c4c4"></stop>
-	//             <stop offset="30%" stop-color="#ffffff"></stop>
-	//             <stop offset="70%" stop-color="#ffffff"></stop>
-	//             <stop offset="100%" stop-color="#c4c4c4"></stop>
+	//             <stop offset="0%" stop-color="rgb(196,196,196)"></stop>
+	//             <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
+	//             <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
+	//             <stop offset="100%" stop-color="rgb(196,196,196)"></stop>
 	//         </linearGradient>
 	//         <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
-	//             <path d="M0,-5L10,0L0,5" fill="#ff00"></path>
+	//             <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
 	//         </marker>
 	//         <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
-	//             <path d="M0,-5L10,0L0,5" fill="#000"></path>
+	//             <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
 	//         </marker>
 	//     </defs>
 	//     <rect x="25" y="25" width="975" height="975" style="fill:url(#wardleyGradient)"></rect>
 	//     <g transform=" translate(25,1025) rotate(270)">
-	//         <line x1="0" y1="0" x2="1000" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="#000" stroke-opacity="1.0"></line>
-	//         <line x1="0" y1="173" x2="1000" y2="173" stroke-width="1" stroke-dasharray="2 2" stroke="#b8b8b8" stroke-opacity="1.0"></line>
-	//         <line x1="0" y1="400" x2="1000" y2="400" stroke-width="1" stroke-dasharray="2 2" stroke="#b8b8b8" stroke-opacity="1.0"></line>
-	//         <line x1="0" y1="700" x2="1000" y2="700" stroke-width="1" stroke-dasharray="2 2" stroke="#b8b8b8" stroke-opacity="1.0"></line>
+	//         <line x1="0" y1="0" x2="1000" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
+	//         <line x1="0" y1="173" x2="1000" y2="173" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+	//         <line x1="0" y1="400" x2="1000" y2="400" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+	//         <line x1="0" y1="700" x2="1000" y2="700" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
 	//         <text x="5" y="-10" text-anchor="start">Invisible</text>
 	//         <text x="995" y="-10" text-anchor="end">Visible</text>
 	//         <text x="500" y="-10" font-weight="bold" text-anchor="middle">Value Chain</text>
 	//     </g>
-	//     <line x1="25" y1="1025" x2="1025" y2="1025" marker-end="url(#graphArrrow)" stroke="#000" stroke-opacity="1.0"></line>
+	//     <line x1="25" y1="1025" x2="1025" y2="1025" marker-end="url(#graphArrrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
 	//     <text x="32" y="40" font-weight="bold" font-size="11px" text-anchor="start">Uncharted</text>
 	//     <text x="1020" y="40" font-weight="bold" font-size="11px" text-anchor="end">Industrialised</text>
 	//     <text x="25" y="1040">Genesis</text>
