@@ -34,76 +34,117 @@
     <text x="758" y="865">Commodity
 (+utility)</text>
     <text x="1070" y="865" font-weight="bold" text-anchor="end">Evolution</text>
-    <g transform=" translate(685,90)">
-        <text x="0" y="0" font-size="14px" text-anchor="middle">Business</text>
+    <text x="550" y="20" text-anchor="middle">Tea Shop</text>
+    <g id="layer_0">
+        <g id="element_1">
+            <g transform=" translate(841,90)">
+                <text x="0" y="0" font-size="14px" text-anchor="middle">Public</text>
+            </g>
+        </g>
+        <g id="element_0">
+            <g transform=" translate(602,98)">
+                <text x="0" y="0" font-size="14px" text-anchor="middle">Business</text>
+            </g>
+        </g>
     </g>
-    <g transform=" translate(841,90)">
-        <text x="0" y="0" font-size="14px" text-anchor="middle">Public</text>
+    <g id="layer_5">
+        <g id="edge_2_3">
+            <line x1="664" y1="218" x2="841" y2="266" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_4">
+            <line x1="664" y1="218" x2="872" y2="346" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_5">
+            <line x1="664" y1="218" x2="862" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_8">
+            <line x1="862" y1="434" x2="674" y2="506" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_6">
+            <line x1="862" y1="434" x2="882" y2="546" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_0_2">
+            <line x1="602" y1="98" x2="664" y2="218" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_2">
+            <line x1="841" y1="90" x2="664" y2="218" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_9">
+            <line x1="394" y1="506" x2="758" y2="770" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_10">
+            <line x1="394" y1="506" x2="955" y2="770" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_8">
+            <line x1="394" y1="506" x2="674" y2="506" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_9">
+            <line x1="674" y1="506" x2="758" y2="770" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_10">
+            <line x1="674" y1="506" x2="955" y2="770" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_7">
+            <line x1="862" y1="434" x2="394" y2="506" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_9_10">
+            <line x1="758" y1="770" x2="955" y2="770" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
     </g>
-    <g transform=" translate(217,178)">
-        <rect x="0" y="0" width="800" height="64" fill="rgb(252,237,190)" fill-opacity="0.9" stroke="rgb(250,216,120)" stroke-opacity="0.9" stroke-width="5px" ry="15" rx="15"></rect>
-    </g>
-    <g transform=" translate(664,706)">
-        <rect x="0" y="0" width="343" height="128" fill="rgb(170,185,215)" fill-opacity="0.9" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px"></rect>
-    </g>
-    <g transform=" translate(789,114)">
-        <rect x="0" y="0" width="176" height="376" fill="rgb(236,210,177)" fill-opacity="0.9" stroke="rgb(210,149,84)" stroke-opacity="0.7" stroke-width="5px" ry="35" rx="35"></rect>
-    </g>
-    <g transform=" translate(342,130)">
-        <rect x="0" y="0" width="104" height="480" fill="rgb(170,185,215)" fill-opacity="0.9" stroke="rgb(119,159,229)" stroke-opacity="0.7" stroke-width="5px" ry="15" rx="15"></rect>
-    </g>
-    <line x1="758" y1="770" x2="955" y2="770" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
-    <line x1="664" y1="218" x2="841" y2="266" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="664" y1="218" x2="872" y2="346" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="674" y1="506" x2="955" y2="770" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
-    <line x1="394" y1="506" x2="674" y2="506" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
-    <line x1="394" y1="506" x2="758" y2="770" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="394" y1="506" x2="955" y2="770" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
-    <line x1="685" y1="90" x2="664" y2="218" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="674" y1="506" x2="758" y2="770" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
-    <line x1="862" y1="434" x2="674" y2="506" stroke-width="1" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
-    <line x1="862" y1="434" x2="394" y2="506" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="862" y1="434" x2="882" y2="546" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="664" y1="218" x2="862" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <line x1="841" y1="90" x2="664" y2="218" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-    <g transform=" translate(664,218)">
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="19" y="-4" fill="rgb(0,0,0)" fill-opacity="1.0">Cup of Tea</text>
-    </g>
-    <g transform=" translate(862,434)">
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Hot Water</text>
-    </g>
-    <g transform=" translate(955,770)">
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="-12" y="21" fill="rgb(255,0,0)" fill-opacity="1.0">Power</text>
-    </g>
-    <g transform=" translate(758,770)">
-        <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="-29" y="30" fill="rgb(0,0,0)" fill-opacity="1.0">Power</text>
-    </g>
-    <g transform=" translate(674,506)">
-        <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="22" y="9" fill="rgb(255,0,0)" fill-opacity="1.0">Kettle</text>
-    </g>
-    <g transform=" translate(841,266)">
-        <circle cx="0" cy="0" r="14" fill="rgb(246,72,22)" fill-opacity="1.0" stroke-width="1"></circle>
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="19" y="-4" fill="rgb(0,0,0)" fill-opacity="1.0">Cup</text>
-    </g>
-    <g transform=" translate(394,506)">
-        <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="-73" y="4" fill="rgb(0,0,0)" fill-opacity="1.0">Kettle</text>
-    </g>
-    <g transform=" translate(872,346)">
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Tea</text>
-    </g>
-    <g transform=" translate(882,546)">
-        <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-        <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Water</text>
+    <g id="layer_10">
+        <g id="element_3">
+            <g transform=" translate(841,266)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Cup</text>
+            </g>
+        </g>
+        <g id="element_4">
+            <g transform=" translate(872,346)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Tea</text>
+            </g>
+        </g>
+        <g id="element_5">
+            <g transform=" translate(862,434)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Hot Water</text>
+            </g>
+        </g>
+        <g id="element_6">
+            <g transform=" translate(882,546)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">Water</text>
+            </g>
+        </g>
+        <g id="element_9">
+            <g transform=" translate(758,770)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="-27" y="20" fill="rgb(0,0,0)" fill-opacity="1.0">Power</text>
+            </g>
+        </g>
+        <g id="element_2">
+            <g transform=" translate(664,218)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="19" y="-4" fill="rgb(0,0,0)" fill-opacity="1.0">Cup of Tea</text>
+            </g>
+        </g>
+        <g id="element_7">
+            <g transform=" translate(394,506)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="-57" y="4" fill="rgb(0,0,0)" fill-opacity="1.0">Kettle</text>
+            </g>
+        </g>
+        <g id="element_8">
+            <g transform=" translate(674,506)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="16" y="7" fill="rgb(255,0,0)" fill-opacity="1.0">Kettle</text>
+            </g>
+        </g>
+        <g id="element_10">
+            <g transform=" translate(955,770)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="-12" y="21" fill="rgb(255,0,0)" fill-opacity="1.0">Power</text>
+            </g>
+        </g>
     </g>
 </svg>
