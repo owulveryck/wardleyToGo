@@ -8,7 +8,9 @@ import (
 	"sort"
 
 	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/encoding"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"gonum.org/v1/gonum/graph"
 )
 
 type Encoder struct {
@@ -47,6 +49,11 @@ func (e *Encoder) Init(s SVGStyleMarshaler) {
 }
 
 func (e *Encoder) Encode(m *wardleyToGo.Map) error {
+	e.e.Encode(svg.Text{
+		P:          image.Pt(e.box.Dx()/2, 20),
+		Text:       []byte(m.Title),
+		TextAnchor: svg.TextAnchorMiddle,
+	})
 	elems := make([]SVGMarshaler, 0)
 	edges := m.Edges()
 	for edges.Next() {
@@ -61,11 +68,55 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		}
 	}
 	sort.Sort(svgMarshalers(elems))
+	currentLayer := makeGroup("layer", encoding.Background)
+	e.e.EncodeToken(currentLayer.StartElement)
 	for _, element := range elems {
+		if elem, ok := element.(encoding.Layer); ok {
+			layer := elem.GetLayer()
+			if layer != currentLayer.id {
+				currentLayer = makeGroup("layer", layer)
+				e.e.EncodeToken(currentLayer.End())
+				e.e.EncodeToken(currentLayer.StartElement)
+			}
+		}
+		var g *group
+		if elem, ok := element.(graph.Node); ok {
+			g = makeGroup("element", int(elem.ID()))
+			e.e.EncodeToken(g.StartElement)
+		}
+		if elem, ok := element.(graph.Edge); ok {
+			g = makeGroup(fmt.Sprintf("edge_%v", int(elem.From().ID())), int(elem.To().ID()))
+			e.e.EncodeToken(g.StartElement)
+		}
 		err := element.MarshalSVG(e.e, e.canvas)
 		if err != nil {
 			return err
 		}
+		if g != nil {
+			e.e.EncodeToken(g.End())
+		}
 	}
+	e.e.EncodeToken(currentLayer.End())
 	return nil
+}
+
+type group struct {
+	xml.StartElement
+	s  string
+	id int
+}
+
+func makeGroup(s string, id int) *group {
+	return &group{
+		StartElement: xml.StartElement{
+			Name: xml.Name{Local: `g`},
+			Attr: []xml.Attr{
+				{
+					Name:  xml.Name{Local: "id"},
+					Value: fmt.Sprintf("%v_%v", s, id),
+				},
+			},
+		},
+		id: id,
+	}
 }
