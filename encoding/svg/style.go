@@ -17,6 +17,27 @@ type Evolution struct {
 	Label    string
 }
 
+//  DataEvolution
+// https://learnwardleymapping.com/2020/01/22/visualizing-the-interaction-of-evolution-and-data-measurement/
+var DataEvolution = []Evolution{
+	{
+		Position: 0,
+		Label:    "Unmodeled",
+	},
+	{
+		Position: (float64(100) / 575),
+		Label:    "Divergent",
+	},
+	{
+		Position: (float64(100) / 250),
+		Label:    "Convergent",
+	},
+	{
+		Position: (float64(574) / 820),
+		Label:    "Modeled",
+	},
+}
+
 var DefaultEvolution = []Evolution{
 	{
 		Position: 0,
