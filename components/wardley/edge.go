@@ -70,6 +70,7 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		line.MarkerEnd = "url(#arrow)"
 		line.StrokeDashArray = []int{5, 5}
 		line.Stroke = svg.Red
+		line.Class = "evolutionEdge"
 	case EvolvedEdge:
 		line.Stroke = svg.Red
 	}

@@ -64,7 +64,29 @@ func NewWardleyStyle(evolutionSteps []Evolution) *WardleyStyle {
 
 }
 
+type style struct {
+	XMLName xml.Name `xml:"style"`
+	Data    []byte   `xml:",cdata"`
+}
+
 func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
+	enc.Encode(style{
+		Data: []byte(`
+.evolutionEdge {
+	stroke-dasharray: 7;
+	stroke-dashoffset: 7;
+	animation: dash 3s linear forwards infinite;
+}
+
+@keyframes dash {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}`),
+	})
 	enc.Encode(svg.Rectangle{
 		R:    box,
 		Fill: svg.Gray(128),
