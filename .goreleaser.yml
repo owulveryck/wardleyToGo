@@ -9,10 +9,28 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    id: "owm2svg"
+    main: ./examples/owm2svg/.
+    binary: owm2svg
     goos:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm64
+  - env:
+      - CGO_ENABLED=0
+    id: "owm2png"
+    main: ./examples/owm2png/.
+    binary: owm2png
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
 archives:
   - replacements:
       darwin: Darwin
