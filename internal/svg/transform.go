@@ -9,6 +9,7 @@ import (
 type Transform struct {
 	Translate  image.Point
 	Rotate     int
+	Scale      float32
 	Components []interface{}
 }
 
@@ -22,6 +23,9 @@ func (t Transform) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	}
 	if t.Rotate != 0 {
 		transformation = transformation + fmt.Sprintf(` rotate(%v)`, t.Rotate)
+	}
+	if t.Scale != 0 {
+		transformation = transformation + fmt.Sprintf(` scale(%.2f)`, t.Scale)
 	}
 
 	g.Attr = []xml.Attr{
