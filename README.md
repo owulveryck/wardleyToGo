@@ -217,7 +217,7 @@ platformTeam team C [0.18, 0.61, 0.02, 0.94]
 complicatedSubsystemTeam team D [0.92, 0.73, 0.45, 0.90]
 ```
 
-[embedmd]:# (examples/svgoutput/main.go)
+[embedmd]:# (examples/owm2svg/main.go)
 ```go
 package main
 
@@ -250,13 +250,13 @@ func main() {
 }
 ```
 
-![output](examples/svgoutput/sample.svg)
+![output](examples/owm2svg/sample.svg)
 
 ## Generating image, png and so on.. (WIP)
 
 the map fulfills the `drawer.Drawer` interface. If the components fulfills the interface as well, they are displayend on an image.
 
-[embedmd]:# (examples/pngoutput/main.go /func main.*/ $)
+[embedmd]:# (examples/owm2png/main.go /func main.*/ $)
 ```go
 func main() {
 	p := owm.NewParser(os.Stdin)
@@ -275,4 +275,4 @@ func main() {
 
 see the [examples/pngoutput](examples/pngoutput) directory
 
-![png output](examples/pngoutput/test.png)
+![png output](examples/owm2png/test.png)
