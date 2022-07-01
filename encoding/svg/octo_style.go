@@ -13,6 +13,7 @@ type OctoStyle struct {
 }
 
 func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
+	svg.UpdateDefaultFont("Century Gothic,CenturyGothic,AppleGothic,sans-serif")
 	return &OctoStyle{
 		evolutionSteps: evolutionSteps,
 	}
