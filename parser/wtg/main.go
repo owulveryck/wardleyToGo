@@ -77,8 +77,11 @@ func main() {
 
 	fmt.Println(string(b))
 	step := 100 / (maxVis + 1)
+	cs := &coordSetter{
+		verticalStep: step,
+	}
 	for _, n := range roots {
-		walk(g, n.(*node), 0)
+		cs.walk(g, n.(*node), 0)
 	}
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "reading standard input:", err)
@@ -86,10 +89,15 @@ func main() {
 	_ = step
 }
 
-func walk(g graph.Directed, n *node, visibility int) {
+type coordSetter struct {
+	verticalStep int
+}
+
+func (c *coordSetter) walk(g graph.Directed, n *node, visibility int) {
 	n.visibility = visibility
+	n.point.X = visibility * c.verticalStep
 	from := g.From(n.ID())
 	for from.Next() {
-		walk(g, from.Node().(*node), g.Edge(n.ID(), from.Node().ID()).(*edge).visibility+visibility)
+		c.walk(g, from.Node().(*node), g.Edge(n.ID(), from.Node().ID()).(*edge).visibility+visibility)
 	}
 }

@@ -62,6 +62,10 @@ func (e *edge) ReversedEdge() graph.Edge {
 func (e *edge) Attributes() []encoding.Attribute {
 	return []encoding.Attribute{
 		{
+			Key:   "arrowhead",
+			Value: "none",
+		},
+		{
 			Key:   "minlen",
 			Value: strconv.Itoa(e.visibility),
 		},
