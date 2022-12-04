@@ -2,15 +2,16 @@ package main
 
 import (
 	"bufio"
+	"image"
 	"io"
 	"regexp"
 
 	"github.com/owulveryck/wardleyToGo"
-	"gonum.org/v1/gonum/graph"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
-func parse(r io.Reader) (graph.Directed, error) {
-	inventory := make(map[string]*node, 0)
+func initialize(r io.Reader) (*wardleyToGo.Map, error) {
+	inventory := make(map[string]*wardley.Component, 0)
 	edgeInventory := make([]*edge, 0)
 	var link = regexp.MustCompile(`^\s*(.*\S)\s+(-+)\s+(.*)$`)
 
@@ -23,16 +24,16 @@ func parse(r io.Reader) (graph.Directed, error) {
 			continue
 		}
 		if _, ok := inventory[elements[1]]; !ok {
-			inventory[elements[1]] = &node{
-				id:    int64(len(inventory)),
-				label: elements[1],
-			}
+			c := wardley.NewComponent(int64(len(inventory)))
+			c.Label = elements[1]
+			c.Placement = image.Pt(50, 50)
+			inventory[elements[1]] = c
 		}
 		if _, ok := inventory[elements[3]]; !ok {
-			inventory[elements[3]] = &node{
-				id:    int64(len(inventory)),
-				label: elements[3],
-			}
+			c := wardley.NewComponent(int64(len(inventory)))
+			c.Label = elements[3]
+			c.Placement = image.Pt(50, 50)
+			inventory[elements[3]] = c
 		}
 		edgeInventory = append(edgeInventory, &edge{
 			from:       inventory[elements[1]],
@@ -44,12 +45,18 @@ func parse(r io.Reader) (graph.Directed, error) {
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
-	g := wardleyToGo.NewMap(0)
+	m := wardleyToGo.NewMap(0)
 	for _, n := range inventory {
-		g.AddNode(n)
+		err := m.AddComponent(n)
+		if err != nil {
+			return nil, err
+		}
 	}
 	for _, e := range edgeInventory {
-		g.SetEdge(e)
+		err := m.SetCollaboration(e)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return g, nil
+	return m, nil
 }

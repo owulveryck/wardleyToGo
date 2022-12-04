@@ -4,6 +4,8 @@ import (
 	"image"
 	"strconv"
 
+	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding"
 )
@@ -13,6 +15,11 @@ type node struct {
 	label      string
 	visibility int
 	point      image.Point
+}
+
+// GetPosition of the element wrt a 100x100 map
+func (n *node) GetPosition() image.Point {
+	return n.point
 }
 
 func (n *node) Attributes() []encoding.Attribute {
@@ -30,9 +37,13 @@ func (n *node) ID() int64 {
 }
 
 type edge struct {
-	from       *node
-	to         *node
+	from       *wardley.Component
+	to         *wardley.Component
 	visibility int
+}
+
+func (e *edge) GetType() wardleyToGo.EdgeType {
+	return 0
 }
 
 // From returns the from node of the edge.

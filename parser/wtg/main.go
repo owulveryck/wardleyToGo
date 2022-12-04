@@ -1,31 +1,34 @@
 package main
 
 import (
-	"fmt"
+	"image"
 	"log"
 	"os"
 
-	"gonum.org/v1/gonum/graph"
+	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
+	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+
 	"gonum.org/v1/gonum/graph/encoding/dot"
 	"gonum.org/v1/gonum/graph/path"
 )
 
 func main() {
 
-	g, err := parse(os.Stdin)
+	m, err := initialize(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
-	b, err := dot.Marshal(g, "sample", "", "\t")
+	b, err := dot.Marshal(m, "sample", "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(string(b))
+	log.Println(string(b))
 
-	allShortestPaths := path.DijkstraAllPaths(g)
-	roots := findRoot(g)
-	leafs := findLeafs(g)
+	allShortestPaths := path.DijkstraAllPaths(m)
+	roots := findRoot(m)
+	leafs := findLeafs(m)
 	var maxDepth int
 	for _, r := range roots {
 		for _, l := range leafs {
@@ -33,7 +36,7 @@ func main() {
 			for _, path := range paths {
 				currentVisibility := 0
 				for i := 0; i < len(path)-1; i++ {
-					e := g.Edge(path[i].ID(), path[i+1].ID())
+					e := m.Edge(path[i].ID(), path[i+1].ID())
 					currentVisibility += e.(*edge).visibility
 				}
 				if currentVisibility > maxDepth {
@@ -43,25 +46,36 @@ func main() {
 		}
 	}
 
-	step := 100 / (maxDepth + 1)
+	step := 100 / maxDepth
 	cs := &coordSetter{
 		verticalStep: step,
 	}
 	for _, n := range roots {
-		cs.walk(g, n.(*node), 0)
+		cs.walk(m, n, 0)
 	}
-	_ = step
+
+	e, err := svgmap.NewEncoder(os.Stdout, image.Rect(0, 0, 1100, 900), image.Rect(30, 50, 1070, 850))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer e.Close()
+	style := svgmap.NewWardleyStyle(svgmap.DefaultEvolution)
+	e.Init(style)
+	err = e.Encode(m)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 type coordSetter struct {
 	verticalStep int
 }
 
-func (c *coordSetter) walk(g graph.Directed, n *node, visibility int) {
-	n.visibility = visibility
-	n.point.X = visibility * c.verticalStep
-	from := g.From(n.ID())
+func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
+	n.Placement.X = 50
+	n.Placement.Y = visibility * c.verticalStep
+	from := m.From(n.ID())
 	for from.Next() {
-		c.walk(g, from.Node().(*node), g.Edge(n.ID(), from.Node().ID()).(*edge).visibility+visibility)
+		c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*edge).visibility+visibility)
 	}
 }

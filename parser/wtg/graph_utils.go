@@ -1,25 +1,28 @@
 package main
 
-import "gonum.org/v1/gonum/graph"
+import (
+	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
+)
 
-func findLeafs(g graph.Directed) []graph.Node {
-	ret := make([]graph.Node, 0)
-	nodes := g.Nodes()
+func findLeafs(m *wardleyToGo.Map) []*wardley.Component {
+	ret := make([]*wardley.Component, 0)
+	nodes := m.Nodes()
 	for nodes.Next() {
 		n := nodes.Node()
-		if g.From(n.ID()).Len() == 0 {
-			ret = append(ret, n)
+		if m.From(n.ID()).Len() == 0 {
+			ret = append(ret, n.(*wardley.Component))
 		}
 	}
 	return ret
 }
-func findRoot(g graph.Directed) []graph.Node {
-	ret := make([]graph.Node, 0)
-	nodes := g.Nodes()
+func findRoot(m *wardleyToGo.Map) []*wardley.Component {
+	ret := make([]*wardley.Component, 0)
+	nodes := m.Nodes()
 	for nodes.Next() {
 		n := nodes.Node()
-		if g.To(n.ID()).Len() == 0 {
-			ret = append(ret, n)
+		if m.To(n.ID()).Len() == 0 {
+			ret = append(ret, n.(*wardley.Component))
 		}
 	}
 	return ret
