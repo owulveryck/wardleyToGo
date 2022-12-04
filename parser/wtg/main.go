@@ -15,7 +15,7 @@ func main() {
 
 	inventory := make(map[string]*node, 0)
 	edgeInventory := make([]*edge, 0)
-	var link = regexp.MustCompile(`^(.*) (-+) (.*)$`)
+	var link = regexp.MustCompile(`^\s*(.*\S)\s+(-+)\s+(.*)$`)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
