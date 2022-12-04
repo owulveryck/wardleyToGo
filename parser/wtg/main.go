@@ -74,36 +74,22 @@ func main() {
 			}
 		}
 	}
-	log.Println(maxVis)
 
 	fmt.Println(string(b))
+	step := 100 / (maxVis + 1)
+	for _, n := range roots {
+		walk(g, n.(*node), 0)
+	}
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "reading standard input:", err)
 	}
-	_ = allShortestPaths
-	_ = roots
-	_ = leafs
+	_ = step
 }
 
-func findLeafs(g graph.Directed) []graph.Node {
-	ret := make([]graph.Node, 0)
-	nodes := g.Nodes()
-	for nodes.Next() {
-		n := nodes.Node()
-		if g.From(n.ID()).Len() == 0 {
-			ret = append(ret, n)
-		}
+func walk(g graph.Directed, n *node, visibility int) {
+	n.visibility = visibility
+	from := g.From(n.ID())
+	for from.Next() {
+		walk(g, from.Node().(*node), g.Edge(n.ID(), from.Node().ID()).(*edge).visibility+visibility)
 	}
-	return ret
-}
-func findRoot(g graph.Directed) []graph.Node {
-	ret := make([]graph.Node, 0)
-	nodes := g.Nodes()
-	for nodes.Next() {
-		n := nodes.Node()
-		if g.To(n.ID()).Len() == 0 {
-			ret = append(ret, n)
-		}
-	}
-	return ret
 }
