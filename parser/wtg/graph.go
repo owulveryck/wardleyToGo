@@ -82,7 +82,3 @@ func (e *edge) Attributes() []encoding.Attribute {
 		},
 	}
 }
-
-func (e *edge) Weight() float64 {
-	return float64(e.visibility)
-}

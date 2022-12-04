@@ -72,7 +72,7 @@ type coordSetter struct {
 }
 
 func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
-	n.Placement.X = 50
+	n.Placement.X = 50 + visibility
 	n.Placement.Y = visibility * c.verticalStep
 	from := m.From(n.ID())
 	for from.Next() {

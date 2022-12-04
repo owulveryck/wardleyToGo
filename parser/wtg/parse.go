@@ -46,8 +46,8 @@ func initialize(r io.Reader) (*wardleyToGo.Map, error) {
 		return nil, err
 	}
 	m := wardleyToGo.NewMap(0)
-	for _, n := range inventory {
-		err := m.AddComponent(n)
+	for _, c := range inventory {
+		err := m.AddComponent(c)
 		if err != nil {
 			return nil, err
 		}
