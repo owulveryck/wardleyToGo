@@ -7,7 +7,9 @@ import (
 	"os"
 	"regexp"
 
+	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding/dot"
+	"gonum.org/v1/gonum/graph/path"
 	"gonum.org/v1/gonum/graph/simple"
 )
 
@@ -53,8 +55,55 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	allShortestPaths := path.DijkstraAllPaths(g)
+	roots := findRoot(g)
+	leafs := findLeafs(g)
+	var maxVis int
+	for _, r := range roots {
+		for _, l := range leafs {
+			paths, _ := allShortestPaths.AllBetween(r.ID(), l.ID())
+			for _, path := range paths {
+				currentVisibility := 0
+				for i := 0; i < len(path)-1; i++ {
+					e := g.Edge(path[i].ID(), path[i+1].ID())
+					currentVisibility += e.(*edge).visibility
+				}
+				if currentVisibility > maxVis {
+					maxVis = currentVisibility
+				}
+			}
+		}
+	}
+	log.Println(maxVis)
+
 	fmt.Println(string(b))
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "reading standard input:", err)
 	}
+	_ = allShortestPaths
+	_ = roots
+	_ = leafs
+}
+
+func findLeafs(g graph.Directed) []graph.Node {
+	ret := make([]graph.Node, 0)
+	nodes := g.Nodes()
+	for nodes.Next() {
+		n := nodes.Node()
+		if g.From(n.ID()).Len() == 0 {
+			ret = append(ret, n)
+		}
+	}
+	return ret
+}
+func findRoot(g graph.Directed) []graph.Node {
+	ret := make([]graph.Node, 0)
+	nodes := g.Nodes()
+	for nodes.Next() {
+		n := nodes.Node()
+		if g.To(n.ID()).Len() == 0 {
+			ret = append(ret, n)
+		}
+	}
+	return ret
 }
