@@ -12,7 +12,7 @@ import (
 
 func initialize(r io.Reader) (*wardleyToGo.Map, error) {
 	inventory := make(map[string]*wardley.Component, 0)
-	edgeInventory := make([]*edge, 0)
+	edgeInventory := make([]*wardley.Collaboration, 0)
 	var link = regexp.MustCompile(`^\s*(.*\S)\s+(-+)\s+(.*)$`)
 
 	scanner := bufio.NewScanner(r)
@@ -35,10 +35,10 @@ func initialize(r io.Reader) (*wardleyToGo.Map, error) {
 			c.Placement = image.Pt(50, 50)
 			inventory[elements[3]] = c
 		}
-		edgeInventory = append(edgeInventory, &edge{
-			from:       inventory[elements[1]],
-			to:         inventory[elements[3]],
-			visibility: len(elements[2]),
+		edgeInventory = append(edgeInventory, &wardley.Collaboration{
+			F:          inventory[elements[1]],
+			T:          inventory[elements[3]],
+			Visibility: len(elements[2]),
 		})
 	}
 

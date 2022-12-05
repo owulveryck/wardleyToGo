@@ -14,6 +14,7 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
+	dotencoding "gonum.org/v1/gonum/graph/encoding"
 )
 
 const (
@@ -28,6 +29,15 @@ type Component struct {
 	LabelPlacement image.Point // LabelPlacement is relative to the placement
 	Type           wardleyToGo.ComponentType
 	RenderingLayer int //The position of the element on the picture
+}
+
+func (c *Component) Attributes() []dotencoding.Attribute {
+	return []dotencoding.Attribute{
+		{
+			Key:   "label",
+			Value: c.Label,
+		},
+	}
 }
 
 // NewComponent with the corresponding id and default UndefinedCoords

@@ -37,7 +37,7 @@ func main() {
 				currentVisibility := 0
 				for i := 0; i < len(path)-1; i++ {
 					e := m.Edge(path[i].ID(), path[i+1].ID())
-					currentVisibility += e.(*edge).visibility
+					currentVisibility += e.(*wardley.Collaboration).Visibility
 				}
 				if currentVisibility > maxDepth {
 					maxDepth = currentVisibility
@@ -50,7 +50,10 @@ func main() {
 	cs := &coordSetter{
 		verticalStep: step,
 	}
-	for _, n := range roots {
+	nroots := len(roots)
+	hsteps := 100 / (nroots + 1)
+	for i, n := range roots {
+		n.Placement.X = hsteps * (i + 1)
 		cs.walk(m, n, 0)
 	}
 
@@ -72,10 +75,13 @@ type coordSetter struct {
 }
 
 func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
-	n.Placement.X = 50 + visibility
 	n.Placement.Y = visibility * c.verticalStep
 	from := m.From(n.ID())
+	hsteps := 100 / (from.Len() + 1)
+	i := 1
 	for from.Next() {
-		c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*edge).visibility+visibility)
+		from.Node().(*wardley.Component).Placement.X = hsteps * i
+		c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+		i++
 	}
 }
