@@ -39,6 +39,7 @@ func ParseValueChain(r io.Reader) (*wardleyToGo.Map, error) {
 		edgeInventory = append(edgeInventory, &wardley.Collaboration{
 			F:          inventory[elements[1]],
 			T:          inventory[elements[3]],
+			Type:       wardley.RegularEdge,
 			Visibility: len(elements[2]),
 		})
 	}

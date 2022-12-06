@@ -1,0 +1,16 @@
+business - cup of tea
+public - cup of tea
+    cup of tea - cup
+cup of tea     -- tea
+cup of tea --- hot water
+hot water -     water
+hot water -- kettle
+kettle - power
+metier - tasse de thé
+clients - tasse de thé
+tasse de thé - tasse
+tasse de thé -- tea
+tasse de thé --- eau chaude
+eau chaude - eau
+eau chaude -- bouilloire
+bouilloire - energie
