@@ -1,4 +1,4 @@
-package main
+package wtg
 
 import (
 	"bufio"
@@ -8,9 +8,10 @@ import (
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"gonum.org/v1/gonum/graph/path"
 )
 
-func initialize(r io.Reader) (*wardleyToGo.Map, error) {
+func ParseValueChain(r io.Reader) (*wardleyToGo.Map, error) {
 	inventory := make(map[string]*wardley.Component, 0)
 	edgeInventory := make([]*wardley.Collaboration, 0)
 	var link = regexp.MustCompile(`^\s*(.*\S)\s+(-+)\s+(.*)$`)
@@ -58,5 +59,61 @@ func initialize(r io.Reader) (*wardleyToGo.Map, error) {
 			return nil, err
 		}
 	}
+	err := setCoords(m)
+	if err != nil {
+		return m, nil
+	}
 	return m, nil
+}
+
+func setCoords(m *wardleyToGo.Map) error {
+
+	allShortestPaths := path.DijkstraAllPaths(m)
+	roots := findRoot(m)
+	leafs := findLeafs(m)
+	var maxDepth int
+	for _, r := range roots {
+		for _, l := range leafs {
+			paths, _ := allShortestPaths.AllBetween(r.ID(), l.ID())
+			for _, path := range paths {
+				currentVisibility := 0
+				for i := 0; i < len(path)-1; i++ {
+					e := m.Edge(path[i].ID(), path[i+1].ID())
+					currentVisibility += e.(*wardley.Collaboration).Visibility
+				}
+				if currentVisibility > maxDepth {
+					maxDepth = currentVisibility
+				}
+			}
+		}
+	}
+
+	step := 100 / maxDepth
+	cs := &coordSetter{
+		verticalStep: step,
+	}
+	nroots := len(roots)
+	hsteps := 100 / (nroots + 1)
+	for i, n := range roots {
+		n.Placement.X = hsteps * (i + 1)
+		cs.walk(m, n, 0)
+	}
+
+	return nil
+}
+
+type coordSetter struct {
+	verticalStep int
+}
+
+func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
+	n.Placement.Y = visibility * c.verticalStep
+	from := m.From(n.ID())
+	hsteps := 100 / (from.Len() + 1)
+	i := 1
+	for from.Next() {
+		from.Node().(*wardley.Component).Placement.X = hsteps * i
+		c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+		i++
+	}
 }
