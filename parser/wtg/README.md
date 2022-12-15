@@ -11,19 +11,19 @@ hot water -- kettle
 kettle - power
 
 cup of tea: {
-	type: buy
+    type: buy
     evolution: |....|....|...x..|.........|
 }
 water: {
-	type: build
+    type: build
     evolution: |....|....|....|....x....|
 }
 kettle: {
-	type: build
+    type: build
     evolution: |....|..x.|....|.........|
 }
 power: {
-	type: outsource
+    type: outsource
     evolution: |....|....|....x|.........|
 }
 business: {
