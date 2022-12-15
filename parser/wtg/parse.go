@@ -21,6 +21,7 @@ var (
 	node      = regexp.MustCompile(`^\s*(` + nodergxp + `):\s{\s*$`)
 	endnode   = regexp.MustCompile(`^\s*}\s*$`)
 	evolution = regexp.MustCompile(`^\s*evolution:\s*(|.*x?.*|.*x?.*|.*x?.*|.*x?.*|)\s*$`)
+	nodeType  = regexp.MustCompile(`^\s*type:\s*(.*)\s*$`)
 	link      = regexp.MustCompile(`^\s*(.*\S)\s+(-+)\s+(.*)$`)
 )
 
@@ -92,6 +93,17 @@ func (p *Parser) parseComponents(s string) error {
 			return err
 		}
 		p.currentNode.Placement.X = placement
+	}
+	elements = nodeType.FindStringSubmatch(s)
+	if len(elements) == 2 && p.currentNode != nil {
+		switch elements[1] {
+		case "build":
+			p.currentNode.Type = wardley.BuildComponent
+		case "buy":
+			p.currentNode.Type = wardley.BuyComponent
+		case "outsource":
+			p.currentNode.Type = wardley.OutsourceComponent
+		}
 	}
 	return nil
 }
