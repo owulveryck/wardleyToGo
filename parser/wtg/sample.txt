@@ -1,8 +1,18 @@
 business - cup of tea
 public - cup of tea
-    cup of tea - cup
-cup of tea     -- tea
+cup of tea - cup
+cup of tea -- tea
+tea - plant
+plant - earth
 cup of tea --- hot water
-hot water -     water
+hot water - water
 hot water -- kettle
 kettle - power
+
+kettle: {
+    evolution: |...|...x..|...|..|
+	description: """
+
+"""
+}
+

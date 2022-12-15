@@ -10,8 +10,9 @@ import (
 )
 
 func main() {
+	p := wtg.NewParser()
 
-	m, err := wtg.ParseValueChain(os.Stdin)
+	err := p.Parse(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,7 +23,7 @@ func main() {
 	defer e.Close()
 	style := svgmap.NewWardleyStyle(svgmap.DefaultEvolution)
 	e.Init(style)
-	err = e.Encode(m)
+	err = e.Encode(p.WMap)
 	if err != nil {
 		log.Fatal(err)
 	}

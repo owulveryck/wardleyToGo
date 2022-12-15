@@ -11,12 +11,12 @@ import (
 )
 
 func main() {
-
-	m, err := wtg.ParseValueChain(os.Stdin)
+	p := wtg.NewParser()
+	err := p.Parse(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
-	b, err := dot.Marshal(m, "sample", "", "\t")
+	b, err := dot.Marshal(p.WMap, "sample", "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
