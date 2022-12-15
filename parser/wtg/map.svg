@@ -1,0 +1,135 @@
+<svg width="100%" height="100%" viewBox="0 0 1100 900" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+    <style><![CDATA[
+.evolutionEdge {
+	stroke-dasharray: 7;
+	stroke-dashoffset: 7;
+	animation: dash 3s linear forwards infinite;
+}
+
+@keyframes dash {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}]]></style>
+    <rect x="0" y="0" width="1100" height="900" fill="rgb(128,128,128)" fill-opacity="1.0"></rect>
+    <defs>
+        <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="rgb(196,196,196)"></stop>
+            <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="100%" stop-color="rgb(196,196,196)"></stop>
+        </linearGradient>
+        <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
+        </marker>
+        <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
+        </marker>
+    </defs>
+    <rect x="30" y="50" width="1040" height="800" style="fill:url(#wardleyGradient)"></rect>
+    <g transform=" translate(30,850) rotate(270)">
+        <line x1="0" y1="0" x2="800" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="180" x2="800" y2="180" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="416" x2="800" y2="416" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="728" x2="800" y2="728" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+        <text x="5" y="-10" text-anchor="start">Invisible</text>
+        <text x="795" y="-10" text-anchor="end">Visible</text>
+        <text x="400" y="-10" font-weight="bold" text-anchor="middle">Value Chain</text>
+    </g>
+    <line x1="30" y1="850" x2="1070" y2="850" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
+    <text x="37" y="65" font-weight="bold" font-size="11px" text-anchor="start">Uncharted</text>
+    <text x="1065" y="65" font-weight="bold" font-size="11px" text-anchor="end">Industrialised</text>
+    <text x="30" y="865">Genesis</text>
+    <text x="210" y="865">Custom-Built</text>
+    <text x="446" y="865">Product
+(+rental)</text>
+    <text x="758" y="865">Commodity
+(+utility)</text>
+    <text x="1070" y="865" font-weight="bold" text-anchor="end">Evolution</text>
+    <text x="550" y="20" text-anchor="middle"></text>
+    <g id="layer_0">
+        <g id="edge_5_6">
+            <line x1="893" y1="498" x2="893" y2="610" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_7">
+            <line x1="893" y1="498" x2="893" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_1">
+            <line x1="893" y1="50" x2="893" y2="162" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_8">
+            <line x1="893" y1="722" x2="893" y2="834" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_3">
+            <line x1="893" y1="162" x2="893" y2="274" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_4">
+            <line x1="893" y1="162" x2="893" y2="386" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_5">
+            <line x1="893" y1="162" x2="893" y2="498" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_0_1">
+            <line x1="893" y1="50" x2="893" y2="162" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+    </g>
+    <g id="layer_10">
+        <g id="element_1">
+            <g transform=" translate(893,162)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">cup of tea</text>
+            </g>
+        </g>
+        <g id="element_0">
+            <g transform=" translate(893,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">business</text>
+            </g>
+        </g>
+        <g id="element_3">
+            <g transform=" translate(893,274)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">cup</text>
+            </g>
+        </g>
+        <g id="element_2">
+            <g transform=" translate(893,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">public</text>
+            </g>
+        </g>
+        <g id="element_7">
+            <g transform=" translate(893,722)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">kettle</text>
+            </g>
+        </g>
+        <g id="element_8">
+            <g transform=" translate(893,834)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">power</text>
+            </g>
+        </g>
+        <g id="element_4">
+            <g transform=" translate(893,386)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">tea</text>
+            </g>
+        </g>
+        <g id="element_5">
+            <g transform=" translate(893,498)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">hot water</text>
+            </g>
+        </g>
+        <g id="element_6">
+            <g transform=" translate(893,610)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">water</text>
+            </g>
+        </g>
+    </g>
+</svg>
