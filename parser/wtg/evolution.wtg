@@ -1,10 +1,13 @@
 power: {
+    type: outsource
     evolution: |....|....|....x|........|
 }
 cup: {
+    type: buy
     evolution: |....|....|....|....x....|
 }
 tea: {
+    type: buy
     evolution: |....|....|....|.....x....|
 }
 public: {
@@ -14,9 +17,11 @@ hot water: {
     evolution: |....|....|....|....x....|
 }
 water: {
+    type: outsource
     evolution: |....|....|....|.....x....|
 }
 kettle: {
+    type: build
     evolution: |....|...x.|....|.........|
 }
 business: {
