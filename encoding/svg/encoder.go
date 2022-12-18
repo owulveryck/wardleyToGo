@@ -82,6 +82,11 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		var g *group
 		if elem, ok := element.(graph.Node); ok {
 			g = makeGroup("element", int(elem.ID()))
+			g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
+				Name:  xml.Name{Local: "onclick"},
+				Value: "replyClick(this.id)",
+			},
+			)
 			e.e.EncodeToken(g.StartElement)
 		}
 		if elem, ok := element.(graph.Edge); ok {

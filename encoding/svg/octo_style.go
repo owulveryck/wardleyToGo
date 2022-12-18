@@ -21,6 +21,37 @@ func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
 }
 
 func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
+
+	enc.Encode(script{
+		Data: []byte(`
+const max = 9
+function replyClick(clicked_id)
+{
+	console.log(clicked_id);
+	var rx = /element_(.*)/;
+	var arr = rx.exec(clicked_id);
+	var id = arr[1];
+	hideID(id)
+}
+function hideID(id) {
+	for (let i = 0; i < max; i++) {
+		var myEle = document.getElementById("edge_"+id+"_"+i);
+		if(!myEle){
+			continue;
+		}
+		var style = document.getElementById("edge_"+id+"_"+i).style.display;
+		if(style === "none")
+			document.getElementById("edge_"+id+"_"+i).style.display = "block";
+		else
+			document.getElementById("edge_"+id+"_"+i).style.display = "none";
+		if (id < max) {
+			hideID(i)
+		}
+	}
+}
+`),
+	})
+
 	enc.Encode(style{
 		Data: []byte(`
 .evolutionEdge {

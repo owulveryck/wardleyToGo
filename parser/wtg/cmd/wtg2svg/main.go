@@ -21,7 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer e.Close()
-	style := svgmap.NewWardleyStyle(svgmap.DefaultEvolution)
+	style := svgmap.NewOctoStyle(svgmap.DefaultEvolution)
 	e.Init(style)
 	err = e.Encode(p.WMap)
 	if err != nil {

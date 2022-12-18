@@ -1,27 +1,27 @@
 power: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|....|....x|........|
 }
 cup: {
     evolution: |....|....|....|....x....|
 }
 tea: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|....|....|.....x....|
 }
 public: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|....|....|.x...|
 }
 hot water: {
     evolution: |....|....|....|....x....|
 }
 water: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|....|....|.....x....|
 }
 kettle: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|...x.|....|.........|
 }
 business: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|....|..x.|.........|
 }
 cup of tea: {
-    evolution: |....|....|....|....x....|
+    evolution: |....|....|..x..|........|
 }
