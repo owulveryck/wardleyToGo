@@ -18,3 +18,5 @@ tests/shapeCreator/drawing_circle.svg
 tests/shapeCreator/drawing.svg
 tests/shapeCreator/main.go
 tests/shapeCreator/polyline.go
+
+dist/
