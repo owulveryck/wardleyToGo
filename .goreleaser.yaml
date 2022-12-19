@@ -16,6 +16,11 @@ builds:
       - linux
       - windows
       - darwin
+    # List of combinations of GOOS + GOARCH + GOARM to ignore.
+    # Default is empty.
+    ignore:
+      - goos: windows
+        goarch: arm64
   - id: owm2dot
     main: ./examples/owm2dot
     binary: owm2dot
@@ -25,6 +30,9 @@ builds:
       - linux
       - windows
       - darwin
+    ignore:
+      - goos: windows
+        goarch: arm64
   - id: owm2svg
     main: ./examples/owm2svg
     binary: owm2svg
@@ -34,6 +42,9 @@ builds:
       - linux
       - windows
       - darwin
+    ignore:
+      - goos: windows
+        goarch: arm64
   - id: wtg2dot
     main: ./examples/wtg2dot
     binary: wtg2dot
@@ -43,6 +54,9 @@ builds:
       - linux
       - windows
       - darwin
+    ignore:
+      - goos: windows
+        goarch: arm64
   - id: wtg2svg
     main: ./examples/wtg2svg
     binary: wtg2svg
@@ -52,6 +66,9 @@ builds:
       - linux
       - windows
       - darwin
+    ignore:
+      - goos: windows
+        goarch: arm64
 archives:
   - replacements:
       darwin: Darwin
