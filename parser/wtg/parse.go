@@ -88,11 +88,23 @@ func (p *Parser) parseComponents(s string) error {
 	}
 	elements = evolution.FindStringSubmatch(s)
 	if len(elements) == 2 && p.currentNode != nil {
-		placement, err := computePlacement(elements[1])
+		placement, evolvedPosition, err := computePlacement(elements[1])
 		if err != nil {
 			return err
 		}
 		p.currentNode.Placement.X = placement
+		if evolvedPosition != 0 {
+			evolvedC := wardley.NewEvolvedComponent(p.currentNode.ID() + 1000) // FIXME
+			evolvedC.Placement.X = evolvedPosition
+			evolvedC.Placement.Y = p.currentNode.Placement.Y
+			evolvedC.Label = p.currentNode.Label
+			p.WMap.AddComponent(evolvedC)
+			p.edgeInventory = append(p.edgeInventory, &wardley.Collaboration{
+				F:    p.currentNode,
+				T:    evolvedC,
+				Type: wardley.EvolvedComponentEdge,
+			})
+		}
 	}
 	elements = nodeType.FindStringSubmatch(s)
 	if len(elements) == 2 && p.currentNode != nil {
@@ -204,36 +216,64 @@ func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility 
 	hsteps := 100 / (from.Len() + 1)
 	i := 1
 	for from.Next() {
-		if from.Node().(*wardley.Component).Placement.X == 0 {
-			from.Node().(*wardley.Component).Placement.X = hsteps * i
+		switch from.Node().(type) {
+		case *wardley.Component:
+			if m.Edge(n.ID(), from.Node().ID()) != nil {
+				c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+			}
+		case *wardley.EvolvedComponent:
+			if m.Edge(n.ID(), from.Node().ID()) != nil {
+				c.walk(m, from.Node().(*wardley.EvolvedComponent).Component, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+			}
 		}
-		c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+		i++
+		switch n := from.Node().(type) {
+		case *wardley.Component:
+			if n.Placement.X == 0 {
+				n.Placement.X = hsteps * i
+			}
+			if m.Edge(n.ID(), from.Node().ID()) != nil {
+				c.walk(m, n, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+			}
+		case *wardley.EvolvedComponent:
+			if n.Placement.X == 0 {
+				n.Placement.X = hsteps * i
+			}
+			if m.Edge(n.ID(), from.Node().ID()) != nil {
+				c.walk(m, n.Component, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+			}
+		}
 		i++
 	}
 }
 
-func computePlacement(s string) (int, error) {
+func computePlacement(s string) (int, int, error) {
 	currentStage := -1
 	currentCursor := 0
 	stages := make([]int, 5)
+	evolvedCursor := 0
+	evolvedStage := 0
 	cursor := 0
 	stage := 0
 	for _, c := range s {
-		if c == '|' {
+		switch c {
+		case '|':
 			currentCursor = 0
 			currentStage++
 			continue
-		}
-		if c != 'x' {
-			currentCursor++
-		}
-		if c == 'x' {
+		case 'x':
 			cursor = currentCursor
 			stage = currentStage
+		case '>':
+			evolvedCursor = currentCursor
+			evolvedStage = currentStage
+		default:
+			currentCursor++
+			stages[currentStage]++
 		}
-		stages[currentStage]++
 	}
 	stagePositions := []float64{0, 17.4, 40, 70, 100}
 	position := stagePositions[stage] + (stagePositions[stage+1]-stagePositions[stage])*float64(cursor)/float64(stages[stage])
-	return int(math.Round(position)), nil
+	evolvedPosition := stagePositions[evolvedStage] + (stagePositions[evolvedStage+1]-stagePositions[evolvedStage])*float64(evolvedCursor)/float64(stages[evolvedStage])
+	return int(math.Round(position)), int(math.Round(evolvedPosition)), nil
 }

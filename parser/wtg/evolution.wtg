@@ -1,6 +1,6 @@
 power: {
     type: outsource
-    evolution: |....|....|....x|........|
+    evolution: |....|....|....x|.....>..|
 }
 cup: {
     type: buy
@@ -22,10 +22,10 @@ water: {
 }
 kettle: {
     type: build
-    evolution: |....|...x.|....|.........|
+    evolution: |....|...x.|..>.|..........|
 }
 business: {
-    evolution: |....|....|..x.|.........|
+    evolution: |....|....|...x.|.........|
 }
 cup of tea: {
     evolution: |....|....|..x..|........|

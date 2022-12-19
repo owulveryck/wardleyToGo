@@ -1,4 +1,31 @@
 <svg width="100%" height="100%" viewBox="0 0 1100 900" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+    <script><![CDATA[
+const max = 9
+function replyClick(clicked_id)
+{
+	console.log(clicked_id);
+	var rx = /element_(.*)/;
+	var arr = rx.exec(clicked_id);
+	var id = arr[1];
+	hideID(id)
+}
+function hideID(id) {
+	for (let i = 0; i < max; i++) {
+		var myEle = document.getElementById("edge_"+id+"_"+i);
+		if(!myEle){
+			continue;
+		}
+		var style = document.getElementById("edge_"+id+"_"+i).style.display;
+		if(style === "none")
+			document.getElementById("edge_"+id+"_"+i).style.display = "block";
+		else
+			document.getElementById("edge_"+id+"_"+i).style.display = "none";
+		if (id < max) {
+			hideID(i)
+		}
+	}
+}
+]]></script>
     <style><![CDATA[
 .evolutionEdge {
 	stroke-dasharray: 7;
@@ -14,13 +41,13 @@
 		stroke-dashoffset: 0;
 	}
 }]]></style>
-    <rect x="0" y="0" width="1100" height="900" fill="rgb(128,128,128)" fill-opacity="1.0"></rect>
+    <rect x="0" y="0" width="1100" height="900" fill="rgb(236,237,243)" fill-opacity="0.0"></rect>
     <defs>
         <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="rgb(196,196,196)"></stop>
+            <stop offset="0%" stop-color="rgb(236,237,243)"></stop>
             <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
             <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
-            <stop offset="100%" stop-color="rgb(196,196,196)"></stop>
+            <stop offset="100%" stop-color="rgb(236,237,243)"></stop>
         </linearGradient>
         <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
             <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
@@ -31,122 +58,127 @@
     </defs>
     <rect x="30" y="50" width="1040" height="800" style="fill:url(#wardleyGradient)"></rect>
     <g transform=" translate(30,850) rotate(270)">
-        <line x1="0" y1="0" x2="800" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
-        <line x1="0" y1="180" x2="800" y2="180" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
-        <line x1="0" y1="416" x2="800" y2="416" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
-        <line x1="0" y1="728" x2="800" y2="728" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
-        <text x="5" y="-10" text-anchor="start">Invisible</text>
-        <text x="795" y="-10" text-anchor="end">Visible</text>
-        <text x="400" y="-10" font-weight="bold" text-anchor="middle">Value Chain</text>
+        <line x1="0" y1="0" x2="800" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="180" x2="800" y2="180" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="416" x2="800" y2="416" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="728" x2="800" y2="728" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <text x="5" y="-10" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">Invisible</text>
+        <text x="795" y="-10" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">Visible</text>
+        <text x="400" y="-10" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">Value Chain</text>
     </g>
-    <line x1="30" y1="850" x2="1070" y2="850" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
-    <text x="37" y="65" font-weight="bold" font-size="11px" text-anchor="start">Uncharted</text>
-    <text x="1065" y="65" font-weight="bold" font-size="11px" text-anchor="end">Industrialised</text>
-    <text x="30" y="865">Genesis</text>
-    <text x="210" y="865">Custom-Built</text>
-    <text x="446" y="865">Product
+    <line x1="30" y1="850" x2="1070" y2="850" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+    <text x="37" y="65" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="start">Uncharted</text>
+    <text x="1065" y="65" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="end">Industrialised</text>
+    <text x="30" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Genesis</text>
+    <text x="210" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Custom-Built</text>
+    <text x="446" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Product
 (+rental)</text>
-    <text x="758" y="865">Commodity
+    <text x="758" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Commodity
 (+utility)</text>
-    <text x="1070" y="865" font-weight="bold" text-anchor="end">Evolution</text>
-    <text x="550" y="20" text-anchor="middle"></text>
+    <text x="1070" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">Evolution</text>
+    <text x="550" y="20" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle"></text>
     <g id="layer_0">
-        <g id="edge_0_1">
-            <line x1="373" y1="50" x2="550" y2="162" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_7_8">
+            <line x1="685" y1="50" x2="602" y2="162" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_0_1000">
+            <line x1="758" y1="834" x2="976" y2="834" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class="evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_1">
+            <line x1="602" y1="162" x2="914" y2="274" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_2">
+            <line x1="602" y1="162" x2="934" y2="386" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_4">
+            <line x1="602" y1="162" x2="914" y2="498" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_3_8">
+            <line x1="841" y1="50" x2="602" y2="162" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
         <g id="edge_4_5">
-            <line x1="550" y1="386" x2="550" y2="498" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="914" y1="498" x2="934" y2="610" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_9_10">
-            <line x1="716" y1="722" x2="550" y2="834" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_4_6">
+            <line x1="914" y1="498" x2="383" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_7_8">
-            <line x1="810" y1="498" x2="373" y2="610" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_6_1006">
+            <line x1="383" y1="722" x2="654" y2="722" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class="evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_7_9">
-            <line x1="810" y1="498" x2="716" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_1_3">
-            <line x1="550" y1="162" x2="290" y2="274" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_1_4">
-            <line x1="550" y1="162" x2="550" y2="386" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_1_7">
-            <line x1="550" y1="162" x2="810" y2="498" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_2_1">
-            <line x1="716" y1="50" x2="550" y2="162" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_5_6">
-            <line x1="550" y1="498" x2="550" y2="610" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_6_0">
+            <line x1="383" y1="722" x2="758" y2="834" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
     </g>
     <g id="layer_10">
-        <g id="element_8">
-            <g transform=" translate(373,610)">
+        <g id="element_8" onclick="replyClick(this.id)">
+            <g transform=" translate(602,162)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">water</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">cup of tea</text>
             </g>
         </g>
-        <g id="element_0">
-            <g transform=" translate(373,50)">
+        <g id="element_1" onclick="replyClick(this.id)">
+            <g transform=" translate(914,274)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">business</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">cup</text>
             </g>
         </g>
-        <g id="element_3">
-            <g transform=" translate(290,274)">
+        <g id="element_3" onclick="replyClick(this.id)">
+            <g transform=" translate(841,50)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">cup</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">public</text>
             </g>
         </g>
-        <g id="element_4">
-            <g transform=" translate(550,386)">
+        <g id="element_4" onclick="replyClick(this.id)">
+            <g transform=" translate(914,498)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">tea</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">hot water</text>
             </g>
         </g>
-        <g id="element_9">
-            <g transform=" translate(716,722)">
+        <g id="element_6" onclick="replyClick(this.id)">
+            <g transform=" translate(383,722)">
+                <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">kettle</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">kettle</text>
             </g>
         </g>
-        <g id="element_7">
-            <g transform=" translate(810,498)">
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">hot water</text>
+        <g id="element_1006" onclick="replyClick(this.id)">
+            <g transform=" translate(654,722)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">kettle</text>
             </g>
         </g>
-        <g id="element_1">
-            <g transform=" translate(550,162)">
+        <g id="element_7" onclick="replyClick(this.id)">
+            <g transform=" translate(685,50)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">cup of tea</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">business</text>
             </g>
         </g>
-        <g id="element_2">
-            <g transform=" translate(716,50)">
+        <g id="element_0" onclick="replyClick(this.id)">
+            <g transform=" translate(758,834)">
+                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">public</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">power</text>
             </g>
         </g>
-        <g id="element_5">
-            <g transform=" translate(550,498)">
+        <g id="element_2" onclick="replyClick(this.id)">
+            <g transform=" translate(934,386)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">plant</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">tea</text>
             </g>
         </g>
-        <g id="element_6">
-            <g transform=" translate(550,610)">
+        <g id="element_5" onclick="replyClick(this.id)">
+            <g transform=" translate(934,610)">
+                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">earth</text>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">water</text>
             </g>
         </g>
-        <g id="element_10">
-            <g transform=" translate(550,834)">
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0">power</text>
+        <g id="element_1000" onclick="replyClick(this.id)">
+            <g transform=" translate(976,834)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">power</text>
             </g>
         </g>
     </g>
