@@ -226,7 +226,6 @@ func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility 
 				c.walk(m, from.Node().(*wardley.EvolvedComponent).Component, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
 			}
 		}
-		i++
 		switch n := from.Node().(type) {
 		case *wardley.Component:
 			if n.Placement.X == 0 {
