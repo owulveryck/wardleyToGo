@@ -1,0 +1,32 @@
+power: {
+    type: outsource
+    evolution: |....|....|....x|.....>..|
+}
+cup: {
+    type: buy
+    evolution: |....|....|....|....x....|
+}
+tea: {
+    type: buy
+    evolution: |....|....|....|.....x....|
+}
+public: {
+    evolution: |....|....|....|.x...|
+}
+hot water: {
+    evolution: |....|....|....|....x....|
+}
+water: {
+    type: outsource
+    evolution: |....|....|....|.....x....|
+}
+kettle: {
+    type: build
+    evolution: |....|...x.|..>.|..........|
+}
+business: {
+    evolution: |....|....|...x.|.........|
+}
+cup of tea: {
+    evolution: |....|....|..x..|........|
+}

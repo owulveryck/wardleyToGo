@@ -13,6 +13,12 @@ const (
 	TextAnchorEnd
 )
 
+var defaultFont = ""
+
+func UpdateDefaultFont(fontName string) {
+	defaultFont = fontName
+}
+
 type Text struct {
 	P          image.Point
 	Text       []byte
@@ -20,6 +26,7 @@ type Text struct {
 	TextAnchor int
 	FontWeight string
 	FontSize   string
+	FontFamily string
 }
 
 func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
@@ -42,6 +49,17 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		element.Attr = append(element.Attr, xml.Attr{
 			Name:  xml.Name{Local: "font-weight"},
 			Value: t.FontWeight,
+		})
+	}
+	if t.FontFamily != "" {
+		element.Attr = append(element.Attr, xml.Attr{
+			Name:  xml.Name{Local: "font-family"},
+			Value: t.FontFamily,
+		})
+	} else if defaultFont != "" {
+		element.Attr = append(element.Attr, xml.Attr{
+			Name:  xml.Name{Local: "font-family"},
+			Value: defaultFont,
 		})
 	}
 	if t.FontSize != "" {

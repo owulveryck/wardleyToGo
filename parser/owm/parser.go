@@ -29,6 +29,19 @@ func NewParser(r io.Reader) *Parser {
 	var s scanner.Scanner
 	s.Init(r)
 	s.Whitespace ^= 1 << '\n' // don't skip tabs and new lines
+	/*
+		s.IsIdentRune = func(ch rune, i int) bool {
+			fmt.Printf("%s", string(ch))
+			if ch == '\'' && i > 0 {
+				return true
+			}
+			if unicode.IsGraphic(ch) && !unicode.IsSpace(ch) {
+				return true
+			}
+			fmt.Println("")
+			return false
+		}
+	*/
 	return &Parser{
 		s:              &s,
 		nodeDict:       make(map[string]graph.Node),

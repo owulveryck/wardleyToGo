@@ -8,74 +8,19 @@ import (
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 )
 
-type WardleyStyle struct {
+type OctoStyle struct {
 	evolutionSteps []Evolution
 }
 
-type Evolution struct {
-	Position float64
-	Label    string
-}
-
-//	DataEvolution
-//
-// https://learnwardleymapping.com/2020/01/22/visualizing-the-interaction-of-evolution-and-data-measurement/
-var DataEvolution = []Evolution{
-	{
-		Position: 0,
-		Label:    "Unmodeled",
-	},
-	{
-		Position: (float64(100) / 575),
-		Label:    "Divergent",
-	},
-	{
-		Position: (float64(100) / 250),
-		Label:    "Convergent",
-	},
-	{
-		Position: (float64(574) / 820),
-		Label:    "Modeled",
-	},
-}
-
-var DefaultEvolution = []Evolution{
-	{
-		Position: 0,
-		Label:    "Genesis",
-	},
-	{
-		Position: (float64(100) / 575),
-		Label:    "Custom-Built",
-	},
-	{
-		Position: (float64(100) / 250),
-		Label:    "Product\n(+rental)",
-	},
-	{
-		Position: (float64(574) / 820),
-		Label:    "Commodity\n(+utility)",
-	},
-}
-
-func NewWardleyStyle(evolutionSteps []Evolution) *WardleyStyle {
-	return &WardleyStyle{
+func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
+	svg.UpdateDefaultFont("Century Gothic,CenturyGothic,AppleGothic,sans-serif")
+	return &OctoStyle{
 		evolutionSteps: evolutionSteps,
 	}
 
 }
 
-type style struct {
-	XMLName xml.Name `xml:"style"`
-	Data    []byte   `xml:",cdata"`
-}
-
-type script struct {
-	XMLName xml.Name `xml:"script"`
-	Data    []byte   `xml:",cdata"`
-}
-
-func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
+func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 
 	enc.Encode(script{
 		Data: []byte(`
@@ -126,7 +71,7 @@ function hideID(id) {
 	})
 	enc.Encode(svg.Rectangle{
 		R:    box,
-		Fill: svg.Gray(128),
+		Fill: svg.Color{color.RGBA{236, 237, 243, 0}},
 	})
 	enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
@@ -136,7 +81,7 @@ function hideID(id) {
 				{
 					Offset: "0%",
 					StopColor: svg.Color{
-						Color: color.RGBA{196, 196, 196, 255},
+						Color: color.RGBA{236, 237, 243, 255},
 					},
 				},
 				{
@@ -150,7 +95,7 @@ function hideID(id) {
 				{
 					Offset: "100%",
 					StopColor: svg.Color{
-						Color: color.RGBA{196, 196, 196, 255},
+						Color: color.RGBA{236, 237, 243, 255},
 					},
 				},
 			},
@@ -191,7 +136,7 @@ function hideID(id) {
 	verticals = append(verticals, svg.Line{
 		F:           image.Point{0, 0},
 		T:           image.Point{canvas.Dy(), 0},
-		Stroke:      svg.Black,
+		Stroke:      svg.Color{color.RGBA{19, 36, 84, 255}},
 		StrokeWidth: "1",
 		MarkerEnd:   "url(#graphArrow)",
 	})
@@ -200,7 +145,7 @@ function hideID(id) {
 		verticals = append(verticals, svg.Line{
 			F:               image.Point{0, int(float64(canvas.Dx()) * position)},
 			T:               image.Point{canvas.Dy(), int(float64(canvas.Dx()) * position)},
-			Stroke:          svg.Gray(0xb8),
+			Stroke:          svg.Color{color.RGBA{19, 36, 84, 255}},
 			StrokeWidth:     "1",
 			StrokeDashArray: []int{2, 2},
 		})
@@ -209,17 +154,23 @@ function hideID(id) {
 	verticals = append(verticals, svg.Text{
 		P:          image.Point{5, -10},
 		Text:       []byte(`Invisible`),
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		TextAnchor: svg.TextAnchorStart,
 	})
 	verticals = append(verticals, svg.Text{
 		P:          image.Point{canvas.Dy() - 5, -10},
 		Text:       []byte(`Visible`),
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		TextAnchor: svg.TextAnchorEnd,
 	})
 	verticals = append(verticals, svg.Text{
 		P:          image.Point{canvas.Dy() / 2, -10},
 		Text:       []byte(`Value Chain`),
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
 		TextAnchor: svg.TextAnchorMiddle,
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		FontWeight: "bold",
 	})
 	enc.Encode(svg.Transform{
@@ -230,7 +181,7 @@ function hideID(id) {
 	enc.Encode(svg.Line{
 		F:         image.Point{canvas.Min.X, canvas.Max.Y},
 		T:         canvas.Max,
-		Stroke:    svg.Black,
+		Stroke:    svg.Color{color.RGBA{19, 36, 84, 255}},
 		MarkerEnd: "url(#graphArrow)",
 	})
 	enc.Encode(svg.Text{
@@ -239,25 +190,33 @@ function hideID(id) {
 		FontSize:   "11px",
 		Text:       []byte(`Uncharted`),
 		TextAnchor: svg.TextAnchorStart,
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 	})
 	enc.Encode(svg.Text{
 		P:          image.Point{canvas.Max.X - 5, canvas.Min.Y + 15},
 		FontWeight: "bold",
 		FontSize:   "11px",
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
 		Text:       []byte(`Industrialised`),
 		TextAnchor: svg.TextAnchorEnd,
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 	})
 	for i := 0; i < len(w.evolutionSteps); i++ {
 		axis := w.evolutionSteps[i]
 		enc.Encode(svg.Text{
-			P:    image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
-			Text: []byte(axis.Label),
+			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
+			Text:       []byte(axis.Label),
+			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
 	}
 	enc.Encode(svg.Text{
 		P:          image.Point{canvas.Max.X, canvas.Max.Y + 15},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		FontWeight: "bold",
 	})
 }

@@ -5,12 +5,14 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"strconv"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 	"gonum.org/v1/gonum/graph"
+	dotencoding "gonum.org/v1/gonum/graph/encoding"
 )
 
 type Collaboration struct {
@@ -18,6 +20,16 @@ type Collaboration struct {
 	Label          string
 	Type           wardleyToGo.EdgeType
 	RenderingLayer int
+	Visibility     int
+}
+
+func (c *Collaboration) Attributes() []dotencoding.Attribute {
+	return []dotencoding.Attribute{
+		{
+			Key:   "minlen",
+			Value: strconv.Itoa(c.Visibility),
+		},
+	}
 }
 
 // From returns the from node of the edge.

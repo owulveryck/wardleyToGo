@@ -1,0 +1,26 @@
+html, body {
+	height: 100%;
+}
+
+svg {
+	position: fixed;
+	float: none;
+}
+
+.parent { 
+	padding-left:200px;
+
+}
+.content { 
+	position:relative;
+}
+
+.left-menu { 
+	position:relative;
+	float:left;
+	width:200px;
+	right:200px;
+	height: 100%;
+
+}
+

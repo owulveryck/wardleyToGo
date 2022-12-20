@@ -6,23 +6,24 @@ import (
 	"os"
 
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
-	"github.com/owulveryck/wardleyToGo/parser/owm"
+	"github.com/owulveryck/wardleyToGo/parser/wtg"
 )
 
 func main() {
-	p := owm.NewParser(os.Stdin)
-	m, err := p.Parse() // the map
+	p := wtg.NewParser()
+
+	err := p.Parse(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
-	e, err := svgmap.NewEncoder(os.Stdout, image.Rect(0, 0, 1955, 1100), image.Rect(30, 50, 1925, 1050))
+	e, err := svgmap.NewEncoder(os.Stdout, image.Rect(0, 0, 1100, 900), image.Rect(30, 50, 1070, 850))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer e.Close()
 	style := svgmap.NewOctoStyle(svgmap.DefaultEvolution)
 	e.Init(style)
-	err = e.Encode(m)
+	err = e.Encode(p.WMap)
 	if err != nil {
 		log.Fatal(err)
 	}
