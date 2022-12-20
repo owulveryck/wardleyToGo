@@ -1,6 +1,6 @@
 module github.com/owulveryck/wardleyToGo
 
-go 1.15
+go 1.18
 
 require (
 	golang.org/x/image v0.2.0

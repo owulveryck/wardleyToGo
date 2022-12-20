@@ -86,7 +86,7 @@ func (p *Parser) parseComponents(s string) error {
 	}
 	elements = evolution.FindStringSubmatch(s)
 	if len(elements) == 2 && p.currentNode != nil {
-		placement, evolvedPosition, err := computePlacement(elements[1])
+		placement, evolvedPosition, err := computeEvolutionPosition(elements[1])
 		if err != nil {
 			return err
 		}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>  
+	<head>
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+
+		<script src="wasm_exec.js"></script>
+		<script>
+			const go = new Go();
+			WebAssembly.instantiateStreaming(fetch("wtg.wasm"), go.importObject).then((result) => {
+							go.run(result.instance);
+						});
+		</script>
+	</head>
+	<body>
+		press ctrl+enter to render
+		<br/>
+		<br/>
+		<div class="parent">
+			<div id="content" class="content">
+				<svg />
+			</div>
+			<div id="colLeft" class="left-menu">
+				<textarea id="code" name="code" rows="50" cols="40" onkeypress="onTextChange();">
+business - cup of tea
+public - cup of tea
+cup of tea - cup
+cup of tea -- tea
+cup of tea --- hot water
+hot water - water
+hot water -- kettle
+kettle - power
+
+business: {
+  evolution: |....|....|...x.|.........|
+}
+public: {
+  evolution: |....|....|....|.x...|
+}
+
+cup of tea: {
+  evolution: |....|....|..x..|........|
+}
+cup: {
+  type: buy
+  evolution: |....|....|....|....x....|
+}
+tea: {
+  type: buy
+  evolution: |....|....|....|.....x....|
+}
+hot water: {
+  evolution: |....|....|....|....x....|
+}
+water: {
+  type: outsource
+  evolution: |....|....|....|.....x....|
+}
+kettle: {
+  type: build
+  evolution: |....|...x.|..>.|..........|
+}
+power: {
+  type: outsource
+  evolution: |....|....|....x|.....>..|
+}</textarea>
+			</div>
+		</div>
+		<script src="script.js"></script>
+	</body>
+</html>  

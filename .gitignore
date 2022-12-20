@@ -20,3 +20,4 @@ tests/shapeCreator/main.go
 tests/shapeCreator/polyline.go
 
 dist/
+examples/webassembly/assets/*
