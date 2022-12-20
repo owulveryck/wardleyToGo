@@ -13,7 +13,7 @@ func setYCoords(m *wardleyToGo.Map) error {
 	allShortestPaths := path.DijkstraAllPaths(m)
 	roots := findRoot(m)
 	leafs := findLeafs(m)
-	var maxDepth int
+	maxDepth := 1
 	for _, r := range roots {
 		for _, l := range leafs {
 			paths, _ := allShortestPaths.AllBetween(r.ID(), l.ID())
@@ -52,41 +52,27 @@ type coordSetter struct {
 
 func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
 	n.Placement.Y = visibility * c.verticalStep
-	from := m.From(n.ID())
-	hsteps := 100 / (from.Len() + 1)
+	fromIT := m.From(n.ID())
+	hsteps := 100 / (fromIT.Len() + 1)
 	i := 1
-	for from.Next() {
-		switch from.Node().(type) {
+	for fromIT.Next() {
+		switch fromNode := fromIT.Node().(type) {
 		case *wardley.Component:
-			if m.Edge(n.ID(), from.Node().ID()) != nil {
-				c.walk(m, from.Node().(*wardley.Component), m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+			c.walk(m, fromNode, m.Edge(n.ID(), fromNode.ID()).(*wardley.Collaboration).Visibility+visibility)
+			if fromNode.Placement.X == 0 {
+				fromNode.Placement.X = hsteps * i
 			}
 		case *wardley.EvolvedComponent:
-			if m.Edge(n.ID(), from.Node().ID()) != nil {
-				c.walk(m, from.Node().(*wardley.EvolvedComponent).Component, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
-			}
-		}
-		switch n := from.Node().(type) {
-		case *wardley.Component:
-			if n.Placement.X == 0 {
-				n.Placement.X = hsteps * i
-			}
-			if m.Edge(n.ID(), from.Node().ID()) != nil {
-				c.walk(m, n, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
-			}
-		case *wardley.EvolvedComponent:
-			if n.Placement.X == 0 {
-				n.Placement.X = hsteps * i
-			}
-			if m.Edge(n.ID(), from.Node().ID()) != nil {
-				c.walk(m, n.Component, m.Edge(n.ID(), from.Node().ID()).(*wardley.Collaboration).Visibility+visibility)
+			c.walk(m, fromNode.Component, m.Edge(n.ID(), fromNode.ID()).(*wardley.Collaboration).Visibility+visibility)
+			if fromNode.Placement.X == 0 {
+				fromNode.Placement.X = hsteps * i
 			}
 		}
 		i++
 	}
 }
 
-func computePlacement(s string) (int, int, error) {
+func computeEvolutionPosition(s string) (int, int, error) {
 	currentStage := -1
 	currentCursor := 0
 	stages := make([]int, 5)
