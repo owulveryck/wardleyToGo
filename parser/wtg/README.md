@@ -52,7 +52,7 @@ cat sample.txt | go run cmd/wtg2svg/main.go > sample.svg
 
 The result is
 
-![](sample.svg)
+![](doc/sample.svg)
 
 ## Howto
 
@@ -76,7 +76,7 @@ kettle - power
 
 which renders in
 
-![](vc_dot.svg)
+![](doc/vc_dot.svg)
 
 #### Test the value chain in maps
 
@@ -84,7 +84,7 @@ which renders in
 
 which renders in
 
-![](vc_wardley.svg)
+![](doc/vc_wardley.svg)
 
 ### Create the evolution file
 
