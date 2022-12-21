@@ -30,7 +30,7 @@ func setYCoords(m *wardleyToGo.Map) error {
 		}
 	}
 
-	step := 100 / maxDepth
+	step := 97 / maxDepth
 	cs := &coordSetter{
 		verticalStep: step,
 	}
