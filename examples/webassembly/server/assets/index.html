@@ -13,15 +13,12 @@
 		</script>
 	</head>
 	<body>
-		press ctrl+enter to render
-		<br/>
-		<br/>
-		<div class="parent">
-			<div id="content" class="content">
-				<svg />
-			</div>
-			<div id="colLeft" class="left-menu">
-				<textarea id="code" name="code" rows="50" cols="40" onkeypress="onTextChange();">
+
+		<div class="row">
+			<div id="colLeft" class="column left" style="background-color:#aaa;">
+			<button onclick="displayImage();">run</button> (or ctrl+enter)
+			
+								<textarea id="code" name="code" rows="50" cols="40" onkeypress="onTextChange();">
 business - cup of tea
 public - cup of tea
 cup of tea - cup
@@ -64,8 +61,17 @@ power: {
   type: outsource
   evolution: |....|....|....x|.....>..|
 }</textarea>
+								<br/>
+				Zoom: <span id="zoomValue">1</span>
+			</div>
+			<div id="colRight" class="column right" style="background-color:#bbb;">
+				<div class="container" id="svgContainer">
+					<svg />
+				</div>
 			</div>
 		</div>
+		<canvas id="canvas"></canvas>
+
 		<script src="script.js"></script>
 	</body>
 </html>  

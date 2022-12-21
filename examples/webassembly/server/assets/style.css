@@ -1,26 +1,42 @@
-html, body {
-	height: 100%;
+* {
+	box-sizing: border-box;
 }
 
-svg {
+html,
+body {
+	margin: 0;
+	background-color: gray;
+}
+
+/* Create two unequal columns that floats next to each other */
+.column {
+	float: left;
+	padding: 10px;
+}
+
+.left {
+	width: 23vw;
+	height: 100vh;
+}
+
+.right {
+	height: 100vh;
+	float: none;
+}
+
+/* Clear floats after the columns */
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.container {
+	width: 77vw;
+	height: 100%;
+	left: 23vw;
 	position: fixed;
 	float: none;
 }
 
-.parent { 
-	padding-left:200px;
-
-}
-.content { 
-	position:relative;
-}
-
-.left-menu { 
-	position:relative;
-	float:left;
-	width:200px;
-	right:200px;
-	height: 100%;
-
-}
 

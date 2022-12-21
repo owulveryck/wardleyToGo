@@ -15,3 +15,5 @@ assets/script.js: server/assets/script.js
 assets/index.html: server/assets/index.html
 	cp $^ $@
 
+install: all
+	cp assets/index.html assets/script.js assets/style.css assets/wtg.wasm ../../docs
