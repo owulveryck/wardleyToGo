@@ -17,6 +17,7 @@
 		<div class="row">
 			<div id="colLeft" class="column left" style="background-color:#aaa;">
 			<button onclick="displayImage();">run</button> (or ctrl+enter)
+			<button><a href="" id="dl" download="wtg.svg">Download SVG</a></button> 
 			
 								<textarea id="code" name="code" rows="50" cols="40" onkeypress="onTextChange();">
 business - cup of tea
@@ -63,8 +64,10 @@ power: {
 }</textarea>
 								<br/>
 				Zoom: <span id="zoomValue">1</span>
+				  <button onclick="GetURL()"> Get URL </button>
+    <p id="url"></p>
 			</div>
-			<div id="colRight" class="column right" style="background-color:#bbb;">
+			<div id="colRight" class="column right" style="background-color:#fff;">
 				<div class="container" id="svgContainer">
 					<svg />
 				</div>

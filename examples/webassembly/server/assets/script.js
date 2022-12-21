@@ -28,7 +28,7 @@ function displayImage() {
 		svgImage.setAttribute('viewBox', `0 0 ${right.width} ${fullHeight}`);
 	}
 	svgSize = { w: svgImage.clientWidth, h: svgImage.clientHeight };
-
+	document.getElementById("dl").setAttribute("href",'data:image/svg+xml;base64,'+window.btoa(unescape(encodeURIComponent(document.getElementById("svgContainer").innerHTML))));
 }
 
 const svgContainer = document.getElementById("svgContainer");
@@ -117,3 +117,74 @@ svgContainer.onmouseleave = function (e) {
 	isPanning = false;
 }
 
+
+const params = new Proxy(new URLSearchParams(window.location.search), {
+  get: (searchParams, prop) => searchParams.get(prop),
+});
+// Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+let wtgText = params.wtg; // "some_value"export 
+if (wtgText != null) {
+	console.log(wtgText);
+	var content = base64ToArrayBuffer(wtgText);
+	if (content!=null) {
+		decompress(content,"gzip").then(function(result) {
+		console.log(result);
+		document.getElementById("code").innerHTML = result;
+
+		});
+	}
+}
+
+function GetURL() {
+	var compressedFlow = compress(document.getElementById("code").value,"gzip");
+	compressedFlow.then(function(result) {
+   // do something with result
+		var param = arrayBufferToBase64(result);
+		var url = document.URL;
+		let params = new URLSearchParams(url.search);
+		params.set('wtg', param);
+		console.log(params.toString())
+		window.history.replaceState({}, '', `${location.pathname}?${params}`);
+	});
+
+}
+
+
+function compress(string, encoding) {
+  const byteArray = new TextEncoder().encode(string);
+  const cs = new CompressionStream(encoding);
+  const writer = cs.writable.getWriter();
+  writer.write(byteArray);
+  writer.close();
+  return new Response(cs.readable).arrayBuffer();
+}
+
+function decompress(byteArray, encoding) {
+  const cs = new DecompressionStream(encoding);
+  const writer = cs.writable.getWriter();
+  writer.write(byteArray);
+  writer.close();
+  return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
+    return new TextDecoder().decode(arrayBuffer);
+  });
+}
+
+function arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}
+
+function base64ToArrayBuffer(base64) {
+    var binary_string =  window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array( len );
+    for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
