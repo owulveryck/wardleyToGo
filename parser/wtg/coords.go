@@ -1,6 +1,7 @@
 package wtg
 
 import (
+	"log"
 	"math"
 
 	"github.com/owulveryck/wardleyToGo"
@@ -98,7 +99,14 @@ func computeEvolutionPosition(s string) (int, int, error) {
 		}
 	}
 	stagePositions := []float64{0, 17.4, 40, 70, 100}
-	position := stagePositions[stage] + (stagePositions[stage+1]-stagePositions[stage])*float64(cursor)/float64(stages[stage])
-	evolvedPosition := stagePositions[evolvedStage] + (stagePositions[evolvedStage+1]-stagePositions[evolvedStage])*float64(evolvedCursor)/float64(stages[evolvedStage])
+	position := 50.0
+	if stages[stage] != 0 {
+		position = stagePositions[stage] + (stagePositions[stage+1]-stagePositions[stage])*float64(cursor)/float64(stages[stage])
+	}
+	evolvedPosition := 0.0
+	if stages[evolvedStage] != 0 {
+		evolvedPosition = stagePositions[evolvedStage] + (stagePositions[evolvedStage+1]-stagePositions[evolvedStage])*float64(evolvedCursor)/float64(stages[evolvedStage])
+	}
+	log.Println(evolvedPosition)
 	return int(math.Round(position)), int(math.Round(evolvedPosition)), nil
 }
