@@ -4,7 +4,7 @@ power: {
 }
 cup: {
     type: buy
-    evolution: |....|....|....|....x....|
+    evolution: ||....|....|....x....|
 }
 tea: {
     type: buy
