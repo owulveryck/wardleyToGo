@@ -16,11 +16,16 @@ const (
 	startBlockToken
 	endBlockToken
 	visibilityToken // multiple dashes token
-	evolutionStringToken
+	evolutionItem
 	evolutionToken // evolution keywork
+	typeToken
+	typeItem
 	identifierToken
 	colonToken
 	unkonwnToken
+	commentToken
+	startBlockCommentToken
+	endBlockCommentToken
 	eofToken
 )
 

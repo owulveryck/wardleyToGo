@@ -1,167 +1,134 @@
 package wtg
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
 	"image"
 	"io"
-	"regexp"
+	"io/ioutil"
+	"log"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
-const (
-	nodergxp = `[\p{L}|\s]+`
-)
-
-var (
-	node      = regexp.MustCompile(`^\s*(` + nodergxp + `):\s{\s*$`)
-	endnode   = regexp.MustCompile(`^\s*}\s*$`)
-	evolution = regexp.MustCompile(`^\s*evolution:\s*(|.*x?.*|.*x?.*|.*x?.*|.*x?.*|)\s*$`)
-	nodeType  = regexp.MustCompile(`^\s*type:\s*(.*)\s*$`)
-	link      = regexp.MustCompile(`^\s*(.*\S)\s+(-+)\s+(.*)$`)
-)
-
 type Parser struct {
-	nodeInventory map[string]*wardley.Component
-	edgeInventory []*wardley.Collaboration
-	currentNode   *wardley.Component
-	WMap          *wardleyToGo.Map
+	nodeInventory  map[string]*wardley.Component
+	edgeInventory  []*wardley.Collaboration
+	currentNode    *wardley.Component
+	currentEdge    *wardley.Collaboration
+	visibilityOnly bool
+	WMap           *wardleyToGo.Map
 }
 
 func NewParser() *Parser {
 	return &Parser{
-		nodeInventory: make(map[string]*wardley.Component, 0),
-		edgeInventory: make([]*wardley.Collaboration, 0),
-		WMap:          wardleyToGo.NewMap(0),
-	}
-}
-
-func (p *Parser) DumpComponents(w io.Writer) {
-	for n := range p.nodeInventory {
-		fmt.Fprintf(w, "%v\n", n)
+		nodeInventory:  make(map[string]*wardley.Component, 0),
+		edgeInventory:  make([]*wardley.Collaboration, 0),
+		visibilityOnly: true,
+		WMap:           wardleyToGo.NewMap(0),
 	}
 }
 
 func (p *Parser) Parse(r io.Reader) error {
-	scanner := bufio.NewScanner(r)
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	return p.parse(string(b))
+}
+func (p *Parser) parse(s string) error {
 
-	for scanner.Scan() {
-		p.parseComponents(scanner.Text())
-		p.parseValueChain(scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-	err := p.consolidateMap()
+	// TODO consolidate map
+	// TODO compute Y
+	err := p.inventory(s)
 	if err != nil {
 		return err
-	}
-	err = setYCoords(p.WMap)
-	if err != nil {
-		return nil
 	}
 	return nil
 }
 
-func (p *Parser) parseComponents(s string) error {
-
-	elements := node.FindStringSubmatch(s)
-	if len(elements) == 2 {
-		if p.currentNode != nil {
-			return fmt.Errorf("parser error, nested nodes unsupported (%v is in %v)", elements[1], p.currentNode.Label)
+func (p *Parser) inventory(s string) error {
+	l := newLexer(s, startState)
+	l.Start()
+	inComment := false
+	for tok := range l.tokens {
+		if inComment {
+			if tok.Type == endBlockCommentToken {
+				inComment = false
+			}
+			continue
 		}
-		if _, ok := p.nodeInventory[elements[1]]; !ok {
-			c := wardley.NewComponent(int64(len(p.nodeInventory)))
-			c.Label = elements[1]
-			c.Placement = image.Pt(0, 50)
-			p.nodeInventory[elements[1]] = c
-		}
-		p.currentNode = p.nodeInventory[elements[1]]
-	}
-	elements = endnode.FindStringSubmatch(s)
-	if len(elements) == 1 {
-		p.currentNode = nil
-	}
-	elements = evolution.FindStringSubmatch(s)
-	if len(elements) == 2 && p.currentNode != nil {
-		placement, evolvedPosition, err := computeEvolutionPosition(elements[1])
-		if err != nil {
-			return err
-		}
-		p.currentNode.Placement.X = placement
-		if evolvedPosition != 0 {
-			evolvedC := wardley.NewEvolvedComponent(p.currentNode.ID() + 1000) // FIXME
-			evolvedC.Placement.X = evolvedPosition
-			evolvedC.Placement.Y = p.currentNode.Placement.Y
-			evolvedC.Label = p.currentNode.Label
-			p.WMap.AddComponent(evolvedC)
-			p.edgeInventory = append(p.edgeInventory, &wardley.Collaboration{
-				F:    p.currentNode,
-				T:    evolvedC,
-				Type: wardley.EvolvedComponentEdge,
-			})
-		}
-	}
-	elements = nodeType.FindStringSubmatch(s)
-	if len(elements) == 2 && p.currentNode != nil {
-		switch elements[1] {
-		case "build":
-			p.currentNode.Type = wardley.BuildComponent
-		case "buy":
-			p.currentNode.Type = wardley.BuyComponent
-		case "outsource":
-			p.currentNode.Type = wardley.OutsourceComponent
+		switch tok.Type {
+		case identifierToken:
+			if p.currentEdge != nil {
+				p.currentEdge.F = p.currentNode
+				p.currentEdge.T = p.upsertNode(tok.Value)
+				p.currentNode = nil
+				p.currentEdge = nil
+				continue
+			}
+			p.currentNode = p.upsertNode(tok.Value)
+		case visibilityToken:
+			if p.currentNode == nil {
+				return errors.New("cannot set visibility on a nil source node")
+			}
+			p.currentEdge = p.insertEdge(tok.Value)
+		case evolutionItem:
+			if p.currentNode == nil {
+				return errors.New("cannot set evolution on a nil node")
+			}
+			pos, evolutionPos, err := computeEvolutionPosition(tok.Value)
+			if err != nil {
+				return fmt.Errorf("cannot compute evolution for %v (%w)", tok.Value, err)
+			}
+			p.currentNode.Placement.X = pos
+			p.currentNode.Evolution = evolutionPos
+			p.currentNode.Configured = true
+			p.visibilityOnly = false
+		case eofToken:
+		case colonToken:
+		case commentToken:
+		case startBlockCommentToken:
+			inComment = true
+		case typeItem:
+			if p.currentNode == nil {
+				return errors.New("cannot set type on a nil node")
+			}
+			switch tok.Value {
+			case "build":
+				p.currentNode.Type = wardley.BuildComponent
+			case "buy":
+				p.currentNode.Type = wardley.BuyComponent
+			case "outsource":
+				p.currentNode.Type = wardley.OutsourceComponent
+			default:
+				log.Printf("unhandled component type: %v", tok.Value)
+			}
+		case typeToken:
+		case startBlockToken:
+			p.visibilityOnly = false
+		case endBlockToken:
+		default:
+			log.Printf("unhandled element: %v", tok.Value)
 		}
 	}
 	return nil
 }
 
-func (p *Parser) parseValueChain(s string) error {
-	// do not parse value chain in the node definition you fool
-	if p.currentNode != nil {
-		return nil
-	}
-
-	elements := link.FindStringSubmatch(s)
-	if len(elements) != 4 {
-		// log.Fatal("bad entry", scanner.Text())
-		return nil
-	}
-	if _, ok := p.nodeInventory[elements[1]]; !ok {
+func (p *Parser) upsertNode(s string) *wardley.Component {
+	if _, ok := p.nodeInventory[s]; !ok {
 		c := wardley.NewComponent(int64(len(p.nodeInventory)))
-		c.Label = elements[1]
+		c.Label = s
 		c.Placement = image.Pt(0, 50)
-		p.nodeInventory[elements[1]] = c
+		p.nodeInventory[s] = c
 	}
-	if _, ok := p.nodeInventory[elements[3]]; !ok {
-		c := wardley.NewComponent(int64(len(p.nodeInventory)))
-		c.Label = elements[3]
-		c.Placement = image.Pt(0, 50)
-		p.nodeInventory[elements[3]] = c
-	}
+	return p.nodeInventory[s]
+}
+func (p *Parser) insertEdge(s string) *wardley.Collaboration {
 	p.edgeInventory = append(p.edgeInventory, &wardley.Collaboration{
-		F:          p.nodeInventory[elements[1]],
-		T:          p.nodeInventory[elements[3]],
 		Type:       wardley.RegularEdge,
-		Visibility: len(elements[2]),
+		Visibility: len(s),
 	})
-	return nil
-}
-
-func (p *Parser) consolidateMap() error {
-	for _, c := range p.nodeInventory {
-		err := p.WMap.AddComponent(c)
-		if err != nil {
-			return err
-		}
-	}
-	for _, e := range p.edgeInventory {
-		err := p.WMap.SetCollaboration(e)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return p.edgeInventory[len(p.edgeInventory)-1]
 }
