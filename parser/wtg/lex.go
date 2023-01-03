@@ -11,13 +11,17 @@ type stateFunc func(*lexer) stateFunc
 type tokenType int
 
 const (
-	EOFRune    rune      = -1
+	eofRune    rune      = -1
 	emptyToken tokenType = iota
-	identifierToken
+	startBlockToken
+	endBlockToken
 	visibilityToken // multiple dashes token
 	evolutionStringToken
 	evolutionToken // evolution keywork
+	identifierToken
+	colonToken
 	unkonwnToken
+	eofToken
 )
 
 type token struct {
@@ -97,6 +101,17 @@ func (l *lexer) Ignore() {
 	l.start = l.position
 }
 
+// PeekPeek performs a Next operation immediately followed by a Rewind returning the
+// peeked rune.
+func (l *lexer) PeekPeek() rune {
+	l.Next()
+	r := l.Next()
+	l.Rewind()
+	l.Rewind()
+
+	return r
+}
+
 // Peek performs a Next operation immediately followed by a Rewind returning the
 // peeked rune.
 func (l *lexer) Peek() rune {
@@ -111,7 +126,7 @@ func (l *lexer) Peek() rune {
 // last point a token was emitted.
 func (l *lexer) Rewind() {
 	r := l.rewind.pop()
-	if r > EOFRune {
+	if r > eofRune {
 		size := utf8.RuneLen(r)
 		l.position -= size
 		if l.position < l.start {
@@ -129,7 +144,7 @@ func (l *lexer) Next() rune {
 	)
 	str := l.source[l.position:]
 	if len(str) == 0 {
-		r, s = EOFRune, 0
+		r, s = eofRune, 0
 	} else {
 		r, s = utf8.DecodeRuneInString(str)
 	}

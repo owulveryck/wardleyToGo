@@ -2,66 +2,67 @@ package wtg
 
 import (
 	"testing"
-	"unicode"
 )
-
-func startState(l *lexer) stateFunc {
-	l.Next() // eat starting "
-	l.Ignore()
-	if l.Peek() == EOFRune {
-		l.Emit(unkonwnToken)
-		return nil
-	}
-	for unicode.IsSpace(l.Peek()) {
-		l.Next()
-	}
-	if unicode.IsLetter(l.Peek()) {
-		return identifierState
-	}
-	return startState
-}
-
-func identifierState(l *lexer) stateFunc {
-	l.Next() // eat starting "
-	for {
-		switch {
-		case l.Peek() == '-':
-			if unicode.IsSpace(l.CurrentRune()) {
-				l.Rewind()
-				l.Emit(identifierToken)
-				return visibilityAction
-			}
-			l.Next()
-		case unicode.IsSpace(l.Peek()):
-			if unicode.IsSpace(l.CurrentRune()) {
-				l.Rewind()
-				l.Emit(identifierToken)
-				return startState
-			}
-			l.Next()
-		case l.Peek() == EOFRune:
-			l.Emit(identifierToken)
-			return nil
-		default:
-			l.Next()
-		}
-	}
-}
-
-func visibilityAction(l *lexer) stateFunc {
-	return startState
-}
 
 func TestLexer(t *testing.T) {
 	src := `
+	  
 first identifier    second identifier
 third-identifiér --   forth identifier  
+third-identifiér ---   forth identifier  
 blablabla
+
+evolution: blabla
+this is an evolution: |...|...|...|...| 
+this is an incomplete evolution: |...|...|...|...
+blabla: this is another word
+block: {
+	fdsfds: bdsfd
+}
 	`
+	expectedTokens := []tokenType{
+		identifierToken,      // first identifier
+		identifierToken,      // second identifier
+		identifierToken,      // third-identifiér
+		visibilityToken,      // --
+		identifierToken,      // forth identifier
+		identifierToken,      // third-identifiér
+		visibilityToken,      // ---
+		identifierToken,      // forth identifier
+		identifierToken,      // blablabla
+		evolutionToken,       // evolution
+		colonToken,           // :
+		identifierToken,      // vlabla
+		identifierToken,      // this is an evolution
+		colonToken,           // :
+		evolutionStringToken, // |...|...|...|...|
+		identifierToken,      // this is an incomplete evolution:
+		colonToken,           // :
+		unkonwnToken,         // |...|...|...|...
+		identifierToken,      // bkabka
+		colonToken,           // :
+		identifierToken,      // this is another word
+		identifierToken,      // block
+		colonToken,           // :
+		startBlockToken,      // {
+		identifierToken,      // fdsfds
+		colonToken,           // :
+		identifierToken,      // bdsfd
+		endBlockToken,        // }
+		eofToken,
+	}
 	l := newLexer(src, startState)
 	l.Start()
+	i := 0
 	for tok := range l.tokens {
-		//t.Log(tok.Type)
-		t.Logf("|%v|", tok.Value)
+		if i >= len(expectedTokens) {
+			t.Fatalf("bad number of test cases - missins |%v|%v|", tok.Type, tok.Value)
+
+		}
+		if tok.Type != expectedTokens[i] {
+			t.Fatalf("on iteration %v, expected %v, got |%v|%v|", i, expectedTokens[i], tok.Type, tok.Value)
+
+		}
+		i++
 	}
 }
