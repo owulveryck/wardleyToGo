@@ -83,9 +83,9 @@ func (p *Parser) inventory(s string) error {
 				return fmt.Errorf("cannot compute evolution for %v (%w)", tok.Value, err)
 			}
 			p.currentNode.Placement.X = pos
-			p.currentNode.Evolution = evolutionPos
 			p.currentNode.Configured = true
 			p.visibilityOnly = false
+			_ = evolutionPos
 		case eofToken:
 		case colonToken:
 		case commentToken:
