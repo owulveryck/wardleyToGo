@@ -29,6 +29,8 @@ type Component struct {
 	LabelPlacement image.Point // LabelPlacement is relative to the placement
 	Type           wardleyToGo.ComponentType
 	RenderingLayer int //The position of the element on the picture
+	Configured     bool
+	EvolutionPos   int
 }
 
 func (c *Component) Attributes() []dotencoding.Attribute {
