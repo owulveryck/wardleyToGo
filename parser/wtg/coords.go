@@ -3,6 +3,7 @@ package wtg
 import (
 	"fmt"
 	"math"
+	"sort"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -79,9 +80,96 @@ func computeEvolutionPosition(s string) (int, int, error) {
 	return int(math.Round(position)), int(math.Round(evolvedPosition)), nil
 }
 
-func (p *Parser) computeX() error {
-	//panic("TODO")
-	return nil
+type nodeSorter []wardleyToGo.Component
+
+// Len is part of sort.Interface.
+func (s nodeSorter) Len() int {
+	return len(s)
+}
+
+// Swap is part of sort.Interface.
+func (s nodeSorter) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+// Less is part of sort.Interface. It is implemented by calling the "by" closure in the sorter.
+func (s nodeSorter) Less(i, j int) bool {
+	var labelI string
+	var labelJ string
+	if current, ok := s[i].(*wardley.Component); ok {
+		labelI = current.Label
+	}
+	if current, ok := s[i].(*wardley.EvolvedComponent); ok {
+		labelI = current.Label
+	}
+	if current, ok := s[j].(*wardley.Component); ok {
+		labelJ = current.Label
+	}
+	if current, ok := s[j].(*wardley.EvolvedComponent); ok {
+		labelJ = current.Label
+	}
+	return labelI < labelJ
+}
+
+func (p *Parser) computeX() {
+	wide := 100
+	layersAndNodes := make(map[int][]wardleyToGo.Component)
+	nodesIT := p.WMap.Nodes()
+	allNodes := make([]wardleyToGo.Component, nodesIT.Len())
+	for i := 0; nodesIT.Next(); i++ {
+		current := nodesIT.Node().(wardleyToGo.Component)
+		allNodes[i] = current
+		layersAndNodes[current.GetPosition().Y] = append(layersAndNodes[current.GetPosition().Y], current)
+	}
+	// sort the nodes to be coherent
+	sort.Sort(nodeSorter(allNodes))
+	// Arrange nodes on the same layer
+	for _, nodes := range layersAndNodes {
+		sort.Sort(nodeSorter(nodes))
+		nodesNumber := len(nodes)
+		// if more than one node on the row, dispatch them
+		if nodesNumber > 1 {
+			step := wide / (nodesNumber + 1)
+			for i, n := range nodes {
+				if n, ok := n.(*wardley.Component); ok {
+					n.Placement.X = step * (i + 1)
+				}
+				if n, ok := n.(*wardley.EvolvedComponent); ok {
+					n.Placement.X = step * (i + 1)
+				}
+			}
+		}
+	}
+	// set nodes randomly
+	for i, current := range allNodes {
+
+		if current.GetPosition().X == 0 {
+			if current, ok := current.(*wardley.Component); ok {
+				current.Placement.X = 50 + 4*(i%2) - 4*((i+1)%2)
+			}
+			if current, ok := current.(*wardley.EvolvedComponent); ok {
+				current.Placement.X = 50 + 4*(i%2) - 4*((i+1)%2)
+			}
+		}
+	}
+	nodesIT.Reset()
+	for nodesIT.Next() {
+		current := nodesIT.Node().(wardleyToGo.Component)
+		fromIT := p.WMap.From(current.ID())
+		// if only one child, set it at the X of the only father, or at the center otherwise
+		for i := 0; fromIT.Next(); i++ {
+			child := fromIT.Node().(wardleyToGo.Component)
+			fathers := p.WMap.To(child.ID())
+			if fathers.Len() == 1 && i == 0 {
+				if child, ok := child.(*wardley.Component); ok {
+					child.Placement.X = current.GetPosition().X
+				}
+				if child, ok := child.(*wardley.EvolvedComponent); ok {
+					child.Placement.X = current.GetPosition().X
+				}
+			}
+		}
+	}
 }
 
 func (p *Parser) computeY() {

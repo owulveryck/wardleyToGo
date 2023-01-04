@@ -39,8 +39,6 @@ func (p *Parser) Parse(r io.Reader) error {
 }
 func (p *Parser) parse(s string) error {
 
-	// TODO consolidate map
-	// TODO compute Y
 	err := p.inventory(s)
 	if err != nil {
 		return fmt.Errorf("error in parsing: %w", err)
@@ -54,10 +52,7 @@ func (p *Parser) parse(s string) error {
 	}
 	p.computeY()
 	if p.visibilityOnly {
-		err = p.computeX()
-		if err != nil {
-			return err
-		}
+		p.computeX()
 	}
 	return nil
 }
