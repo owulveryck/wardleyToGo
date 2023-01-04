@@ -1,118 +1,153 @@
 package wtg
 
-import "unicode"
+import (
+	"strings"
+	"unicode"
+)
 
 func startState(l *lexer) stateFunc {
-	//l.Next() // eat starting "
-	//l.Ignore()
-	if l.Peek() == eofRune {
-		l.Emit(eofToken)
-		return nil
-	}
 	for unicode.IsSpace(l.Peek()) {
 		l.Next()
 	}
 	l.Ignore()
-	if isAllowedCharacterForIdentifier(l.Peek()) {
-		return wordState
+	if l.Peek() == eofRune {
+		l.Emit(eofToken)
+		return nil
 	}
-	if l.Peek() == '|' {
-		return evolutionState
-	}
-	if l.Peek() == '{' {
-		l.Next()
-		l.Emit(startBlockToken)
-	}
-	if l.Peek() == '}' {
-		l.Next()
-		l.Emit(endBlockToken)
-	}
-	if l.Peek() == '/' && l.PeekPeek() == '*' {
-		l.Next()
-		l.Next()
-		l.Emit(startBlockCommentToken)
-	}
-	if l.Peek() == '*' && l.PeekPeek() == '/' {
-		l.Next()
-		l.Next()
-		l.Emit(endBlockCommentToken)
-	}
-	if l.Peek() == '/' && l.PeekPeek() == '/' {
-		for l.CurrentRune() != '\n' {
-			l.Next()
+	return firstRuneAfterSpaceState
+}
+
+func commentBlockState(l *lexer) stateFunc {
+	for l.Peek() != '*' || l.Peek() != eofRune {
+		if l.Peek() == eofRune {
+			l.Emit(commentToken)
+			return nil
 		}
-		l.Rewind()
-		l.Emit(commentToken)
-	}
-	if l.Peek() == '-' {
-		return visibilityState
+		l.Next()
+		if l.PeekPeek() == '/' {
+			if l.CurrentRune() == ' ' {
+				l.Rewind()
+			}
+			l.Emit(commentToken)
+			l.Ignore()
+			return startState
+		}
 	}
 	return startState
+}
+func oneLineCommentState(l *lexer) stateFunc {
+	for l.Peek() != '\n' {
+		l.Next()
+	}
+	l.Emit(commentToken)
+	l.Ignore()
+	return startState
+}
+
+func firstRuneAfterSpaceState(l *lexer) stateFunc {
+	l.Next()
+	switch l.CurrentRune() {
+	case '-':
+		return visibilityState
+	case '|':
+		return evolutionState
+	case ':':
+		l.Emit(colonToken)
+		l.Ignore()
+		return startState
+	case '{':
+		l.Emit(startBlockToken)
+		l.Ignore()
+		return startState
+	case '}':
+		l.Emit(endBlockToken)
+		l.Ignore()
+		return startState
+	case '/':
+		if l.Peek() == '*' {
+			l.Next()
+			l.Emit(startBlockCommentToken)
+			l.Ignore()
+			return commentBlockState
+		}
+		if l.Peek() == '/' {
+			l.Next()
+			l.Emit(singleLineCommentSeparator)
+			l.Ignore()
+			return oneLineCommentState
+		}
+		l.Emit(unkonwnToken)
+		l.Ignore()
+		return startState
+	case '*':
+		if l.Peek() == '/' {
+			l.Next()
+			l.Emit(endBlockCommentToken)
+			l.Ignore()
+			return startState
+		}
+		l.Emit(unkonwnToken)
+		l.Ignore()
+		return startState
+		//case ' ':
+		/*
+			case '\t', '\n', '\v', '\f', '\r', ' ', 0x85, 0xA0:
+				// remove the two spaces
+				l.Rewind()
+				return wordState
+		*/
+	case eofRune:
+		return nil
+	default:
+		return wordState
+	}
 }
 
 func wordState(l *lexer) stateFunc {
-	for isAllowedCharacterForIdentifier(l.Peek()) {
+	for isAllowedCharacterForIdentifier(l.CurrentRune()) {
+		if l.CurrentRune() == ' ' && l.Peek() == ' ' ||
+			l.CurrentRune() == ' ' && l.Peek() == '-' ||
+			l.CurrentRune() == ' ' && !isAllowedCharacterForIdentifier(l.Peek()) {
+			break
+		}
 		l.Next()
 	}
-	return postWordState
-}
-
-func postWordState(l *lexer) stateFunc {
-	switch l.Peek() {
-	case '-':
-		l.Next()
-		return wordState
-	case ' ':
-		if isAllowedCharacterForIdentifier(l.PeekPeek()) {
-			l.Next()
-			return wordState
-		}
-		if l.PeekPeek() == '-' {
-			l.Emit(identifierToken)
-			l.Next()
-			l.Ignore()
-			return visibilityState
-		}
-	case ':':
-		return assignationState
-
-	}
-	l.Emit(identifierToken)
-	return startState
-}
-
-func assignationState(l *lexer) stateFunc {
+	l.Rewind()
 	switch l.Current() {
+	case "":
+		l.Emit(unkonwnToken)
+	case "type":
+		return typeState
 	case "evolution":
 		l.Emit(evolutionToken)
-	case "type":
-		l.Emit(typeToken)
-		// TODO: add mor keywords here
-		return typeState
 	default:
 		l.Emit(identifierToken)
 	}
-	l.Ignore()
-	l.Next()
-	l.Emit(colonToken)
 	l.Ignore()
 	return startState
 }
 
 func typeState(l *lexer) stateFunc {
-	if l.Peek() != ':' {
+	if l.Peek() == ':' {
+		l.Emit(typeToken)
+		l.Ignore()
+		l.Next()
+		l.Emit(colonToken)
+		// discard the leading space
+		for unicode.IsSpace(l.Peek()) {
+			l.Next()
+		}
+		l.Ignore()
+		for !unicode.IsSpace(l.Peek()) {
+			l.Next()
+		}
+		l.Emit(typeItem)
+		l.Ignore()
 		return startState
 	}
-	l.Next()
-	for l.Peek() == ' ' {
-		l.Next()
-	}
+	l.Emit(identifierToken)
 	l.Ignore()
-	for unicode.IsLetter(l.Peek()) {
-		l.Next()
-	}
-	l.Emit(typeItem)
-	l.Ignore()
+
 	return startState
 }
 
@@ -125,25 +160,21 @@ func visibilityState(l *lexer) stateFunc {
 }
 
 func evolutionState(l *lexer) stateFunc {
-	l.Next()
-	states := 0
-	for states < 4 {
-		p := l.Peek()
-		switch {
-		case p == '|':
-			states++
-		case unicode.IsSpace(p):
-			l.Emit(unkonwnToken)
-			return startState
-		}
-		l.Next()
+	l.Take("|.x>")
+	if strings.Count(l.Current(), "|") != 5 ||
+		strings.Count(l.Current(), "x") > 1 ||
+		strings.Count(l.Current(), ">") > 1 {
+		l.Emit(unkonwnToken)
+		l.Ignore()
+		return startState
 	}
 	l.Emit(evolutionItem)
+	l.Ignore()
 	return startState
 }
 
 func isAllowedCharacterForIdentifier(r rune) bool {
-	if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' {
+	if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == ' ' || r == '-' {
 		return true
 	}
 	return false

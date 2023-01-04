@@ -1,6 +1,10 @@
 package wtg
 
-import "github.com/owulveryck/wardleyToGo/components/wardley"
+import (
+	"fmt"
+
+	"github.com/owulveryck/wardleyToGo/components/wardley"
+)
 
 func (p *Parser) consolidateMap() error {
 	currentID := len(p.nodeInventory)
@@ -27,6 +31,9 @@ func (p *Parser) consolidateMap() error {
 		currentID++
 	}
 	for _, e := range p.edgeInventory {
+		if e.F == nil || e.T == nil {
+			return fmt.Errorf("bad edge: %v", e)
+		}
 		err := p.WMap.SetCollaboration(e)
 		if err != nil {
 			return err

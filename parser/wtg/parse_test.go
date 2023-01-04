@@ -6,6 +6,19 @@ import (
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
+func FuzzParse(f *testing.F) {
+	f.SkipNow()
+	testcases := []string{" ", "a - b"}
+	for _, tc := range testcases {
+		f.Add(tc) // Use f.Add to provide a seed corpus
+	}
+	f.Fuzz(func(t *testing.T, orig string) {
+		p := NewParser()
+		err := p.parse(orig)
+		t.Log(err)
+	})
+}
+
 func TestParse(t *testing.T) {
 	t.Run("empty map", testParseEmpty)
 	t.Run("bad content", testParseBadContent)

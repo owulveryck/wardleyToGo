@@ -23,7 +23,8 @@ const (
 	colonToken
 	unkonwnToken
 	commentToken
-	startBlockCommentToken
+	singleLineCommentSeparator // //
+	startBlockCommentToken     // /*
 	endBlockCommentToken
 	eofToken
 )

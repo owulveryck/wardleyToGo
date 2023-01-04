@@ -124,6 +124,7 @@ func (p *Parser) inventory(s string) error {
 		case startBlockToken:
 			p.visibilityOnly = false
 		case endBlockToken:
+		case singleLineCommentSeparator:
 		default:
 			log.Printf("unhandled element: %v", tok.Value)
 		}

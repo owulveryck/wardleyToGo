@@ -80,7 +80,7 @@ func computeEvolutionPosition(s string) (int, int, error) {
 }
 
 func (p *Parser) computeX() error {
-	panic("TODO")
+	//panic("TODO")
 	return nil
 }
 
