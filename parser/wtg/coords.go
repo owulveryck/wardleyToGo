@@ -3,6 +3,10 @@ package wtg
 import (
 	"fmt"
 	"math"
+
+	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"gonum.org/v1/gonum/graph/path"
 )
 
 func computeEvolutionPosition(s string) (int, int, error) {
@@ -73,4 +77,56 @@ func computeEvolutionPosition(s string) (int, int, error) {
 		return 0, 0, fmt.Errorf("cannot have an evolution before the cursor")
 	}
 	return int(math.Round(position)), int(math.Round(evolvedPosition)), nil
+}
+
+func (p *Parser) computeX() error {
+	panic("TODO")
+	return nil
+}
+
+func (p *Parser) computeY() {
+	allShortestPaths := path.DijkstraAllPaths(p.WMap)
+	roots := findRoot(p.WMap)
+	leafs := findLeafs(p.WMap)
+	maxDepth := 1
+	for _, r := range roots {
+		for _, l := range leafs {
+			paths, _ := allShortestPaths.AllBetween(r.ID(), l.ID())
+			for _, path := range paths {
+				currentVisibility := 0
+				for i := 0; i < len(path)-1; i++ {
+					e := p.WMap.Edge(path[i].ID(), path[i+1].ID())
+					currentVisibility += e.(*wardley.Collaboration).Visibility
+				}
+				if currentVisibility > maxDepth {
+					maxDepth = currentVisibility
+				}
+			}
+		}
+	}
+
+	step := 97 / maxDepth
+	cs := &coordSetter{
+		verticalStep: step,
+	}
+	for _, n := range roots {
+		cs.walk(p.WMap, n, 0)
+	}
+}
+
+type coordSetter struct {
+	verticalStep int
+}
+
+func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
+	n.Placement.Y = visibility * c.verticalStep
+	fromIT := m.From(n.ID())
+	for fromIT.Next() {
+		switch fromNode := fromIT.Node().(type) {
+		case *wardley.Component:
+			c.walk(m, fromNode, m.Edge(n.ID(), fromNode.ID()).(*wardley.Collaboration).Visibility+visibility)
+		case *wardley.EvolvedComponent:
+			c.walk(m, fromNode.Component, m.Edge(n.ID(), fromNode.ID()).(*wardley.Collaboration).Visibility+visibility)
+		}
+	}
 }

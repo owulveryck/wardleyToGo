@@ -1,7 +1,6 @@
 package wtg
 
 import (
-	"errors"
 	"strings"
 	"unicode/utf8"
 )
@@ -40,7 +39,6 @@ type lexer struct {
 	startState      stateFunc
 	Err             error
 	tokens          chan token
-	ErrorHandler    func(e string)
 	rewind          runeStack
 }
 
@@ -64,16 +62,6 @@ func (l *lexer) Start() {
 	}
 	l.tokens = make(chan token, buffSize)
 	go l.run()
-}
-
-func (l *lexer) StartSync() {
-	// Take half the string length as a buffer size.
-	buffSize := len(l.source) / 2
-	if buffSize <= 0 {
-		buffSize = 1
-	}
-	l.tokens = make(chan token, buffSize)
-	l.run()
 }
 
 // Current returns the value being being analyzed at this moment.
@@ -177,17 +165,6 @@ func (l *lexer) NextToken() (*token, bool) {
 		return &tok, false
 	} else {
 		return nil, true
-	}
-}
-
-// Partial yyLexer implementation
-
-func (l *lexer) Error(e string) {
-	if l.ErrorHandler != nil {
-		l.Err = errors.New(e)
-		l.ErrorHandler(e)
-	} else {
-		panic(e)
 	}
 }
 

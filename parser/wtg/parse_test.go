@@ -6,6 +6,83 @@ import (
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
+func TestParse(t *testing.T) {
+	t.Run("empty map", testParseEmpty)
+	t.Run("bad content", testParseBadContent)
+	t.Run("complete test ok", testParseCompleteOk)
+}
+func testParseBadContent(t *testing.T) {
+	p := NewParser()
+	err := p.parse("--")
+	if err == nil {
+		t.Errorf("expected an error")
+	}
+}
+func testParseEmpty(t *testing.T) {
+	p := NewParser()
+	err := p.parse("")
+	if err == nil {
+		t.Errorf("expected an error")
+	}
+}
+func testParseCompleteOk(t *testing.T) {
+	sampleTeahop := `
+business - cup of tea
+public - cup of tea
+cup of tea - cup
+cup of tea -- tea
+cup of tea --- hot water
+hot water - water
+hot water -- kettle
+kettle - power
+
+cup of tea: {
+    type: buy
+    evolution: |....|....|...x..|.........|
+}
+water: {
+    type: build
+    evolution: |....|....|....|....x....|
+}
+kettle: {
+    type: build
+    evolution: |....|..x.|....|...>.....|
+}
+power: {
+    type: outsource
+    evolution: |....|....|....x|..>......|
+}
+business: {
+    evolution: |....|....|..x.|.......|
+}
+public: {
+    evolution: |....|....|....|.x....|
+}
+cup: {
+    evolution: |....|....|....|.x.......|
+}
+tea: {
+    evolution: |....|....|....|..x......|
+}
+hot water: {
+    evolution: |....|....|....|...x.....|
+}
+	`
+	p := NewParser()
+	err := p.parse(sampleTeahop)
+	if err != nil {
+		t.Fatal(err)
+	}
+	edgesIT := p.WMap.Edges()
+	if edgesIT.Len() != 10 {
+		t.Fatalf("expected 10 links got %v", edgesIT.Len())
+	}
+	nodesIT := p.WMap.Nodes()
+	if nodesIT.Len() != 11 {
+		t.Fatalf("expected 11 nodes got %v", nodesIT.Len())
+	}
+}
+
 func TestInventory(t *testing.T) {
 	t.Run("empty", empty)
 	t.Run("all commented", allCommented)

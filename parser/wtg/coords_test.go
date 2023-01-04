@@ -1,6 +1,10 @@
 package wtg
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/owulveryck/wardleyToGo/components/wardley"
+)
 
 func Test_computeEvolutionPosition(t *testing.T) {
 	type args struct {
@@ -107,5 +111,159 @@ func Test_computeEvolutionPosition(t *testing.T) {
 				t.Errorf("computeEvolutionPosition() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
+	}
+}
+
+func TestParser_computeY(t *testing.T) {
+	t.Run("simple two nodes", computeYsimpleTwoNodes)
+	t.Run("simple two nodes with evolution", computeYsimpleTwoNodesWithEvolution)
+	t.Run("simple three nodes", computeYsimpleThreeNodes)
+	t.Run("three nodes with different visibility", computeYThreeNodes)
+	t.Run("four nodes with different visibility", computeYFourNodes)
+}
+
+func computeYsimpleTwoNodesWithEvolution(t *testing.T) {
+	p := NewParser()
+	c1 := wardley.NewComponent(1)
+	c2 := wardley.NewComponent(2)
+	c22 := wardley.NewEvolvedComponent(22)
+	p.WMap.AddComponent(c1)
+	p.WMap.AddComponent(c2)
+	p.WMap.AddComponent(c22)
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c2,
+		Visibility: 1,
+	})
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:    c2,
+		T:    c22,
+		Type: wardley.EvolvedComponentEdge,
+	})
+	p.computeY()
+	if c1.GetPosition().Y != 0 {
+		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	}
+	if c2.GetPosition().Y != 97 {
+		t.Errorf("expected position of c2 to be 97, but is %v", c2.GetPosition().Y)
+	}
+	if c22.GetPosition().Y != 97 {
+		t.Errorf("expected position of c22 to be 97, but is %v", c22.GetPosition().Y)
+	}
+}
+func computeYsimpleThreeNodes(t *testing.T) {
+	p := NewParser()
+	c1 := wardley.NewComponent(1)
+	c2 := wardley.NewComponent(2)
+	c3 := wardley.NewComponent(3)
+	p.WMap.AddComponent(c1)
+	p.WMap.AddComponent(c2)
+	p.WMap.AddComponent(c3)
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c2,
+		Visibility: 1,
+	})
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c2,
+		T:          c3,
+		Visibility: 1,
+	})
+	p.computeY()
+	if c1.GetPosition().Y != 0 {
+		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	}
+	if c2.GetPosition().Y != 48 {
+		t.Errorf("expected position of c2 to be 48, but is %v", c2.GetPosition().Y)
+	}
+	if c3.GetPosition().Y != 96 {
+		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
+	}
+}
+func computeYsimpleTwoNodes(t *testing.T) {
+	p := NewParser()
+	c1 := wardley.NewComponent(1)
+	c2 := wardley.NewComponent(2)
+	p.WMap.AddComponent(c1)
+	p.WMap.AddComponent(c2)
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c2,
+		Visibility: 1,
+	})
+	p.computeY()
+	if c1.GetPosition().Y != 0 {
+		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	}
+	if c2.GetPosition().Y != 97 {
+		t.Errorf("expected position of c2 to be 97, but is %v", c2.GetPosition().Y)
+	}
+}
+func computeYThreeNodes(t *testing.T) {
+	p := NewParser()
+	c1 := wardley.NewComponent(1)
+	c2 := wardley.NewComponent(2)
+	c3 := wardley.NewComponent(3)
+	p.WMap.AddComponent(c1)
+	p.WMap.AddComponent(c2)
+	p.WMap.AddComponent(c3)
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c2,
+		Visibility: 1,
+	})
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c3,
+		Visibility: 3,
+	})
+	p.computeY()
+	if c1.GetPosition().Y != 0 {
+		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	}
+	if c2.GetPosition().Y != 32 {
+		t.Errorf("expected position of c2 to be 32, but is %v", c2.GetPosition().Y)
+	}
+	if c3.GetPosition().Y != 96 {
+		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
+	}
+}
+func computeYFourNodes(t *testing.T) {
+	p := NewParser()
+	c1 := wardley.NewComponent(1)
+	c2 := wardley.NewComponent(2)
+	c3 := wardley.NewComponent(3)
+	c4 := wardley.NewComponent(4)
+	p.WMap.AddComponent(c1)
+	p.WMap.AddComponent(c2)
+	p.WMap.AddComponent(c3)
+	p.WMap.AddComponent(c4)
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c2,
+		Visibility: 1,
+	})
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c1,
+		T:          c3,
+		Visibility: 3,
+	})
+	p.WMap.SetCollaboration(&wardley.Collaboration{
+		F:          c3,
+		T:          c4,
+		Visibility: 1,
+	})
+	p.computeY()
+	if c1.GetPosition().Y != 0 {
+		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	}
+	if c2.GetPosition().Y != 24 {
+		t.Errorf("expected position of c2 to be 24, but is %v", c2.GetPosition().Y)
+	}
+	if c3.GetPosition().Y != 72 {
+		t.Errorf("expected position of c3 to be 72, but is %v", c3.GetPosition().Y)
+	}
+	if c4.GetPosition().Y != 96 {
+		t.Errorf("expected position of c4 to be 96, but is %v", c4.GetPosition().Y)
 	}
 }

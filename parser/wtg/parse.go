@@ -43,7 +43,21 @@ func (p *Parser) parse(s string) error {
 	// TODO compute Y
 	err := p.inventory(s)
 	if err != nil {
-		return err
+		return fmt.Errorf("error in parsing: %w", err)
+	}
+	if len(p.nodeInventory) == 0 {
+		return fmt.Errorf("no map")
+	}
+	err = p.consolidateMap()
+	if err != nil {
+		return fmt.Errorf("cannot consolidate map: %w", err)
+	}
+	p.computeY()
+	if p.visibilityOnly {
+		err = p.computeX()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -85,9 +99,10 @@ func (p *Parser) inventory(s string) error {
 			p.currentNode.Placement.X = pos
 			p.currentNode.Configured = true
 			p.visibilityOnly = false
-			_ = evolutionPos
+			p.currentNode.EvolutionPos = evolutionPos
 		case eofToken:
 		case colonToken:
+		case evolutionToken:
 		case commentToken:
 		case startBlockCommentToken:
 			inComment = true
