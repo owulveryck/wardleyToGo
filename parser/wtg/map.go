@@ -15,7 +15,7 @@ func (p *Parser) consolidateMap() error {
 		}
 		if n.EvolutionPos != 0 {
 			c := wardley.NewEvolvedComponent(int64(currentID))
-			c.Placement.X = n.Placement.X
+			c.Placement.X = n.EvolutionPos
 			c.Placement.Y = n.Placement.Y
 			c.Label = n.Label
 			err := p.WMap.AddComponent(c)
@@ -25,7 +25,7 @@ func (p *Parser) consolidateMap() error {
 			p.WMap.SetCollaboration(&wardley.Collaboration{
 				F:    n,
 				T:    c,
-				Type: wardley.EvolvedEdge,
+				Type: wardley.EvolvedComponentEdge,
 			})
 		}
 		currentID++
