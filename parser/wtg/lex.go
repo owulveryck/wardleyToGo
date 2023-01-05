@@ -19,6 +19,8 @@ const (
 	evolutionToken // evolution keywork
 	typeToken
 	typeItem
+	titleToken
+	titleItem
 	colorToken
 	colorItem
 	identifierToken

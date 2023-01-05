@@ -117,6 +117,9 @@ evolution: blabla
 this is an evolution: |...|...|...|...| 
 this is an incomplete evolution: |...|...|...|...
 blabla: this is another word
+title: ahah ahah
+title: ahah ahah // comment
+
 block: {
    type: mytype
 	fdsfds: bdsfd
@@ -160,6 +163,14 @@ test // comment on a line
 		{t: identifierToken, v: "blabla"},
 		{t: colonToken, v: ":"},
 		{t: identifierToken, v: "this is another word"},
+		{t: titleToken, v: "title"},
+		{t: colonToken, v: ":"},
+		{t: titleItem, v: "ahah ahah"},
+		{t: titleToken, v: "title"},
+		{t: colonToken, v: ":"},
+		{t: titleItem, v: "ahah ahah "},
+		{t: singleLineCommentSeparator, v: "//"},
+		{t: commentToken, v: " comment"},
 		{t: identifierToken, v: "block"},
 		{t: colonToken, v: ":"},
 		{t: startBlockToken, v: "{"},
