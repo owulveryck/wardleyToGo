@@ -11,23 +11,26 @@ import (
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
+	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 )
 
 type Parser struct {
-	nodeInventory  map[string]*wardley.Component
-	edgeInventory  []*wardley.Collaboration
-	currentNode    *wardley.Component
-	currentEdge    *wardley.Collaboration
-	visibilityOnly bool
-	WMap           *wardleyToGo.Map
+	nodeInventory   map[string]*wardley.Component
+	edgeInventory   []*wardley.Collaboration
+	currentNode     *wardley.Component
+	currentEdge     *wardley.Collaboration
+	visibilityOnly  bool
+	WMap            *wardleyToGo.Map
+	EvolutionStages []svgmap.Evolution
 }
 
 func NewParser() *Parser {
 	return &Parser{
-		nodeInventory:  make(map[string]*wardley.Component, 0),
-		edgeInventory:  make([]*wardley.Collaboration, 0),
-		visibilityOnly: true,
-		WMap:           wardleyToGo.NewMap(0),
+		nodeInventory:   make(map[string]*wardley.Component, 0),
+		edgeInventory:   make([]*wardley.Collaboration, 0),
+		visibilityOnly:  true,
+		WMap:            wardleyToGo.NewMap(0),
+		EvolutionStages: svgmap.DefaultEvolution,
 	}
 }
 
@@ -102,6 +105,18 @@ func (p *Parser) inventory(s string) error {
 		case commentToken:
 		case startBlockCommentToken:
 			inComment = true
+		case stage1Token:
+		case stage1Item:
+			p.EvolutionStages[0].Label = tok.Value
+		case stage2Token:
+		case stage2Item:
+			p.EvolutionStages[1].Label = tok.Value
+		case stage3Token:
+		case stage3Item:
+			p.EvolutionStages[2].Label = tok.Value
+		case stage4Token:
+		case stage4Item:
+			p.EvolutionStages[3].Label = tok.Value
 		case titleToken:
 		case titleItem:
 			p.WMap.Title = strings.TrimSpace(tok.Value)

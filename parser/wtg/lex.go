@@ -30,6 +30,14 @@ const (
 	singleLineCommentSeparator // //
 	startBlockCommentToken     // /*
 	endBlockCommentToken
+	stage1Token
+	stage1Item
+	stage2Token
+	stage2Item
+	stage3Token
+	stage3Item
+	stage4Token
+	stage4Item
 	eofToken
 )
 

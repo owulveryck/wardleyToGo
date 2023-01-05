@@ -18,7 +18,7 @@ func main() {
 }
 
 func wtgWrapper() js.Func {
-	wtgFunc := js.FuncOf(func(this js.Value, args []js.Value) any {
+	wtgFunc := js.FuncOf(func(_ js.Value, args []js.Value) any {
 		if len(args) != 1 {
 			return "Invalid no of arguments passed"
 		}
@@ -47,7 +47,7 @@ func wtg2SVG(s string) (string, error) {
 		return "", err
 	}
 	defer e.Close()
-	style := svgmap.NewOctoStyle(svgmap.DefaultEvolution)
+	style := svgmap.NewOctoStyle(p.EvolutionStages)
 	e.Init(style)
 	err = e.Encode(p.WMap)
 	if err != nil {
