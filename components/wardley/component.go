@@ -31,6 +31,7 @@ type Component struct {
 	RenderingLayer int //The position of the element on the picture
 	Configured     bool
 	EvolutionPos   int
+	Color          color.Color
 }
 
 func (c *Component) Attributes() []dotencoding.Attribute {
@@ -49,6 +50,7 @@ func NewComponent(id int64) *Component {
 		Placement:      image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 		LabelPlacement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 		RenderingLayer: 10,
+		Color:          color.RGBA{R: 0, G: 0, B: 0, A: 255}, // black
 	}
 }
 
@@ -99,7 +101,7 @@ func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp 
 }
 
 func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
-	return c.marshalSVG(e, canvas, svg.Black)
+	return c.marshalSVG(e, canvas, svg.Color{c.Color})
 }
 
 func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
@@ -111,11 +113,16 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	if labelP.Y == components.UndefinedCoord {
 		labelP.Y = 10
 	}
+	fillColor := svg.White
+	r, g, b, a := c.Color.RGBA()
+	if r != 0 || g != 0 || b != 0 || a != 65535 {
+		fillColor = svg.Color{col}
+	}
 	baseCircle := svg.Circle{
 		R:           5,
 		StrokeWidth: "1",
 		Stroke:      col,
-		Fill:        svg.White,
+		Fill:        fillColor,
 	}
 	components := make([]interface{}, 0)
 	switch c.Type {

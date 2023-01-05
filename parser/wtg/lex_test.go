@@ -120,6 +120,7 @@ blabla: this is another word
 block: {
    type: mytype
 	fdsfds: bdsfd
+	color: red
 }
 test // comment on a line
 // comment on another line
@@ -168,6 +169,9 @@ test // comment on a line
 		{t: identifierToken, v: "fdsfds"},
 		{t: colonToken, v: ":"},
 		{t: identifierToken, v: "bdsfd"},
+		{t: colorToken, v: "color"},
+		{t: colonToken, v: ":"},
+		{t: colorItem, v: "red"},
 		{t: endBlockToken, v: "}"},
 		{t: identifierToken, v: "test"},
 		{t: singleLineCommentSeparator, v: "//"},

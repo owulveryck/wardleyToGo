@@ -10,10 +10,12 @@ kettle - power
 cup of tea: {
     type: buy
     evolution: |....|....|...x..|.........|
+	color: Green
 }
 water: {
     type: build
     evolution: |....|....|....|....x....|
+	color: Blue
 }
 kettle: {
     type: build
