@@ -101,6 +101,16 @@ func (p *Parser) inventory(s string) error {
 		case commentToken:
 		case startBlockCommentToken:
 			inComment = true
+		case colorToken:
+		case colorItem:
+			if p.currentNode == nil {
+				return errors.New("cannot set type on a nil node")
+			}
+			if col, ok := Colors[tok.Value]; ok {
+				p.currentNode.Color = col
+				continue
+			}
+			log.Printf("unknown color %v", tok.Value)
 		case typeItem:
 			if p.currentNode == nil {
 				return errors.New("cannot set type on a nil node")

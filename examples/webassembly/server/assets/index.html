@@ -20,6 +20,10 @@
 			<button><a href="" id="dl" download="wtg.svg">Download SVG</a></button> 
 			
 								<textarea id="code" name="code" rows="50" cols="40" onkeypress="onTextChange();">
+/***************
+  value chain 
+****************/
+
 business - cup of tea
 public - cup of tea
 cup of tea - cup
@@ -29,15 +33,19 @@ hot water - water
 hot water -- kettle
 kettle - power
 
-business: {
-  evolution: |....|....|...x.|.........|
-}
-public: {
-  evolution: |....|....|....|.x...|
-}
+/***************
+  definitions 
+****************/
 
+// you can inline the evolution
+business: |....|....|...x.|.........|
+
+public: |....|....|....|.x...|
+
+// or create blocks
 cup of tea: {
   evolution: |....|....|..x..|........|
+  color: Green // you can set colors
 }
 cup: {
   type: buy
@@ -49,19 +57,23 @@ tea: {
 }
 hot water: {
   evolution: |....|....|....|....x....|
+  color: Blue
 }
 water: {
   type: outsource
   evolution: |....|....|....|.....x....|
 }
+
+// you can set the evolution with a >
 kettle: {
   type: build
-  evolution: |....|...x.|..>.|..........|
+  evolution: |...|...x.|..>.|.......|
 }
 power: {
   type: outsource
-  evolution: |....|....|....x|.....>..|
-}</textarea>
+  evolution: |...|...|....x|.....>..|
+}
+</textarea>
 								<br/>
 				Zoom: <span id="zoomValue">1</span>
 				  <button onclick="GetURL()"> Get URL </button>
