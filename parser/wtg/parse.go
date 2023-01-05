@@ -34,6 +34,12 @@ func NewParser() *Parser {
 	}
 }
 
+func (p *Parser) DumpComponents(w io.Writer) {
+	for n := range p.nodeInventory {
+		fmt.Fprintf(w, "%v\n", n)
+	}
+}
+
 func (p *Parser) Parse(r io.Reader) error {
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
