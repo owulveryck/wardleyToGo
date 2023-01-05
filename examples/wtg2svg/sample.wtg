@@ -1,3 +1,7 @@
+/***************
+  value chain 
+****************/
+
 business - cup of tea
 public - cup of tea
 cup of tea - cup
@@ -7,36 +11,44 @@ hot water - water
 hot water -- kettle
 kettle - power
 
+/***************
+  definitions 
+****************/
+
+// you can inline the evolution
+business: |....|....|...x.|.........|
+
+public: |....|....|....|.x...|
+
+// or create blocks
 cup of tea: {
-    type: buy
-    evolution: |....|....|...x..|.........|
-	color: Green
-}
-water: {
-    type: build
-    evolution: |....|....|....|....x....|
-	color: Blue
-}
-kettle: {
-    type: build
-    evolution: |....|..x.|....|..>......|
-}
-power: {
-    type: outsource
-    evolution: |....|....|....x|.........|
-}
-business: {
-    evolution: |....|....|..x.|.......|
-}
-public: {
-    evolution: |....|....|....|.x....|
+  evolution: |....|....|..x..|........|
+  color: Green // you can set colors
 }
 cup: {
-    evolution: |....|....|....|.x.......|
+  type: buy
+  evolution: |....|....|....|....x....|
 }
 tea: {
-    evolution: |....|....|....|..x......|
+  type: buy
+  evolution: |....|....|....|.....x....|
 }
 hot water: {
-    evolution: |....|....|....|...x.....|
+  evolution: |....|....|....|....x....|
+  color: Blue
 }
+water: {
+  type: outsource
+  evolution: |....|....|....|.....x....|
+}
+
+// you can set the evolution with a >
+kettle: {
+  type: build
+  evolution: |...|...x.|..>.|.......|
+}
+power: {
+  type: outsource
+  evolution: |...|...|....x|.....>..|
+}
+

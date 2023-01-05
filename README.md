@@ -77,6 +77,14 @@ power: {
 
 you will find tools to convert the file into SVG or dot format in the examples subdir or compiled version for various platforms in the repository
 
+If you have Go installed, you can generate the map with
+
+`cat sample.wtg | go run main.go > wtg.svg`
+
+from the `examples/wtg2svg` directory
+
+![](wtg.svg)
+
 ### The OWM parser
 
 The library comes with a parser to handle part of the OWM syntax.
