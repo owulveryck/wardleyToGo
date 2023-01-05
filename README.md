@@ -74,6 +74,9 @@ power: {
   type: outsource
   evolution: |...|...|....x|.....>..|
 }
+
+stage2: very custom
+stage4: commodity
 ```
 
 you will find tools to convert the file into SVG or dot format in the examples subdir or compiled version for various platforms in the repository

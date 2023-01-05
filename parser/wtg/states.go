@@ -114,6 +114,14 @@ func wordState(l *lexer) stateFunc {
 	}
 	l.Rewind()
 	switch l.Current() {
+	case "stage1":
+		return stageState
+	case "stage2":
+		return stageState
+	case "stage3":
+		return stageState
+	case "stage4":
+		return stageState
 	case "":
 		l.Emit(unkonwnToken)
 	case "color":
@@ -128,6 +136,53 @@ func wordState(l *lexer) stateFunc {
 		l.Emit(identifierToken)
 	}
 	l.Ignore()
+	return startState
+}
+
+func stageState(l *lexer) stateFunc {
+	stage := 0
+	if l.Peek() == ':' {
+		switch l.Current() {
+		case "stage1":
+			stage = 1
+			l.Emit(stage1Token)
+		case "stage2":
+			stage = 2
+			l.Emit(stage2Token)
+		case "stage3":
+			stage = 3
+			l.Emit(stage3Token)
+		case "stage4":
+			stage = 4
+			l.Emit(stage4Token)
+		}
+		l.Ignore()
+		l.Next()
+		l.Emit(colonToken)
+		// discard the leading space
+		for unicode.IsSpace(l.Peek()) {
+			l.Next()
+		}
+		l.Ignore()
+		for l.Peek() != '\n' && !(l.Peek() == '/' && l.PeekPeek() == '/') {
+			l.Next()
+		}
+		switch stage {
+		case 1:
+			l.Emit(stage1Item)
+		case 2:
+			l.Emit(stage2Item)
+		case 3:
+			l.Emit(stage3Item)
+		case 4:
+			l.Emit(stage4Item)
+		}
+		l.Ignore()
+		return startState
+	}
+	l.Emit(identifierToken)
+	l.Ignore()
+
 	return startState
 }
 
