@@ -118,6 +118,8 @@ func wordState(l *lexer) stateFunc {
 		l.Emit(unkonwnToken)
 	case "color":
 		return colorState
+	case "title":
+		return titleState
 	case "type":
 		return typeState
 	case "evolution":
@@ -144,6 +146,30 @@ func typeState(l *lexer) stateFunc {
 			l.Next()
 		}
 		l.Emit(typeItem)
+		l.Ignore()
+		return startState
+	}
+	l.Emit(identifierToken)
+	l.Ignore()
+
+	return startState
+}
+
+func titleState(l *lexer) stateFunc {
+	if l.Peek() == ':' {
+		l.Emit(titleToken)
+		l.Ignore()
+		l.Next()
+		l.Emit(colonToken)
+		// discard the leading space
+		for unicode.IsSpace(l.Peek()) {
+			l.Next()
+		}
+		l.Ignore()
+		for l.Peek() != '\n' && !(l.Peek() == '/' && l.PeekPeek() == '/') {
+			l.Next()
+		}
+		l.Emit(titleItem)
 		l.Ignore()
 		return startState
 	}

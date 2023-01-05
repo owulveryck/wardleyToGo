@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -101,6 +102,9 @@ func (p *Parser) inventory(s string) error {
 		case commentToken:
 		case startBlockCommentToken:
 			inComment = true
+		case titleToken:
+		case titleItem:
+			p.WMap.Title = strings.TrimSpace(tok.Value)
 		case colorToken:
 		case colorItem:
 			if p.currentNode == nil {

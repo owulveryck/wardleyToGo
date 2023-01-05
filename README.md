@@ -20,6 +20,7 @@ Check the online demo at [https://owulveryck.github.io/wardleyToGo/](https://owu
 example:
 
 ```
+title: sample map // title is optional
 /***************
   value chain 
 ****************/
