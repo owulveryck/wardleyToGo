@@ -2,6 +2,7 @@ package owm
 
 import (
 	"image"
+	"image/color"
 	"reflect"
 	"strings"
 	"testing"
@@ -39,6 +40,7 @@ func Test_scanEvolve(t *testing.T) {
 					Label:          `bla`,
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -54,6 +56,7 @@ func Test_scanEvolve(t *testing.T) {
 					Label:          `bla bla`,
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -69,6 +72,7 @@ func Test_scanEvolve(t *testing.T) {
 					Label:          `bla bla`,
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -84,6 +88,7 @@ func Test_scanEvolve(t *testing.T) {
 					Label:          `bla bla`,
 					LabelPlacement: image.Point{12, 12},
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -99,6 +104,7 @@ func Test_scanEvolve(t *testing.T) {
 					Label:          `bla bla`,
 					LabelPlacement: image.Point{-12, 12},
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -116,6 +122,7 @@ func Test_scanEvolve(t *testing.T) {
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Type:           wardley.BuildComponent,
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -132,6 +139,7 @@ func Test_scanEvolve(t *testing.T) {
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Type:           wardley.BuyComponent,
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -148,6 +156,7 @@ func Test_scanEvolve(t *testing.T) {
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Type:           wardley.OutsourceComponent,
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
@@ -164,6 +173,7 @@ func Test_scanEvolve(t *testing.T) {
 					LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Type:           wardley.DataProductComponent,
 					RenderingLayer: wardley.DefaultComponentRenderingLayer,
+					Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 				},
 			},
 			false,
