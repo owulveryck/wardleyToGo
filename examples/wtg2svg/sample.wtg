@@ -1,57 +1,12 @@
-title: sample map // title is optional
-/***************
-  value chain 
-****************/
+a - b
+b -- c
+c -- d
+c --- e
+e ---- f
 
-business - cup of tea
-public - cup of tea
-cup of tea - cup
-cup of tea -- tea
-cup of tea --- hot water
-hot water - water
-hot water -- kettle
-kettle - power
-
-/***************
-  definitions 
-****************/
-
-// you can inline the evolution
-business: |....|....|...x.|.........|
-
-public: |....|....|....|.x...|
-
-// or create blocks
-cup of tea: {
-  evolution: |....|....|..x..|........|
-  color: Green // you can set colors
-}
-cup: {
-  type: buy
-  evolution: |....|....|....|....x....|
-}
-tea: {
-  type: buy
-  evolution: |....|....|....|.....x....|
-}
-hot water: {
-  evolution: |....|....|....|....x....|
-  color: Blue
-}
-water: {
-  type: outsource
-  evolution: |....|....|....|.....x....|
-}
-
-// you can set the evolution with a >
-kettle: {
-  type: build
-  evolution: |...|...x.|..>.|.......|
-}
-power: {
-  type: outsource
-  evolution: |...|...|....x|.....>..|
-}
-
-stage2: very custom
-stage4: commodity
+a: |.|.|x|.|
+b: |.|.|.x|.|
+c: |.|.|..x|.|
+d: |.|.|...x|.|
+e: |.|.|x...|.|
+f: |.|.|x....|.|

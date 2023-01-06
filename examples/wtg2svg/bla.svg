@@ -1,0 +1,435 @@
+<svg width="100%" height="100%" viewBox="0 0 1100 900" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+    <script><![CDATA[
+const max = 9
+function replyClick(clicked_id)
+{
+	console.log(clicked_id);
+	var rx = /element_(.*)/;
+	var arr = rx.exec(clicked_id);
+	var id = arr[1];
+	hideID(id)
+}
+function hideID(id) {
+	for (let i = 0; i < max; i++) {
+		var myEle = document.getElementById("edge_"+id+"_"+i);
+		if(!myEle){
+			continue;
+		}
+		var style = document.getElementById("edge_"+id+"_"+i).style.display;
+		if(style === "none")
+			document.getElementById("edge_"+id+"_"+i).style.display = "block";
+		else
+			document.getElementById("edge_"+id+"_"+i).style.display = "none";
+		if (id < max) {
+			hideID(i)
+		}
+	}
+}
+]]></script>
+    <style><![CDATA[
+.evolutionEdge {
+	stroke-dasharray: 7;
+	stroke-dashoffset: 7;
+	animation: dash 3s linear forwards infinite;
+}
+
+@keyframes dash {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}]]></style>
+    <rect x="0" y="0" width="1100" height="900" fill="rgb(236,237,243)" fill-opacity="0.0"></rect>
+    <defs>
+        <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="rgb(236,237,243)"></stop>
+            <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="100%" stop-color="rgb(236,237,243)"></stop>
+        </linearGradient>
+        <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
+        </marker>
+        <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
+        </marker>
+    </defs>
+    <rect x="30" y="50" width="1040" height="800" style="fill:url(#wardleyGradient)"></rect>
+    <g transform=" translate(30,850) rotate(270)">
+        <line x1="0" y1="0" x2="800" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="180" x2="800" y2="180" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="416" x2="800" y2="416" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="728" x2="800" y2="728" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <text x="5" y="-10" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">Invisible</text>
+        <text x="795" y="-10" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">Visible</text>
+        <text x="400" y="-10" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">Value Chain</text>
+    </g>
+    <line x1="30" y1="850" x2="1070" y2="850" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+    <text x="37" y="65" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="start">Uncharted</text>
+    <text x="1065" y="65" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="end">Industrialised</text>
+    <text x="30" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Genesis</text>
+    <text x="210" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Custom-Built</text>
+    <text x="446" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Product
+(+rental)</text>
+    <text x="758" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">Commodity
+(+utility)</text>
+    <text x="1070" y="865" fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">Evolution</text>
+    <text x="550" y="20" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle"></text>
+    <g id="layer_0">
+        <g id="edge_8_17">
+            <line x1="903" y1="242" x2="903" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_18">
+            <line x1="903" y1="242" x2="778" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_12_21">
+            <line x1="404" y1="242" x2="529" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_12_16">
+            <line x1="404" y1="242" x2="404" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_12_19">
+            <line x1="404" y1="242" x2="654" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_12_20">
+            <line x1="404" y1="242" x2="466" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_10_11">
+            <line x1="654" y1="242" x2="654" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_11_13">
+            <line x1="654" y1="338" x2="654" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_11_15">
+            <line x1="654" y1="338" x2="238" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_15_23">
+            <line x1="238" y1="434" x2="238" y2="530" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_15_36">
+            <line x1="238" y1="434" x2="716" y2="530" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_21_25">
+            <line x1="529" y1="338" x2="446" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_35_36">
+            <line x1="154" y1="50" x2="716" y2="530" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_35_15">
+            <line x1="154" y1="50" x2="238" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_14_34">
+            <line x1="903" y1="338" x2="716" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_3_4">
+            <line x1="404" y1="50" x2="404" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_3_5">
+            <line x1="404" y1="50" x2="903" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_27_28">
+            <line x1="373" y1="722" x2="373" y2="818" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_27_31">
+            <line x1="373" y1="722" x2="716" y2="818" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_4_8">
+            <line x1="404" y1="146" x2="903" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_4_12">
+            <line x1="404" y1="146" x2="404" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_9">
+            <line x1="903" y1="146" x2="903" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_24">
+            <line x1="903" y1="146" x2="175" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_20">
+            <line x1="778" y1="146" x2="466" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_16_22">
+            <line x1="404" y1="338" x2="862" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_16_25">
+            <line x1="404" y1="338" x2="446" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_32_33">
+            <line x1="903" y1="50" x2="903" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_37_27">
+            <line x1="279" y1="50" x2="373" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_29_30">
+            <line x1="654" y1="50" x2="654" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_13">
+            <line x1="529" y1="146" x2="654" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_23_26">
+            <line x1="238" y1="530" x2="373" y2="626" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_36_31">
+            <line x1="716" y1="530" x2="716" y2="818" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_9_14">
+            <line x1="903" y1="242" x2="903" y2="338" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_26_27">
+            <line x1="373" y1="626" x2="373" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_26_34">
+            <line x1="373" y1="626" x2="716" y2="722" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_10">
+            <line x1="654" y1="146" x2="654" y2="242" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_18_22">
+            <line x1="778" y1="338" x2="862" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_0_1">
+            <line x1="529" y1="50" x2="529" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_0_2">
+            <line x1="529" y1="50" x2="654" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_6_7">
+            <line x1="778" y1="50" x2="778" y2="146" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_17_22">
+            <line x1="903" y1="338" x2="862" y2="434" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+    </g>
+    <g id="layer_10">
+        <g id="element_11" onclick="replyClick(this.id)">
+            <g transform=" translate(654,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">HCI</text>
+            </g>
+        </g>
+        <g id="element_15" onclick="replyClick(this.id)">
+            <g transform=" translate(238,434)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">AI capability</text>
+            </g>
+        </g>
+        <g id="element_19" onclick="replyClick(this.id)">
+            <g transform=" translate(654,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">clinical notes</text>
+            </g>
+        </g>
+        <g id="element_21" onclick="replyClick(this.id)">
+            <g transform=" translate(529,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">clinical decision making</text>
+            </g>
+        </g>
+        <g id="element_35" onclick="replyClick(this.id)">
+            <g transform=" translate(154,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">audit</text>
+            </g>
+        </g>
+        <g id="element_13" onclick="replyClick(this.id)">
+            <g transform=" translate(654,434)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">ethics</text>
+            </g>
+        </g>
+        <g id="element_14" onclick="replyClick(this.id)">
+            <g transform=" translate(903,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">bias</text>
+            </g>
+        </g>
+        <g id="element_20" onclick="replyClick(this.id)">
+            <g transform=" translate(466,242)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">pathway management</text>
+            </g>
+        </g>
+        <g id="element_28" onclick="replyClick(this.id)">
+            <g transform=" translate(373,818)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">data store</text>
+            </g>
+        </g>
+        <g id="element_33" onclick="replyClick(this.id)">
+            <g transform=" translate(903,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">EHR</text>
+            </g>
+        </g>
+        <g id="element_3" onclick="replyClick(this.id)">
+            <g transform=" translate(404,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">diagnosis</text>
+            </g>
+        </g>
+        <g id="element_27" onclick="replyClick(this.id)">
+            <g transform=" translate(373,722)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">data</text>
+            </g>
+        </g>
+        <g id="element_34" onclick="replyClick(this.id)">
+            <g transform=" translate(716,722)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">history</text>
+            </g>
+        </g>
+        <g id="element_4" onclick="replyClick(this.id)">
+            <g transform=" translate(404,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">clinician</text>
+            </g>
+        </g>
+        <g id="element_5" onclick="replyClick(this.id)">
+            <g transform=" translate(903,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">virtual assistant</text>
+            </g>
+        </g>
+        <g id="element_7" onclick="replyClick(this.id)">
+            <g transform=" translate(778,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">chatbot</text>
+            </g>
+        </g>
+        <g id="element_16" onclick="replyClick(this.id)">
+            <g transform=" translate(404,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">object recognition</text>
+            </g>
+        </g>
+        <g id="element_32" onclick="replyClick(this.id)">
+            <g transform=" translate(903,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">unstructured</text>
+            </g>
+        </g>
+        <g id="element_25" onclick="replyClick(this.id)">
+            <g transform=" translate(446,434)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">deep learning</text>
+            </g>
+        </g>
+        <g id="element_37" onclick="replyClick(this.id)">
+            <g transform=" translate(279,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">consent</text>
+            </g>
+        </g>
+        <g id="element_29" onclick="replyClick(this.id)">
+            <g transform=" translate(654,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">structured</text>
+            </g>
+        </g>
+        <g id="element_1" onclick="replyClick(this.id)">
+            <g transform=" translate(529,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">trust</text>
+            </g>
+        </g>
+        <g id="element_23" onclick="replyClick(this.id)">
+            <g transform=" translate(238,530)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">AI</text>
+            </g>
+        </g>
+        <g id="element_36" onclick="replyClick(this.id)">
+            <g transform=" translate(716,530)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">regulation</text>
+            </g>
+        </g>
+        <g id="element_24" onclick="replyClick(this.id)">
+            <g transform=" translate(175,242)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">General purpose</text>
+            </g>
+        </g>
+        <g id="element_9" onclick="replyClick(this.id)">
+            <g transform=" translate(903,242)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">replace people</text>
+            </g>
+        </g>
+        <g id="element_22" onclick="replyClick(this.id)">
+            <g transform=" translate(862,434)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">machine learning</text>
+            </g>
+        </g>
+        <g id="element_26" onclick="replyClick(this.id)">
+            <g transform=" translate(373,626)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">training data</text>
+            </g>
+        </g>
+        <g id="element_31" onclick="replyClick(this.id)">
+            <g transform=" translate(716,818)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">standards</text>
+            </g>
+        </g>
+        <g id="element_2" onclick="replyClick(this.id)">
+            <g transform=" translate(654,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">healthcare</text>
+            </g>
+        </g>
+        <g id="element_18" onclick="replyClick(this.id)">
+            <g transform=" translate(778,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">doc scan</text>
+            </g>
+        </g>
+        <g id="element_0" onclick="replyClick(this.id)">
+            <g transform=" translate(529,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">patient</text>
+            </g>
+        </g>
+        <g id="element_6" onclick="replyClick(this.id)">
+            <g transform=" translate(778,50)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">triage</text>
+            </g>
+        </g>
+        <g id="element_17" onclick="replyClick(this.id)">
+            <g transform=" translate(903,338)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">categorisation</text>
+            </g>
+        </g>
+        <g id="element_8" onclick="replyClick(this.id)">
+            <g transform=" translate(903,242)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">replace tasks</text>
+            </g>
+        </g>
+        <g id="element_12" onclick="replyClick(this.id)">
+            <g transform=" translate(404,242)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">augment tasks</text>
+            </g>
+        </g>
+        <g id="element_30" onclick="replyClick(this.id)">
+            <g transform=" translate(654,146)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">financial codes</text>
+            </g>
+        </g>
+        <g id="element_10" onclick="replyClick(this.id)">
+            <g transform=" translate(654,242)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">provider</text>
+            </g>
+        </g>
+    </g>
+</svg>
