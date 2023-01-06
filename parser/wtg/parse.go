@@ -22,6 +22,8 @@ type Parser struct {
 	visibilityOnly  bool
 	WMap            *wardleyToGo.Map
 	EvolutionStages []svgmap.Evolution
+	ImageSize       image.Rectangle
+	MapSize         image.Rectangle
 }
 
 func NewParser() *Parser {
