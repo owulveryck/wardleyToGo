@@ -42,7 +42,13 @@ func wtg2SVG(s string) (string, error) {
 		return "", err
 	}
 	output := new(bytes.Buffer)
-	e, err := svgmap.NewEncoder(output, image.Rect(0, 0, 1100, 900), image.Rect(30, 50, 1070, 850))
+	imgArea := (p.ImageSize.Max.X - p.ImageSize.Min.X) * (p.ImageSize.Max.X - p.ImageSize.Min.Y)
+	canvasArea := (p.MapSize.Max.X - p.MapSize.Min.X) * (p.MapSize.Max.X - p.MapSize.Min.Y)
+	if imgArea == 0 || canvasArea == 0 {
+		p.ImageSize = image.Rect(0, 0, 1100, 900)
+		p.MapSize = image.Rect(30, 50, 1070, 850)
+	}
+	e, err := svgmap.NewEncoder(output, p.ImageSize, p.MapSize)
 	if err != nil {
 		return "", err
 	}
