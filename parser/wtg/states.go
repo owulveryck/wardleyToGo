@@ -111,6 +111,9 @@ func wordState(l *lexer) stateFunc {
 			break
 		}
 		l.Next()
+		if l.Peek() == eofRune {
+			break
+		}
 	}
 	l.Rewind()
 	switch l.Current() {
