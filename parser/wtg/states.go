@@ -134,6 +134,9 @@ func wordState(l *lexer) stateFunc {
 	case "":
 		// this is probably a control character
 		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Next()
 	case "color":
 		return colorState
@@ -283,6 +286,9 @@ func evolutionState(l *lexer) stateFunc {
 		strings.Count(l.Current(), "x") > 1 ||
 		strings.Count(l.Current(), ">") > 1 {
 		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Ignore()
 		return startState
 	}

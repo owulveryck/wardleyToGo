@@ -123,6 +123,9 @@ func (l *lexer) PeekPeek() rune {
 // peeked rune.
 func (l *lexer) Peek() rune {
 	r := l.Next()
+	if l.Err != nil {
+		return eofRune
+	}
 	l.Rewind()
 
 	return r
