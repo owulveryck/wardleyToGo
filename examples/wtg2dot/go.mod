@@ -6,10 +6,10 @@ require (
 	github.com/owulveryck/wardleyToGo v0.0.0
 	gonum.org/v1/gonum v0.12.0
 )
+
 replace github.com/owulveryck/wardleyToGo v0.0.0 => ../../
 
-
 require (
-	golang.org/x/exp v0.0.0-20221217163422-3c43f8badb15 // indirect
-	golang.org/x/image v0.2.0 // indirect
+	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3 // indirect
+	golang.org/x/image v0.3.0 // indirect
 )
