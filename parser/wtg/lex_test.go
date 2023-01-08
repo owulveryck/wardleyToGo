@@ -50,7 +50,7 @@ func testLexer0(t *testing.T) {
 		v string
 	}{
 		{t: identifierToken, v: "0"},
-		{t: unkonwnToken, v: "\x8a"},
+		{t: unknownToken, v: "\x8a"},
 		{t: identifierToken, v: "0"},
 	}
 	l := newLexer(src, startState)
@@ -189,7 +189,7 @@ test // comment on a line
 		{t: evolutionItem, v: "|...|...|...|...|"},
 		{t: identifierToken, v: "this is an incomplete evolution"},
 		{t: colonToken, v: ":"},
-		{t: unkonwnToken, v: "|...|...|...|..."},
+		{t: unknownToken, v: "|...|...|...|..."},
 		{t: identifierToken, v: "blabla"},
 		{t: colonToken, v: ":"},
 		{t: identifierToken, v: "this is another word"},

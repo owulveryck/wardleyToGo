@@ -158,7 +158,7 @@ func (p *Parser) inventory(s string) error {
 		case endBlockToken:
 		case singleLineCommentSeparator:
 		default:
-			log.Printf("unhandled element: %v", tok.Value)
+			log.Printf("unhandled element: %v (%x)", tok.Value, tok.Value)
 		}
 	}
 	return nil

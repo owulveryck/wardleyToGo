@@ -25,7 +25,7 @@ const (
 	colorItem
 	identifierToken
 	colonToken
-	unkonwnToken
+	unknownToken
 	commentToken
 	singleLineCommentSeparator // //
 	startBlockCommentToken     // /*
