@@ -204,7 +204,7 @@ func TestFirstRuneAfterSpaceState(t *testing.T) {
 			t.Fatalf("expected startState func, got %v", retName)
 
 		}
-		if tok.Type != unkonwnToken {
+		if tok.Type != unknownToken {
 			t.Fatalf("expected %v, got %v", endBlockCommentToken, tok)
 		}
 		if tok.Value != "*" {
@@ -229,7 +229,7 @@ func TestFirstRuneAfterSpaceState(t *testing.T) {
 			t.Fatalf("expected startState func, got %v", retName)
 
 		}
-		if tok.Type != unkonwnToken {
+		if tok.Type != unknownToken {
 			t.Fatalf("expected %v, got %v", startBlockCommentToken, tok)
 		}
 		if tok.Value != "/" {
@@ -471,7 +471,7 @@ func TestEvolutionState(t *testing.T) {
 			t.Fatalf("expected startState func, got %v", retName)
 
 		}
-		if tok.Type != unkonwnToken {
+		if tok.Type != unknownToken {
 			t.Fatalf("expected %v, got %v", 0, tok)
 		}
 		if tok.Value != "|x|x|||" {
@@ -496,7 +496,7 @@ func TestEvolutionState(t *testing.T) {
 			t.Fatalf("expected startState func, got %v", retName)
 
 		}
-		if tok.Type != unkonwnToken {
+		if tok.Type != unknownToken {
 			t.Fatalf("expected %v, got %v", 0, tok)
 		}
 		if tok.Value != "|x|||||" {

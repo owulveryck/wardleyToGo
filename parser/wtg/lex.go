@@ -1,6 +1,7 @@
 package wtg
 
 import (
+	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -25,7 +26,7 @@ const (
 	colorItem
 	identifierToken
 	colonToken
-	unkonwnToken
+	unknownToken
 	commentToken
 	singleLineCommentSeparator // //
 	startBlockCommentToken     // /*
@@ -122,6 +123,9 @@ func (l *lexer) PeekPeek() rune {
 // peeked rune.
 func (l *lexer) Peek() rune {
 	r := l.Next()
+	if l.Err != nil {
+		return eofRune
+	}
 	l.Rewind()
 
 	return r
@@ -156,6 +160,10 @@ func (l *lexer) Next() rune {
 	}
 	l.position += s
 	l.rewind.push(r)
+	if !utf8.ValidString(l.Current()) {
+		l.Err = fmt.Errorf("not valid runes in string %s", l.Current())
+		return eofRune
+	}
 
 	return r
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func FuzzParse(f *testing.F) {
-	f.SkipNow()
+	//	f.SkipNow()
 	testcases := []string{" ", "a - b"}
 	for _, tc := range testcases {
 		f.Add(tc) // Use f.Add to provide a seed corpus

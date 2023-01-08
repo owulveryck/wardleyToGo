@@ -1,6 +1,7 @@
 package wtg
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -36,7 +37,7 @@ func commentBlockState(l *lexer) stateFunc {
 	return startState
 }
 func oneLineCommentState(l *lexer) stateFunc {
-	for l.Peek() != '\n' {
+	for l.Peek() != '\n' && l.Peek() != eofRune {
 		l.Next()
 	}
 	l.Emit(commentToken)
@@ -76,7 +77,10 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 			l.Ignore()
 			return oneLineCommentState
 		}
-		l.Emit(unkonwnToken)
+		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Ignore()
 		return startState
 	case '*':
@@ -86,7 +90,10 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 			l.Ignore()
 			return startState
 		}
-		l.Emit(unkonwnToken)
+		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Ignore()
 		return startState
 		//case ' ':
@@ -126,7 +133,12 @@ func wordState(l *lexer) stateFunc {
 	case "stage4":
 		return stageState
 	case "":
-		l.Emit(unkonwnToken)
+		// this is probably a control character
+		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
+		l.Next()
 	case "color":
 		return colorState
 	case "title":
@@ -274,9 +286,16 @@ func evolutionState(l *lexer) stateFunc {
 	if strings.Count(l.Current(), "|") != 5 ||
 		strings.Count(l.Current(), "x") > 1 ||
 		strings.Count(l.Current(), ">") > 1 {
-		l.Emit(unkonwnToken)
+		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Ignore()
 		return startState
+	}
+	if l.CurrentRune() != '|' {
+		l.Err = fmt.Errorf("bad evolution %v", l.Current())
+		return nil
 	}
 	l.Emit(evolutionItem)
 	l.Ignore()
