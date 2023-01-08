@@ -74,8 +74,10 @@ power: {
   evolution: |...|...|....x|.....>..|
 }
 
-stage2: very custom
-stage4: commodity
+stage1: genesis / concept
+stage2: custom / emerging
+stage3: product / converging
+stage4: commodity / accepted
 ```
 
 you will find tools to convert the file into SVG or dot format in the examples subdir or compiled version for various platforms in the repository
