@@ -57,6 +57,18 @@ builds:
     ignore:
       - goos: windows
         goarch: arm64
+  - id: wtg2svglive
+    main: ./examples/wtg2svglive
+    binary: wtg2svglive
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ignore:
+      - goos: windows
+        goarch: arm64
   - id: wtg2svg
     main: ./examples/wtg2svg
     binary: wtg2svg
