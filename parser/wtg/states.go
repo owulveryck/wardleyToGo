@@ -1,6 +1,7 @@
 package wtg
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -291,6 +292,10 @@ func evolutionState(l *lexer) stateFunc {
 		}
 		l.Ignore()
 		return startState
+	}
+	if l.CurrentRune() != '|' {
+		l.Err = fmt.Errorf("bad evolution %v", l.Current())
+		return nil
 	}
 	l.Emit(evolutionItem)
 	l.Ignore()
