@@ -1,9 +1,11 @@
 package wtg
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"gonum.org/v1/gonum/graph/topo"
 )
 
 func (p *Parser) consolidateMap() error {
@@ -41,6 +43,10 @@ func (p *Parser) consolidateMap() error {
 		if err != nil {
 			return err
 		}
+	}
+	cycles := topo.DirectedCyclesIn(p.WMap)
+	if len(cycles) != 0 {
+		return errors.New("cycles detected in the map")
 	}
 	return nil
 }
