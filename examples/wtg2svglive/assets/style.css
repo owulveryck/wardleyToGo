@@ -1,0 +1,46 @@
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	background-color: white;
+}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Create two unequal columns that floats next to each other */
+.column {
+	float: left;
+	padding: 10px;
+}
+
+.left {
+	width: 7vw;
+	height: 100vh;
+}
+
+.right {
+	height: 100vh;
+	float: none;
+}
+
+/* Clear floats after the columns */
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.container {
+	width: 93vw;
+	height: 100%;
+	left: 7vw;
+	position: fixed;
+	float: none;
+}
