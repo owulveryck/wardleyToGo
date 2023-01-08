@@ -36,7 +36,7 @@ func commentBlockState(l *lexer) stateFunc {
 	return startState
 }
 func oneLineCommentState(l *lexer) stateFunc {
-	for l.Peek() != '\n' {
+	for l.Peek() != '\n' && l.Peek() != eofRune {
 		l.Next()
 	}
 	l.Emit(commentToken)
