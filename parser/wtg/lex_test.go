@@ -11,6 +11,36 @@ func TestLexer(t *testing.T) {
 	t.Run("types", testLexerType)
 	t.Run("full", testLexerFull)
 	t.Run("bad content", testLexer0)
+	t.Run("single char", testSingleChar)
+}
+func testSingleChar(t *testing.T) {
+	src := `a`
+	expectedTokens := []struct {
+		t tokenType
+		v string
+	}{
+		{t: identifierToken, v: "a"},
+		{t: eofToken, v: ""},
+	}
+	l := newLexer(src, startState)
+	l.Start()
+	i := 0
+	var tok token
+	for tok = range l.tokens {
+		if i >= len(expectedTokens) {
+			t.Fatalf("bad number of test cases - missing |%v|%v|", tok.Type, tok.Value)
+
+		}
+		if tok.Type != expectedTokens[i].t || tok.Value != expectedTokens[i].v {
+			t.Fatalf("on iteration %v, expected (%v,%v), got (%v,%v)", i, expectedTokens[i].t, []byte(expectedTokens[i].v), tok.Type, []byte(tok.Value))
+
+		}
+		i++
+	}
+	if i < len(expectedTokens) {
+		t.Errorf("bad number of elements, expected %v got %v (last token is %v)", len(expectedTokens), i, tok)
+	}
+
 }
 func testLexer0(t *testing.T) {
 	t.SkipNow()
