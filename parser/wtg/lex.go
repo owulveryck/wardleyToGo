@@ -1,6 +1,7 @@
 package wtg
 
 import (
+	"fmt"
 	"strings"
 	"unicode/utf8"
 )
@@ -156,6 +157,10 @@ func (l *lexer) Next() rune {
 	}
 	l.position += s
 	l.rewind.push(r)
+	if !utf8.ValidString(l.Current()) {
+		l.Err = fmt.Errorf("not valid runes in string %s", l.Current())
+		return eofRune
+	}
 
 	return r
 }

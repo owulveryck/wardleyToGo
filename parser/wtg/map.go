@@ -34,6 +34,9 @@ func (p *Parser) consolidateMap() error {
 		if e.F == nil || e.T == nil {
 			return fmt.Errorf("bad edge: %v", e)
 		}
+		if e.F == e.T {
+			return fmt.Errorf("self edge: F: %v, T: %v", e.F, e.T)
+		}
 		err := p.WMap.SetCollaboration(e)
 		if err != nil {
 			return err

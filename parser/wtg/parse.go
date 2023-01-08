@@ -161,7 +161,7 @@ func (p *Parser) inventory(s string) error {
 			log.Printf("unhandled element: %v (%x)", tok.Value, tok.Value)
 		}
 	}
-	return nil
+	return l.Err
 }
 
 func (p *Parser) upsertNode(s string) *wardley.Component {

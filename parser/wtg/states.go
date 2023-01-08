@@ -77,6 +77,9 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 			return oneLineCommentState
 		}
 		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Ignore()
 		return startState
 	case '*':
@@ -87,6 +90,9 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 			return startState
 		}
 		l.Emit(unknownToken)
+		if l.Current() == "" {
+			l.Next()
+		}
 		l.Ignore()
 		return startState
 		//case ' ':
@@ -126,7 +132,9 @@ func wordState(l *lexer) stateFunc {
 	case "stage4":
 		return stageState
 	case "":
+		// this is probably a control character
 		l.Emit(unknownToken)
+		l.Next()
 	case "color":
 		return colorState
 	case "title":
