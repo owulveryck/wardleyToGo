@@ -1,0 +1,2 @@
+go test fuzz v1
+string("..|..~rs  secon idntr\nrd-idntifé -   fortnti \ntifié ---   forth idntiir  \nba\nientifier1\nidentifier1.1\n\n   type: mytype\n\ne1.1\n\n    blabaathis ismytype\\n\\ne1.1\\n\\n    blabaathis")

@@ -212,7 +212,7 @@ func typeState(l *lexer) stateFunc {
 			l.Next()
 		}
 		l.Ignore()
-		for !unicode.IsSpace(l.Peek()) {
+		for unicode.IsLetter(l.Peek()) {
 			l.Next()
 		}
 		l.Emit(typeItem)
@@ -236,7 +236,7 @@ func titleState(l *lexer) stateFunc {
 			l.Next()
 		}
 		l.Ignore()
-		for l.Peek() != '\n' && !(l.Peek() == '/' && l.PeekPeek() == '/') {
+		for l.Peek() != '\n' && !(l.Peek() == '/' && l.PeekPeek() == '/') && l.Peek() != eofRune {
 			l.Next()
 		}
 		l.Emit(titleItem)
@@ -260,7 +260,7 @@ func colorState(l *lexer) stateFunc {
 			l.Next()
 		}
 		l.Ignore()
-		for !unicode.IsSpace(l.Peek()) {
+		for unicode.IsLetter(l.Peek()) || unicode.IsDigit(l.Peek()) {
 			l.Next()
 		}
 		l.Emit(colorItem)
