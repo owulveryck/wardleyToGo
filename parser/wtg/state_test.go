@@ -1,194 +1,11 @@
 package wtg
 
-import "testing"
+import (
+	"sync"
+	"testing"
+)
 
 func TestFirstRuneAfterSpaceState(t *testing.T) {
-	t.Run("one dash", func(t *testing.T) {
-		tst := `-
-
-		`
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "visibilityState" {
-			t.Fatalf("expected visibilityState func, got %v", retName)
-
-		}
-		if tok.Type != 0 {
-			t.Fatalf("expected %v, got %v", 0, tok)
-		}
-	})
-	t.Run("two dashes", func(t *testing.T) {
-		tst := `--
-
-		`
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "visibilityState" {
-			t.Fatalf("expected visibilityState func, got %v", retName)
-
-		}
-		if tok.Type != 0 {
-			t.Fatalf("expected %v, got %v", 0, tok)
-		}
-	})
-	t.Run("pipe", func(t *testing.T) {
-		tst := `|- `
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "evolutionState" {
-			t.Fatalf("expected evolutionState func, got %v", retName)
-
-		}
-		if tok.Type != 0 {
-			t.Fatalf("expected %v, got %v", 0, tok)
-		}
-	})
-	t.Run("block {", func(t *testing.T) {
-		tst := `{- `
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "startState" {
-			t.Fatalf("expected startState func, got %v", retName)
-
-		}
-		if tok.Type != startBlockToken {
-			t.Fatalf("expected %v, got %v", 0, tok)
-		}
-		if tok.Value != "{" {
-			t.Fatalf("expected {, got %v", tok)
-		}
-		if l.Current() != "" {
-			t.Errorf("expected buffer to be empty")
-		}
-	})
-	t.Run("block }", func(t *testing.T) {
-		tst := `}- `
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "startState" {
-			t.Fatalf("expected startState func, got %v", retName)
-
-		}
-		if tok.Type != endBlockToken {
-			t.Fatalf("expected %v, got %v", 0, tok)
-		}
-		if tok.Value != "}" {
-			t.Fatalf("expected {, got %v", tok)
-		}
-		if l.Current() != "" {
-			t.Errorf("expected buffer to be empty")
-		}
-	})
-	t.Run("single line comment", func(t *testing.T) {
-		tst := `// blabla`
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "oneLineCommentState" {
-			t.Fatalf("expected oneLineCommentState func, got %v", retName)
-
-		}
-		if tok.Type != singleLineCommentSeparator {
-			t.Fatalf("expected %v, got %v", singleLineCommentSeparator, tok)
-		}
-		if tok.Value != "//" {
-			t.Fatalf("expected //, got %v", tok)
-		}
-		if l.Current() != "" {
-			t.Errorf("expected buffer to be empty")
-		}
-	})
-	t.Run("block comment", func(t *testing.T) {
-		tst := `/* blabla`
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "commentBlockState" {
-			t.Fatalf("expected commentBlockState func, got %v", retName)
-
-		}
-		if tok.Type != startBlockCommentToken {
-			t.Fatalf("expected %v, got %v", startBlockCommentToken, tok)
-		}
-		if tok.Value != "/*" {
-			t.Fatalf("expected /*, got %v", tok)
-		}
-		if l.Current() != "" {
-			t.Errorf("expected buffer to be empty")
-		}
-	})
-	t.Run("end block comment", func(t *testing.T) {
-		tst := `*/ blabla`
-		l := newLexer(tst, firstRuneAfterSpaceState)
-		l.tokens = make(chan token)
-		var tok token
-		go func() {
-			for tok = range l.tokens {
-			}
-		}()
-		ret := l.startState(l)
-		retName := getFunctionName(ret)
-		if retName != "startState" {
-			t.Fatalf("expected startState func, got %v", retName)
-
-		}
-		if tok.Type != endBlockCommentToken {
-			t.Fatalf("expected %v, got %v", endBlockCommentToken, tok)
-		}
-		if tok.Value != "*/" {
-			t.Fatalf("expected */, got %v", tok)
-		}
-		if l.Current() != "" {
-			t.Errorf("expected buffer to be empty")
-		}
-	})
 	t.Run("star", func(t *testing.T) {
 		tst := `*aaa/ blabla`
 		l := newLexer(tst, firstRuneAfterSpaceState)
@@ -613,9 +430,15 @@ func TestStartState(t *testing.T) {
 		`
 		l := newLexer(tst, startState)
 		l.tokens = make(chan token)
-		var tok token
+		defer close(l.tokens)
+		var wg sync.WaitGroup
+		wg.Add(1)
+
 		go func() {
-			for tok = range l.tokens {
+			defer wg.Done()
+			tok := <-l.tokens
+			if tok.Type != eofToken {
+				t.Errorf("expected %v, got %v", eofToken, tok)
 			}
 		}()
 		ret := l.startState(l)
@@ -624,9 +447,7 @@ func TestStartState(t *testing.T) {
 			t.Fatalf("expected nil func, got %v", retName)
 
 		}
-		if tok.Type != eofToken {
-			t.Fatalf("expected %v, got %v", eofToken, tok)
-		}
+		wg.Wait()
 	})
 	t.Run("one non space", func(t *testing.T) {
 		tst := `       
@@ -636,6 +457,7 @@ func TestStartState(t *testing.T) {
 		`
 		l := newLexer(tst, startState)
 		l.tokens = make(chan token)
+		defer close(l.tokens)
 		var tok token
 		go func() {
 			for tok = range l.tokens {

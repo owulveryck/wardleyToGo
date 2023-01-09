@@ -7,8 +7,69 @@ import (
 )
 
 func FuzzParse(f *testing.F) {
+	full := `
+	title: sample map // title is optional
+/***************
+  value chain 
+****************/
+
+business - cup of tea
+public - cup of tea
+cup of tea - cup
+cup of tea -- tea
+cup of tea --- hot water
+hot water - water
+hot water -- kettle
+kettle - power
+
+/***************
+  definitions 
+****************/
+
+// you can inline the evolution
+business: |....|....|...x.|.........|
+
+public: |....|....|....|.x...|
+
+// or create blocks
+cup of tea: {
+  evolution: |....|....|..x..|........|
+  color: Green // you can set colors
+}
+cup: {
+  type: buy
+  evolution: |....|....|....|....x....|
+}
+tea: {
+  type: buy
+  evolution: |....|....|....|.....x....|
+}
+hot water: {
+  evolution: |....|....|....|....x....|
+  color: Blue
+}
+water: {
+  type: outsource
+  evolution: |....|....|....|.....x....|
+}
+
+// you can set the evolution with a >
+kettle: {
+  type: build
+  evolution: |...|...x.|..>.|.......|
+}
+power: {
+  type: outsource
+  evolution: |...|...|....x|.....>..|
+}
+
+stage1: genesis / concept
+stage2: custom / emerging
+stage3: product / converging
+stage4: commodity / accepted
+	`
 	//	f.SkipNow()
-	testcases := []string{" ", "a - b"}
+	testcases := []string{" ", "a - b", full}
 	for _, tc := range testcases {
 		f.Add(tc) // Use f.Add to provide a seed corpus
 	}
@@ -40,6 +101,11 @@ func testParseEmpty(t *testing.T) {
 }
 func testParseCompleteOk(t *testing.T) {
 	sampleTeahop := `
+	title: sample map // title is optional
+/***************
+  value chain 
+****************/
+
 business - cup of tea
 public - cup of tea
 cup of tea - cup
@@ -49,37 +115,51 @@ hot water - water
 hot water -- kettle
 kettle - power
 
+/***************
+  definitions 
+****************/
+
+// you can inline the evolution
+business: |....|....|...x.|.........|
+
+public: |....|....|....|.x...|
+
+// or create blocks
 cup of tea: {
-    type: buy
-    evolution: |....|....|...x..|.........|
-}
-water: {
-    type: build
-    evolution: |....|....|....|....x....|
-}
-kettle: {
-    type: build
-    evolution: |....|..x.|....|...>.....|
-}
-power: {
-    type: outsource
-    evolution: |....|....|....x|..>......|
-}
-business: {
-    evolution: |....|....|..x.|.......|
-}
-public: {
-    evolution: |....|....|....|.x....|
+  evolution: |....|....|..x..|........|
+  color: Green // you can set colors
 }
 cup: {
-    evolution: |....|....|....|.x.......|
+  type: buy
+  evolution: |....|....|....|....x....|
 }
 tea: {
-    evolution: |....|....|....|..x......|
+  type: buy
+  evolution: |....|....|....|.....x....|
 }
 hot water: {
-    evolution: |....|....|....|...x.....|
+  evolution: |....|....|....|....x....|
+  color: Blue
 }
+water: {
+  type: outsource
+  evolution: |....|....|....|.....x....|
+}
+
+// you can set the evolution with a >
+kettle: {
+  type: build
+  evolution: |...|...x.|..>.|.......|
+}
+power: {
+  type: outsource
+  evolution: |...|...|....x|.....>..|
+}
+
+stage1: genesis / concept
+stage2: custom / emerging
+stage3: product / converging
+stage4: commodity / accepted
 	`
 	p := NewParser()
 	err := p.parse(sampleTeahop)

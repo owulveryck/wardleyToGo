@@ -1,0 +1,2 @@
+go test fuzz v1
+string("..|..irs  secon idntr\nr-iddntifé -   fortnti \ntifié --.   forth idntiir  \nba\nientifier1\nidentifier1.1e: mytype\n\nevlution: blabaathis is an evolution: |... title: h ahah\ntitle: aha\x8b ahah //\ntype: pe//")
