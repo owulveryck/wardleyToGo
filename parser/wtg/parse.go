@@ -6,7 +6,6 @@ import (
 	"image"
 	"io"
 	"io/ioutil"
-	"log"
 	"strings"
 
 	"github.com/owulveryck/wardleyToGo"
@@ -24,6 +23,8 @@ type Parser struct {
 	EvolutionStages []svgmap.Evolution
 	ImageSize       image.Rectangle
 	MapSize         image.Rectangle
+	// InvalidEntries reports any invalid of unkonwn token
+	InvalidEntries []error
 }
 
 func NewParser() *Parser {
@@ -33,6 +34,7 @@ func NewParser() *Parser {
 		visibilityOnly:  true,
 		WMap:            wardleyToGo.NewMap(0),
 		EvolutionStages: svgmap.DefaultEvolution,
+		InvalidEntries:  make([]error, 0),
 	}
 }
 
@@ -137,7 +139,7 @@ func (p *Parser) inventory(s string) error {
 				p.currentNode.Color = col
 				continue
 			}
-			log.Printf("unknown color %v", tok.Value)
+			p.InvalidEntries = append(p.InvalidEntries, fmt.Errorf("unknown color %v", tok.Value))
 		case typeItem:
 			if p.currentNode == nil {
 				return errors.New("cannot set type on a nil node")
@@ -152,7 +154,7 @@ func (p *Parser) inventory(s string) error {
 			case "outsource":
 				p.currentNode.Type = wardley.OutsourceComponent
 			default:
-				log.Printf("unhandled component type: %v", tok.Value)
+				p.InvalidEntries = append(p.InvalidEntries, fmt.Errorf("unhandled component type: %v", tok.Value))
 			}
 		case typeToken:
 		case startBlockToken:
@@ -160,7 +162,7 @@ func (p *Parser) inventory(s string) error {
 		case endBlockToken:
 		case singleLineCommentSeparator:
 		default:
-			log.Printf("unhandled element: %v (%x)", tok.Value, tok.Value)
+			p.InvalidEntries = append(p.InvalidEntries, fmt.Errorf("unhandled element: %v (%x)", tok.Value, tok.Value))
 		}
 	}
 	return l.Err
