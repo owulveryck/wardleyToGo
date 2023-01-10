@@ -141,14 +141,14 @@ func computeYsimpleTwoNodesWithEvolution(t *testing.T) {
 		Type: wardley.EvolvedComponentEdge,
 	})
 	p.computeY()
-	if c1.GetPosition().Y != 0 {
-		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 2 {
+		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 97 {
-		t.Errorf("expected position of c2 to be 97, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 98 {
+		t.Errorf("expected position of c2 to be 98, but is %v", c2.GetPosition().Y)
 	}
-	if c22.GetPosition().Y != 97 {
-		t.Errorf("expected position of c22 to be 97, but is %v", c22.GetPosition().Y)
+	if c22.GetPosition().Y != 98 {
+		t.Errorf("expected position of c22 to be 98, but is %v", c22.GetPosition().Y)
 	}
 }
 func computeYsimpleThreeNodes(t *testing.T) {
@@ -170,14 +170,14 @@ func computeYsimpleThreeNodes(t *testing.T) {
 		Visibility: 1,
 	})
 	p.computeY()
-	if c1.GetPosition().Y != 0 {
-		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 2 {
+		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 48 {
-		t.Errorf("expected position of c2 to be 48, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 50 {
+		t.Errorf("expected position of c2 to be 50, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 96 {
-		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 98 {
+		t.Errorf("expected position of c3 to be 98, but is %v", c3.GetPosition().Y)
 	}
 }
 func computeYsimpleTwoNodes(t *testing.T) {
@@ -192,11 +192,11 @@ func computeYsimpleTwoNodes(t *testing.T) {
 		Visibility: 1,
 	})
 	p.computeY()
-	if c1.GetPosition().Y != 0 {
-		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 2 {
+		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 97 {
-		t.Errorf("expected position of c2 to be 97, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 98 {
+		t.Errorf("expected position of c2 to be 98, but is %v", c2.GetPosition().Y)
 	}
 }
 func computeYThreeNodes(t *testing.T) {
@@ -218,14 +218,14 @@ func computeYThreeNodes(t *testing.T) {
 		Visibility: 3,
 	})
 	p.computeY()
-	if c1.GetPosition().Y != 0 {
-		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 2 {
+		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 32 {
-		t.Errorf("expected position of c2 to be 32, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 34 {
+		t.Errorf("expected position of c2 to be 34, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 96 {
-		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 98 {
+		t.Errorf("expected position of c3 to be 98, but is %v", c3.GetPosition().Y)
 	}
 }
 func computeYFourNodes(t *testing.T) {
@@ -254,16 +254,16 @@ func computeYFourNodes(t *testing.T) {
 		Visibility: 1,
 	})
 	p.computeY()
-	if c1.GetPosition().Y != 0 {
-		t.Errorf("expected position of c1 to be 0, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 2 {
+		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 24 {
-		t.Errorf("expected position of c2 to be 24, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 26 {
+		t.Errorf("expected position of c2 to be 26, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 72 {
-		t.Errorf("expected position of c3 to be 72, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 74 {
+		t.Errorf("expected position of c3 to be 74, but is %v", c3.GetPosition().Y)
 	}
-	if c4.GetPosition().Y != 96 {
-		t.Errorf("expected position of c4 to be 96, but is %v", c4.GetPosition().Y)
+	if c4.GetPosition().Y != 98 {
+		t.Errorf("expected position of c4 to be 98, but is %v", c4.GetPosition().Y)
 	}
 }
