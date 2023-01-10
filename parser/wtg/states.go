@@ -96,13 +96,6 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 		}
 		l.Ignore()
 		return startState
-		//case ' ':
-		/*
-			case '\t', '\n', '\v', '\f', '\r', ' ', 0x85, 0xA0:
-				// remove the two spaces
-				l.Rewind()
-				return wordState
-		*/
 	case eofRune:
 		return nil
 	default:
@@ -111,10 +104,10 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 }
 
 func wordState(l *lexer) stateFunc {
-	for isAllowedCharacterForIdentifier(l.CurrentRune()) {
-		if l.CurrentRune() == ' ' && l.Peek() == ' ' ||
-			l.CurrentRune() == ' ' && l.Peek() == '-' ||
-			l.CurrentRune() == ' ' && !isAllowedCharacterForIdentifier(l.Peek()) {
+	for isAllowedCharacterForIdentifier(l.Peek()) {
+		if l.Peek() == ' ' && l.PeekPeek() == ' ' ||
+			l.Peek() == ' ' && l.PeekPeek() == '-' ||
+			l.Peek() == ' ' && !isAllowedCharacterForIdentifier(l.PeekPeek()) {
 			break
 		}
 		l.Next()
@@ -122,7 +115,6 @@ func wordState(l *lexer) stateFunc {
 			break
 		}
 	}
-	l.Rewind()
 	switch l.Current() {
 	case "stage1":
 		return stageState

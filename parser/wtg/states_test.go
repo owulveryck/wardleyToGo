@@ -6,6 +6,27 @@ import (
 	"testing"
 )
 
+func TestWordState(t *testing.T) {
+	evaluatedState := wordState
+	type testcase struct {
+		title          string
+		corpus         string
+		expectedState  string
+		expectedTokens []token
+	}
+	tests := []testcase{
+		{
+			title:          "complete",
+			corpus:         `abcde`,
+			expectedTokens: []token{{identifierToken, "abcde"}},
+			expectedState:  "startState",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.title, stateEvaluation(test.corpus, evaluatedState, test.expectedTokens, test.expectedState))
+	}
+}
+
 func TestEvolutionState(t *testing.T) {
 	evaluatedState := evolutionState
 	type testcase struct {
@@ -198,6 +219,12 @@ func TestFirstRuneAfterSpace(t *testing.T) {
 		expectedTokens []token
 	}
 	tests := []testcase{
+		{
+			title:          "single word",
+			corpus:         `abcde`,
+			expectedTokens: []token{},
+			expectedState:  "wordState",
+		},
 		{
 			title: "one dash",
 			corpus: `-
