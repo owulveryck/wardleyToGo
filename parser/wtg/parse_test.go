@@ -77,6 +77,9 @@ stage4: commodity / accepted
 		p := NewParser()
 		err := p.parse(orig)
 		t.Log(err)
+		for _, err := range p.InvalidEntries {
+			t.Log(err)
+		}
 	})
 }
 

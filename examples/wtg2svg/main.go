@@ -16,6 +16,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if len(p.InvalidEntries) != 0 {
+		for _, err := range p.InvalidEntries {
+			log.Println(err)
+		}
+	}
 	imgArea := (p.ImageSize.Max.X - p.ImageSize.Min.X) * (p.ImageSize.Max.X - p.ImageSize.Min.Y)
 	canvasArea := (p.MapSize.Max.X - p.MapSize.Min.X) * (p.MapSize.Max.X - p.MapSize.Min.Y)
 	if imgArea == 0 || canvasArea == 0 {
