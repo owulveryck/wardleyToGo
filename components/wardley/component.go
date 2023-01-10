@@ -126,6 +126,16 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	}
 	components := make([]interface{}, 0)
 	switch c.Type {
+	case PipelineComponent:
+		components = append(components, svg.Rectangle{
+			R: image.Rectangle{
+				Min: image.Point{-5, -5},
+				Max: image.Point{5, 5},
+			},
+			StrokeWidth: "3",
+			Stroke:      col,
+			Fill:        fillColor,
+		})
 	case BuildComponent:
 		components = append(components, svg.Circle{
 			R:           20,
@@ -133,6 +143,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			Stroke:      svg.Black,
 			Fill:        svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
 		})
+		components = append(components, baseCircle)
 	case BuyComponent:
 		components = append(components, svg.Circle{
 			R:           20,
@@ -140,6 +151,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			Fill:        svg.Color{color.RGBA{0xaa, 0xa5, 0xa9, 0xff}},
 			Stroke:      svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
 		})
+		components = append(components, baseCircle)
 	case OutsourceComponent:
 		components = append(components, svg.Circle{
 			R:           20,
@@ -147,15 +159,18 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			Fill:        svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
 			Stroke:      svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
 		})
+		components = append(components, baseCircle)
 	case DataProductComponent:
 		components = append(components, svg.Circle{
 			R:           14,
 			StrokeWidth: "1",
 			Fill:        svg.Color{color.RGBA{246, 72, 22, 0xff}},
 		})
+		components = append(components, baseCircle)
+	default:
+		components = append(components, baseCircle)
 	}
 
-	components = append(components, baseCircle)
 	components = append(components, svg.Text{
 		P:    labelP,
 		Text: []byte(c.Label),
