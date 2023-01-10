@@ -179,7 +179,7 @@ func stageState(l *lexer) stateFunc {
 			l.Next()
 		}
 		l.Ignore()
-		for l.Peek() != '\n' && !(l.Peek() == '/' && l.PeekPeek() == '/') {
+		for l.Peek() != '\n' && !(l.Peek() == '/' && l.PeekPeek() == '/') && unicode.IsGraphic(l.Peek()) {
 			l.Next()
 		}
 		switch stage {
