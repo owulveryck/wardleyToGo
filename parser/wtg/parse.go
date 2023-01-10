@@ -143,6 +143,8 @@ func (p *Parser) inventory(s string) error {
 				return errors.New("cannot set type on a nil node")
 			}
 			switch tok.Value {
+			case "pipeline":
+				p.currentNode.Type = wardley.PipelineComponent
 			case "build":
 				p.currentNode.Type = wardley.BuildComponent
 			case "buy":

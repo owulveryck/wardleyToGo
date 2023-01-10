@@ -16,6 +16,7 @@ const (
 	OutsourceComponent
 	// DataProductComponent ...
 	DataProductComponent
+	PipelineComponent
 	lastComponent
 	RegularEdge wardleyToGo.EdgeType = iota + wardleyToGo.EdgeType(lastComponent) | wardleyToGo.EdgeType(components.Wardley)
 	EvolvedComponentEdge
