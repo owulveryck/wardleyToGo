@@ -6,15 +6,16 @@ import (
 	"image/color"
 	"image/draw"
 
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
+	dotencoding "gonum.org/v1/gonum/graph/encoding"
+
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
-	"golang.org/x/image/math/fixed"
-	dotencoding "gonum.org/v1/gonum/graph/encoding"
 )
 
 const (
@@ -101,9 +102,49 @@ func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp 
 }
 
 func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
-	return c.marshalSVG(e, canvas, svg.Color{c.Color})
+	switch c.Type {
+	case PipelineComponent:
+		return c.marshalSVGPipeline(e, canvas, svg.Color{c.Color})
+	default:
+		return c.marshalSVG(e, canvas, svg.Color{c.Color})
+	}
 }
 
+func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
+	coords := components.CalcCoords(c.Placement, canvas)
+	labelP := c.LabelPlacement
+	if labelP.X == components.UndefinedCoord {
+		labelP.X = 10
+	}
+	if labelP.Y == components.UndefinedCoord {
+		labelP.Y = 10
+	}
+	fillColor := svg.White
+	r, g, b, a := c.Color.RGBA()
+	if r != 0 || g != 0 || b != 0 || a != 65535 {
+		fillColor = svg.Color{col}
+	}
+	components := make([]interface{}, 0)
+	components = append(components, svg.Rectangle{
+		R: image.Rectangle{
+			Min: image.Point{-5, -5},
+			Max: image.Point{5, 5},
+		},
+		StrokeWidth: "3",
+		Stroke:      col,
+		Fill:        fillColor,
+	})
+
+	components = append(components, svg.Text{
+		P:    labelP,
+		Text: []byte(c.Label),
+		Fill: col,
+	})
+	return e.Encode(svg.Transform{
+		Translate:  coords,
+		Components: components,
+	})
+}
 func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
 	coords := components.CalcCoords(c.Placement, canvas)
 	labelP := c.LabelPlacement
@@ -126,16 +167,6 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	}
 	components := make([]interface{}, 0)
 	switch c.Type {
-	case PipelineComponent:
-		components = append(components, svg.Rectangle{
-			R: image.Rectangle{
-				Min: image.Point{-5, -5},
-				Max: image.Point{5, 5},
-			},
-			StrokeWidth: "3",
-			Stroke:      col,
-			Fill:        fillColor,
-		})
 	case BuildComponent:
 		components = append(components, svg.Circle{
 			R:           20,
@@ -143,7 +174,6 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			Stroke:      svg.Black,
 			Fill:        svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
 		})
-		components = append(components, baseCircle)
 	case BuyComponent:
 		components = append(components, svg.Circle{
 			R:           20,
@@ -151,7 +181,6 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			Fill:        svg.Color{color.RGBA{0xaa, 0xa5, 0xa9, 0xff}},
 			Stroke:      svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
 		})
-		components = append(components, baseCircle)
 	case OutsourceComponent:
 		components = append(components, svg.Circle{
 			R:           20,
@@ -159,18 +188,14 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			Fill:        svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
 			Stroke:      svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
 		})
-		components = append(components, baseCircle)
 	case DataProductComponent:
 		components = append(components, svg.Circle{
 			R:           14,
 			StrokeWidth: "1",
 			Fill:        svg.Color{color.RGBA{246, 72, 22, 0xff}},
 		})
-		components = append(components, baseCircle)
-	default:
-		components = append(components, baseCircle)
 	}
-
+	components = append(components, baseCircle)
 	components = append(components, svg.Text{
 		P:    labelP,
 		Text: []byte(c.Label),
