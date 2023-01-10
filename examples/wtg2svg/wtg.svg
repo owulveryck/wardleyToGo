@@ -77,105 +77,105 @@ function hideID(id) {
     <text x="550" y="20" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">sample map</text>
     <g id="layer_0">
         <g id="edge_2_1">
-            <line x1="862" y1="50" x2="602" y2="154" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_1_4">
-            <line x1="602" y1="154" x2="924" y2="362" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
-        </g>
-        <g id="edge_1_5">
-            <line x1="602" y1="154" x2="914" y2="466" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="862" y1="66" x2="602" y2="170" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
         <g id="edge_1_3">
-            <line x1="602" y1="154" x2="914" y2="258" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="602" y1="170" x2="914" y2="274" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_7_12">
-            <line x1="362" y1="674" x2="633" y2="674" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class="evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        <g id="edge_1_4">
+            <line x1="602" y1="170" x2="924" y2="378" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_7_8">
-            <line x1="362" y1="674" x2="706" y2="778" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_1_5">
+            <line x1="602" y1="170" x2="914" y2="482" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_8_13">
-            <line x1="706" y1="778" x2="966" y2="778" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class="evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        <g id="edge_8_9">
+            <line x1="706" y1="794" x2="966" y2="794" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class="evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
         </g>
         <g id="edge_0_1">
-            <line x1="654" y1="50" x2="602" y2="154" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="654" y1="66" x2="602" y2="170" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
         <g id="edge_5_6">
-            <line x1="914" y1="466" x2="924" y2="570" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="914" y1="482" x2="924" y2="586" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
         <g id="edge_5_7">
-            <line x1="914" y1="466" x2="362" y2="674" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="914" y1="482" x2="362" y2="690" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_8">
+            <line x1="362" y1="690" x2="706" y2="794" stroke-width="1" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_15">
+            <line x1="362" y1="690" x2="633" y2="690" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class="evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
         </g>
     </g>
     <g id="layer_10">
-        <g id="element_6" onclick="replyClick(this.id)">
-            <g transform=" translate(924,570)">
-                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">water</text>
-            </g>
-        </g>
         <g id="element_7" onclick="replyClick(this.id)">
-            <g transform=" translate(362,674)">
+            <g transform=" translate(362,690)">
                 <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">kettle</text>
             </g>
         </g>
-        <g id="element_12" onclick="replyClick(this.id)">
-            <g transform=" translate(633,674)">
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">kettle</text>
-            </g>
-        </g>
-        <g id="element_8" onclick="replyClick(this.id)">
-            <g transform=" translate(706,778)">
-                <rect x="-5" y="-5" width="10" height="10" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="3"></rect>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">power</text>
-            </g>
-        </g>
-        <g id="element_13" onclick="replyClick(this.id)">
-            <g transform=" translate(966,778)">
+        <g id="element_9" onclick="replyClick(this.id)">
+            <g transform=" translate(966,794)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text x="10" y="10" fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">power</text>
             </g>
         </g>
-        <g id="element_2" onclick="replyClick(this.id)">
-            <g transform=" translate(862,50)">
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">public</text>
-            </g>
-        </g>
-        <g id="element_4" onclick="replyClick(this.id)">
-            <g transform=" translate(924,362)">
-                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">tea</text>
-            </g>
-        </g>
-        <g id="element_1" onclick="replyClick(this.id)">
-            <g transform=" translate(602,154)">
-                <circle cx="0" cy="0" r="5" fill="rgb(0,128,0)" fill-opacity="1.0" stroke="rgb(0,128,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text x="10" y="10" fill="rgb(0,128,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">cup of tea</text>
-            </g>
-        </g>
         <g id="element_0" onclick="replyClick(this.id)">
-            <g transform=" translate(654,50)">
+            <g transform=" translate(654,66)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">business</text>
             </g>
         </g>
         <g id="element_5" onclick="replyClick(this.id)">
-            <g transform=" translate(914,466)">
+            <g transform=" translate(914,482)">
                 <circle cx="0" cy="0" r="5" fill="rgb(0,0,255)" fill-opacity="1.0" stroke="rgb(0,0,255)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text x="10" y="10" fill="rgb(0,0,255)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">hot water</text>
             </g>
         </g>
+        <g id="element_6" onclick="replyClick(this.id)">
+            <g transform=" translate(924,586)">
+                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">water</text>
+            </g>
+        </g>
+        <g id="element_1" onclick="replyClick(this.id)">
+            <g transform=" translate(602,170)">
+                <circle cx="0" cy="0" r="5" fill="rgb(0,128,0)" fill-opacity="1.0" stroke="rgb(0,128,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,128,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">cup of tea</text>
+            </g>
+        </g>
+        <g id="element_4" onclick="replyClick(this.id)">
+            <g transform=" translate(924,378)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">tea</text>
+            </g>
+        </g>
+        <g id="element_8" onclick="replyClick(this.id)">
+            <g transform=" translate(706,794)">
+                <rect x="-5" y="-5" width="10" height="10" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="3"></rect>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">power</text>
+            </g>
+        </g>
+        <g id="element_2" onclick="replyClick(this.id)">
+            <g transform=" translate(862,66)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">public</text>
+            </g>
+        </g>
         <g id="element_3" onclick="replyClick(this.id)">
-            <g transform=" translate(914,258)">
+            <g transform=" translate(914,274)">
                 <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text x="10" y="10" fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">cup</text>
+            </g>
+        </g>
+        <g id="element_15" onclick="replyClick(this.id)">
+            <g transform=" translate(633,690)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text x="10" y="10" fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">kettle</text>
             </g>
         </g>
     </g>
