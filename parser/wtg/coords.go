@@ -193,7 +193,7 @@ func (p *Parser) computeY() {
 		}
 	}
 
-	step := 97 / maxDepth
+	step := 96 / maxDepth
 	cs := &coordSetter{
 		verticalStep: step,
 	}
@@ -207,7 +207,7 @@ type coordSetter struct {
 }
 
 func (c *coordSetter) walk(m *wardleyToGo.Map, n *wardley.Component, visibility int) {
-	n.Placement.Y = visibility * c.verticalStep
+	n.Placement.Y = 2 + visibility*c.verticalStep
 	fromIT := m.From(n.ID())
 	for fromIT.Next() {
 		switch fromNode := fromIT.Node().(type) {
