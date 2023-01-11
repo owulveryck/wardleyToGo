@@ -38,11 +38,23 @@ func setCoords(m wardleyToGo.Map, withEvolution bool) {
 
 func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 	vStep := 95 / maxVisibility
-	_ = vStep
+	allNodes := buf.Nodes()
+	for allNodes.Next() {
+		n := allNodes.Node().(*node)
+		m.Node(n.ID()).(*wardley.Component).Placement.Y = n.visibility*vStep + 2
+	}
 
 }
 func setX(buf *scratchMapchMap, m wardleyToGo.Map, maxEvolution int) {
-	hStep := 95 / maxEvolution
-	_ = hStep
+	hStep := 20 / maxEvolution
+	allNodes := buf.Nodes()
+	for allNodes.Next() {
+		n := allNodes.Node().(*node)
+		if nn, ok := m.Node(n.ID()).(*wardley.Component); ok {
+			if !nn.Configured {
+				nn.Placement.X = n.evolutionStep*hStep + 30
+			}
+		}
+	}
 
 }

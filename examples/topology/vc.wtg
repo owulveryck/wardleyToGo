@@ -1,11 +1,23 @@
+title: sample map // title is optional
+/***************
+  value chain 
+****************/
+
 business - cup of tea
 public - cup of tea
-business - another stuff
-public - another stuff
-cup of tea -- cup
-cup of tea - tea
+cup of tea - cup
+cup --- clay
+cup ---- factory
+//factory - power
+cup of tea -- tea
 cup of tea --- hot water
 hot water - water
 hot water -- kettle
 kettle - power
 
+water: |x|..|.>|..|
+
+stage1: genesis / concept
+stage2: custom / emerging
+stage3: product / converging
+stage4: commodity / accepted

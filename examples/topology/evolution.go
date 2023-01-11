@@ -34,19 +34,3 @@ func setNodesEvolutionStep(g *scratchMapchMap) int {
 	}
 	return e.currentStep
 }
-
-/*
-func setNodesEvolution(tempMap *mymap) {
-	vis := setNodesEvolutionStep(tempMap)
-	nodes := tempMap.Nodes()
-	for nodes.Next() {
-		n := nodes.Node().(*node)
-		for i := 0; i < n.evolutionStep; i++ {
-			fmt.Printf("\t")
-		}
-		fmt.Println(n.c)
-		//log.Printf("%v: %v", n.c, n.evolutionStep)
-	}
-	log.Printf("max evolution is %v", vis)
-}
-*/
