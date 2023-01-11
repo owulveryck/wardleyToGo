@@ -7,12 +7,29 @@ import (
 )
 
 type node struct {
-	visibility int
+	visibility    int
+	evolutionStep int
 	*wardley.Component
 }
 
 func (node *node) ID() int64 {
 	return node.Component.ID()
+}
+
+type evolutionSetter struct {
+	g           graph.Directed
+	currentStep int
+}
+
+func (e *evolutionSetter) visit(srcNode graph.Node) {
+	n := srcNode.(*node)
+	n.evolutionStep = e.currentStep
+	// if the node is a leaf (meaning the from is empty), move the cursor
+	fs := e.g.From(n.ID())
+	if fs.Len() == 0 {
+		e.currentStep++
+
+	}
 }
 
 type visibilityVisiter struct {
@@ -44,6 +61,21 @@ func (v *visibilityVisiter) visit(srcNode graph.Node) {
 	if nVisibility > v.maxVisibility {
 		v.maxVisibility = nVisibility
 	}
+}
+
+// returns the max evolution
+func setNodesEvolutionStep(g graph.Directed) int {
+	roots := findRoot(g)
+	e := &evolutionSetter{
+		g: g,
+	}
+	df := &traverse.DepthFirst{
+		Visit: e.visit,
+	}
+	for _, root := range roots {
+		df.Walk(g, root, nil)
+	}
+	return e.currentStep
 }
 
 // compute the visibility for each node and return the max visibility found
