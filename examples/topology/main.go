@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"sort"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -23,22 +22,25 @@ func main() {
 			log.Println(err)
 		}
 	}
-	nodes := p.WMap.Nodes()
-	nodess := make([]*wardley.Component, nodes.Len())
-	for i := 0; nodes.Next(); i++ {
-		nodess[i] = nodes.Node().(*wardley.Component)
-	}
-	n := nodeSort{
-		g:     p.WMap,
-		nodes: nodess,
-	}
-	sort.Sort(n)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, n := range n.nodes {
-		log.Println(n)
-	}
+	setNodesEvolution(*p.WMap)
+	/*
+		nodes := p.WMap.Nodes()
+		nodess := make([]*wardley.Component, nodes.Len())
+		for i := 0; nodes.Next(); i++ {
+			nodess[i] = nodes.Node().(*wardley.Component)
+		}
+		n := nodeSort{
+			g:     p.WMap,
+			nodes: nodess,
+		}
+		sort.Sort(n)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, n := range n.nodes {
+			log.Println(n)
+		}
+	*/
 }
 
 type nodeSort struct {

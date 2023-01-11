@@ -1,19 +1,81 @@
 package main
 
 import (
+	"log"
+
+	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph"
+	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/traverse"
 )
+
+func setNodesEvolution(m wardleyToGo.Map) {
+	tempMap := simple.NewDirectedGraph()
+	ns := m.Nodes()
+	inventory := make(map[int64]*node)
+	for ns.Next() {
+		if c, ok := ns.Node().(*wardley.Component); ok {
+			n := &node{
+				c: c,
+			}
+			inventory[c.ID()] = n
+			tempMap.AddNode(n)
+		}
+	}
+	es := m.Edges()
+	for es.Next() {
+		tempMap.SetEdge(&edge{
+			f:          inventory[es.Edge().From().ID()],
+			t:          inventory[es.Edge().To().ID()],
+			visibility: es.Edge().(*wardley.Collaboration).Visibility,
+		})
+	}
+	setNodesVisibility(tempMap)
+	nodes := tempMap.Nodes()
+	for nodes.Next() {
+		n := nodes.Node().(*node)
+		log.Printf("%v: %v", n.c, n.visibility)
+	}
+}
 
 type node struct {
 	visibility    int
 	evolutionStep int
-	*wardley.Component
+	c             *wardley.Component
 }
 
 func (node *node) ID() int64 {
-	return node.Component.ID()
+	return node.c.ID()
+}
+
+type edge struct {
+	f          *node
+	t          *node
+	visibility int
+}
+
+// From returns the from node of the edge.
+func (e *edge) From() graph.Node {
+	return e.f
+}
+
+// To returns the to node of the edge.
+func (e *edge) To() graph.Node {
+	return e.t
+}
+
+// ReversedEdge returns the edge reversal of the receiver
+// if a reversal is valid for the data type.
+// When a reversal is valid an edge of the same type as
+// the receiver with nodes of the receiver swapped should
+// be returned, otherwise the receiver should be returned
+// unaltered.
+func (e *edge) ReversedEdge() graph.Edge {
+	return &edge{
+		f: e.t,
+		t: e.f,
+	}
 }
 
 type evolutionSetter struct {
@@ -46,8 +108,8 @@ func (v *visibilityVisiter) visit(srcNode graph.Node) {
 	ts := v.g.To(n.ID())
 	for ts.Next() {
 		tX := ts.Node().(*node)
-		eX := v.g.Edge(tX.ID(), n.ID()).(*wardley.Collaboration)
-		eXVisibility := eX.Visibility
+		eX := v.g.Edge(tX.ID(), n.ID()).(*edge)
+		eXVisibility := eX.visibility
 		rootToNVisibility := eXVisibility + tX.visibility
 		if rootToNVisibility > nVisibility {
 			nVisibility = rootToNVisibility
@@ -94,5 +156,12 @@ func setNodesVisibility(g graph.Directed) int {
 }
 
 func findRoot(g graph.Directed) []graph.Node {
-	return nil
+	ret := make([]graph.Node, 0)
+	nodes := g.Nodes()
+	for nodes.Next() {
+		if g.To(nodes.Node().ID()).Len() == 0 {
+			ret = append(ret, nodes.Node())
+		}
+	}
+	return ret
 }
