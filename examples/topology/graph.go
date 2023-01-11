@@ -1,50 +1,18 @@
 package main
 
 import (
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph"
-	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/traverse"
 )
 
 type node struct {
-	id         int64
 	visibility int
+	*wardley.Component
 }
 
 func (node *node) ID() int64 {
-	return node.id
-}
-
-type edge struct {
-	f, t       graph.Node
-	visibility int
-}
-
-// From returns the from node of the edge.
-func (e *edge) From() graph.Node {
-	return e.f
-}
-
-// To returns the to node of the edge.
-func (e *edge) To() graph.Node {
-	return e.t
-}
-
-// ReversedEdge returns the edge reversal of the receiver
-// if a reversal is valid for the data type.
-// When a reversal is valid an edge of the same type as
-// the receiver with nodes of the receiver swapped should
-// be returned, otherwise the receiver should be returned
-// unaltered.
-func (e *edge) ReversedEdge() graph.Edge {
-	return &edge{
-		f: e.t,
-		t: e.f,
-	}
-}
-
-type wmap struct {
-	simple.DirectedGraph
+	return node.Component.ID()
 }
 
 type visibilityVisiter struct {
@@ -55,26 +23,26 @@ type visibilityVisiter struct {
 func (v *visibilityVisiter) visit(srcNode graph.Node) {
 	n := srcNode.(*node)
 	// set the visibility of node n
-	// given t_0, ..., t_n the nodes that can rean directly n (result of a call to g.To(n)) through edges e_0, ..., e_n
+	// given tX := t_0, ..., t_n the nodes that can rean directly n (result of a call to g.To(n)) through edges eX := e_0, ..., e_n
 	// visibility is max((e_0.visibility + t_0.visibility), ..., (e_n.visibility + t_n.visibility))
-	srcNodeVisibility := 0
+	nVisibility := 0
 	ts := v.g.To(n.ID())
 	for ts.Next() {
 		tX := ts.Node().(*node)
-		eX := v.g.Edge(ts.Node().ID(), n.ID()).(*edge)
-		eXVisibility := eX.visibility
-		txToNVisibility := eXVisibility + tX.visibility
-		if txToNVisibility > srcNodeVisibility {
-			srcNodeVisibility = txToNVisibility
+		eX := v.g.Edge(tX.ID(), n.ID()).(*wardley.Collaboration)
+		eXVisibility := eX.Visibility
+		rootToNVisibility := eXVisibility + tX.visibility
+		if rootToNVisibility > nVisibility {
+			nVisibility = rootToNVisibility
 		}
 	}
 	// the node may have already been visited in some circumstances
 	// in that case, we take the breatest visibility
-	if srcNodeVisibility > n.visibility {
-		n.visibility = srcNodeVisibility
+	if nVisibility > n.visibility {
+		n.visibility = nVisibility
 	}
-	if srcNodeVisibility > v.maxVisibility {
-		v.maxVisibility = srcNodeVisibility
+	if nVisibility > v.maxVisibility {
+		v.maxVisibility = nVisibility
 	}
 }
 
@@ -95,5 +63,4 @@ func setNodesVisibility(g graph.Directed) int {
 
 func findRoot(g graph.Directed) []graph.Node {
 	return nil
-
 }
