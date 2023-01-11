@@ -1,17 +1,132 @@
 package main
 
 import (
-	"log"
-
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
-	"gonum.org/v1/gonum/graph/traverse"
 )
 
-func setNodesEvolution(m wardleyToGo.Map) {
-	tempMap := simple.NewDirectedGraph()
+type mymap struct {
+	backend *simple.DirectedGraph
+}
+
+// Node returns the node with the given ID if it exists
+// in the graph, and nil otherwise.
+func (m *mymap) Node(id int64) graph.Node {
+	return m.backend.Node(id)
+}
+
+// Nodes returns all the nodes in the graph.
+//
+// Nodes must not return nil.
+func (m *mymap) Nodes() graph.Nodes {
+	return m.backend.Nodes()
+}
+
+type mynodes struct {
+	cursor int
+	nodes  []graph.Node
+}
+
+// Next advances the iterator and returns whether
+// the next call to the item method will return a
+// non-nil item.
+//
+// Next should be called prior to any call to the
+// iterator's item retrieval method after the
+// iterator has been obtained or reset.
+//
+// The order of iteration is implementation
+// dependent.
+func (m *mynodes) Next() bool {
+	if m.cursor < len(m.nodes)-1 {
+		m.cursor++
+		return true
+	}
+	return false
+}
+
+// Len returns the number of items remaining in the
+// iterator.
+//
+// If the number of items in the iterator is unknown,
+// too large to materialize or too costly to calculate
+// then Len may return a negative value.
+// In this case the consuming function must be able
+// to operate on the items of the iterator directly
+// without materializing the items into a slice.
+// The magnitude of a negative length has
+// implementation-dependent semantics.
+func (m *mynodes) Len() int {
+	return len(m.nodes)
+}
+
+// Reset returns the iterator to its start position.
+func (m *mynodes) Reset() {
+	m.cursor = 0
+}
+
+func (m *mynodes) Node() graph.Node {
+	return m.nodes[m.cursor]
+}
+
+// From returns all nodes that can be reached directly
+// from the node with the given ID.
+//
+// From must not return nil.
+func (m *mymap) From(id int64) graph.Nodes {
+	nodes := m.backend.From(id)
+	myn := &mynodes{
+		nodes:  make([]graph.Node, nodes.Len()),
+		cursor: -1,
+	}
+	for i := 0; nodes.Next(); i++ {
+		myn.nodes[i] = nodes.Node()
+	}
+	// TODO order the nodes by reverse visibility
+	return myn
+}
+
+// HasEdgeBetween returns whether an edge exists between
+// nodes with IDs xid and yid without considering direction.
+func (m *mymap) HasEdgeBetween(xid int64, yid int64) bool {
+	return m.backend.HasEdgeBetween(xid, yid)
+}
+
+// Edge returns the edge from u to v, with IDs uid and vid,
+// if such an edge exists and nil otherwise. The node v
+// must be directly reachable from u as defined by the
+// From method.
+func (m *mymap) Edge(uid int64, vid int64) graph.Edge {
+	return m.backend.Edge(uid, vid)
+}
+
+// HasEdgeFromTo returns whether an edge exists
+// in the graph from u to v with IDs uid and vid.
+func (m *mymap) HasEdgeFromTo(uid int64, vid int64) bool {
+	return m.backend.HasEdgeFromTo(uid, vid)
+}
+
+// To returns all nodes that can reach directly
+// to the node with the given ID.
+//
+// To must not return nil.
+func (m *mymap) To(id int64) graph.Nodes {
+	return m.backend.To(id)
+
+}
+
+func (m *mymap) AddNode(n graph.Node) {
+	m.backend.AddNode(n)
+}
+
+func (m *mymap) SetEdge(e graph.Edge) {
+	m.backend.SetEdge(e)
+}
+
+func setCoords(m wardleyToGo.Map) {
+	tempMap := &mymap{backend: simple.NewDirectedGraph()}
 	ns := m.Nodes()
 	inventory := make(map[int64]*node)
 	for ns.Next() {
@@ -31,12 +146,8 @@ func setNodesEvolution(m wardleyToGo.Map) {
 			visibility: es.Edge().(*wardley.Collaboration).Visibility,
 		})
 	}
-	setNodesVisibility(tempMap)
-	nodes := tempMap.Nodes()
-	for nodes.Next() {
-		n := nodes.Node().(*node)
-		log.Printf("%v: %v", n.c, n.visibility)
-	}
+	setNodesvisibility(tempMap)
+	setNodesEvolution(tempMap)
 }
 
 type node struct {
@@ -77,84 +188,6 @@ func (e *edge) ReversedEdge() graph.Edge {
 		t: e.f,
 	}
 }
-
-type evolutionSetter struct {
-	g           graph.Directed
-	currentStep int
-}
-
-func (e *evolutionSetter) visit(srcNode graph.Node) {
-	n := srcNode.(*node)
-	n.evolutionStep = e.currentStep
-	// if the node is a leaf (meaning the from is empty), move the cursor
-	fs := e.g.From(n.ID())
-	if fs.Len() == 0 {
-		e.currentStep++
-
-	}
-}
-
-type visibilityVisiter struct {
-	g             graph.Directed
-	maxVisibility int
-}
-
-func (v *visibilityVisiter) visit(srcNode graph.Node) {
-	n := srcNode.(*node)
-	// set the visibility of node n
-	// given tX := t_0, ..., t_n the nodes that can rean directly n (result of a call to g.To(n)) through edges eX := e_0, ..., e_n
-	// visibility is max((e_0.visibility + t_0.visibility), ..., (e_n.visibility + t_n.visibility))
-	nVisibility := 0
-	ts := v.g.To(n.ID())
-	for ts.Next() {
-		tX := ts.Node().(*node)
-		eX := v.g.Edge(tX.ID(), n.ID()).(*edge)
-		eXVisibility := eX.visibility
-		rootToNVisibility := eXVisibility + tX.visibility
-		if rootToNVisibility > nVisibility {
-			nVisibility = rootToNVisibility
-		}
-	}
-	// the node may have already been visited in some circumstances
-	// in that case, we take the breatest visibility
-	if nVisibility > n.visibility {
-		n.visibility = nVisibility
-	}
-	if nVisibility > v.maxVisibility {
-		v.maxVisibility = nVisibility
-	}
-}
-
-// returns the max evolution
-func setNodesEvolutionStep(g graph.Directed) int {
-	roots := findRoot(g)
-	e := &evolutionSetter{
-		g: g,
-	}
-	df := &traverse.DepthFirst{
-		Visit: e.visit,
-	}
-	for _, root := range roots {
-		df.Walk(g, root, nil)
-	}
-	return e.currentStep
-}
-
-// compute the visibility for each node and return the max visibility found
-func setNodesVisibility(g graph.Directed) int {
-	roots := findRoot(g)
-	v := &visibilityVisiter{
-		g: g,
-	}
-	bf := &traverse.BreadthFirst{
-		Visit: v.visit,
-	}
-	for _, root := range roots {
-		bf.Walk(g, root, nil)
-	}
-	return v.maxVisibility
-}
-
 func findRoot(g graph.Directed) []graph.Node {
 	ret := make([]graph.Node, 0)
 	nodes := g.Nodes()

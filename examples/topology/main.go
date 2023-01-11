@@ -22,7 +22,9 @@ func main() {
 			log.Println(err)
 		}
 	}
-	setNodesEvolution(*p.WMap)
+	setCoords(*p.WMap)
+	//setNodesvisibility(*p.WMap)
+	//setNodesEvolution(*p.WMap)
 	/*
 		nodes := p.WMap.Nodes()
 		nodess := make([]*wardley.Component, nodes.Len())
