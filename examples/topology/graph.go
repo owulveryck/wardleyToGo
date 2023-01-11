@@ -1,32 +1,33 @@
 package main
 
 import (
-	"github.com/owulveryck/wardleyToGo"
+	"sort"
+
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
 
-type mymap struct {
+type scratchMapchMap struct {
 	backend *simple.DirectedGraph
 }
 
 // Node returns the node with the given ID if it exists
 // in the graph, and nil otherwise.
-func (m *mymap) Node(id int64) graph.Node {
+func (m *scratchMapchMap) Node(id int64) graph.Node {
 	return m.backend.Node(id)
 }
 
 // Nodes returns all the nodes in the graph.
 //
 // Nodes must not return nil.
-func (m *mymap) Nodes() graph.Nodes {
+func (m *scratchMapchMap) Nodes() graph.Nodes {
 	return m.backend.Nodes()
 }
 
 type mynodes struct {
 	cursor int
-	nodes  []graph.Node
+	nodes  []*node
 }
 
 // Next advances the iterator and returns whether
@@ -75,22 +76,23 @@ func (m *mynodes) Node() graph.Node {
 // from the node with the given ID.
 //
 // From must not return nil.
-func (m *mymap) From(id int64) graph.Nodes {
+func (m *scratchMapchMap) From(id int64) graph.Nodes {
 	nodes := m.backend.From(id)
 	myn := &mynodes{
-		nodes:  make([]graph.Node, nodes.Len()),
+		nodes:  make([]*node, nodes.Len()),
 		cursor: -1,
 	}
 	for i := 0; nodes.Next(); i++ {
-		myn.nodes[i] = nodes.Node()
+		myn.nodes[i] = nodes.Node().(*node)
 	}
 	// TODO order the nodes by reverse visibility
+	sort.Sort(nodeSorter(myn.nodes))
 	return myn
 }
 
 // HasEdgeBetween returns whether an edge exists between
 // nodes with IDs xid and yid without considering direction.
-func (m *mymap) HasEdgeBetween(xid int64, yid int64) bool {
+func (m *scratchMapchMap) HasEdgeBetween(xid int64, yid int64) bool {
 	return m.backend.HasEdgeBetween(xid, yid)
 }
 
@@ -98,13 +100,13 @@ func (m *mymap) HasEdgeBetween(xid int64, yid int64) bool {
 // if such an edge exists and nil otherwise. The node v
 // must be directly reachable from u as defined by the
 // From method.
-func (m *mymap) Edge(uid int64, vid int64) graph.Edge {
+func (m *scratchMapchMap) Edge(uid int64, vid int64) graph.Edge {
 	return m.backend.Edge(uid, vid)
 }
 
 // HasEdgeFromTo returns whether an edge exists
 // in the graph from u to v with IDs uid and vid.
-func (m *mymap) HasEdgeFromTo(uid int64, vid int64) bool {
+func (m *scratchMapchMap) HasEdgeFromTo(uid int64, vid int64) bool {
 	return m.backend.HasEdgeFromTo(uid, vid)
 }
 
@@ -112,42 +114,17 @@ func (m *mymap) HasEdgeFromTo(uid int64, vid int64) bool {
 // to the node with the given ID.
 //
 // To must not return nil.
-func (m *mymap) To(id int64) graph.Nodes {
+func (m *scratchMapchMap) To(id int64) graph.Nodes {
 	return m.backend.To(id)
 
 }
 
-func (m *mymap) AddNode(n graph.Node) {
+func (m *scratchMapchMap) AddNode(n graph.Node) {
 	m.backend.AddNode(n)
 }
 
-func (m *mymap) SetEdge(e graph.Edge) {
+func (m *scratchMapchMap) SetEdge(e graph.Edge) {
 	m.backend.SetEdge(e)
-}
-
-func setCoords(m wardleyToGo.Map) {
-	tempMap := &mymap{backend: simple.NewDirectedGraph()}
-	ns := m.Nodes()
-	inventory := make(map[int64]*node)
-	for ns.Next() {
-		if c, ok := ns.Node().(*wardley.Component); ok {
-			n := &node{
-				c: c,
-			}
-			inventory[c.ID()] = n
-			tempMap.AddNode(n)
-		}
-	}
-	es := m.Edges()
-	for es.Next() {
-		tempMap.SetEdge(&edge{
-			f:          inventory[es.Edge().From().ID()],
-			t:          inventory[es.Edge().To().ID()],
-			visibility: es.Edge().(*wardley.Collaboration).Visibility,
-		})
-	}
-	setNodesvisibility(tempMap)
-	setNodesEvolution(tempMap)
 }
 
 type node struct {

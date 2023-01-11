@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/traverse"
 )
@@ -19,13 +16,12 @@ func (e *evolutionSetter) visit(srcNode graph.Node) {
 	// if the node is a leaf (meaning the from is empty), move the cursor
 	fs := e.g.From(n.ID())
 	if fs.Len() == 0 {
-		log.Println(n.c)
 		e.currentStep++
 	}
 }
 
 // returns the max evolution
-func setNodesEvolutionStep(g graph.Directed) int {
+func setNodesEvolutionStep(g *scratchMapchMap) int {
 	roots := findRoot(g)
 	e := &evolutionSetter{
 		g: g,
@@ -39,6 +35,7 @@ func setNodesEvolutionStep(g graph.Directed) int {
 	return e.currentStep
 }
 
+/*
 func setNodesEvolution(tempMap *mymap) {
 	vis := setNodesEvolutionStep(tempMap)
 	nodes := tempMap.Nodes()
@@ -52,3 +49,4 @@ func setNodesEvolution(tempMap *mymap) {
 	}
 	log.Printf("max evolution is %v", vis)
 }
+*/

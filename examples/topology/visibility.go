@@ -1,12 +1,11 @@
 package main
 
 import (
-	"log"
-
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/traverse"
 )
 
+/*
 func setNodesvisibility(tempMap *mymap) {
 	vis := setNodesVisibility(tempMap)
 	nodes := tempMap.Nodes()
@@ -16,9 +15,10 @@ func setNodesvisibility(tempMap *mymap) {
 	}
 	log.Printf("max visibility is %v", vis)
 }
+*/
 
 // compute the visibility for each node and return the max visibility found
-func setNodesVisibility(g graph.Directed) int {
+func setNodesVisibility(g *scratchMapchMap) int {
 	roots := findRoot(g)
 	v := &visibilityVisiter{
 		g: g,

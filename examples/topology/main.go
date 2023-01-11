@@ -22,7 +22,7 @@ func main() {
 			log.Println(err)
 		}
 	}
-	setCoords(*p.WMap)
+	setCoords(*p.WMap, true)
 	//setNodesvisibility(*p.WMap)
 	//setNodesEvolution(*p.WMap)
 	/*
