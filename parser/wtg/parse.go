@@ -64,10 +64,7 @@ func (p *Parser) parse(s string) error {
 	if err != nil {
 		return fmt.Errorf("cannot consolidate map: %w", err)
 	}
-	p.computeY()
-	if p.visibilityOnly {
-		p.computeX()
-	}
+	SetCoords(*p.WMap, true)
 	return nil
 }
 

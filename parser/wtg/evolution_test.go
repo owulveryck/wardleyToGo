@@ -140,7 +140,7 @@ func computeYsimpleTwoNodesWithEvolution(t *testing.T) {
 		T:    c22,
 		Type: wardley.EvolvedComponentEdge,
 	})
-	p.computeY()
+	SetCoords(*p.WMap, false)
 	if c1.GetPosition().Y != 2 {
 		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
@@ -169,7 +169,7 @@ func computeYsimpleThreeNodes(t *testing.T) {
 		T:          c3,
 		Visibility: 1,
 	})
-	p.computeY()
+	SetCoords(*p.WMap, false)
 	if c1.GetPosition().Y != 2 {
 		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
@@ -191,7 +191,7 @@ func computeYsimpleTwoNodes(t *testing.T) {
 		T:          c2,
 		Visibility: 1,
 	})
-	p.computeY()
+	SetCoords(*p.WMap, false)
 	if c1.GetPosition().Y != 2 {
 		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
@@ -217,7 +217,7 @@ func computeYThreeNodes(t *testing.T) {
 		T:          c3,
 		Visibility: 3,
 	})
-	p.computeY()
+	SetCoords(*p.WMap, false)
 	if c1.GetPosition().Y != 2 {
 		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
@@ -253,7 +253,7 @@ func computeYFourNodes(t *testing.T) {
 		T:          c4,
 		Visibility: 1,
 	})
-	p.computeY()
+	SetCoords(*p.WMap, false)
 	if c1.GetPosition().Y != 2 {
 		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
 	}
