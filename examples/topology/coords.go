@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"github.com/owulveryck/wardleyToGo/parser/wtg"
 	"gonum.org/v1/gonum/graph/simple"
 )
 
@@ -11,6 +12,13 @@ func setCoords(m wardleyToGo.Map, withEvolution bool) {
 	ns := m.Nodes()
 	inventory := make(map[int64]*node)
 	for ns.Next() {
+		if c, ok := ns.Node().(*wardley.EvolvedComponent); ok {
+			n := &node{
+				c: c.Component,
+			}
+			inventory[c.ID()] = n
+			tempMap.AddNode(n)
+		}
 		if c, ok := ns.Node().(*wardley.Component); ok {
 			n := &node{
 				c: c,
@@ -37,11 +45,16 @@ func setCoords(m wardleyToGo.Map, withEvolution bool) {
 }
 
 func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
-	vStep := 95 / maxVisibility
+	vStep := 96 / maxVisibility
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
 		n := allNodes.Node().(*node)
-		m.Node(n.ID()).(*wardley.Component).Placement.Y = n.visibility*vStep + 2
+		if c, ok := m.Node(n.ID()).(*wardley.Component); ok {
+			c.Placement.Y = n.visibility*vStep + 2
+		}
+		if c, ok := m.Node(n.ID()).(*wardley.EvolvedComponent); ok {
+			c.Placement.Y = n.visibility*vStep + 2
+		}
 	}
 
 }
@@ -53,6 +66,7 @@ func setX(buf *scratchMapchMap, m wardleyToGo.Map, maxEvolution int) {
 		if nn, ok := m.Node(n.ID()).(*wardley.Component); ok {
 			if !nn.Configured {
 				nn.Placement.X = n.evolutionStep*hStep + 30
+				nn.Color = wtg.Colors["Grey"]
 			}
 		}
 	}
