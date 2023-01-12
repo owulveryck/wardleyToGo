@@ -1,4 +1,5 @@
-(function (document) {
+//(function (document) {
+function onceLoaded(document) {
 	//http://stackoverflow.com/a/10372280/398634
 	window.URL = window.URL || window.webkitURL;
 	var el_stetus = document.getElementById("status"),
@@ -67,7 +68,19 @@
 	}
 
 	function copyShareURL(e) {
-		// TODO
+		var compressedFlow = compress(editor.getSession().getDocument().getValue(),"gzip");
+
+		compressedFlow.then(function(result) {
+			// do something with result
+			var param = arrayBufferToBase64(result);
+			var url = document.URL;
+			let params = new URLSearchParams(url.search);
+			params.set('wtg', param);
+			console.log(params.toString())
+			window.history.replaceState({}, '', `${location.pathname}?${params}`);
+			shareURLEl.style.display = "inline";
+			shareURLEl.value = document.URL;
+		});
 	}
 
 	function copyToClipboard(str) {
@@ -92,7 +105,6 @@
 	};
 
 	function renderGraph() {
-		// TODO
 		svg = generateSVG(editor.getSession().getDocument().getValue());
 		updateOutput(svg);
 	}
@@ -140,7 +152,7 @@
 			center: true,
 		});
 
-		updateState()
+		//updateState()
 	}
 
 	editor.setTheme("ace/theme/twilight");
@@ -175,6 +187,18 @@
 	if (params.has('raw')) {
 		editor.getSession().setValue(params.get('raw'));
 		renderGraph();
+	} else if (params.has('wtg')) {
+		let wtgText = params.get('wtg'); // "some_value"export 
+		console.log(wtgText);
+		var content = base64ToArrayBuffer(wtgText);
+		if (content!=null) {
+			decompress(content,"gzip").then(function(result) {
+				console.log(result);
+				editor.getSession().setValue(result);
+				renderGraph();
+
+			});
+		}
 	} else if (params.has('compressed')) {
 		const compressed = params.get('compressed');
 	} else if (params.has('url')) {
@@ -201,110 +225,44 @@
 		renderGraph();
 	}
 
-})(document);
-
-
-function onTextChange() {
-	var key = window.event.keyCode;
-
-	// If the user has pressed enter
-	if ((key == 10 || key == 13) && window.event.ctrlKey){
-		displayImage();
-		return false;
+	function compress(string, encoding) {
+		const byteArray = new TextEncoder().encode(string);
+		const cs = new CompressionStream(encoding);
+		const writer = cs.writable.getWriter();
+		writer.write(byteArray);
+		writer.close();
+		return new Response(cs.readable).arrayBuffer();
 	}
-	else {
-		return true;
-	}
-}
 
-function displayImage() {
-	svg = generateSVG(document.getElementById("code").value);
-	document.getElementById("svgContainer").innerHTML = svg;
-	svgImage = document.getElementsByTagName("svg")[0];
-	svgImage.style = ""
-	svgImage.removeAttribute("width");
-	svgImage.removeAttribute("height");
-	svgImage.setAttribute("preserveAspectRatio", "xMidYMid meet")
-	console.log(right.width)
-	console.log(document.getElementById("colRight").getBoundingClientRect().width)
-	console.log(svgSize)
-	svgImage.getAttribute('viewBox')
-	var box = svgImage.getAttribute('viewBox').split(/\s+|,/);
-	if (box[2] < right.width) {
-		svgImage.setAttribute('viewBox', `0 0 ${right.width} ${fullHeight}`);
-	}
-	svgSize = { w: svgImage.clientWidth, h: svgImage.clientHeight };
-	document.getElementById("dl").setAttribute("href",'data:image/svg+xml;base64,'+window.btoa(unescape(encodeURIComponent(document.getElementById("svgContainer").innerHTML))));
-}
-
-
-const params = new Proxy(new URLSearchParams(window.location.search), {
-	get: (searchParams, prop) => searchParams.get(prop),
-});
-// Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
-let wtgText = params.wtg; // "some_value"export 
-if (wtgText != null) {
-	console.log(wtgText);
-	var content = base64ToArrayBuffer(wtgText);
-	if (content!=null) {
-		decompress(content,"gzip").then(function(result) {
-			console.log(result);
-			document.getElementById("code").innerHTML = result;
-
+	function decompress(byteArray, encoding) {
+		const cs = new DecompressionStream(encoding);
+		const writer = cs.writable.getWriter();
+		writer.write(byteArray);
+		writer.close();
+		return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
+			return new TextDecoder().decode(arrayBuffer);
 		});
 	}
-}
 
-function GetURL() {
-	var compressedFlow = compress(document.getElementById("code").value,"gzip");
-	compressedFlow.then(function(result) {
-		// do something with result
-		var param = arrayBufferToBase64(result);
-		var url = document.URL;
-		let params = new URLSearchParams(url.search);
-		params.set('wtg', param);
-		console.log(params.toString())
-		window.history.replaceState({}, '', `${location.pathname}?${params}`);
-	});
-
-}
-
-
-function compress(string, encoding) {
-	const byteArray = new TextEncoder().encode(string);
-	const cs = new CompressionStream(encoding);
-	const writer = cs.writable.getWriter();
-	writer.write(byteArray);
-	writer.close();
-	return new Response(cs.readable).arrayBuffer();
-}
-
-function decompress(byteArray, encoding) {
-	const cs = new DecompressionStream(encoding);
-	const writer = cs.writable.getWriter();
-	writer.write(byteArray);
-	writer.close();
-	return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
-		return new TextDecoder().decode(arrayBuffer);
-	});
-}
-
-function arrayBufferToBase64( buffer ) {
-	var binary = '';
-	var bytes = new Uint8Array( buffer );
-	var len = bytes.byteLength;
-	for (var i = 0; i < len; i++) {
-		binary += String.fromCharCode( bytes[ i ] );
+	function arrayBufferToBase64( buffer ) {
+		var binary = '';
+		var bytes = new Uint8Array( buffer );
+		var len = bytes.byteLength;
+		for (var i = 0; i < len; i++) {
+			binary += String.fromCharCode( bytes[ i ] );
+		}
+		return window.btoa( binary );
 	}
-	return window.btoa( binary );
-}
 
-function base64ToArrayBuffer(base64) {
-	var binary_string =  window.atob(base64);
-	var len = binary_string.length;
-	var bytes = new Uint8Array( len );
-	for (var i = 0; i < len; i++)        {
-		bytes[i] = binary_string.charCodeAt(i);
+	function base64ToArrayBuffer(base64) {
+		var binary_string =  window.atob(base64);
+		var len = binary_string.length;
+		var bytes = new Uint8Array( len );
+		for (var i = 0; i < len; i++)        {
+			bytes[i] = binary_string.charCodeAt(i);
+		}
+		return bytes.buffer;
 	}
-	return bytes.buffer;
-}
+
+};
+//})(document);
