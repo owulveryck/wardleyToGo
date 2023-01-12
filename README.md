@@ -12,6 +12,11 @@ The entrypoint of this API is the 'Map' structure
 
 Check the online demo at [https://owulveryck.github.io/wardleyToGo/](https://owulveryck.github.io/wardleyToGo/)
 
+Credits: this demo is heavily inspired by [GraphvizOnline](https://github.com/dreampuf/GraphvizOnline). It uses:
+
+- [ACE-editor](https://github.com/ajaxorg/ace/blob/master/LICENSE) BSD-2
+- [svg-pan-zoom](https://github.com/bumbu/svg-pan-zoom) BSD-2
+
 ## Using the library
 
 ### The wtg DSL

@@ -3,23 +3,19 @@
 	<head>
 		<meta charset="utf-8"/>
 		<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
 
 		<script src="wasm_exec.js"></script>
 		<script>
 			const go = new Go();
 			WebAssembly.instantiateStreaming(fetch("wtg.wasm"), go.importObject).then((result) => {
-							go.run(result.instance);
-						});
+				go.run(result.instance);
+			});
 		</script>
+		<title>wardleyToGo online</title>
 	</head>
 	<body>
-
-		<div class="row">
-			<div id="colLeft" class="column left" style="background-color:#aaa;">
-			<button onclick="displayImage();">run</button> (or ctrl+enter)
-			<button><a href="" id="dl" download="wtg.svg">Download SVG</a></button> 
-			
-								<textarea id="code" name="code" rows="50" cols="40" onkeypress="onTextChange();">
+		<pre id="editor">
 title: sample map // title is optional
 /***************
   value chain 
@@ -71,30 +67,37 @@ kettle: {
   evolution: |...|...x.|..>.|.......|
 }
 power: {
-  type: pipeline
+  type: outsource
   evolution: |...|...|....x|.....>..|
 }
 
-/***************
-  evolution 
-****************/
-// stage1 and stage3 are using the default 
-stage2: custom development
-stage4: commodity
-</textarea>
-								<br/>
-				Zoom: <span id="zoomValue">1</span>
-				  <button onclick="GetURL()"> Get URL </button>
-    <p id="url"></p>
-			</div>
-			<div id="colRight" class="column right" style="background-color:#fff;">
-				<div class="container" id="svgContainer">
-					<svg />
-				</div>
-			</div>
+stage1: genesis / concept
+stage2: custom / emerging
+stage3: product / converging
+stage4: commodity / accepted
+
+		</pre>
+		<div id="options">
+			<label>
+				<a href="#" target="_blank" id="download">Download</a>
+			</label>
+
+			<label>
+				<input type="button" value="Share" id="share">
+			</label>
+
+			<input type="input" value="" id="shareurl">
+
 		</div>
-		<canvas id="canvas"></canvas>
+		<div id="review">
+			<div id="error"></div>
+		</div>
+		<div id="status"></div>
+		<a class="github-fork-ribbon" href="https://github.com/owulveryck/wardleyToGo" data-ribbon="wardleyToGo on GitHub" title="wardleyToGo on GitHub">wardleyToGo on GitHub</a>
+		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 
 		<script src="script.js"></script>
+		<script src="svg-pan-zoom.min.js" type="text/javascript" charset="utf-8"></script>
+
 	</body>
 </html>  
