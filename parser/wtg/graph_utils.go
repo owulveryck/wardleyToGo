@@ -1,39 +1,13 @@
 package wtg
 
-import (
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components/wardley"
-)
+import "gonum.org/v1/gonum/graph"
 
-func findLeafs(m *wardleyToGo.Map) []*wardley.Component {
-	ret := make([]*wardley.Component, 0)
-	nodes := m.Nodes()
+func findRoot(g graph.Directed) []graph.Node {
+	ret := make([]graph.Node, 0)
+	nodes := g.Nodes()
 	for nodes.Next() {
-		n := nodes.Node()
-		if m.From(n.ID()).Len() == 0 {
-			switch n := n.(type) {
-			case *wardley.Component:
-				ret = append(ret, n)
-			case *wardley.EvolvedComponent:
-				ret = append(ret, n.Component)
-			}
-		}
-	}
-	return ret
-}
-
-func findRoot(m *wardleyToGo.Map) []*wardley.Component {
-	ret := make([]*wardley.Component, 0)
-	nodes := m.Nodes()
-	for nodes.Next() {
-		n := nodes.Node()
-		if m.To(n.ID()).Len() == 0 {
-			switch n := n.(type) {
-			case *wardley.Component:
-				ret = append(ret, n)
-			case *wardley.EvolvedComponent:
-				ret = append(ret, n.Component)
-			}
+		if g.To(nodes.Node().ID()).Len() == 0 {
+			ret = append(ret, nodes.Node())
 		}
 	}
 	return ret
