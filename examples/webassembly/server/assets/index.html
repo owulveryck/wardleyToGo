@@ -2,17 +2,22 @@
 <html>  
 	<head>
 		<meta charset="utf-8"/>
+		<link rel="icon" type="image/png" href="favicon32.png" />
 		<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
 
 		<script src="wasm_exec.js"></script>
 		<script>
 			const go = new Go();
-			WebAssembly.instantiateStreaming(fetch("wtg.wasm"), go.importObject).then((result) => {
-				go.run(result.instance);
-			});
+			WebAssembly.instantiateStreaming(fetch("wtg.wasm"), go.importObject)
+				.then((result) => {
+					go.run(result.instance);
+				})
+				.then(instance => {
+					onceLoaded(document);
+					console.log('wasm loaded');
+				});
 		</script>
-		<title>wardleyToGo online</title>
 	</head>
 	<body>
 		<pre id="editor">
@@ -67,7 +72,7 @@ kettle: {
   evolution: |...|...x.|..>.|.......|
 }
 power: {
-  type: outsource
+  type: pipeline
   evolution: |...|...|....x|.....>..|
 }
 
