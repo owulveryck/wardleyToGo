@@ -17,3 +17,6 @@ assets/index.html: server/assets/index.html
 
 install: all
 	cp assets/index.html assets/script.js assets/style.css assets/wtg.wasm ../../docs
+
+clean:
+	rm assets/wtg.wasm
