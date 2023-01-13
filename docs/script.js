@@ -172,7 +172,7 @@ function onceLoaded(document) {
 		}
 	};
 
-	//share.addEventListener("click", copyShareURL);
+	share.addEventListener("click", copyShareURL);
 	apply.addEventListener('click', function(){
 		console.log("rendering")
 		renderGraph()
