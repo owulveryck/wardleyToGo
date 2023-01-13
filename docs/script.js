@@ -13,6 +13,7 @@ function onceLoaded(document) {
 		parser = new DOMParser(),
 		showError = null,
 		shareEl = document.querySelector("#share"),
+		applyEl = document.querySelector("#apply"),
 		shareURLEl = document.querySelector("#shareurl"),
 		errorEl = document.querySelector("#error");
 
@@ -105,7 +106,10 @@ function onceLoaded(document) {
 	};
 
 	function renderGraph() {
-		svg = generateSVG(editor.getSession().getDocument().getValue());
+		var w = parseInt(document.getElementById("width").value);
+		var h = parseInt(document.getElementById("height").value);
+		
+		svg = generateSVG(editor.getSession().getDocument().getValue(),w,h);
 		updateOutput(svg);
 	}
 
@@ -168,7 +172,11 @@ function onceLoaded(document) {
 		}
 	};
 
-	share.addEventListener("click", copyShareURL);
+	//share.addEventListener("click", copyShareURL);
+	apply.addEventListener('click', function(){
+		console.log("rendering")
+		renderGraph()
+	})
 
 	// Since apparently HTMLCollection does not implement the oh so convenient array functions
 	HTMLOptionsCollection.prototype.indexOf = function(name) {
