@@ -19,11 +19,25 @@ func main() {
 
 func wtgWrapper() js.Func {
 	wtgFunc := js.FuncOf(func(_ js.Value, args []js.Value) any {
-		if len(args) != 1 {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in wtgWrapper", r)
+			}
+		}()
+		if len(args) < 1 {
 			return "Invalid no of arguments passed"
 		}
 		input := args[0].String()
-		svg, err := wtg2SVG(input)
+		width := 1300
+		height := 900
+		if len(args) == 3 {
+			width = args[1].Int()
+			height = args[2].Int()
+		}
+		if width < 500 || height < 500 {
+			return fmt.Sprintf("size too small %vx%v (expected at least 500x500)", width, height)
+		}
+		svg, err := wtg2SVG(input, width, height)
 		if err != nil {
 			fmt.Printf("unable to generate svg %s\n", err)
 			return err.Error()
@@ -33,7 +47,7 @@ func wtgWrapper() js.Func {
 	return wtgFunc
 }
 
-func wtg2SVG(s string) (string, error) {
+func wtg2SVG(s string, width int, height int) (string, error) {
 	p := wtg.NewParser()
 
 	buf := bytes.NewBufferString(s)
@@ -51,8 +65,8 @@ func wtg2SVG(s string) (string, error) {
 	imgArea := (p.ImageSize.Max.X - p.ImageSize.Min.X) * (p.ImageSize.Max.X - p.ImageSize.Min.Y)
 	canvasArea := (p.MapSize.Max.X - p.MapSize.Min.X) * (p.MapSize.Max.X - p.MapSize.Min.Y)
 	if imgArea == 0 || canvasArea == 0 {
-		p.ImageSize = image.Rect(0, 0, 1300, 900)
-		p.MapSize = image.Rect(30, 50, 1270, 850)
+		p.ImageSize = image.Rect(0, 0, width, height)
+		p.MapSize = image.Rect(30, 50, width-30, height-50)
 	}
 	e, err := svgmap.NewEncoder(output, p.ImageSize, p.MapSize)
 	if err != nil {
