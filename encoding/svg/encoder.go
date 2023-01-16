@@ -1,6 +1,7 @@
 package svgmap
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"image"
@@ -49,6 +50,23 @@ func (e *Encoder) Init(s SVGStyleMarshaler) {
 }
 
 func (e *Encoder) Encode(m *wardleyToGo.Map) error {
+	jsData := generateJsData(m)
+	var buf bytes.Buffer
+	err := jsTmpl.Execute(&buf, jsData)
+	if err != nil {
+		return err
+	}
+
+	e.e.Encode(script{Data: buf.String()})
+	buf.Reset()
+	cssData := generateCSSData(m)
+	err = cssTmpl.Execute(&buf, cssData)
+	if err != nil {
+		return err
+	}
+
+	e.e.Encode(style{Data: buf.String()})
+
 	e.e.Encode(svg.Text{
 		P:          image.Pt(e.box.Dx()/2, 20),
 		Text:       []byte(m.Title),
@@ -87,10 +105,46 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 				Value: "replyClick(this.id)",
 			},
 			)
+			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
+				found := false
+				for i := range g.StartElement.Attr {
+					if g.StartElement.Attr[i].Name.Local == "class" {
+						found = true
+						g.StartElement.Attr[i] = xml.Attr{
+							Name:  xml.Name{Local: "class"},
+							Value: fmt.Sprintf("%v %v", g.StartElement.Attr[i].Value, chainer.GetAbsoluteVisibility()),
+						}
+					}
+				}
+				if !found {
+					g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
+						Name:  xml.Name{Local: "class"},
+						Value: fmt.Sprintf("visibility%v", chainer.GetAbsoluteVisibility()),
+					})
+				}
+			}
 			e.e.EncodeToken(g.StartElement)
 		}
 		if elem, ok := element.(graph.Edge); ok {
 			g = makeGroup(fmt.Sprintf("edge_%v", int(elem.From().ID())), int(elem.To().ID()))
+			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
+				found := false
+				for i := range g.StartElement.Attr {
+					if g.StartElement.Attr[i].Name.Local == "class" {
+						found = true
+						g.StartElement.Attr[i] = xml.Attr{
+							Name:  xml.Name{Local: "class"},
+							Value: fmt.Sprintf("%v %v", g.StartElement.Attr[i].Value, chainer.GetAbsoluteVisibility()),
+						}
+					}
+				}
+				if !found {
+					g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
+						Name:  xml.Name{Local: "class"},
+						Value: fmt.Sprintf("visibility%v", chainer.GetAbsoluteVisibility()),
+					})
+				}
+			}
 			e.e.EncodeToken(g.StartElement)
 		}
 		err := element.MarshalSVG(e.e, e.canvas)

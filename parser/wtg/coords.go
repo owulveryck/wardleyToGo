@@ -41,7 +41,23 @@ func SetCoords(m wardleyToGo.Map, withEvolution bool) {
 		maxEvolution := setNodesEvolutionStep(tempMap)
 		setX(tempMap, m, maxEvolution)
 	}
+	setEdgeAbsoluteVisibility(m)
 	// TODO set the graph nodes
+}
+
+func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
+	allNodes := m.Nodes()
+	for allNodes.Next() {
+		currNode := allNodes.Node()
+		t := m.To(currNode.ID())
+		for t.Next() {
+			if e := m.Edge(t.Node().ID(), currNode.ID()); e != nil {
+				if e, ok := e.(*wardley.Collaboration); ok {
+					e.AbsoluteVisibility = currNode.(wardleyToGo.Chainer).GetAbsoluteVisibility()
+				}
+			}
+		}
+	}
 }
 
 func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
@@ -54,9 +70,11 @@ func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 		n := allNodes.Node().(*node)
 		if c, ok := m.Node(n.ID()).(*wardley.Component); ok {
 			c.Placement.Y = n.visibility*vStep + 2
+			c.AbsoluteVisibility = n.visibility
 		}
 		if c, ok := m.Node(n.ID()).(*wardley.EvolvedComponent); ok {
 			c.Placement.Y = n.visibility*vStep + 2
+			c.AbsoluteVisibility = n.visibility
 		}
 	}
 
