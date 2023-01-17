@@ -64,66 +64,7 @@ func NewWardleyStyle(evolutionSteps []Evolution) *WardleyStyle {
 	}
 
 }
-
-type style struct {
-	XMLName xml.Name `xml:"style"`
-	Data    []byte   `xml:",cdata"`
-}
-
-type script struct {
-	XMLName xml.Name `xml:"script"`
-	Data    []byte   `xml:",cdata"`
-}
-
 func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
-
-	enc.Encode(script{
-		Data: []byte(`
-const max = 9
-function replyClick(clicked_id)
-{
-	console.log(clicked_id);
-	var rx = /element_(.*)/;
-	var arr = rx.exec(clicked_id);
-	var id = arr[1];
-	hideID(id)
-}
-function hideID(id) {
-	for (let i = 0; i < max; i++) {
-		var myEle = document.getElementById("edge_"+id+"_"+i);
-		if(!myEle){
-			continue;
-		}
-		var style = document.getElementById("edge_"+id+"_"+i).style.display;
-		if(style === "none")
-			document.getElementById("edge_"+id+"_"+i).style.display = "block";
-		else
-			document.getElementById("edge_"+id+"_"+i).style.display = "none";
-		if (id < max) {
-			hideID(i)
-		}
-	}
-}
-`),
-	})
-
-	enc.Encode(style{
-		Data: []byte(`
-.evolutionEdge {
-	stroke-dasharray: 7;
-	stroke-dashoffset: 7;
-	animation: dash 3s linear forwards infinite;
-}
-
-@keyframes dash {
-	from {
-		stroke-dashoffset: 100;
-	}
-	to {
-		stroke-dashoffset: 0;
-	}
-}`),
-	})
 	enc.Encode(svg.Rectangle{
 		R:    box,
 		Fill: svg.Gray(128),
@@ -232,6 +173,10 @@ function hideID(id) {
 		T:         canvas.Max,
 		Stroke:    svg.Black,
 		MarkerEnd: "url(#graphArrow)",
+	})
+	enc.Encode(svg.Circle{
+		P: image.Point{canvas.Min.X + 7, canvas.Min.Y + 5},
+		R: 5,
 	})
 	enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},

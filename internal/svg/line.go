@@ -14,7 +14,7 @@ type Line struct {
 	StrokeWidth     string
 	StrokeDashArray []int
 	MarkerEnd       string
-	Class           string
+	Class           []string
 }
 
 func (l Line) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
@@ -38,8 +38,12 @@ func (l Line) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	if l.MarkerEnd != "" {
 		attrs = attrs.append("marker-end", l.MarkerEnd)
 	}
-	if l.Class != "" {
-		attrs = attrs.append("class", l.Class)
+	if l.Class != nil {
+		classes := ""
+		for i := range l.Class {
+			classes = classes + " " + l.Class[i]
+		}
+		attrs = attrs.append("class", classes)
 	}
 	element.Attr = attrs
 	element.Attr = append(element.Attr, must(l.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke"})))

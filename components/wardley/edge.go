@@ -16,11 +16,17 @@ import (
 )
 
 type Collaboration struct {
-	F, T           wardleyToGo.Component
-	Label          string
-	Type           wardleyToGo.EdgeType
-	RenderingLayer int
-	Visibility     int
+	F, T               wardleyToGo.Component
+	Label              string
+	Type               wardleyToGo.EdgeType
+	RenderingLayer     int
+	Visibility         int
+	AbsoluteVisibility int
+}
+
+// GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
+func (c *Collaboration) GetAbsoluteVisibility() int {
+	return c.AbsoluteVisibility
 }
 
 func (c *Collaboration) Attributes() []dotencoding.Attribute {
@@ -74,6 +80,8 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		F:           coordsF,
 		T:           coordsT,
 		StrokeWidth: "1",
+		//Class:       []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
+		Class: []string{},
 	}
 	switch c.Type {
 	case RegularEdge:
@@ -82,7 +90,7 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		line.MarkerEnd = "url(#arrow)"
 		line.StrokeDashArray = []int{5, 5}
 		line.Stroke = svg.Red
-		line.Class = "evolutionEdge"
+		line.Class = append(line.Class, "evolutionEdge")
 	case EvolvedEdge:
 		line.Stroke = svg.Red
 	}

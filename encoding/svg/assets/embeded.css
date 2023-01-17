@@ -1,0 +1,26 @@
+
+.evolutionEdge {
+	stroke-dasharray: 7;
+	stroke-dashoffset: 7;
+	animation: dash 3s linear forwards infinite;
+}
+
+{{ range $key, $value := . }}
+.{{$value.Visibility}} {
+}
+{{end}}
+
+{{ range $key, $value := . }}
+.in{{$value.Visibility}} {
+	opacity: {{$value.Opacity}};
+}
+{{end}}
+
+@keyframes dash {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}

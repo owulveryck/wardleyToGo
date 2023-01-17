@@ -21,58 +21,6 @@ func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
 }
 
 func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
-
-	enc.Encode(script{
-		Data: []byte(`
-const max = 9
-function replyClick(clicked_id)
-{
-	console.log(clicked_id);
-	var rx = /element_(.*)/;
-	var arr = rx.exec(clicked_id);
-	var id = arr[1];
-	hideID(id)
-}
-function hideID(id) {
-	for (let i = 0; i < max; i++) {
-		var myEle = document.getElementById("edge_"+id+"_"+i);
-		if(!myEle){
-			continue;
-		}
-		var style = document.getElementById("edge_"+id+"_"+i).style.display;
-		if(style === "none")
-			document.getElementById("edge_"+id+"_"+i).style.display = "block";
-		else
-			document.getElementById("edge_"+id+"_"+i).style.display = "none";
-		if (id < max) {
-			hideID(i)
-		}
-	}
-}
-`),
-	})
-
-	enc.Encode(style{
-		Data: []byte(`
-.evolutionEdge {
-	stroke-dasharray: 7;
-	stroke-dashoffset: 7;
-	animation: dash 3s linear forwards infinite;
-}
-
-@keyframes dash {
-	from {
-		stroke-dashoffset: 100;
-	}
-	to {
-		stroke-dashoffset: 0;
-	}
-}`),
-	})
-	enc.Encode(svg.Rectangle{
-		R:    box,
-		Fill: svg.Color{color.RGBA{236, 237, 243, 0}},
-	})
 	enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
 			ID: "wardleyGradient",
@@ -184,6 +132,7 @@ function hideID(id) {
 		Stroke:    svg.Color{color.RGBA{19, 36, 84, 255}},
 		MarkerEnd: "url(#graphArrow)",
 	})
+	displayControls(enc, box, canvas)
 	enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
 		FontWeight: "bold",
@@ -219,4 +168,52 @@ function hideID(id) {
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		FontWeight: "bold",
 	})
+}
+
+func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
+	visibilityGroup := makeGroup("visibilitytoggle", 0)
+	visibilityGroup.StartElement.Attr = append(visibilityGroup.StartElement.Attr, xml.Attr{
+		Name:  xml.Name{Local: "onclick"},
+		Value: "toggleVisibility()",
+	},
+	)
+	enc.EncodeToken(visibilityGroup.StartElement)
+
+	enc.Encode(svg.Circle{
+		P: image.Point{canvas.Min.X + 105, canvas.Max.Y + 35},
+		R: 5,
+	})
+	enc.Encode(svg.Text{
+		P:          image.Point{canvas.Min.X + 112, canvas.Max.Y + 39},
+		FontWeight: "bold",
+		FontSize:   "11px",
+		Text:       []byte(`Toggle visibility`),
+		TextAnchor: svg.TextAnchorStart,
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+	})
+	enc.EncodeToken(visibilityGroup.End())
+	linkGroup := makeGroup("linktoggle", 0)
+	linkGroup.StartElement.Attr = append(linkGroup.StartElement.Attr, xml.Attr{
+		Name:  xml.Name{Local: "onclick"},
+		Value: "toggleLinks()",
+	},
+	)
+	enc.EncodeToken(linkGroup.StartElement)
+
+	enc.Encode(svg.Circle{
+		P: image.Point{canvas.Min.X + 5, canvas.Max.Y + 35},
+		R: 5,
+	})
+	enc.Encode(svg.Text{
+		P:          image.Point{canvas.Min.X + 12, canvas.Max.Y + 39},
+		FontWeight: "bold",
+		FontSize:   "11px",
+		Text:       []byte(`Toggle links`),
+		TextAnchor: svg.TextAnchorStart,
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+	})
+	enc.EncodeToken(linkGroup.End())
+
 }

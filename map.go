@@ -12,8 +12,9 @@ import (
 
 // a Map is a directed graph whose components knows their own position wrt to an anchor.
 // The anchor is the point A of a rectangle as defined by
-//  A := image.Point{}
-//  image.Rectangle{A, Pt(100, 100)}
+//
+//	A := image.Point{}
+//	image.Rectangle{A, Pt(100, 100)}
 type Map struct {
 	id    int64
 	Title string
@@ -125,4 +126,10 @@ func (m *Map) AddComponent(e Component) error {
 func (m *Map) SetCollaboration(e Collaboration) error {
 	m.DirectedGraph.SetEdge(e)
 	return nil
+}
+
+// Chainer is a component that is part of a value chain
+type Chainer interface {
+	// GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
+	GetAbsoluteVisibility() int
 }

@@ -24,15 +24,21 @@ const (
 
 // A Component is an element of the map
 type Component struct {
-	id             int64
-	Placement      image.Point // The placement of the component on a rectangle 100x100
-	Label          string
-	LabelPlacement image.Point // LabelPlacement is relative to the placement
-	Type           wardleyToGo.ComponentType
-	RenderingLayer int //The position of the element on the picture
-	Configured     bool
-	EvolutionPos   int
-	Color          color.Color
+	id                 int64
+	Placement          image.Point // The placement of the component on a rectangle 100x100
+	Label              string
+	LabelPlacement     image.Point // LabelPlacement is relative to the placement
+	Type               wardleyToGo.ComponentType
+	RenderingLayer     int //The position of the element on the picture
+	Configured         bool
+	EvolutionPos       int
+	Color              color.Color
+	AbsoluteVisibility int
+}
+
+// GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
+func (c *Component) GetAbsoluteVisibility() int {
+	return c.AbsoluteVisibility
 }
 
 func (c *Component) Attributes() []dotencoding.Attribute {
@@ -143,6 +149,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,
+		//Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
 	})
 }
 func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
@@ -204,6 +211,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,
+		//Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
 	})
 }
 
