@@ -2,6 +2,7 @@ package svgmap
 
 import (
 	_ "embed"
+	"encoding/xml"
 	"fmt"
 	"text/template"
 
@@ -78,7 +79,7 @@ func generateCSSData(w *wardleyToGo.Map) []cssVisibility {
 			}
 		}
 	}
-	step := 0.50 / float64(maxVisibility)
+	step := 0.80 / float64(maxVisibility)
 	output := make([]cssVisibility, maxVisibility+1)
 	for i := 0; i <= maxVisibility; i++ {
 		output[i] = cssVisibility{
@@ -92,4 +93,16 @@ func generateCSSData(w *wardleyToGo.Map) []cssVisibility {
 type cssVisibility struct {
 	Visibility string
 	Opacity    string
+}
+
+type style struct {
+	XMLName xml.Name `xml:"style"`
+	Data    string   `xml:",cdata"`
+}
+
+type script struct {
+	XMLName xml.Name `xml:"script"`
+	//Data    string   `xml:",cdata"`
+	Data string `xml:",innerxml"`
+	ID   string `xml:"id,attr"`
 }

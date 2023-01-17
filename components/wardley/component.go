@@ -2,7 +2,6 @@ package wardley
 
 import (
 	"encoding/xml"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -150,7 +149,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,
-		Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
+		//Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
 	})
 }
 func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
@@ -212,7 +211,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,
-		Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
+		//Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
 	})
 }
 

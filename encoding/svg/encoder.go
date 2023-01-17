@@ -57,7 +57,7 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		return err
 	}
 
-	e.e.Encode(script{Data: buf.String()})
+	e.e.Encode(script{Data: buf.String(), ID: "SVGScript"})
 	buf.Reset()
 	cssData := generateCSSData(m)
 	err = cssTmpl.Execute(&buf, cssData)

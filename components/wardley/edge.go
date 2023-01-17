@@ -2,7 +2,6 @@ package wardley
 
 import (
 	"encoding/xml"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -81,7 +80,8 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		F:           coordsF,
 		T:           coordsT,
 		StrokeWidth: "1",
-		Class:       []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
+		//Class:       []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
+		Class: []string{},
 	}
 	switch c.Type {
 	case RegularEdge:

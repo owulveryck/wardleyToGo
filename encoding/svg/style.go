@@ -64,17 +64,6 @@ func NewWardleyStyle(evolutionSteps []Evolution) *WardleyStyle {
 	}
 
 }
-
-type style struct {
-	XMLName xml.Name `xml:"style"`
-	Data    string   `xml:",cdata"`
-}
-
-type script struct {
-	XMLName xml.Name `xml:"script"`
-	Data    string   `xml:",cdata"`
-}
-
 func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 	enc.Encode(svg.Rectangle{
 		R:    box,
