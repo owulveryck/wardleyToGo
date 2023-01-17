@@ -33,8 +33,9 @@ func init() {
 }
 
 type jsData struct {
-	AllLinks []string            // in the form edge_F_T
-	G        map[string][]string // 'F': {'edge_F_T', 'edge_T_T2'}
+	AllLinks   []string            // in the form edge_F_T
+	G          map[string][]string // 'F': {'edge_F_T', 'edge_T_T2'}
+	Visibility []cssVisibility
 }
 
 func generateJsData(w *wardleyToGo.Map) jsData {
@@ -83,7 +84,7 @@ func generateCSSData(w *wardleyToGo.Map) []cssVisibility {
 	output := make([]cssVisibility, maxVisibility+1)
 	for i := 0; i <= maxVisibility; i++ {
 		output[i] = cssVisibility{
-			Visibility: fmt.Sprintf(".visibility%v", i),
+			Visibility: fmt.Sprintf("visibility%v", i),
 			Opacity:    fmt.Sprintf("%0.2f", 1-float64(i)*step),
 		}
 	}

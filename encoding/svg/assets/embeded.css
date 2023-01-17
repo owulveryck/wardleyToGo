@@ -6,7 +6,12 @@
 }
 
 {{ range $key, $value := . }}
-{{$value.Visibility}} {
+.{{$value.Visibility}} {
+}
+{{end}}
+
+{{ range $key, $value := . }}
+.in{{$value.Visibility}} {
 	opacity: {{$value.Opacity}};
 }
 {{end}}

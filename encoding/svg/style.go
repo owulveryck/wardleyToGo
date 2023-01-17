@@ -174,6 +174,10 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 		Stroke:    svg.Black,
 		MarkerEnd: "url(#graphArrow)",
 	})
+	enc.Encode(svg.Circle{
+		P: image.Point{canvas.Min.X + 7, canvas.Min.Y + 5},
+		R: 5,
+	})
 	enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
 		FontWeight: "bold",

@@ -7,28 +7,58 @@ g.set('{{$key}}',Array({{range $value}}'{{.}}',{{end}}));
 {{- end}}
 
 const max = 9
-function replyClick(clicked_id)
+function toggleLink(clicked_id)
 {
-	console.log(clicked_id);
-	var rx = /element_(.*)/;
-	var arr = rx.exec(clicked_id);
-	var id = arr[1];
-	hideID(id)
-}
-function hideID(id) {
-	for (let i = 0; i < max; i++) {
-		var myEle = document.getElementById("edge_"+id+"_"+i);
-		if(!myEle){
-			continue;
-		}
-		var style = document.getElementById("edge_"+id+"_"+i).style.display;
-		if(style === "none")
-			document.getElementById("edge_"+id+"_"+i).style.display = "block";
-		else
-			document.getElementById("edge_"+id+"_"+i).style.display = "none";
-		if (id < max) {
-			hideID(i)
-		}
+	if (g.has(clicked_id)) {
+		g.get(clicked_id).forEach(element => {
+			var style = document.getElementById(element).style.display;
+			if(style === "none")
+				document.getElementById(element).style.display = "block";
+			else
+				document.getElementById(element).style.display = "none";
+
+		});
 	}
 }
+function toggleLinks() {
+	allLinks.forEach(element => {
+		var style = document.getElementById(element).style.display;
+		if(style === "none") {
+			document.getElementById(element).style.display = "block";
+		} else {
+			document.getElementById(element).style.display = "none";
+		}
+	});
+}
 
+var allVisibilities = new Map();
+var allInVisibilities = new Map();
+function setVisibility() {
+	{{ range $key, $value := .Visibility }}
+	allVisibilities.set('in{{$value.Visibility}}',document.querySelectorAll('.{{$value.Visibility}}'))
+	allInVisibilities.set('{{$value.Visibility}}',document.querySelectorAll('.in{{$value.Visibility}}'))
+	{{- end}}
+}
+
+var visible = true
+
+function toggleVisibility() {
+	components = allVisibilities
+	if (visible) {
+		components = allInVisibilities
+		visible = false
+	} else {
+		visible = true
+	}
+	components.forEach(function(value, key) {
+		if (value.length === 0) {
+			setVisibility();
+		}
+		value.forEach(element => {
+			element.classList.toggle(key)	
+		});
+	})
+}
+
+
+setVisibility();

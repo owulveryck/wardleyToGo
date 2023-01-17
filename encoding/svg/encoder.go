@@ -50,23 +50,24 @@ func (e *Encoder) Init(s SVGStyleMarshaler) {
 }
 
 func (e *Encoder) Encode(m *wardleyToGo.Map) error {
-	jsData := generateJsData(m)
 	var buf bytes.Buffer
-	err := jsTmpl.Execute(&buf, jsData)
-	if err != nil {
-		return err
-	}
-
-	e.e.Encode(script{Data: buf.String(), ID: "SVGScript"})
-	buf.Reset()
 	cssData := generateCSSData(m)
-	err = cssTmpl.Execute(&buf, cssData)
+	err := cssTmpl.Execute(&buf, cssData)
 	if err != nil {
 		return err
 	}
 
 	e.e.Encode(style{Data: buf.String()})
 
+	buf.Reset()
+	jsData := generateJsData(m)
+	jsData.Visibility = cssData
+	err = jsTmpl.Execute(&buf, jsData)
+	if err != nil {
+		return err
+	}
+
+	e.e.Encode(script{Data: buf.String(), ID: "SVGScript"})
 	e.e.Encode(svg.Text{
 		P:          image.Pt(e.box.Dx()/2, 20),
 		Text:       []byte(m.Title),
@@ -102,7 +103,7 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			g = makeGroup("element", int(elem.ID()))
 			g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
 				Name:  xml.Name{Local: "onclick"},
-				Value: "replyClick(this.id)",
+				Value: "toggleLink(this.id)",
 			},
 			)
 			if chainer, ok := elem.(wardleyToGo.Chainer); ok {

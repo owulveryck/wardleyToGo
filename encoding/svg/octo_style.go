@@ -21,11 +21,6 @@ func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
 }
 
 func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
-
-	enc.Encode(svg.Rectangle{
-		R:    box,
-		Fill: svg.Color{color.RGBA{236, 237, 243, 0}},
-	})
 	enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
 			ID: "wardleyGradient",
@@ -137,6 +132,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		Stroke:    svg.Color{color.RGBA{19, 36, 84, 255}},
 		MarkerEnd: "url(#graphArrow)",
 	})
+	displayControls(enc, box, canvas)
 	enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
 		FontWeight: "bold",
@@ -172,4 +168,52 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		FontWeight: "bold",
 	})
+}
+
+func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
+	visibilityGroup := makeGroup("visibilitytoggle", 0)
+	visibilityGroup.StartElement.Attr = append(visibilityGroup.StartElement.Attr, xml.Attr{
+		Name:  xml.Name{Local: "onclick"},
+		Value: "toggleVisibility()",
+	},
+	)
+	enc.EncodeToken(visibilityGroup.StartElement)
+
+	enc.Encode(svg.Circle{
+		P: image.Point{canvas.Min.X + 105, canvas.Max.Y + 35},
+		R: 5,
+	})
+	enc.Encode(svg.Text{
+		P:          image.Point{canvas.Min.X + 112, canvas.Max.Y + 39},
+		FontWeight: "bold",
+		FontSize:   "11px",
+		Text:       []byte(`Toggle visibility`),
+		TextAnchor: svg.TextAnchorStart,
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+	})
+	enc.EncodeToken(visibilityGroup.End())
+	linkGroup := makeGroup("linktoggle", 0)
+	linkGroup.StartElement.Attr = append(linkGroup.StartElement.Attr, xml.Attr{
+		Name:  xml.Name{Local: "onclick"},
+		Value: "toggleLinks()",
+	},
+	)
+	enc.EncodeToken(linkGroup.StartElement)
+
+	enc.Encode(svg.Circle{
+		P: image.Point{canvas.Min.X + 5, canvas.Max.Y + 35},
+		R: 5,
+	})
+	enc.Encode(svg.Text{
+		P:          image.Point{canvas.Min.X + 12, canvas.Max.Y + 39},
+		FontWeight: "bold",
+		FontSize:   "11px",
+		Text:       []byte(`Toggle links`),
+		TextAnchor: svg.TextAnchorStart,
+		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+	})
+	enc.EncodeToken(linkGroup.End())
+
 }
