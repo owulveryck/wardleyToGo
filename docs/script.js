@@ -8,6 +8,7 @@ var gvar = this;
 			reviewer = document.getElementById("review"),
 			scale = window.devicePixelRatio || 1,
 			downloadBtn = document.getElementById("download"),
+			sampleBtn = document.getElementById("sample"),
 			editor = ace.edit("editor"),
 			lastHD = -1,
 			worker = null,
@@ -69,6 +70,11 @@ var gvar = this;
 			svgImage.src = svgXml;
 		}
 
+		function restoreContent() {
+			var previousContent = window.localStorage.getItem("wtg");
+			editor.getSession().setValue(previousContent);
+			renderGraph();
+		}
 		function copyShareURL(e) {
 			var compressedFlow = compress(editor.getSession().getDocument().getValue(),"gzip");
 
@@ -166,7 +172,11 @@ var gvar = this;
 		editor.getSession().setMode("ace/mode/dot");
 		editor.getSession().on("change", function () {
 			clearTimeout(lastHD);
-			lastHD = setTimeout(renderGraph, 1500);
+			lastHD = setTimeout(function(){
+				renderGraph();
+				// save the content locally for future restore
+				window.localStorage.setItem("wtg",editor.getSession().getDocument().getValue());
+			}, 1500);
 		});
 
 		window.onpopstate = function(event) {
@@ -176,6 +186,7 @@ var gvar = this;
 		};
 
 		share.addEventListener("click", copyShareURL);
+		sampleBtn.addEventListener("click", setSample);
 		apply.addEventListener('click', function(){
 			console.log("rendering")
 			renderGraph()
@@ -192,6 +203,7 @@ var gvar = this;
 			return -1;
 		};
 
+		restoreContent();
 		/* come from sharing */
 			const params = new URLSearchParams(location.search.substring(1));
 
@@ -273,6 +285,69 @@ var gvar = this;
 				bytes[i] = binary_string.charCodeAt(i);
 			}
 			return bytes.buffer;
+		}
+		function setSample() {
+			editor.getSession().setValue(`
+title: sample map // title is optional
+/***************
+  value chain 
+****************/
+
+business - cup of tea
+public - cup of tea
+cup of tea - cup
+cup of tea -- tea
+cup of tea --- hot water
+hot water - water
+hot water -- kettle
+kettle - power
+
+/***************
+  definitions 
+****************/
+
+// you can inline the evolution
+business: |....|....|...x.|.........|
+
+public: |....|....|....|.x...|
+
+// or create blocks
+cup of tea: {
+  evolution: |....|....|..x..|........|
+  color: Green // you can set colors
+}
+cup: {
+  type: buy
+  evolution: |....|....|....|....x....|
+}
+tea: {
+  type: buy
+  evolution: |....|....|....|.....x....|
+}
+hot water: {
+  evolution: |....|....|....|....x....|
+  color: Blue
+}
+water: {
+  type: outsource
+  evolution: |....|....|....|.....x....|
+}
+
+// you can set the evolution with a >
+kettle: {
+  type: build
+  evolution: |...|...x.|..>.|.......|
+}
+power: {
+  type: pipeline
+  evolution: |...|...|....x|.....>..|
+}
+
+stage1: genesis / concept
+stage2: custom / emerging
+stage3: product / converging
+stage4: commodity / accepted
+				`);
 		}
 
 	};
