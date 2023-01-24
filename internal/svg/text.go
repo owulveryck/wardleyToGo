@@ -19,6 +19,65 @@ func UpdateDefaultFont(fontName string) {
 	defaultFont = fontName
 }
 
+type TextArea struct {
+	P          image.Point
+	Text       []byte
+	Fill       Color
+	TextAnchor int
+	FontWeight string
+	FontSize   string
+	FontFamily string
+}
+
+func (t TextArea) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	foreignObject := xml.StartElement{
+		Name: xml.Name{Local: "foreignObject"},
+	}
+	foreignObject.Attr = []xml.Attr{
+		{
+			Name:  xml.Name{Local: "width"},
+			Value: "90",
+		},
+		{
+			Name:  xml.Name{Local: "height"},
+			Value: "60",
+		},
+	}
+	textArea := xml.StartElement{
+		Name: xml.Name{Local: "textArea"},
+	}
+	style := ""
+	if t.FontFamily != "" {
+		style = style + "font-family:" + t.FontFamily + ";"
+	} else if defaultFont != "" {
+		style = style + "font-family:" + defaultFont + ";"
+	}
+	atr, _ := t.Fill.MarshalXMLAttr(xml.Name{Local: "fill"})
+	style = style + "color:" + atr.Value + ";"
+
+	textArea.Attr = []xml.Attr{
+		{
+			Name:  xml.Name{Local: "xmlns"},
+			Value: "http://www.w3.org/1999/xhtml",
+		},
+		{
+			Name:  xml.Name{Local: "style"},
+			Value: style,
+		},
+		{
+			Name:  xml.Name{Local: "class"},
+			Value: "componentText",
+		},
+	}
+
+	e.EncodeToken(foreignObject)
+	e.EncodeToken(textArea)
+	e.EncodeToken(xml.CharData(t.Text))
+	e.EncodeToken(textArea.End())
+	e.EncodeToken(foreignObject.End())
+	return nil
+}
+
 type Text struct {
 	P          image.Point
 	Text       []byte

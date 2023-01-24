@@ -24,16 +24,17 @@ const (
 
 // A Component is an element of the map
 type Component struct {
-	id                 int64
-	Placement          image.Point // The placement of the component on a rectangle 100x100
-	Label              string
-	LabelPlacement     image.Point // LabelPlacement is relative to the placement
-	Type               wardleyToGo.ComponentType
-	RenderingLayer     int //The position of the element on the picture
-	Configured         bool
-	EvolutionPos       int
-	Color              color.Color
-	AbsoluteVisibility int
+	id                  int64
+	Placement           image.Point // The placement of the component on a rectangle 100x100
+	Label               string
+	LabelPlacement      image.Point // LabelPlacement is relative to the placement
+	Type                wardleyToGo.ComponentType
+	RenderingLayer      int //The position of the element on the picture
+	Configured          bool
+	EvolutionPos        int
+	Color               color.Color
+	AbsoluteVisibility  int
+	PipelinedComponents map[string]*Component
 }
 
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
@@ -108,15 +109,42 @@ func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp 
 }
 
 func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
+	if c.PipelinedComponents != nil {
+		for _, pipelineComp := range c.PipelinedComponents {
+			err := pipelineComp.MarshalSVG(e, canvas)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	switch c.Type {
 	case PipelineComponent:
-		return c.marshalSVGPipeline(e, canvas, svg.Color{c.Color})
+		return c.marshalSVGPipeline(e, canvas, svg.Color{Color: c.Color})
 	default:
-		return c.marshalSVG(e, canvas, svg.Color{c.Color})
+		return c.marshalSVG(e, canvas, svg.Color{Color: c.Color})
 	}
 }
 
 func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
+	// Draw the rectangle
+	if c.PipelinedComponents != nil && len(c.PipelinedComponents) > 1 {
+		rect := getBounds(c.PipelinedComponents)
+		lowestBound := components.CalcCoords(rect.Min, canvas)
+		greaterBound := components.CalcCoords(rect.Max, canvas)
+		err := e.Encode(svg.Rectangle{
+			R:           image.Rect(lowestBound.X, lowestBound.Y+10, greaterBound.X, greaterBound.Y-10),
+			Rx:          0,
+			Ry:          0,
+			Fill:        svg.Color{},
+			Stroke:      svg.Color{},
+			StrokeWidth: "1",
+			Style:       "",
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	coords := components.CalcCoords(c.Placement, canvas)
 	labelP := c.LabelPlacement
 	if labelP.X == components.UndefinedCoord {
@@ -128,7 +156,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 	fillColor := svg.White
 	r, g, b, a := c.Color.RGBA()
 	if r != 0 || g != 0 || b != 0 || a != 65535 {
-		fillColor = svg.Color{col}
+		fillColor = svg.Color{Color: col}
 	}
 	components := make([]interface{}, 0)
 	components = append(components, svg.Rectangle{
@@ -141,11 +169,12 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		Fill:        fillColor,
 	})
 
-	components = append(components, svg.Text{
+	components = append(components, svg.TextArea{
 		P:    labelP,
 		Text: []byte(c.Label),
 		Fill: col,
 	})
+
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,
@@ -203,7 +232,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		})
 	}
 	components = append(components, baseCircle)
-	components = append(components, svg.Text{
+	components = append(components, svg.TextArea{
 		P:    labelP,
 		Text: []byte(c.Label),
 		Fill: col,
