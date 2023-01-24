@@ -35,6 +35,10 @@ func (t TextArea) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	}
 	foreignObject.Attr = []xml.Attr{
 		{
+			Name:  xml.Name{Local: "transform"},
+			Value: "translate(12,-10)",
+		},
+		{
 			Name:  xml.Name{Local: "width"},
 			Value: "90",
 		},
