@@ -152,7 +152,7 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	e.EncodeToken(element)
 	if t.TextAnchor == TextAdjust {
 		words := splitString(string(t.Text), 8)
-		for i, word := range words {
+		for _, word := range words {
 			tspan := xml.StartElement{
 				Name: xml.Name{Local: "tspan"},
 			}
@@ -163,7 +163,7 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 				},
 				{
 					Name:  xml.Name{Local: "dy"},
-					Value: strconv.Itoa(20 * i),
+					Value: "20",
 				},
 			}
 			e.EncodeToken(tspan)
