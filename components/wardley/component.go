@@ -151,7 +151,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		labelP.X = 10
 	}
 	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = 10
+		labelP.Y = -5
 	}
 	fillColor := svg.White
 	r, g, b, a := c.Color.RGBA()
@@ -169,10 +169,11 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		Fill:        fillColor,
 	})
 
-	components = append(components, svg.TextArea{
-		P:    labelP,
-		Text: []byte(c.Label),
-		Fill: col,
+	components = append(components, svg.Text{
+		P:          labelP,
+		Text:       []byte(c.Label),
+		TextAnchor: svg.TextAdjust,
+		Fill:       col,
 	})
 
 	return e.Encode(svg.Transform{
@@ -188,7 +189,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		labelP.X = 10
 	}
 	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = 10
+		labelP.Y = -5
 	}
 	fillColor := svg.White
 	r, g, b, a := c.Color.RGBA()
@@ -232,10 +233,11 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		})
 	}
 	components = append(components, baseCircle)
-	components = append(components, svg.TextArea{
-		P:    labelP,
-		Text: []byte(c.Label),
-		Fill: col,
+	components = append(components, svg.Text{
+		P:          labelP,
+		Text:       []byte(c.Label),
+		TextAnchor: svg.TextAdjust,
+		Fill:       col,
 	})
 	return e.Encode(svg.Transform{
 		Translate:  coords,
@@ -275,7 +277,7 @@ func (c *EvolvedComponent) Draw(dst draw.Image, r image.Rectangle, src image.Ima
 		labelP.X = 18
 	}
 	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = 10
+		labelP.Y = -5
 	}
 	labelP = labelP.Add(placement)
 	// First create the circle with a correct resolution
