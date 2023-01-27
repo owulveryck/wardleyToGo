@@ -4,17 +4,59 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"image"
 	"syscall/js"
 
+	"github.com/owulveryck/wardleyToGo/components/wardley"
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 	"github.com/owulveryck/wardleyToGo/parser/wtg"
 )
 
 func main() {
 	js.Global().Set("generateSVG", wtgWrapper())
+	js.Global().Set("getUnconfiguredComponents", componentsWrapper())
 	<-make(chan bool)
+}
+
+func componentsWrapper() js.Func {
+	wtgFunc := js.FuncOf(func(_ js.Value, args []js.Value) any {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in wtgWrapper", r)
+			}
+		}()
+		if len(args) < 1 {
+			return "Invalid no of arguments passed"
+		}
+		input := args[0].String()
+		p := wtg.NewParser()
+
+		buf := bytes.NewBufferString(input)
+		err := p.Parse(buf)
+		if err != nil {
+			fmt.Printf("unable to parse %s\n", err)
+			return err.Error()
+		}
+		if len(p.InvalidEntries) != 0 {
+			for _, err := range p.InvalidEntries {
+				fmt.Println(err)
+			}
+		}
+		output := make([]string, 0)
+		c := p.WMap.Nodes()
+		for c.Next() {
+			if c, ok := c.Node().(*wardley.Component); ok {
+				if !c.Configured {
+					output = append(output, c.Label)
+				}
+			}
+		}
+		b, _ := json.Marshal(output)
+		return string(b)
+	})
+	return wtgFunc
 }
 
 func wtgWrapper() js.Func {

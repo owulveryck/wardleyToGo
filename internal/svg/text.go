@@ -11,6 +11,7 @@ const (
 	TextAnchorStart
 	TextAnchorMiddle
 	TextAnchorEnd
+	TextAdjust
 )
 
 var defaultFont = ""
@@ -149,7 +150,29 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		})
 	}
 	e.EncodeToken(element)
-	e.EncodeToken(xml.CharData(t.Text))
+	if t.TextAnchor == TextAdjust {
+		words := splitString(string(t.Text), 8)
+		for i, word := range words {
+			tspan := xml.StartElement{
+				Name: xml.Name{Local: "tspan"},
+			}
+			tspan.Attr = []xml.Attr{
+				{
+					Name:  xml.Name{Local: "x"},
+					Value: "10",
+				},
+				{
+					Name:  xml.Name{Local: "dy"},
+					Value: strconv.Itoa(20 * i),
+				},
+			}
+			e.EncodeToken(tspan)
+			e.EncodeToken(xml.CharData(word))
+			e.EncodeToken(tspan.End())
+		}
+	} else {
+		e.EncodeToken(xml.CharData(t.Text))
+	}
 	e.EncodeToken(element.End())
 	return nil
 }
