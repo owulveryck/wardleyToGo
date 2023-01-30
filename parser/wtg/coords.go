@@ -63,7 +63,7 @@ func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
 func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 	vStep := 50
 	if maxVisibility != 0 {
-		vStep = 96 / maxVisibility
+		vStep = 94 / maxVisibility
 	}
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
@@ -82,14 +82,14 @@ func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 func setX(buf *scratchMapchMap, m wardleyToGo.Map, maxEvolution int) {
 	hStep := 50
 	if maxEvolution != 0 {
-		hStep = 20 / maxEvolution
+		hStep = 90 / maxEvolution
 	}
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
 		n := allNodes.Node().(*node)
 		if nn, ok := m.Node(n.ID()).(*wardley.Component); ok {
 			if !nn.Configured {
-				nn.Placement.X = n.evolutionStep*hStep + 30
+				nn.Placement.X = n.evolutionStep*hStep + 10
 				nn.Color = Colors["Grey"]
 			}
 		}
