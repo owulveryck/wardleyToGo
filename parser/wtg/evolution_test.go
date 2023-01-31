@@ -141,14 +141,14 @@ func computeYsimpleTwoNodesWithEvolution(t *testing.T) {
 		Type: wardley.EvolvedComponentEdge,
 	})
 	SetCoords(*p.WMap, false)
-	if c1.GetPosition().Y != 2 {
-		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 3 {
+		t.Errorf("expected position of c1 to be 3, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 96 {
-		t.Errorf("expected position of c2 to be 96, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 97 {
+		t.Errorf("expected position of c2 to be 97, but is %v", c2.GetPosition().Y)
 	}
-	if c22.GetPosition().Y != 96 {
-		t.Errorf("expected position of c22 to be 96, but is %v", c22.GetPosition().Y)
+	if c22.GetPosition().Y != 97 {
+		t.Errorf("expected position of c22 to be 97, but is %v", c22.GetPosition().Y)
 	}
 }
 func computeYsimpleThreeNodes(t *testing.T) {
@@ -170,14 +170,14 @@ func computeYsimpleThreeNodes(t *testing.T) {
 		Visibility: 1,
 	})
 	SetCoords(*p.WMap, false)
-	if c1.GetPosition().Y != 2 {
-		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 3 {
+		t.Errorf("expected position of c1 to be 3, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 49 {
-		t.Errorf("expected position of c2 to be 49, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 50 {
+		t.Errorf("expected position of c2 to be 50, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 96 {
-		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 97 {
+		t.Errorf("expected position of c3 to be 97, but is %v", c3.GetPosition().Y)
 	}
 }
 func computeYsimpleTwoNodes(t *testing.T) {
@@ -192,11 +192,11 @@ func computeYsimpleTwoNodes(t *testing.T) {
 		Visibility: 1,
 	})
 	SetCoords(*p.WMap, false)
-	if c1.GetPosition().Y != 2 {
-		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 3 {
+		t.Errorf("expected position of c1 to be 3, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 96 {
-		t.Errorf("expected position of c2 to be 96, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 97 {
+		t.Errorf("expected position of c2 to be 97, but is %v", c2.GetPosition().Y)
 	}
 }
 func computeYThreeNodes(t *testing.T) {
@@ -218,14 +218,14 @@ func computeYThreeNodes(t *testing.T) {
 		Visibility: 3,
 	})
 	SetCoords(*p.WMap, false)
-	if c1.GetPosition().Y != 2 {
-		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 3 {
+		t.Errorf("expected position of c1 to be 3, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 33 {
-		t.Errorf("expected position of c2 to be 33, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 34 {
+		t.Errorf("expected position of c2 to be 34, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 95 {
-		t.Errorf("expected position of c3 to be 95, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 96 {
+		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
 	}
 }
 func computeYFourNodes(t *testing.T) {
@@ -254,16 +254,16 @@ func computeYFourNodes(t *testing.T) {
 		Visibility: 1,
 	})
 	SetCoords(*p.WMap, false)
-	if c1.GetPosition().Y != 2 {
-		t.Errorf("expected position of c1 to be 2, but is %v", c1.GetPosition().Y)
+	if c1.GetPosition().Y != 3 {
+		t.Errorf("expected position of c1 to be 3, but is %v", c1.GetPosition().Y)
 	}
-	if c2.GetPosition().Y != 25 {
-		t.Errorf("expected position of c2 to be 25, but is %v", c2.GetPosition().Y)
+	if c2.GetPosition().Y != 26 {
+		t.Errorf("expected position of c2 to be 26, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 71 {
-		t.Errorf("expected position of c3 to be 71, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 72 {
+		t.Errorf("expected position of c3 to be 72, but is %v", c3.GetPosition().Y)
 	}
-	if c4.GetPosition().Y != 94 {
-		t.Errorf("expected position of c4 to be 94, but is %v", c4.GetPosition().Y)
+	if c4.GetPosition().Y != 95 {
+		t.Errorf("expected position of c4 to be 95, but is %v", c4.GetPosition().Y)
 	}
 }

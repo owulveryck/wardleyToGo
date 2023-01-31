@@ -39,6 +39,8 @@ const (
 	stage3Item
 	stage4Token
 	stage4Item
+	labelToken
+	labelItem
 	eofToken
 )
 
