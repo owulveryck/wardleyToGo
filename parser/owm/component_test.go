@@ -39,6 +39,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla`,
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -53,6 +54,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla bla`,
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -67,6 +69,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla bla`,
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -81,6 +84,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla bla`,
 				LabelPlacement: image.Point{12, 12},
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -95,6 +99,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla bla`,
 				LabelPlacement: image.Point{-12, 12},
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -111,6 +116,7 @@ func Test_scanComponent(t *testing.T) {
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				Type:           wardley.BuildComponent,
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -126,6 +132,7 @@ func Test_scanComponent(t *testing.T) {
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				Type:           wardley.BuildComponent,
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -140,6 +147,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla bla`,
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				Type:           wardley.BuyComponent,
+				Anchor:         1,
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
@@ -155,6 +163,7 @@ func Test_scanComponent(t *testing.T) {
 				Label:          `bla bla`,
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				Type:           wardley.OutsourceComponent,
+				Anchor:         1,
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
@@ -171,6 +180,7 @@ func Test_scanComponent(t *testing.T) {
 				LabelPlacement: image.Point{components.UndefinedCoord, components.UndefinedCoord},
 				Type:           wardley.DataProductComponent,
 				RenderingLayer: wardley.DefaultComponentRenderingLayer,
+				Anchor:         1,
 				Configured:     false, EvolutionPos: 0, Color: color.RGBA{R: 0x0, G: 0x0, B: 0x0, A: 0xff},
 			},
 			false,
@@ -186,6 +196,7 @@ func Test_scanComponent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			//got, err := scanComponent(tt.args.s, tt.args.id)
 			got, err := scanComponent(tt.args.s, tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("scanComponent() error = %v, wantErr %v", err, tt.wantErr)

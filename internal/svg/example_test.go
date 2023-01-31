@@ -175,40 +175,59 @@ func Example() {
 		log.Fatal(err)
 	}
 	enc.Flush()
-	//Output:
-	// 	<svg width="100%" height="100%" viewBox="0 0 1050 1050" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
-	//     <rect x="0" y="0" width="1050" height="1050" fill="rgb(128,128,128)" fill-opacity="1.0"></rect>
-	//     <defs>
-	//         <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-	//             <stop offset="0%" stop-color="rgb(196,196,196)"></stop>
-	//             <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
-	//             <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
-	//             <stop offset="100%" stop-color="rgb(196,196,196)"></stop>
-	//         </linearGradient>
-	//         <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
-	//             <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
-	//         </marker>
-	//         <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
-	//             <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
-	//         </marker>
-	//     </defs>
-	//     <rect x="25" y="25" width="975" height="975" style="fill:url(#wardleyGradient)"></rect>
-	//     <g transform=" translate(25,1025) rotate(270)">
-	//         <line x1="0" y1="0" x2="1000" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
-	//         <line x1="0" y1="173" x2="1000" y2="173" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
-	//         <line x1="0" y1="400" x2="1000" y2="400" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
-	//         <line x1="0" y1="700" x2="1000" y2="700" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
-	//         <text x="5" y="-10" text-anchor="start">Invisible</text>
-	//         <text x="995" y="-10" text-anchor="end">Visible</text>
-	//         <text x="500" y="-10" font-weight="bold" text-anchor="middle">Value Chain</text>
-	//     </g>
-	//     <line x1="25" y1="1025" x2="1025" y2="1025" marker-end="url(#graphArrrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
-	//     <text x="32" y="40" font-weight="bold" font-size="11px" text-anchor="start">Uncharted</text>
-	//     <text x="1020" y="40" font-weight="bold" font-size="11px" text-anchor="end">Industrialised</text>
-	//     <text x="25" y="1040">Genesis</text>
-	//     <text x="198" y="1040">Custom-Built</text>
-	//     <text x="425" y="1040">Product (+rental)</text>
-	//     <text x="725" y="1040">Commodity (+utility)</text>
-	//     <text x="1025" y="1040" font-weight="bold" text-anchor="end">Evolution</text>
+	//	<svg width="100%" height="100%" viewBox="0 0 1050 1050" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+	//    <rect x="0" y="0" width="1050" height="1050" fill="rgb(128,128,128)" fill-opacity="1.0"></rect>
+	//    <defs>
+	//        <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+	//            <stop offset="0%" stop-color="rgb(196,196,196)"></stop>
+	//            <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
+	//            <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
+	//            <stop offset="100%" stop-color="rgb(196,196,196)"></stop>
+	//        </linearGradient>
+	//        <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+	//            <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
+	//        </marker>
+	//        <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+	//            <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
+	//        </marker>
+	//    </defs>
+	//    <rect x="25" y="25" width="975" height="975" style="fill:url(#wardleyGradient)"></rect>
+	//    <g transform=" translate(25,1025) rotate(270)">
+	//        <line x1="0" y1="0" x2="1000" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
+	//        <line x1="0" y1="173" x2="1000" y2="173" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+	//        <line x1="0" y1="400" x2="1000" y2="400" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+	//        <line x1="0" y1="700" x2="1000" y2="700" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(184,184,184)" stroke-opacity="1.0"></line>
+	//        <text text-anchor="start">
+	//            <tspan x="5" dy="-10">Invisible</tspan>
+	//        </text>
+	//        <text text-anchor="end">
+	//            <tspan x="995" dy="-10">Visible</tspan>
+	//        </text>
+	//        <text font-weight="bold" text-anchor="middle">
+	//            <tspan x="500" dy="-10">Value Chain</tspan>
+	//        </text>
+	//    </g>
+	//    <line x1="25" y1="1025" x2="1025" y2="1025" marker-end="url(#graphArrrow)" stroke="rgb(0,0,0)" stroke-opacity="1.0"></line>
+	//    <text font-weight="bold" font-size="11px" text-anchor="start">
+	//        <tspan x="32" dy="40">Uncharted</tspan>
+	//    </text>
+	//    <text font-weight="bold" font-size="11px" text-anchor="end">
+	//        <tspan x="1020" dy="40">Industrialised</tspan>
+	//    </text>
+	//    <text>
+	//        <tspan x="25" dy="1040">Genesis</tspan>
+	//    </text>
+	//    <text>
+	//        <tspan x="198" dy="1040">Custom-Built</tspan>
+	//    </text>
+	//    <text>
+	//        <tspan x="425" dy="1040">Product (+rental)</tspan>
+	//    </text>
+	//    <text>
+	//        <tspan x="725" dy="1040">Commodity (+utility)</tspan>
+	//    </text>
+	//    <text font-weight="bold" text-anchor="end">
+	//        <tspan x="1025" dy="1040">Evolution</tspan>
+	//    </text>
 	// </svg>
 }
