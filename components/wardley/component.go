@@ -20,6 +20,10 @@ import (
 
 const (
 	DefaultComponentRenderingLayer int = 10
+	AdjustUndefined                int = iota
+	AdjustStart
+	AdjustMiddle
+	AdjustEnd
 )
 
 // A Component is an element of the map
@@ -34,6 +38,7 @@ type Component struct {
 	EvolutionPos        int
 	Color               color.Color
 	AbsoluteVisibility  int
+	Anchor              int
 	PipelinedComponents map[string]*Component
 }
 
@@ -58,6 +63,7 @@ func NewComponent(id int64) *Component {
 		Placement:      image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 		LabelPlacement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 		RenderingLayer: 10,
+		Anchor:         AdjustUndefined,
 		Color:          color.RGBA{R: 0, G: 0, B: 0, A: 255}, // black
 	}
 }
@@ -151,7 +157,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		labelP.X = 10
 	}
 	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = -5
+		labelP.Y = 0
 	}
 	fillColor := svg.White
 	r, g, b, a := c.Color.RGBA()
@@ -168,11 +174,21 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		Stroke:      col,
 		Fill:        fillColor,
 	})
+	anchor := svg.TextAnchorUndefined
+	switch c.Anchor {
+	case AdjustStart:
+		anchor = svg.TextAnchorStart
+	case AdjustMiddle:
+		anchor = svg.TextAnchorMiddle
+	case AdjustEnd:
+		anchor = svg.TextAnchorEnd
+	}
 
 	components = append(components, svg.Text{
 		P:          labelP,
 		Text:       []byte(c.Label),
-		TextAnchor: svg.TextAdjust,
+		TextAdjust: true,
+		TextAnchor: anchor,
 		Fill:       col,
 	})
 
@@ -189,7 +205,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		labelP.X = 10
 	}
 	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = -5
+		labelP.Y = 0
 	}
 	fillColor := svg.White
 	r, g, b, a := c.Color.RGBA()
@@ -233,10 +249,21 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		})
 	}
 	components = append(components, baseCircle)
+	anchor := svg.TextAnchorUndefined
+	switch c.Anchor {
+	case AdjustStart:
+		anchor = svg.TextAnchorStart
+	case AdjustMiddle:
+		anchor = svg.TextAnchorMiddle
+	case AdjustEnd:
+		anchor = svg.TextAnchorEnd
+	}
+
 	components = append(components, svg.Text{
 		P:          labelP,
 		Text:       []byte(c.Label),
-		TextAnchor: svg.TextAdjust,
+		TextAdjust: true,
+		TextAnchor: anchor,
 		Fill:       col,
 	})
 	return e.Encode(svg.Transform{

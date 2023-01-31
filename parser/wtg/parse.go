@@ -65,6 +65,7 @@ func (p *Parser) parse(s string) error {
 		return fmt.Errorf("cannot consolidate map: %w", err)
 	}
 	SetCoords(*p.WMap, true)
+	SetLabelAnchor(*p.WMap)
 	return nil
 }
 
@@ -128,6 +129,14 @@ func (p *Parser) inventory(s string) error {
 		case titleItem:
 			p.WMap.Title = strings.TrimSpace(tok.Value)
 		case colorToken:
+		case labelItem:
+			if p.currentNode == nil {
+				return errors.New("cannot set type on a nil node")
+			}
+			err := setLabelPlacement(p.currentNode, tok.Value)
+			if err != nil {
+				return err
+			}
 		case colorItem:
 			if p.currentNode == nil {
 				return errors.New("cannot set type on a nil node")
@@ -144,6 +153,9 @@ func (p *Parser) inventory(s string) error {
 			switch tok.Value {
 			case "pipeline":
 				p.currentNode.Type = wardley.PipelineComponent
+				p.currentNode.LabelPlacement.Y = -15
+				p.currentNode.LabelPlacement.X = 0
+				p.currentNode.Anchor = wardley.AdjustMiddle
 			case "build":
 				p.currentNode.Type = wardley.BuildComponent
 			case "buy":
@@ -169,6 +181,8 @@ func (p *Parser) upsertNode(s string) *wardley.Component {
 	if _, ok := p.nodeInventory[s]; !ok {
 		c := wardley.NewComponent(int64(len(p.nodeInventory)))
 		c.Label = s
+		c.LabelPlacement.X = 10
+		//c.LabelPlacement.Y = 6
 		c.Placement = image.Pt(0, 50)
 		p.nodeInventory[s] = c
 	}

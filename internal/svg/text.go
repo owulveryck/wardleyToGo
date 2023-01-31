@@ -11,7 +11,6 @@ const (
 	TextAnchorStart
 	TextAnchorMiddle
 	TextAnchorEnd
-	TextAdjust
 )
 
 var defaultFont = ""
@@ -28,6 +27,7 @@ type TextArea struct {
 	FontWeight string
 	FontSize   string
 	FontFamily string
+	TextAdjust bool
 }
 
 func (t TextArea) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
@@ -91,6 +91,7 @@ type Text struct {
 	FontWeight string
 	FontSize   string
 	FontFamily string
+	TextAdjust bool
 }
 
 func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
@@ -98,14 +99,16 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		Name: xml.Name{Local: "text"},
 	}
 	element.Attr = []xml.Attr{
-		{
-			Name:  xml.Name{Local: "x"},
-			Value: strconv.Itoa(t.P.X),
-		},
-		{
-			Name:  xml.Name{Local: "y"},
-			Value: strconv.Itoa(t.P.Y),
-		},
+		/*
+			{
+				Name:  xml.Name{Local: "x"},
+				Value: strconv.Itoa(t.P.X),
+			},
+			{
+				Name:  xml.Name{Local: "y"},
+				Value: strconv.Itoa(t.P.Y),
+			},
+		*/
 		must(t.Fill.MarshalXMLAttr(xml.Name{Local: "fill"})),
 		must(t.Fill.MarshalXMLAttr(xml.Name{Local: "fill-opacity"})),
 	}
@@ -150,28 +153,47 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		})
 	}
 	e.EncodeToken(element)
-	if t.TextAnchor == TextAdjust {
-		words := splitString(string(t.Text), 8)
-		for _, word := range words {
-			tspan := xml.StartElement{
-				Name: xml.Name{Local: "tspan"},
+	words := []string{string(t.Text)}
+	if t.TextAdjust {
+		words = splitString(string(t.Text), 8)
+	}
+	for i, word := range words {
+		dy := t.P.Y
+		switch {
+		case dy < 0:
+			if i == 0 {
+				dy = dy * len(words)
+			} else {
+				dy = -dy
 			}
-			tspan.Attr = []xml.Attr{
-				{
-					Name:  xml.Name{Local: "x"},
-					Value: "10",
-				},
-				{
-					Name:  xml.Name{Local: "dy"},
-					Value: "20",
-				},
+		case dy == 0:
+			dy = 18
+			if i == 0 {
+				dy = ((len(words))/2)*-6 + 6
 			}
-			e.EncodeToken(tspan)
-			e.EncodeToken(xml.CharData(word))
-			e.EncodeToken(tspan.End())
+		case dy > 0:
+			if i > 0 && dy < 10 {
+				dy = 18
+			}
 		}
-	} else {
-		e.EncodeToken(xml.CharData(t.Text))
+		tspan := xml.StartElement{
+			Name: xml.Name{Local: "tspan"},
+		}
+		tspan.Attr = []xml.Attr{
+			{
+				Name: xml.Name{Local: "x"},
+				//Value: "10",
+				Value: strconv.Itoa(t.P.X),
+			},
+			{
+				Name:  xml.Name{Local: "dy"},
+				Value: strconv.Itoa(dy),
+				//Value: "20",
+			},
+		}
+		e.EncodeToken(tspan)
+		e.EncodeToken(xml.CharData(word))
+		e.EncodeToken(tspan.End())
 	}
 	e.EncodeToken(element.End())
 	return nil
