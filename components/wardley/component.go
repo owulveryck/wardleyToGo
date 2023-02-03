@@ -42,6 +42,30 @@ type Component struct {
 	PipelinedComponents map[string]*Component
 }
 
+func (c *Component) SetAbsoluteVisibility(v int) {
+	c.AbsoluteVisibility = v
+}
+
+func (c *Component) GetLabel() string {
+	return c.Label
+}
+func (c *Component) SetLabel(l string) {
+	c.Label = l
+}
+
+func (c *Component) SetPosition(p image.Point) {
+	c.Placement = p
+}
+func (c *Component) SetColor(col color.Color) {
+	c.Color = col
+}
+func (c *Component) SetLabelPlacement(p image.Point) {
+	c.LabelPlacement = p
+}
+func (c *Component) SetLabelAnchor(a int) {
+	c.Anchor = a
+}
+
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
 func (c *Component) GetAbsoluteVisibility() int {
 	return c.AbsoluteVisibility

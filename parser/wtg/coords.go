@@ -2,6 +2,7 @@ package wtg
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -68,20 +69,12 @@ func SetCoords(m wardleyToGo.Map, withEvolution bool) {
 	ns := m.Nodes()
 	inventory := make(map[int64]*node)
 	for ns.Next() {
-		if c, ok := ns.Node().(*wardley.EvolvedComponent); ok {
-			n := &node{
-				c: c.Component,
-			}
-			inventory[c.ID()] = n
-			tempMap.AddNode(n)
+		curr := ns.Node().(wardley.Element)
+		n := &node{
+			c: curr,
 		}
-		if c, ok := ns.Node().(*wardley.Component); ok {
-			n := &node{
-				c: c,
-			}
-			inventory[c.ID()] = n
-			tempMap.AddNode(n)
-		}
+		inventory[curr.ID()] = n
+		tempMap.AddNode(n)
 	}
 	es := m.Edges()
 	for es.Next() {
@@ -98,7 +91,6 @@ func SetCoords(m wardleyToGo.Map, withEvolution bool) {
 		setX(tempMap, m, maxEvolution)
 	}
 	setEdgeAbsoluteVisibility(m)
-	// TODO set the graph nodes
 }
 
 func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
@@ -124,14 +116,11 @@ func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
 		n := allNodes.Node().(*node)
-		if c, ok := m.Node(n.ID()).(*wardley.Component); ok {
-			c.Placement.Y = n.visibility*vStep + 3
-			c.AbsoluteVisibility = n.visibility
-		}
-		if c, ok := m.Node(n.ID()).(*wardley.EvolvedComponent); ok {
-			c.Placement.Y = n.visibility*vStep + 3
-			c.AbsoluteVisibility = n.visibility
-		}
+		c := m.Node(n.ID()).(wardley.Element)
+		p := c.GetPosition()
+		p.Y = n.visibility*vStep + 3
+		c.SetPosition(p)
+		c.SetAbsoluteVisibility(n.visibility)
 	}
 
 }
@@ -143,50 +132,40 @@ func setX(buf *scratchMapchMap, m wardleyToGo.Map, maxEvolution int) {
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
 		n := allNodes.Node().(*node)
-		if nn, ok := m.Node(n.ID()).(*wardley.Component); ok {
-			if !nn.Configured {
-				nn.Placement.X = n.evolutionStep*hStep + 10
-				nn.Color = Colors["Grey"]
-			}
-		}
+		nn := m.Node(n.ID()).(wardley.Element)
+		p := nn.GetPosition()
+		p.X = n.evolutionStep*hStep + 10
+		nn.SetPosition(p)
+		nn.SetColor(Colors["Grey"])
 	}
-
 }
 
-func setLabelPlacement(n *wardley.Component, placement string) error {
+func setLabelPlacement(n wardley.Labeler, placement string) error {
 	switch placement {
 	case "N":
-		n.Anchor = wardley.AdjustMiddle
-		n.LabelPlacement.X = 0
-		n.LabelPlacement.Y = -15
+		n.SetLabelAnchor(wardley.AdjustMiddle)
+		n.SetLabelPlacement(image.Point{0, -15})
 	case "NE":
-		n.Anchor = wardley.AdjustStart
-		n.LabelPlacement.Y = -15
-		n.LabelPlacement.X = 11
+		n.SetLabelAnchor(wardley.AdjustStart)
+		n.SetLabelPlacement(image.Point{11, -15})
 	case "NW":
-		n.Anchor = wardley.AdjustEnd
-		n.LabelPlacement.Y = -15
-		n.LabelPlacement.X = -11
+		n.SetLabelAnchor(wardley.AdjustEnd)
+		n.SetLabelPlacement(image.Point{-11, -15})
 	case "W":
-		n.Anchor = wardley.AdjustEnd
-		n.LabelPlacement.Y = 0
-		n.LabelPlacement.X = -11
+		n.SetLabelAnchor(wardley.AdjustEnd)
+		n.SetLabelPlacement(image.Point{-11, 0})
 	case "S":
-		n.Anchor = wardley.AdjustMiddle
-		n.LabelPlacement.X = 0
-		n.LabelPlacement.Y = 19
+		n.SetLabelAnchor(wardley.AdjustMiddle)
+		n.SetLabelPlacement(image.Point{0, 19})
 	case "SW":
-		n.Anchor = wardley.AdjustEnd
-		n.LabelPlacement.Y = 19
-		n.LabelPlacement.X = -11
+		n.SetLabelAnchor(wardley.AdjustEnd)
+		n.SetLabelPlacement(image.Point{-11, 19})
 	case "SE":
-		n.Anchor = wardley.AdjustStart
-		n.LabelPlacement.Y = 19
-		n.LabelPlacement.X = 11
+		n.SetLabelAnchor(wardley.AdjustStart)
+		n.SetLabelPlacement(image.Point{11, 19})
 	case "E":
-		n.Anchor = wardley.AdjustStart
-		n.LabelPlacement.Y = 0
-		n.LabelPlacement.X = 11
+		n.SetLabelAnchor(wardley.AdjustStart)
+		n.SetLabelPlacement(image.Point{11, 0})
 	default:
 		return fmt.Errorf("unknown placement: %v", placement)
 	}

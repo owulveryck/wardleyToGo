@@ -20,3 +20,7 @@ type Area interface {
 	GetArea() image.Rectangle
 	graph.Node
 }
+
+type Positioner interface {
+	SetPosition(image.Point)
+}

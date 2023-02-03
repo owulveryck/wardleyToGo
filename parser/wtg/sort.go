@@ -24,7 +24,7 @@ func (n nodeSorter) Len() int {
 // See Float64Slice.Less for a correct implementation for floating-point values.
 func (n nodeSorter) Less(i int, j int) bool {
 	if n[i].visibility == n[j].visibility {
-		return n[i].c.Label < n[j].c.Label
+		return n[i].c.GetLabel() < n[j].c.GetLabel()
 	}
 	return n[i].visibility < n[j].visibility
 }

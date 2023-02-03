@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"strings"
 
+	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 )
 
@@ -24,13 +25,21 @@ type Map struct {
 	Annotations          []*Annotation
 	AnnotationsPlacement image.Point
 	area                 image.Rectangle
-	*simple.DirectedGraph
+	Backend
+}
+
+// Backend specifies the directed graph that will support the map
+type Backend interface {
+	graph.Directed
+	Edges() graph.Edges
+	graph.NodeAdder
+	graph.EdgeAdder
 }
 
 func (m *Map) String() string {
 	var b strings.Builder
 	b.WriteString("map {\n")
-	nodes := m.DirectedGraph.Nodes()
+	nodes := m.Nodes()
 	for nodes.Next() {
 		n := nodes.Node().(Component)
 		if a, ok := n.(Area); ok {
@@ -43,7 +52,7 @@ func (m *Map) String() string {
 		}
 	}
 	b.WriteString("\n")
-	edges := m.DirectedGraph.Edges()
+	edges := m.Edges()
 	for edges.Next() {
 		e := edges.Edge().(Collaboration)
 		b.WriteString(fmt.Sprintf("\t%v -> %v [%v];\n", e.From().ID(), e.To().ID(), e.GetType()))
@@ -54,11 +63,20 @@ func (m *Map) String() string {
 }
 
 // NewMap with initial area of 100x100
+// the backend is a simple.NewDirectedGraph
 func NewMap(id int64) *Map {
 	return &Map{
-		id:            id,
-		area:          image.Rect(0, 0, 100, 100),
-		DirectedGraph: simple.NewDirectedGraph(),
+		id:      id,
+		area:    image.Rect(0, 0, 100, 100),
+		Backend: simple.NewDirectedGraph(),
+	}
+}
+
+func NewMapWithBackend(id int64, b Backend) *Map {
+	return &Map{
+		id:      id,
+		area:    image.Rect(0, 0, 100, 100),
+		Backend: b,
 	}
 }
 
@@ -119,12 +137,12 @@ func (m *Map) AddComponent(e Component) error {
 	if !e.GetPosition().In(image.Rect(0, 0, 100, 100)) {
 		return errors.New("component out of bounds")
 	}
-	m.DirectedGraph.AddNode(e)
+	m.AddNode(e)
 	return nil
 }
 
 func (m *Map) SetCollaboration(e Collaboration) error {
-	m.DirectedGraph.SetEdge(e)
+	m.SetEdge(e)
 	return nil
 }
 
@@ -132,4 +150,5 @@ func (m *Map) SetCollaboration(e Collaboration) error {
 type Chainer interface {
 	// GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
 	GetAbsoluteVisibility() int
+	SetAbsoluteVisibility(v int)
 }

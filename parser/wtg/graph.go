@@ -130,7 +130,7 @@ func (m *scratchMapchMap) SetEdge(e graph.Edge) {
 type node struct {
 	visibility    int
 	evolutionStep int
-	c             *wardley.Component
+	c             wardley.Element
 }
 
 func (node *node) ID() int64 {
