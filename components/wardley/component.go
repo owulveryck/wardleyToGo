@@ -39,7 +39,8 @@ type Component struct {
 	Color               color.Color
 	AbsoluteVisibility  int
 	Anchor              int
-	PipelinedComponents map[string]*Component
+	PipelinedComponents []*Component
+	PipelineReference   *Component
 }
 
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor

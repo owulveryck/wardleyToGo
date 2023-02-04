@@ -73,6 +73,7 @@ func (p *Parser) inventory(s string) error {
 	l := newLexer(s, startState)
 	l.Start()
 	inComment := false
+	var previous token
 	for tok := range l.tokens {
 		if inComment {
 			if tok.Type == endBlockCommentToken {
@@ -89,7 +90,13 @@ func (p *Parser) inventory(s string) error {
 				p.currentEdge = nil
 				continue
 			}
-			p.currentNode = p.upsertNode(tok.Value)
+			n := p.upsertNode(tok.Value)
+			if previous.Type == colonToken {
+				p.currentNode.Type = wardley.PipelineComponent
+				p.currentNode.PipelinedComponents = append(p.currentNode.PipelinedComponents, n)
+				n.PipelineReference = p.currentNode
+			}
+			p.currentNode = n
 		case visibilityToken:
 			if p.currentNode == nil {
 				return errors.New("cannot set visibility on a nil source node")
@@ -173,6 +180,7 @@ func (p *Parser) inventory(s string) error {
 		default:
 			p.InvalidEntries = append(p.InvalidEntries, fmt.Errorf("unhandled element: %v (%x)", tok.Value, tok.Value))
 		}
+		previous = tok
 	}
 	return l.Err
 }
