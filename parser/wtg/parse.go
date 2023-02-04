@@ -18,6 +18,7 @@ type Parser struct {
 	edgeInventory   []*wardley.Collaboration
 	currentNode     *wardley.Component
 	currentEdge     *wardley.Collaboration
+	previousEdge    *wardley.Collaboration
 	visibilityOnly  bool
 	WMap            *wardleyToGo.Map
 	EvolutionStages []svgmap.Evolution
@@ -83,23 +84,34 @@ func (p *Parser) inventory(s string) error {
 		}
 		switch tok.Type {
 		case identifierToken:
-			if p.currentEdge != nil {
-				p.currentEdge.F = p.currentNode
-				p.currentEdge.T = p.upsertNode(tok.Value)
-				p.currentNode = nil
-				p.currentEdge = nil
-				continue
-			}
+			// TODO: fix in case of pipeline
 			n := p.upsertNode(tok.Value)
-			if previous.Type == colonToken {
+			if previous.Type == colonToken && p.currentNode != nil {
 				p.currentNode.Type = wardley.PipelineComponent
 				p.currentNode.PipelinedComponents = append(p.currentNode.PipelinedComponents, n)
 				n.PipelineReference = p.currentNode
 			}
+			if p.previousEdge != nil {
+				if previous.Type == colonToken {
+					// remove old link, create a new one
+					p.previousEdge.T = n
+					p.previousEdge = nil
+					p.currentNode = nil
+					continue
+				}
+			}
+			if p.currentEdge != nil {
+				p.currentEdge.F = p.currentNode
+				p.currentEdge.T = n
+				p.currentNode = nil
+				p.currentEdge = nil
+				p.previousEdge = p.currentEdge
+				continue
+			}
 			p.currentNode = n
 		case visibilityToken:
 			if p.currentNode == nil {
-				return errors.New("cannot set visibility on a nil source node")
+				return fmt.Errorf("cannot set visibility on a nil source node - nodes are: %v", p.nodeInventory)
 			}
 			p.currentEdge = p.insertEdge(tok.Value)
 		case evolutionItem:
