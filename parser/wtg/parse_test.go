@@ -38,7 +38,7 @@ cup of tea: {
 }
 cup: {
   type: buy
-  evolution: |....|....|....|....x....|
+  evolution: |....|....|....|......x....|
 }
 tea: {
   type: buy
@@ -134,7 +134,7 @@ cup of tea: {
 }
 cup: {
   type: buy
-  evolution: |....|....|....|....x....|
+  evolution: |....|....|....|......x....|
 }
 tea: {
   type: buy
@@ -198,8 +198,8 @@ func allCommented(t *testing.T) {
 	dsadsadsa
 	dsadsadsadsa
 	*/`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
@@ -215,11 +215,16 @@ func allCommented(t *testing.T) {
 
 func empty(t *testing.T) {
 	nodes := ` `
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
+	err = p.start()
+	if err != nil {
+		t.Error(err)
+	}
+
 	if p.edgeInventory != nil && len(p.edgeInventory) != 0 {
 		t.Log(p.edgeInventory)
 		t.Error("edge inventory should be empty")
@@ -234,8 +239,12 @@ func oneNode(t *testing.T) {
 	nodes := `
 		node1
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err != nil {
 		t.Error(err)
 	}
@@ -254,8 +263,12 @@ func twoNodes(t *testing.T) {
 		node1
 		node2
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err != nil {
 		t.Error(err)
 	}
@@ -277,8 +290,12 @@ func oneEdge(t *testing.T) {
 	nodes := `
 		node1 - node2
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err != nil {
 		t.Error(err)
 	}
@@ -309,8 +326,12 @@ func simpleEvolution(t *testing.T) {
 	nodes := `
 	node1: |.x.|...|...|...|
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err != nil {
 		t.Error(err)
 	}
@@ -331,8 +352,12 @@ func simpleEvolutionWithComment(t *testing.T) {
 	nodes := `
 	node1: |.x.|...|...|...| // comment
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err != nil {
 		t.Error(err)
 	}
@@ -352,17 +377,25 @@ func simpleEvolutionWithComment(t *testing.T) {
 
 func visibilityOnNilNode(t *testing.T) {
 	nodes := `-- bla`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err == nil {
 		t.Error("expected error")
 	}
 }
 func evolutionOnNilNode(t *testing.T) {
 	nodes := `
-	|...|...|...|...|`
-	p := NewParser()
-	err := p.inventory(nodes)
+	|...|.x.|...|...|`
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.start()
 	if err == nil {
 		t.Error("expected error")
 	}
@@ -379,8 +412,12 @@ func types(t *testing.T) {
 		type: outsource
 	}
 	`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := &inventorier{}
+	err := p.init(nodes)
+	if err != nil {
+		t.Error("expected error")
+	}
+	err = p.start()
 	if err != nil {
 		t.Error("expected error")
 	}
