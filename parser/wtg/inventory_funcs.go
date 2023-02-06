@@ -73,9 +73,14 @@ func (inv *inventorier) nodeConfiguration() error {
 		return nil
 	case startBlockToken:
 		return inv.nodeBlock()
+	case identifierToken:
+		a := inv.upsertNode(inv.peek(2).Value)
+		n.Type = wardley.PipelineComponent
+		upsertAnchor(n, a)
 	default:
-		return fmt.Errorf("expected evolution or configuration, got %v %v %v", inv.peek(0).Value, inv.peek(1).Value, inv.peek(2).Value)
+		//return fmt.Errorf("expected evolution or configuration, got %v %v %v", inv.peek(0).Value, inv.peek(1).Value, inv.peek(2).Value)
 	}
+	return nil
 }
 
 // offset is node, offset:1 is colon offset+2 is open bracket

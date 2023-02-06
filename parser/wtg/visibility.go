@@ -55,11 +55,15 @@ func (v *visibilityVisiter) visit(srcNode graph.Node) {
 	if nVisibility > n.visibility {
 		n.visibility = nVisibility
 	}
+	if n.c.PipelineReference != nil && v.g.Node(n.c.PipelineReference.ID()).(*node).visibility == 0 {
+		v.g.Node(n.c.PipelineReference.ID()).(*node).visibility = n.visibility
+	}
 	// now sets the visibility of the pipelined components
 	for _, c := range n.c.PipelinedComponents {
-		v.g.Node(c.ID()).(*node).visibility = n.visibility
+		if n.visibility != 0 {
+			v.g.Node(c.ID()).(*node).visibility = n.visibility
+		}
 	}
-	//
 	if nVisibility > v.maxVisibility {
 		v.maxVisibility = nVisibility
 	}
