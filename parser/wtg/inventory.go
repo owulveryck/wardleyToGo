@@ -21,7 +21,7 @@ func (inv *inventorier) init(src string) error {
 	inv.nodeInventory = make(map[string]*wardley.Component)
 	inv.edgeInventory = make([]*wardley.Collaboration, 0)
 	inv.tokens = make([]token, 0)
-	inv.evolutionStages = make([]svgmap.Evolution, 4)
+	inv.evolutionStages = svgmap.DefaultEvolution
 	l := newLexer(src, startState)
 	l.Start()
 	for tok := range l.tokens {

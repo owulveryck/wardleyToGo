@@ -16,13 +16,13 @@ func (inv *inventorier) start() error {
 			err = inv.sourceNodeState()
 		case titleItem:
 			inv.title = strings.TrimSpace(inv.peek(0).Value)
-		case stage1Token:
+		case stage1Item:
 			inv.evolutionStages[0].Label = inv.peek(0).Value
-		case stage2Token:
+		case stage2Item:
 			inv.evolutionStages[1].Label = inv.peek(0).Value
-		case stage3Token:
+		case stage3Item:
 			inv.evolutionStages[2].Label = inv.peek(0).Value
-		case stage4Token:
+		case stage4Item:
 			inv.evolutionStages[3].Label = inv.peek(0).Value
 		case startBlockToken:
 			err = inv.inComment()
@@ -117,6 +117,11 @@ func (inv *inventorier) nodeBlock() error {
 				n.Type = wardley.OutsourceComponent
 			default:
 				return fmt.Errorf("unknown type %v", inv.peek(0).Value)
+			}
+		case labelItem:
+			err := setLabelPlacement(n, inv.peek(0).Value)
+			if err != nil {
+				return err
 			}
 		case colorItem:
 			if col, ok := Colors[inv.peek(0).Value]; ok {

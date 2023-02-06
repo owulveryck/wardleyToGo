@@ -168,8 +168,8 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 	components := make([]interface{}, 0)
 	components = append(components, svg.Rectangle{
 		R: image.Rectangle{
-			Min: image.Point{-15, -15},
-			Max: image.Point{-5, -5},
+			Min: image.Point{-5, -15},
+			Max: image.Point{5, -5},
 		},
 		StrokeWidth: "3",
 		Stroke:      col,

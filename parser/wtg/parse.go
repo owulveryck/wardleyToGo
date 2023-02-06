@@ -5,6 +5,7 @@ import (
 	"image"
 	"io"
 	"io/ioutil"
+	"log"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -64,6 +65,9 @@ func (p *Parser) parse(s string) error {
 	if err != nil {
 		return fmt.Errorf("cannot consolidate map: %w", err)
 	}
+	m.Title = inv.title
+	log.Println(inv.evolutionStages)
+	copy(p.EvolutionStages, inv.evolutionStages)
 	p.WMap = m
 	SetCoords(*p.WMap, true)
 	SetLabelAnchor(*p.WMap)
