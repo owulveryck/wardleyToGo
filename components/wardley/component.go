@@ -142,7 +142,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 			R:           image.Rect(lowestBound.X, lowestBound.Y+10, greaterBound.X, greaterBound.Y-10),
 			Rx:          0,
 			Ry:          0,
-			Fill:        svg.White,
+			Fill:        svg.Transparent,
 			Stroke:      svg.Black,
 			StrokeWidth: "1",
 			Style:       "",

@@ -12,16 +12,16 @@ func consolidateMapOK(t *testing.T) {
 	nodes := `
 	node1 - node2
 	`
-	inv := &inventorier{}
+	inv := NewInventory()
 	err := inv.init(nodes)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = inv.start()
+	err = inv.Run()
 	if err != nil {
 		t.Fatal(err)
 	}
-	m, err := consolidateMap(inv.nodeInventory, inv.edgeInventory)
+	m, err := consolidateMap(inv.NodeInventory, inv.EdgeInventory)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,13 +41,13 @@ func consolidateMapWithEvolution(t *testing.T) {
 	node1 - node2
 	node1: |.x.|.>.|...|...|
 	`
-	inv := &inventorier{}
+	inv := NewInventory()
 	err := inv.init(nodes)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = inv.start()
-	m, err := consolidateMap(inv.nodeInventory, inv.edgeInventory)
+	err = inv.Run()
+	m, err := consolidateMap(inv.NodeInventory, inv.EdgeInventory)
 	if err != nil {
 		t.Fatal(err)
 	}

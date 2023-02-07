@@ -5,7 +5,6 @@ import (
 	"image"
 	"io"
 	"io/ioutil"
-	"log"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -47,27 +46,27 @@ func (p *Parser) Parse(r io.Reader) error {
 	}
 	return p.parse(string(b))
 }
+
 func (p *Parser) parse(s string) error {
 
-	inv := &inventorier{}
+	inv := NewInventory()
 	err := inv.init(s)
 	if err != nil {
 		return fmt.Errorf("error in parsing: %w", err)
 	}
-	err = inv.start()
+	err = inv.Run()
 	if err != nil {
 		return fmt.Errorf("error in parsing: %w", err)
 	}
-	if len(inv.nodeInventory) == 0 {
+	if len(inv.NodeInventory) == 0 {
 		return fmt.Errorf("no map")
 	}
-	m, err := consolidateMap(inv.nodeInventory, inv.edgeInventory)
+	m, err := consolidateMap(inv.NodeInventory, inv.EdgeInventory)
 	if err != nil {
 		return fmt.Errorf("cannot consolidate map: %w", err)
 	}
-	m.Title = inv.title
-	log.Println(inv.evolutionStages)
-	copy(p.EvolutionStages, inv.evolutionStages)
+	m.Title = inv.Title
+	copy(p.EvolutionStages, inv.EvolutionStages)
 	p.WMap = m
 	SetCoords(*p.WMap, true)
 	SetLabelAnchor(*p.WMap)

@@ -7,7 +7,7 @@ import (
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
-func (inv *inventorier) start() error {
+func (inv *Inventory) Run() error {
 	for inv.offset = 0; inv.offset < len(inv.tokens); inv.offset++ {
 		//log.Printf("%v: %v", inv.offset, inv.peek(0).Value)
 		var err error
@@ -15,15 +15,15 @@ func (inv *inventorier) start() error {
 		case identifierToken:
 			err = inv.sourceNodeState()
 		case titleItem:
-			inv.title = strings.TrimSpace(inv.peek(0).Value)
+			inv.Title = strings.TrimSpace(inv.peek(0).Value)
 		case stage1Item:
-			inv.evolutionStages[0].Label = inv.peek(0).Value
+			inv.EvolutionStages[0].Label = inv.peek(0).Value
 		case stage2Item:
-			inv.evolutionStages[1].Label = inv.peek(0).Value
+			inv.EvolutionStages[1].Label = inv.peek(0).Value
 		case stage3Item:
-			inv.evolutionStages[2].Label = inv.peek(0).Value
+			inv.EvolutionStages[2].Label = inv.peek(0).Value
 		case stage4Item:
-			inv.evolutionStages[3].Label = inv.peek(0).Value
+			inv.EvolutionStages[3].Label = inv.peek(0).Value
 		case startBlockToken:
 			err = inv.inComment()
 		case eofToken:
@@ -40,7 +40,7 @@ func (inv *inventorier) start() error {
 	return nil
 }
 
-func (inv *inventorier) inComment() error {
+func (inv *Inventory) inComment() error {
 	openComment := 1
 	for inv.offset++; openComment > 0; inv.offset++ {
 		switch inv.peek(0).Type {
@@ -57,7 +57,7 @@ func (inv *inventorier) inComment() error {
 }
 
 // offset is a node and offset+1 is a colon
-func (inv *inventorier) nodeConfiguration() error {
+func (inv *Inventory) nodeConfiguration() error {
 	n := inv.upsertNode(inv.tokens[inv.offset].Value)
 	//log.Printf(".... %v", inv.peek(2))
 	switch inv.peek(2).Type {
@@ -84,7 +84,7 @@ func (inv *inventorier) nodeConfiguration() error {
 }
 
 // offset is node, offset:1 is colon offset+2 is open bracket
-func (inv *inventorier) nodeBlock() error {
+func (inv *Inventory) nodeBlock() error {
 	n := inv.upsertNode(inv.tokens[inv.offset].Value)
 	openBrackets := 1
 	for inv.offset += 3; openBrackets > 0; inv.offset++ {
@@ -140,7 +140,7 @@ func (inv *inventorier) nodeBlock() error {
 // sourceNodeState is a state where we have an initial node that can act as a source of a link
 // or the node to be configured
 // startOffset is the offset from where it has been called (and i.tokens[startOFfset] must be an identifierToken)
-func (inv *inventorier) sourceNodeState() error {
+func (inv *Inventory) sourceNodeState() error {
 	if inv.visibilitySeek() {
 		return nil
 	}
@@ -151,6 +151,6 @@ func (inv *inventorier) sourceNodeState() error {
 	return nil
 }
 
-func (inv *inventorier) titleState() error {
+func (inv *Inventory) titleState() error {
 	return fmt.Errorf("not implemented")
 }

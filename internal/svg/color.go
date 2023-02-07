@@ -12,9 +12,10 @@ type Color struct {
 }
 
 var (
-	Black = Color{color.Black}
-	Red   = Color{color.RGBA{0xff, 0x00, 0x00, 0xff}}
-	White = Color{color.White}
+	Black       = Color{color.Black}
+	Red         = Color{color.RGBA{0xff, 0x00, 0x00, 0xff}}
+	Transparent = Color{color.RGBA{0xff, 0xff, 0xff, 0x00}}
+	White       = Color{color.White}
 )
 
 func Gray(Y uint8) Color {

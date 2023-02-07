@@ -1,6 +1,6 @@
 package wtg
 
-func (inv *inventorier) visibilitySetN1N2() {
+func (inv *Inventory) visibilitySetN1N2() {
 	n1 := inv.upsertNode(inv.tokens[inv.offset].Value)
 	n2 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
 	e := inv.insertEdge(inv.tokens[inv.offset+1].Value)
@@ -8,7 +8,7 @@ func (inv *inventorier) visibilitySetN1N2() {
 	e.T = n2
 	inv.offset += 2
 }
-func (inv *inventorier) visibilitySetP1a1N2() {
+func (inv *Inventory) visibilitySetP1a1N2() {
 	P1 := inv.upsertNode(inv.tokens[inv.offset].Value)
 	a1 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
 	upsertAnchor(P1, a1)
@@ -18,7 +18,7 @@ func (inv *inventorier) visibilitySetP1a1N2() {
 	e.T = P2
 	inv.offset += 4
 }
-func (inv *inventorier) visibilitySetN1P2a2() {
+func (inv *Inventory) visibilitySetN1P2a2() {
 	N1 := inv.upsertNode(inv.tokens[inv.offset].Value)
 	e := inv.insertEdge(inv.tokens[inv.offset+1].Value)
 	P2 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
@@ -28,7 +28,7 @@ func (inv *inventorier) visibilitySetN1P2a2() {
 	e.T = a2
 	inv.offset += 4
 }
-func (inv *inventorier) visibilitySetP1a1P2a2() {
+func (inv *Inventory) visibilitySetP1a1P2a2() {
 	e := inv.insertEdge(inv.tokens[inv.offset+3].Value)
 	P1 := inv.upsertNode(inv.tokens[inv.offset].Value)
 	a1 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
@@ -40,7 +40,7 @@ func (inv *inventorier) visibilitySetP1a1P2a2() {
 	e.T = a2
 	inv.offset += 6
 }
-func (inv *inventorier) visibilitySeek() bool {
+func (inv *Inventory) visibilitySeek() bool {
 	visibilityFunc := []func(){inv.visibilitySetP1a1P2a2, inv.visibilitySetP1a1N2, inv.visibilitySetN1P2a2, inv.visibilitySetN1N2}
 	truthTable := []bool{true, true, true, true}
 	visibilities := [][]tokenType{
