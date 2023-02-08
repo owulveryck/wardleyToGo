@@ -33,8 +33,8 @@ func TestComponent_MarshalSVG(t *testing.T) {
 		EvolutionPos:       0,
 		Color:              color.Gray{},
 		AbsoluteVisibility: 0,
-		PipelinedComponents: map[string]*Component{
-			"p1": {
+		PipelinedComponents: []*Component{
+			{
 				id:                  0,
 				Placement:           image.Point{20, 50},
 				Label:               "p1",
@@ -47,7 +47,7 @@ func TestComponent_MarshalSVG(t *testing.T) {
 				AbsoluteVisibility:  0,
 				PipelinedComponents: nil,
 			},
-			"p2": {
+			{
 				id:                  0,
 				Placement:           image.Point{70, 50},
 				Label:               "p2",

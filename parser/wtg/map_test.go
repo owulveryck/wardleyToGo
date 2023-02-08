@@ -12,20 +12,24 @@ func consolidateMapOK(t *testing.T) {
 	nodes := `
 	node1 - node2
 	`
-	p := NewParser()
-	err := p.inventory(nodes)
+	inv := NewInventory()
+	err := inv.init(nodes)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = p.consolidateMap()
+	err = inv.Run()
 	if err != nil {
 		t.Fatal(err)
 	}
-	nodeIT := p.WMap.Nodes()
+	m, err := consolidateMap(inv.NodeInventory, inv.EdgeInventory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	nodeIT := m.Nodes()
 	if nodeIT.Len() != 2 {
 		t.Fatal("expected two nodes")
 	}
-	edgeIT := p.WMap.Edges()
+	edgeIT := m.Edges()
 	if edgeIT.Len() != 1 {
 		t.Fatal("expected one edge")
 	}
@@ -37,20 +41,24 @@ func consolidateMapWithEvolution(t *testing.T) {
 	node1 - node2
 	node1: |.x.|.>.|...|...|
 	`
-	p := NewParser()
-	err := p.inventory(nodes)
+	inv := NewInventory()
+	err := inv.init(nodes)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = p.consolidateMap()
+	err = inv.Run()
+	m, err := consolidateMap(inv.NodeInventory, inv.EdgeInventory)
 	if err != nil {
 		t.Fatal(err)
 	}
-	nodeIT := p.WMap.Nodes()
+	if err != nil {
+		t.Fatal(err)
+	}
+	nodeIT := m.Nodes()
 	if nodeIT.Len() != 3 {
 		t.Fatal("expected three nodes")
 	}
-	edgeIT := p.WMap.Edges()
+	edgeIT := m.Edges()
 	if edgeIT.Len() != 2 {
 		t.Fatal("expected two edges")
 	}

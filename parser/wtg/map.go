@@ -4,27 +4,29 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	"gonum.org/v1/gonum/graph/topo"
 )
 
-func (p *Parser) consolidateMap() error {
-	currentID := len(p.nodeInventory)
-	for _, n := range p.nodeInventory {
-		err := p.WMap.AddComponent(n)
+func consolidateMap(nodeInventory map[string]*wardley.Component, edgeInventory []*wardley.Collaboration) (*wardleyToGo.Map, error) {
+	wmap := wardleyToGo.NewMap(0)
+	currentID := len(nodeInventory)
+	for _, n := range nodeInventory {
+		err := wmap.AddComponent(n)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if n.EvolutionPos != 0 {
 			c := wardley.NewEvolvedComponent(int64(currentID))
 			c.Placement.X = n.EvolutionPos
 			c.Placement.Y = n.Placement.Y
 			c.Label = n.Label
-			err := p.WMap.AddComponent(c)
+			err := wmap.AddComponent(c)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			p.WMap.SetCollaboration(&wardley.Collaboration{
+			wmap.SetCollaboration(&wardley.Collaboration{
 				F:    n,
 				T:    c,
 				Type: wardley.EvolvedComponentEdge,
@@ -32,21 +34,21 @@ func (p *Parser) consolidateMap() error {
 		}
 		currentID++
 	}
-	for _, e := range p.edgeInventory {
+	for _, e := range edgeInventory {
 		if e.F == nil || e.T == nil {
-			return fmt.Errorf("bad edge: %v", e)
+			return nil, fmt.Errorf("bad edge: %v", e)
 		}
 		if e.F == e.T {
-			return fmt.Errorf("self edge: F: %v, T: %v", e.F, e.T)
+			return nil, fmt.Errorf("self edge: F: %v, T: %v", e.F, e.T)
 		}
-		err := p.WMap.SetCollaboration(e)
+		err := wmap.SetCollaboration(e)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	cycles := topo.DirectedCyclesIn(p.WMap)
+	cycles := topo.DirectedCyclesIn(wmap)
 	if len(cycles) != 0 {
-		return errors.New("cycles detected in the map")
+		return nil, errors.New("cycles detected in the map")
 	}
-	return nil
+	return wmap, nil
 }

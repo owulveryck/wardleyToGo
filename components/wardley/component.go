@@ -39,7 +39,8 @@ type Component struct {
 	Color               color.Color
 	AbsoluteVisibility  int
 	Anchor              int
-	PipelinedComponents map[string]*Component
+	PipelinedComponents []*Component
+	PipelineReference   *Component
 }
 
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
@@ -141,8 +142,8 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 			R:           image.Rect(lowestBound.X, lowestBound.Y+10, greaterBound.X, greaterBound.Y-10),
 			Rx:          0,
 			Ry:          0,
-			Fill:        svg.Color{},
-			Stroke:      svg.Color{},
+			Fill:        svg.Transparent,
+			Stroke:      svg.Black,
 			StrokeWidth: "1",
 			Style:       "",
 		})
@@ -167,8 +168,8 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 	components := make([]interface{}, 0)
 	components = append(components, svg.Rectangle{
 		R: image.Rectangle{
-			Min: image.Point{-5, -5},
-			Max: image.Point{5, 5},
+			Min: image.Point{-5, -15},
+			Max: image.Point{5, -5},
 		},
 		StrokeWidth: "3",
 		Stroke:      col,

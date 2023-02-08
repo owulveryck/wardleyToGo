@@ -321,7 +321,7 @@ func evolutionState(l *lexer) stateFunc {
 }
 
 func isAllowedCharacterForIdentifier(r rune) bool {
-	if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == ' ' || r == '-' {
+	if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == ' ' || r == '-' || r == '\'' {
 		return true
 	}
 	return false

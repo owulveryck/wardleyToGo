@@ -116,6 +116,7 @@ func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
 	}
 }
 
+// setY sets the placement of the node according to the visibility of the component carried by the scratchmap
 func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 	vStep := 50
 	if maxVisibility != 0 {

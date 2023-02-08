@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-func getBounds(cs map[string]*Component) image.Rectangle {
+func getBounds(cs []*Component) image.Rectangle {
 	csCopy := make([]*Component, len(cs))
 	i := 0
 	for _, c := range cs {

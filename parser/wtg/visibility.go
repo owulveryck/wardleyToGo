@@ -14,8 +14,17 @@ func setNodesVisibility(g *scratchMapchMap) int {
 	bf := &traverse.BreadthFirst{
 		Visit: v.visit,
 	}
+	// first pass without the pipelines
 	for _, root := range roots {
-		bf.Walk(g, root, nil)
+		if root.(*node).c.PipelineReference == nil {
+			bf.Walk(g, root, nil)
+		}
+	}
+	// second pass for pipeline references the are "root"
+	for _, root := range roots {
+		if root.(*node).c.PipelineReference != nil {
+			bf.Walk(g, root, nil)
+		}
 	}
 	return v.maxVisibility
 }
@@ -42,9 +51,18 @@ func (v *visibilityVisiter) visit(srcNode graph.Node) {
 		}
 	}
 	// the node may have already been visited in some circumstances
-	// in that case, we take the breatest visibility
+	// in that case, we take the greatest visibility
 	if nVisibility > n.visibility {
 		n.visibility = nVisibility
+	}
+	if n.c.PipelineReference != nil && v.g.Node(n.c.PipelineReference.ID()).(*node).visibility == 0 {
+		v.g.Node(n.c.PipelineReference.ID()).(*node).visibility = n.visibility
+	}
+	// now sets the visibility of the pipelined components
+	for _, c := range n.c.PipelinedComponents {
+		if n.visibility != 0 {
+			v.g.Node(c.ID()).(*node).visibility = n.visibility
+		}
 	}
 	if nVisibility > v.maxVisibility {
 		v.maxVisibility = nVisibility

@@ -38,7 +38,7 @@ cup of tea: {
 }
 cup: {
   type: buy
-  evolution: |....|....|....|....x....|
+  evolution: |....|....|....|......x....|
 }
 tea: {
   type: buy
@@ -134,7 +134,7 @@ cup of tea: {
 }
 cup: {
   type: buy
-  evolution: |....|....|....|....x....|
+  evolution: |....|....|....|......x....|
 }
 tea: {
   type: buy
@@ -198,16 +198,16 @@ func allCommented(t *testing.T) {
 	dsadsadsa
 	dsadsadsadsa
 	*/`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory != nil && len(p.edgeInventory) != 0 {
-		t.Log(p.edgeInventory)
+	if p.EdgeInventory != nil && len(p.EdgeInventory) != 0 {
+		t.Log(p.EdgeInventory)
 		t.Error("edge inventory should be empty")
 	}
-	if len(p.nodeInventory) != 0 {
+	if len(p.NodeInventory) != 0 {
 		t.Error("node inventory should be empty")
 
 	}
@@ -215,16 +215,21 @@ func allCommented(t *testing.T) {
 
 func empty(t *testing.T) {
 	nodes := ` `
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory != nil && len(p.edgeInventory) != 0 {
-		t.Log(p.edgeInventory)
+	err = p.Run()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if p.EdgeInventory != nil && len(p.EdgeInventory) != 0 {
+		t.Log(p.EdgeInventory)
 		t.Error("edge inventory should be empty")
 	}
-	if len(p.nodeInventory) != 0 {
+	if len(p.NodeInventory) != 0 {
 		t.Error("node inventory should be empty")
 
 	}
@@ -234,17 +239,21 @@ func oneNode(t *testing.T) {
 	nodes := `
 		node1
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory != nil && len(p.edgeInventory) != 0 {
-		t.Log(p.edgeInventory)
+	err = p.Run()
+	if err != nil {
+		t.Error(err)
+	}
+	if p.EdgeInventory != nil && len(p.EdgeInventory) != 0 {
+		t.Log(p.EdgeInventory)
 		t.Error("edge inventory should be empty")
 	}
-	if _, ok := p.nodeInventory["node1"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node1")
 	}
 	//t.Error("test")
@@ -254,21 +263,25 @@ func twoNodes(t *testing.T) {
 		node1
 		node2
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory != nil && len(p.edgeInventory) != 0 {
-		t.Log(p.edgeInventory)
+	err = p.Run()
+	if err != nil {
+		t.Error(err)
+	}
+	if p.EdgeInventory != nil && len(p.EdgeInventory) != 0 {
+		t.Log(p.EdgeInventory)
 		t.Error("edge inventory should be empty")
 	}
-	if _, ok := p.nodeInventory["node1"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node1")
 	}
-	if _, ok := p.nodeInventory["node2"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node2"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node2")
 	}
 	//t.Error("test")
@@ -277,30 +290,34 @@ func oneEdge(t *testing.T) {
 	nodes := `
 		node1 - node2
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory == nil || len(p.edgeInventory) != 1 {
-		t.Log(p.edgeInventory)
+	err = p.Run()
+	if err != nil {
+		t.Error(err)
+	}
+	if p.EdgeInventory == nil || len(p.EdgeInventory) != 1 {
+		t.Log(p.EdgeInventory)
 		t.Error("edge inventory should not be empty")
-		if p.edgeInventory[0].F != p.nodeInventory["node1"] {
+		if p.EdgeInventory[0].F != p.NodeInventory["node1"] {
 			t.Error("bad from node")
 		}
-		if p.edgeInventory[0].T != p.nodeInventory["node2"] {
+		if p.EdgeInventory[0].T != p.NodeInventory["node2"] {
 			t.Error("bad to node")
 		}
-		if p.edgeInventory[0].Visibility != 1 {
+		if p.EdgeInventory[0].Visibility != 1 {
 			t.Error("bad visibility")
 		}
 	}
-	if _, ok := p.nodeInventory["node1"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node1")
 	}
-	if _, ok := p.nodeInventory["node2"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node2"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node2")
 	}
 	//t.Error("test")
@@ -309,21 +326,25 @@ func simpleEvolution(t *testing.T) {
 	nodes := `
 	node1: |.x.|...|...|...|
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory == nil || len(p.edgeInventory) != 0 {
+	err = p.Run()
+	if err != nil {
+		t.Error(err)
+	}
+	if p.EdgeInventory == nil || len(p.EdgeInventory) != 0 {
 		t.Error("edge inventory should be empty")
 	}
-	if _, ok := p.nodeInventory["node1"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node1")
 		return
 	}
-	if p.nodeInventory["node1"].Placement.X != 9 {
-		t.Errorf("expected plactement to be 9, but is %v", p.nodeInventory["node1"].Placement.X)
+	if p.NodeInventory["node1"].Placement.X != 9 {
+		t.Errorf("expected plactement to be 9, but is %v", p.NodeInventory["node1"].Placement.X)
 	}
 	//t.Error("test")
 }
@@ -331,38 +352,50 @@ func simpleEvolutionWithComment(t *testing.T) {
 	nodes := `
 	node1: |.x.|...|...|...| // comment
 		`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error(err)
 	}
-	if p.edgeInventory == nil || len(p.edgeInventory) != 0 {
+	err = p.Run()
+	if err != nil {
+		t.Error(err)
+	}
+	if p.EdgeInventory == nil || len(p.EdgeInventory) != 0 {
 		t.Error("edge inventory should be empty")
 	}
-	if _, ok := p.nodeInventory["node1"]; !ok {
-		t.Log(p.nodeInventory)
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Log(p.NodeInventory)
 		t.Error("should have node1")
 		return
 	}
-	if p.nodeInventory["node1"].Placement.X != 9 {
-		t.Errorf("expected plactement to be 9, but is %v", p.nodeInventory["node1"].Placement.X)
+	if p.NodeInventory["node1"].Placement.X != 9 {
+		t.Errorf("expected plactement to be 9, but is %v", p.NodeInventory["node1"].Placement.X)
 	}
 	//t.Error("test")
 }
 
 func visibilityOnNilNode(t *testing.T) {
 	nodes := `-- bla`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.Run()
 	if err == nil {
 		t.Error("expected error")
 	}
 }
 func evolutionOnNilNode(t *testing.T) {
 	nodes := `
-	|...|...|...|...|`
-	p := NewParser()
-	err := p.inventory(nodes)
+	|...|.x.|...|...|`
+	p := NewInventory()
+	err := p.init(nodes)
+	if err != nil {
+		t.Error(err)
+	}
+	err = p.Run()
 	if err == nil {
 		t.Error("expected error")
 	}
@@ -379,12 +412,16 @@ func types(t *testing.T) {
 		type: outsource
 	}
 	`
-	p := NewParser()
-	err := p.inventory(nodes)
+	p := NewInventory()
+	err := p.init(nodes)
 	if err != nil {
 		t.Error("expected error")
 	}
-	for k, v := range p.nodeInventory {
+	err = p.Run()
+	if err != nil {
+		t.Error("expected error")
+	}
+	for k, v := range p.NodeInventory {
 		switch k {
 		case "build":
 			if v.Type != wardley.BuildComponent {
