@@ -50,7 +50,7 @@ jobs:
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
         run: |
-          cd website && npm install autoprefixer && hugo \
+          cd docs && npm install autoprefixer && hugo \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Setup go to build the demo
@@ -58,14 +58,14 @@ jobs:
         with:
           go-version: '>=1.19.0'
       - name: Build the demo
-        run: go build -o website/static/demo/wtg.wasm examples/webassembly/wasm/main.go
+        run: go build -o docs/static/demo/wtg.wasm examples/webassembly/wasm/main.go
         env: 
           GOOS: js
           GOARCH: wasm
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./website/public
+          path: ./docs/public
 
   # Deployment job
   deploy:
