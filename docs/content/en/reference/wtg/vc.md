@@ -1,6 +1,6 @@
 ---
 title: "Value Chain"
-linkTitle: "wtg's value chain"
+linkTitle: "Value Chain"
 type: docs
 weight: 10
 description: >-
