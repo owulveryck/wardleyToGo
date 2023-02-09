@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html>  
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="{{ .Site.Language.Lang }}">
 	<head>
 		<meta charset="utf-8"/>
 		<link rel="icon" type="image/png" href="favicon-32.png" />
@@ -10,9 +10,6 @@
 	<body>
 		<pre id="editor"></pre>
 		<div id="options">
-			<label>
-				<a href="#" id="sample">Sample Map</a>
-			</label>
 			<label>
 				<a href="#" target="_blank" id="download">Download</a>
 			</label>
@@ -33,14 +30,19 @@
 			<label>
 				<input type="button" value="Apply" id="apply">
 			</label>
-
-
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			<label>
+				<a href="#" id="sample">Sample Map</a>
+			</label>
 		</div>
 		<div id="review">
 			<div id="error"></div>
 		</div>
 		<div id="status"></div>
-		<a class="github-fork-ribbon" href="https://github.com/owulveryck/wardleyToGo" data-ribbon="wardleyToGo on GitHub" title="wardleyToGo on GitHub">wardleyToGo on GitHub</a>
+		<a class="github-fork-ribbon" href="/reference/wtg/" target="_blank" data-ribbon="Language reference" title="Language reference">Language reference</a>
 		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 
 		<script src="script.js"></script>
@@ -56,6 +58,5 @@
 					onceLoaded(document);
 				});
 		</script>
-
-	</body>
-</html>  
+  </body>
+</html>
