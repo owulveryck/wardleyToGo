@@ -1,9 +1,7 @@
 ---
-title: "the wtg language"
-linkTitle: "the wtg language"
+title: "The wtg language"
+linkTitle: "The wtg language"
 type: docs
 description: >-
-     This is a description of the main package
+     This is a description of the wtg package
 ---
-
-`import "github.com/owulveryck/cue4puml4c4:c4"`
