@@ -1,11 +1,31 @@
 ---
-title: "Components Color palette"
-linkTitle: "Color palette"
+title: "Components Colors"
+linkTitle: "Colors"
 type: docs
 weight: 10
 description: >-
      The colors that can be used in wtg
 ---
+
+## Adding Colors
+
+```
+a - b
+b - c
+
+a: {
+    evolution: |||x||
+    color: Red
+}
+
+b: {
+    evolution: |||x||
+    color: Green
+}
+```
+
+![](/wardleyToGo/images/color.svg)
+## Palette
 
 - <p style="color:rgb(127,255,212);display:inline">AquaMarine</p>
 - <p style="color:rgb(70,130,180);display:inline">SteelBlue</p>
