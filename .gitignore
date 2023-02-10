@@ -21,3 +21,4 @@ tests/shapeCreator/polyline.go
 
 dist/
 examples/webassembly/assets/*
+docs/static/demo/wtg.wasm

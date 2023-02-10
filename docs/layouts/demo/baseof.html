@@ -1,0 +1,62 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="{{ .Site.Language.Lang }}">
+	<head>
+		<meta charset="utf-8"/>
+		<link rel="icon" type="image/png" href="favicon-32.png" />
+		<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
+
+	</head>
+	<body>
+		<pre id="editor"></pre>
+		<div id="options">
+			<label>
+				<a href="#" target="_blank" id="download">Download</a>
+			</label>
+
+			<label>
+				<input type="button" value="Share" id="share">
+			</label>
+
+			<input type="input" value="" id="shareurl">
+			<label>
+				width: 
+			<input type="input" value="1500" id="width">
+			</label>
+			<label>
+				Height:
+			<input type="input" value="1000" id="height">
+			</label>
+			<label>
+				<input type="button" value="Apply" id="apply">
+			</label>
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			<label>
+				<a href="#" id="sample">Sample Map</a>
+			</label>
+		</div>
+		<div id="review">
+			<div id="error"></div>
+		</div>
+		<div id="status"></div>
+		<a class="github-fork-ribbon" href="/reference/wtg/" target="_blank" data-ribbon="Language reference" title="Language reference">Language reference</a>
+		<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+
+		<script src="script.js"></script>
+		<script src="svg-pan-zoom.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="wasm_exec.js"></script>
+		<script>
+			const go = new Go();
+			WebAssembly.instantiateStreaming(fetch("wtg.wasm"), go.importObject)
+				.then((result) => {
+					go.run(result.instance);
+				})
+				.then(instance => {
+					onceLoaded(document);
+				});
+		</script>
+  </body>
+</html>
