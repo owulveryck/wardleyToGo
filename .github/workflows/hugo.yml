@@ -44,15 +44,6 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v2
-      - name: Build with Hugo
-        env:
-          # For maximum backward compatibility with Hugo modules
-          HUGO_ENVIRONMENT: production
-          HUGO_ENV: production
-        run: |
-          cd docs && npm install autoprefixer && hugo \
-            --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Setup go to build the demo
         uses: actions/setup-go@v3
         with:
@@ -62,6 +53,15 @@ jobs:
         env: 
           GOOS: js
           GOARCH: wasm
+      - name: Build with Hugo
+        env:
+          # For maximum backward compatibility with Hugo modules
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: |
+          cd docs && npm install autoprefixer && hugo \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
