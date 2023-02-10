@@ -4,7 +4,7 @@ linkTitle = "wardleyToGo"
 
 +++
 
-{{< blocks/cover title="Welcome to wardleyToGo" image_anchor="top" height="full" color="white" >}}
+{{< blocks/cover title="" image_anchor="top" height="full" color="primary" >}}
 <div class="mx-auto">
 	<a class="btn btn-lg btn-primary mr-3 mb-4" href="https://github.com/owulveryck/wardleyToGo">
 		GitHub Repo <i class="fab fa-github ml-2 "></i>
