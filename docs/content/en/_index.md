@@ -4,7 +4,7 @@ linkTitle = "wardleyToGo"
 
 +++
 
-{{< blocks/cover title="Welcome to wardleyToGo" image_anchor="top" height="full" color="primary" >}}
+{{< blocks/cover title="Welcome to wardleyToGo" image_anchor="top" height="full" color="white" >}}
 <div class="mx-auto">
 	<a class="btn btn-lg btn-primary mr-3 mb-4" href="https://github.com/owulveryck/wardleyToGo">
 		GitHub Repo <i class="fab fa-github ml-2 "></i>
@@ -14,13 +14,5 @@ linkTitle = "wardleyToGo"
 	</a>
 	<p class="lead mt-5">
 
-[![](illustration.svg)](illustration.wtg)
-	</p>
-{{< blocks/link-down color="info" >}}
-</div>
-
 {{< /blocks/cover >}}
-{{% blocks/lead color="primary" %}}
-TODO: description
-{{% /blocks/lead %}}
 
