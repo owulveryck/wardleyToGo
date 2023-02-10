@@ -7,6 +7,8 @@ description: >-
      This is a description of the pipeline
 ---
 
+**Caution** Pipeline is a work in progress
+
 ## The pipeline component
 
 A pipeline can be declared as a type of a component.
