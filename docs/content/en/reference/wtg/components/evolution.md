@@ -2,6 +2,7 @@
 title: "Setting the evolution"
 linkTitle: "evolution"
 weight: 100
+type: docs
 description: >-
      This page describes the evolution placement.
 ---
@@ -45,3 +46,4 @@ example:
 
 `mycomponent: |..|..|..x..|.>.|`
 
+![](/wardleyToGo/images/evolution.svg)
