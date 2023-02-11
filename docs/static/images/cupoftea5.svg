@@ -1,0 +1,366 @@
+<svg width="100%" height="100%" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+    <defs>
+        <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="rgb(236,237,243)"></stop>
+            <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="100%" stop-color="rgb(236,237,243)"></stop>
+        </linearGradient>
+        <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
+        </marker>
+        <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
+        </marker>
+    </defs>
+    <rect x="30" y="50" width="940" height="700" style="fill:url(#wardleyGradient)"></rect>
+    <g transform=" translate(30,750) rotate(270)">
+        <line x1="0" y1="0" x2="700" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="163" x2="700" y2="163" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="376" x2="700" y2="376" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="658" x2="700" y2="658" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+            <tspan x="5" dy="-10">Invisible</tspan>
+        </text>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+            <tspan x="695" dy="-10">Visible</tspan>
+        </text>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+            <tspan x="350" dy="-10">Value Chain</tspan>
+        </text>
+    </g>
+    <line x1="30" y1="750" x2="970" y2="750" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+    <g id="visibilitytoggle_0" onclick="toggleVisibility()">
+        <circle cx="135" cy="785" r="5"></circle>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="start">
+            <tspan x="142" dy="789">Toggle visibility</tspan>
+        </text>
+    </g>
+    <g id="linktoggle_0" onclick="toggleLinks()">
+        <circle cx="35" cy="785" r="5"></circle>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="start">
+            <tspan x="42" dy="789">Toggle links</tspan>
+        </text>
+    </g>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="start">
+        <tspan x="37" dy="65">Uncharted</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="end">
+        <tspan x="965" dy="65">Industrialised</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
+        <tspan x="30" dy="765">genesis / concept</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
+        <tspan x="193" dy="765">custom / emerging</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
+        <tspan x="406" dy="765">product / converging</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
+        <tspan x="688" dy="765">commodity / accepted</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+        <tspan x="970" dy="765">Evolution</tspan>
+    </text>
+    <style>
+.evolutionEdge {
+	stroke-dasharray: 7;
+	stroke-dashoffset: 7;
+	animation: dash 3s linear forwards infinite;
+}
+
+
+.visibility0 {
+	opacity: 0.8;
+}
+
+.visibility1 {
+	opacity: 0.8;
+}
+
+.visibility2 {
+	opacity: 0.8;
+}
+
+.visibility3 {
+	opacity: 0.8;
+}
+
+.visibility4 {
+	opacity: 0.8;
+}
+
+.visibility5 {
+	opacity: 0.8;
+}
+
+.visibility6 {
+	opacity: 0.8;
+}
+
+.visibility7 {
+	opacity: 0.8;
+}
+
+
+
+.invisibility0 {
+	opacity: 1.00;
+}
+
+.invisibility1 {
+	opacity: 0.89;
+}
+
+.invisibility2 {
+	opacity: 0.77;
+}
+
+.invisibility3 {
+	opacity: 0.66;
+}
+
+.invisibility4 {
+	opacity: 0.54;
+}
+
+.invisibility5 {
+	opacity: 0.43;
+}
+
+.invisibility6 {
+	opacity: 0.31;
+}
+
+.invisibility7 {
+	opacity: 0.20;
+}
+
+
+@keyframes dash {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+.componentText {
+  background: transparent;
+  color: #fff;
+  resize: none;
+  border: 0 none;
+  width: 100%;
+  font-size: 0.8em;
+  outline: none;
+  height: 100%;
+  position: absolute;
+}
+
+</style>
+    <script id="SVGScript">var g = new Map();
+var allLinks = new Array(); 
+
+allLinks.push('edge_0_1','edge_8_16','edge_1_3','edge_1_4','edge_1_5','edge_2_1','edge_7_11','edge_7_8','edge_5_6','edge_5_7',);
+
+g.set('element_0',Array('edge_0_1','edge_1_5','edge_1_3','edge_1_4','edge_5_6','edge_5_7','edge_7_11','edge_7_8','edge_8_16',));
+g.set('element_1',Array('edge_1_3','edge_1_4','edge_1_5','edge_5_6','edge_5_7','edge_7_11','edge_7_8','edge_8_16',));
+g.set('element_2',Array('edge_2_1','edge_1_3','edge_1_4','edge_1_5','edge_5_6','edge_5_7','edge_7_8','edge_7_11','edge_8_16',));
+g.set('element_5',Array('edge_5_6','edge_5_7','edge_7_11','edge_7_8','edge_8_16',));
+g.set('element_7',Array('edge_7_11','edge_7_8','edge_8_16',));
+g.set('element_8',Array('edge_8_16',));
+
+const max = 9
+function toggleLink(clicked_id)
+{
+	if (g.has(clicked_id)) {
+		g.get(clicked_id).forEach(element =&gt; {
+			var style = document.getElementById(element).style.display;
+			if(style === "none")
+				document.getElementById(element).style.display = "block";
+			else
+				document.getElementById(element).style.display = "none";
+
+		});
+	}
+}
+function toggleLinks() {
+	allLinks.forEach(element =&gt; {
+		var style = document.getElementById(element).style.display;
+		if(style === "none") {
+			document.getElementById(element).style.display = "block";
+		} else {
+			document.getElementById(element).style.display = "none";
+		}
+	});
+}
+
+var allVisibilities = new Map();
+var allInVisibilities = new Map();
+function setVisibility() {
+	
+	allVisibilities.set('invisibility0',document.querySelectorAll('.visibility0'))
+	allInVisibilities.set('visibility0',document.querySelectorAll('.invisibility0'))
+	allVisibilities.set('invisibility1',document.querySelectorAll('.visibility1'))
+	allInVisibilities.set('visibility1',document.querySelectorAll('.invisibility1'))
+	allVisibilities.set('invisibility2',document.querySelectorAll('.visibility2'))
+	allInVisibilities.set('visibility2',document.querySelectorAll('.invisibility2'))
+	allVisibilities.set('invisibility3',document.querySelectorAll('.visibility3'))
+	allInVisibilities.set('visibility3',document.querySelectorAll('.invisibility3'))
+	allVisibilities.set('invisibility4',document.querySelectorAll('.visibility4'))
+	allInVisibilities.set('visibility4',document.querySelectorAll('.invisibility4'))
+	allVisibilities.set('invisibility5',document.querySelectorAll('.visibility5'))
+	allInVisibilities.set('visibility5',document.querySelectorAll('.invisibility5'))
+	allVisibilities.set('invisibility6',document.querySelectorAll('.visibility6'))
+	allInVisibilities.set('visibility6',document.querySelectorAll('.invisibility6'))
+	allVisibilities.set('invisibility7',document.querySelectorAll('.visibility7'))
+	allInVisibilities.set('visibility7',document.querySelectorAll('.invisibility7'))
+}
+
+var visible = true
+
+function toggleVisibility() {
+	components = allVisibilities
+	if (visible) {
+		components = allInVisibilities
+		visible = false
+	} else {
+		visible = true
+	}
+	components.forEach(function(value, key) {
+		if (value.length === 0) {
+			setVisibility();
+		}
+		value.forEach(element =&gt; {
+			element.classList.toggle(key)	
+		});
+	})
+}
+
+
+setVisibility();
+</script>
+    <text font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+        <tspan x="500" dy="20"></tspan>
+    </text>
+    <g id="layer_0">
+        <g id="edge_0_1" class="visibility1">
+            <line x1="594" y1="71" x2="547" y2="162" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_8_16" class="visibility7">
+            <line x1="641" y1="708" x2="838" y2="708" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_3" class="visibility2">
+            <line x1="547" y1="162" x2="838" y2="253" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_4" class="visibility3">
+            <line x1="547" y1="162" x2="838" y2="344" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_5" class="visibility4">
+            <line x1="547" y1="162" x2="819" y2="435" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_1" class="visibility1">
+            <line x1="763" y1="71" x2="547" y2="162" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_11" class="visibility6">
+            <line x1="330" y1="617" x2="547" y2="617" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_8" class="visibility7">
+            <line x1="330" y1="617" x2="641" y2="708" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_6" class="visibility5">
+            <line x1="819" y1="435" x2="838" y2="526" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_7" class="visibility6">
+            <line x1="819" y1="435" x2="330" y2="617" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+    </g>
+    <g id="layer_10">
+        <g id="element_4" onclick="toggleLink(this.id)" class="visibility3">
+            <g transform=" translate(838,344)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">tea</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_8" onclick="toggleLink(this.id)" class="visibility7">
+            <g transform=" translate(641,708)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">power</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_1" onclick="toggleLink(this.id)" class="visibility1">
+            <g transform=" translate(547,162)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-10" dy="6">cup of tea</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_3" onclick="toggleLink(this.id)" class="visibility2">
+            <g transform=" translate(838,253)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">cup</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_0" onclick="toggleLink(this.id)" class="visibility0">
+            <g transform=" translate(594,71)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+                    <tspan x="0" dy="-10">business</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_11" onclick="toggleLink(this.id)" class="visibility6">
+            <g transform=" translate(547,617)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">kettle</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_5" onclick="toggleLink(this.id)" class="visibility4">
+            <g transform=" translate(819,435)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">hot water</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_6" onclick="toggleLink(this.id)" class="visibility5">
+            <g transform=" translate(838,526)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">water</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_16" onclick="toggleLink(this.id)" class="visibility7">
+            <g transform=" translate(838,708)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">power</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_2" onclick="toggleLink(this.id)" class="visibility0">
+            <g transform=" translate(763,71)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+                    <tspan x="0" dy="-10">public</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_7" onclick="toggleLink(this.id)" class="visibility6">
+            <g transform=" translate(330,617)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-10" dy="6">kettle</tspan>
+                </text>
+            </g></g></g></svg>
