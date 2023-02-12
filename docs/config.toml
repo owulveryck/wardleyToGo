@@ -1,6 +1,6 @@
 baseURL = 'http://example.org/'
 languageCode = 'en-us'
-title = 'wardleyToGo: Wardley Maps as code and data'
+title = 'wardleyToGo'
 
 # Language settings
 contentDir = "content/en"
