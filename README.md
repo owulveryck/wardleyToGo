@@ -8,9 +8,11 @@ The landscape is made of "Components". Each component knows its own location on 
 Components can collaborate, meaning that they may be linked together. Therefore a map is also a graph.
 The entrypoint of this API is the 'Map' structure
 
-## Demo 
+## wtg: language 
 
-Check the online demo at [https://owulveryck.github.io/wardleyToGo/](https://owulveryck.github.io/wardleyToGo/)
+wtg is a high level language to design and render Wardley Maps implemented with this SDK.
+
+Check the online demo (wtg playground) and the doc at [https://owulveryck.github.io/wardleyToGo/](https://owulveryck.github.io/wardleyToGo/)
 
 Credits: this demo is heavily inspired by [GraphvizOnline](https://github.com/dreampuf/GraphvizOnline). It uses:
 
