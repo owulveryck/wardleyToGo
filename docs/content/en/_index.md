@@ -4,7 +4,7 @@ linkTitle = "wardleyToGo"
 
 +++
 
-{{< blocks/cover title="wardleyToGo: a SDK in Go and a language do design and render Wardley Maps" image_anchor="top" height="full" color="orange" >}}
+{{< blocks/cover title="wardleyToGo: a SDK in Go and a language to design and render Wardley Maps" image_anchor="top" height="full" color="orange" >}}
 <div class="mx-auto">
 	<a class="btn btn-lg btn-primary mr-3 mb-4" href="https://github.com/owulveryck/wardleyToGo">
 		GitHub Repo <i class="fab fa-github ml-2 "></i>
