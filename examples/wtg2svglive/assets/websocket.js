@@ -1,3 +1,4 @@
+var gvar = this;
 let socket = new WebSocket("ws://localhost:8080/ws");
 
 socket.onopen = function(e) {
@@ -9,6 +10,7 @@ socket.onmessage = function(event) {
 	console.log("received message");
 	//console.log(`received ${event.data}`);
 	document.getElementById("svgContainer").innerHTML = event.data;
+	gvar.eval(document.getElementById('SVGScript').textContent);
 
 };
 

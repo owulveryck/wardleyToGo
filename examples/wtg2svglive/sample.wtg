@@ -1,4 +1,27 @@
-a
+title: sample
 
-a -- b
-a:c
+business - cup of tea
+public - cup of tea
+cup of tea - cup
+cup of tea --- hot water
+cup of tea -- tea
+
+hot water - kettle
+hot water - water
+
+
+public: {
+
+	}
+business: {
+		evolution: |..|..|.x.|..|
+		color: Green
+	}
+
+cup of tea: |..|..|.x.|..|
+bla: {
+	evolution:   |..|..|.x.|..|
+	// label:       N
+	color: Green
+}
+bla: |..|x|..|..|

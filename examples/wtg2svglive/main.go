@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"embed"
 	"fmt"
 	"image"
@@ -13,13 +12,21 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/kelseyhightower/envconfig"
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 	"github.com/owulveryck/wardleyToGo/parser/wtg"
 	"nhooyr.io/websocket"
 )
+
+type configuration struct {
+	Width  int    `default:"1500"`
+	Height int    `default:"900"`
+	Port   string `default:"8080"`
+}
+
+var config configuration
 
 //go:embed assets/*
 var assets embed.FS
@@ -27,17 +34,18 @@ var assets embed.FS
 var fullPath string
 
 func main() {
-	port, ok := os.LookupEnv("PORT")
-	if !ok {
-		port = "8080"
+	err := envconfig.Process("WTGLIVE", &config)
+	if err != nil {
+		envconfig.Usage("WTGLIVE", &config)
+		log.Fatal(err.Error())
 	}
 
 	if len(os.Args) != 2 {
+		envconfig.Usage("WTGLIVE", &config)
 		log.Fatalf("usage: %v [wtg file to watch]", os.Args[0])
 	}
 	fileToWatch := os.Args[1]
 	// Get the directory
-	var err error
 	fullPath, err = filepath.Abs(fileToWatch)
 	if err != nil {
 		log.Fatal(err)
@@ -101,9 +109,9 @@ func main() {
 	assetsFs := http.FileServer(http.FS(myFs))
 
 	mux.Handle("/", http.StripPrefix("/", assetsFs))
-	log.Println("listening on " + port + ". Use the PORT env var to change it")
-	openbrowser("http://localhost:8080")
-	err = http.ListenAndServe(":"+port, mux)
+	log.Println("listening on " + config.Port + ". Use the PORT env var to change it")
+	openbrowser("http://localhost:" + config.Port)
+	err = http.ListenAndServe(":"+config.Port, mux)
 	log.Fatal(err)
 }
 
@@ -121,10 +129,7 @@ func (ws *wsWriter) handler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close(websocket.StatusInternalError, "the sky is falling")
 
-	ctx, cancel := context.WithTimeout(r.Context(), time.Minute*10)
-	defer cancel()
-
-	ctx = c.CloseRead(ctx)
+	ctx := c.CloseRead(r.Context())
 
 	for {
 		select {
@@ -168,8 +173,8 @@ func generateSVG(filePath string) ([]byte, error) {
 	imgArea := (p.ImageSize.Max.X - p.ImageSize.Min.X) * (p.ImageSize.Max.X - p.ImageSize.Min.Y)
 	canvasArea := (p.MapSize.Max.X - p.MapSize.Min.X) * (p.MapSize.Max.X - p.MapSize.Min.Y)
 	if imgArea == 0 || canvasArea == 0 {
-		p.ImageSize = image.Rect(0, 0, 1100, 900)
-		p.MapSize = image.Rect(30, 50, 1070, 850)
+		p.ImageSize = image.Rect(0, 0, config.Width, config.Height)
+		p.MapSize = image.Rect(30, 50, config.Width-30, config.Height-50)
 	}
 	var output bytes.Buffer
 	e, err := svgmap.NewEncoder(&output, p.ImageSize, p.MapSize)
