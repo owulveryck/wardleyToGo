@@ -169,7 +169,14 @@ var gvar = this;
 		}
 
 		editor.setTheme("ace/theme/twilight");
+		   editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true
+    });
+
 		editor.getSession().setMode("ace/mode/wtg");
+
 		editor.getSession().on("change", function () {
 			clearTimeout(lastHD);
 			lastHD = setTimeout(function(){
