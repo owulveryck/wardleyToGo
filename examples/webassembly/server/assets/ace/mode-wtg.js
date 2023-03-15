@@ -69,29 +69,12 @@ define("ace/mode/matching_brace_outdent", ["require", "exports", "module", "ace/
 					regex: /\/\/.*$/
 				}, {
 					token: "comment",
-					regex: /#.*$/
-				}, {
-					token: "comment",
 					merge: !0,
 					regex: /\/\*/,
 					next: "comment"
 				}, {
-					token: "string",
-					regex: "'(?=.)",
-					next: "qstring"
-				}, {
-					token: "string",
-					regex: '"(?=.)',
-					next: "qqstring"
-				}, {
-					token: "constant.numeric",
-					regex: /[+\-]?\d+(?:(?:\.\d*)?(?:[eE][+\-]?\d+)?)?\b/
-				}, {
 					token: "keyword.operator",
-					regex: /\+|=|\->/
-				}, {
-					token: "punctuation.operator",
-					regex: /,|;/
+					regex: /:/
 				}, {
 					token: "paren.lparen",
 					regex: /[\[{]/
@@ -99,11 +82,20 @@ define("ace/mode/matching_brace_outdent", ["require", "exports", "module", "ace/
 						token: "paren.rparen",
 						regex: /[\]}]/
 				}, {
+					token: "constant",
+					regex: /\|\.*x?>?\.*\|\.*x?>?\.*\|\.*x?>?\.*\|\.*x?>?\.*\|/
+				}, {
+					token: "invalid",
+					regex: /\|[\.]*\|[\.]*\|[\.]*\|[\.]*\|/
+				}, {
 					token: "comment",
-					regex: /^#!.*$/
+					regex: /\./
+				}, {
+					token: "constant",
+					regex: /\-/
 				}, {
 					token: function(n) {
-						return e.hasOwnProperty(n.toLowerCase()) ? "keyword" : t.hasOwnProperty(n.toLowerCase()) ? "variable" : "text"
+						return e.hasOwnProperty(n.toLowerCase()) ? "keyword" : t.hasOwnProperty(n.toLowerCase()) ? "support" : "text"
 					},
 					regex: "\\-?[a-zA-Z_][a-zA-Z0-9_\\-]*"
 				}],
