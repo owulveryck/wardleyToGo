@@ -169,7 +169,7 @@ var gvar = this;
 		}
 
 		editor.setTheme("ace/theme/twilight");
-		editor.getSession().setMode("ace/mode/dot");
+		editor.getSession().setMode("ace/mode/wtg");
 		editor.getSession().on("change", function () {
 			clearTimeout(lastHD);
 			lastHD = setTimeout(function(){
