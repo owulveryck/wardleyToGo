@@ -1,0 +1,49 @@
+
+title: wardleyToGo // title is optional
+/***************
+  value chain 
+****************/
+
+strategy - map
+map - representation
+representation:paper
+representation:digital
+digital -- intermediate representation
+digital - language
+language --- parser
+intermediate representation --- sdk
+language -- renderer
+sdk: { 
+    evolution: |..|..|x||
+    color: Green
+}
+renderer: {
+    evolution: |||......x||
+    color: Green
+}
+parser: {
+    evolution: |..|..|..|x...|
+    color: Green
+}
+strategy: |..|..|..x.|..|
+map: |..|..|..x..|..|
+representation: |..|..|..x..|..|
+paper: ||||..x|
+digital: |..x|..>|||
+intermediate representation: {
+    evolution: |..x.||||
+    label: S
+    color: Green
+
+}
+language: {
+    evolution: |.|x.....>|||
+    label: W
+    color: Green
+}
+
+stage1: concept
+stage2: emerging
+stage3: converging
+stage4: accepted
+

@@ -7,15 +7,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"strings"
 	"syscall/js"
 
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 	"github.com/owulveryck/wardleyToGo/parser/wtg"
+	"github.com/owulveryck/wardleyToGo/parser/wtg2owm"
 )
 
 func main() {
 	js.Global().Set("generateSVG", wtgWrapper())
+	js.Global().Set("toOWM", owmWrapper())
 	js.Global().Set("getUnconfiguredComponents", componentsWrapper())
 	<-make(chan bool)
 }
@@ -55,6 +58,29 @@ func componentsWrapper() js.Func {
 		}
 		b, _ := json.Marshal(output)
 		return string(b)
+	})
+	return wtgFunc
+}
+
+func owmWrapper() js.Func {
+	wtgFunc := js.FuncOf(func(_ js.Value, args []js.Value) any {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in owmWrapper", r)
+			}
+		}()
+		if len(args) < 1 {
+			return "Invalid no of arguments passed"
+		}
+		input := args[0].String()
+		var err error
+		var b strings.Builder
+		err = wtg2owm.Convert(bytes.NewBufferString(input), &b)
+		if err != nil {
+			fmt.Printf("unable to generate owm %s\n", err)
+			return err.Error()
+		}
+		return b.String()
 	})
 	return wtgFunc
 }

@@ -8,6 +8,7 @@ var gvar = this;
 			reviewer = document.getElementById("review"),
 			scale = window.devicePixelRatio || 1,
 			downloadBtn = document.getElementById("download"),
+			owmBtn = document.getElementById("toowm"),
 			sampleBtn = document.getElementById("sample"),
 			editor = ace.edit("editor"),
 			lastHD = -1,
@@ -194,6 +195,12 @@ var gvar = this;
 
 		share.addEventListener("click", copyShareURL);
 		sampleBtn.addEventListener("click", setSample);
+		owmBtn.addEventListener("click",function(){
+				var w = window.open("");
+                w.document.write("<pre>");
+                w.document.write(toOWM(editor.getSession().getDocument().getValue()));
+                w.document.write("</pre>");
+		});
 		apply.addEventListener('click', function(){
 			console.log("rendering")
 			renderGraph()
