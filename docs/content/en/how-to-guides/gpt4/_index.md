@@ -2,6 +2,7 @@
 title: "ChatGPT Experimental prompt"
 linkTitle: "GPT-4 Prompt"
 weight: 100
+type: docs
 description: >-
      This is an experiment prompt for GPT-4
 ---
