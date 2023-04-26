@@ -15,11 +15,13 @@ func Test_computeEvolutionPosition(t *testing.T) {
 		args    args
 		want    int
 		want1   int
+		want2   int
 		wantErr bool
 	}{
 		{
 			"error nil string",
 			args{s: "bad"},
+			0,
 			0,
 			0,
 			true,
@@ -28,10 +30,12 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			args{s: "|...|...|...|...|...|"},
 			0,
 			0,
+			0,
 			true,
 		}, { //		{
 			"two x",
 			args{s: "|.x.|.x.|...|..."},
+			0,
 			0,
 			0,
 			true,
@@ -40,10 +44,12 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			args{s: "|...|...|...|..."},
 			0,
 			0,
+			0,
 			true,
 		}, {
 			"empty",
 			args{s: "|...|...|...|...|"},
+			0,
 			0,
 			0,
 			true,
@@ -52,11 +58,13 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			args{s: "|.x.|...|...|...|"},
 			9,
 			0,
+			0,
 			false,
 		}, {
 			"simple 1.1",
 			args{s: "|x|...|...|...|"},
 			9,
+			0,
 			0,
 			false,
 		}, {
@@ -64,16 +72,19 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			args{s: "||.x.|...|...|"},
 			29,
 			0,
+			0,
 			false,
 		}, {
 			"simple 2.1",
 			args{s: "||x|...|...|"},
 			29,
 			0,
+			0,
 			false,
 		}, {
 			"evolution with no x",
 			args{s: "||>|...|...|"},
+			0,
 			0,
 			0,
 			true,
@@ -82,10 +93,12 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			args{s: "|x|>|.>.|...|"},
 			0,
 			0,
+			0,
 			true,
 		}, {
 			"negative evolutions",
 			args{s: "|||.>.|.x.|"},
+			0,
 			0,
 			0,
 			true,
@@ -94,12 +107,13 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			args{s: "|x|>|...|...|"},
 			9,
 			29,
+			0,
 			false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := computeEvolutionPosition(tt.args.s)
+			got, got1, got2, err := computeEvolutionPosition(tt.args.s)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("computeEvolutionPosition() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -109,6 +123,9 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			}
 			if got1 != tt.want1 {
 				t.Errorf("computeEvolutionPosition() got1 = %v, want %v", got1, tt.want1)
+			}
+			if got2 != tt.want2 {
+				t.Errorf("computeEvolutionPosition() got2 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
