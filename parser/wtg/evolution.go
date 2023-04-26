@@ -38,7 +38,7 @@ func setNodesEvolutionStep(g *scratchMapchMap) int {
 	return e.currentStep
 }
 
-func computeEvolutionPosition(s string) (int, int, error) {
+func computeEvolutionPosition(s string) (int, int, int, error) {
 	// stages is an array containing the size of each stage
 	// for example if the string is |...|....|.....|......|
 	// then stages is [3,4,5,6]
@@ -53,10 +53,13 @@ func computeEvolutionPosition(s string) (int, int, error) {
 	stagePositions := []float64{0, 17.4, 40, 70, 100}
 	iteratorStage := -1
 	iteratorCursor := 0
+	inertia := 0
 	x := 0
 	sup := 0
 	for _, c := range s {
 		switch c {
+		case ']':
+			inertia = int(stagePositions[iteratorStage+1])
 		case '|':
 			iteratorCursor = 0
 			iteratorStage++
@@ -74,22 +77,22 @@ func computeEvolutionPosition(s string) (int, int, error) {
 		default:
 			iteratorCursor++
 			if iteratorStage < 0 {
-				return 0, 0, fmt.Errorf("expected | as a first element")
+				return 0, 0, 0, fmt.Errorf("expected | as a first element")
 			}
 			if iteratorStage >= len(stages) {
-				return 0, 0, fmt.Errorf("too many |")
+				return 0, 0, 0, fmt.Errorf("too many |")
 			}
 			stages[iteratorStage]++
 		}
 	}
 	if iteratorStage != 4 {
-		return 0, 0, fmt.Errorf("expected 5x|")
+		return 0, 0, 0, fmt.Errorf("expected 5x|")
 	}
 	if x != 1 {
-		return 0, 0, fmt.Errorf("expeted one and only one x")
+		return 0, 0, 0, fmt.Errorf("expeted one and only one x")
 	}
 	if sup > 1 {
-		return 0, 0, fmt.Errorf("expeted one or less >")
+		return 0, 0, 0, fmt.Errorf("expeted one or less >")
 	}
 	position := 50.0
 	if stages[stage] != 0 {
@@ -103,7 +106,7 @@ func computeEvolutionPosition(s string) (int, int, error) {
 		evolvedPosition = stagePositions[evolvedStage] + (stagePositions[evolvedStage+1]-stagePositions[evolvedStage])*percentageInCurrentStage
 	}
 	if position >= evolvedPosition && evolvedPosition != 0 {
-		return 0, 0, fmt.Errorf("cannot have an evolution before the cursor")
+		return 0, 0, 0, fmt.Errorf("cannot have an evolution before the cursor")
 	}
-	return int(math.Round(position)), int(math.Round(evolvedPosition)), nil
+	return int(math.Round(position)), int(math.Round(evolvedPosition)), inertia, nil
 }

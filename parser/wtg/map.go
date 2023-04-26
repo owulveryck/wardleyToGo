@@ -3,6 +3,7 @@ package wtg
 import (
 	"errors"
 	"fmt"
+	"image"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -26,10 +27,17 @@ func consolidateMap(nodeInventory map[string]*wardley.Component, edgeInventory [
 			if err != nil {
 				return nil, err
 			}
+			inertia := image.Point{}
+			if n.Inertia != 0 {
+				inertia = image.Point{
+					X: n.Inertia,
+				}
+			}
 			wmap.SetCollaboration(&wardley.Collaboration{
-				F:    n,
-				T:    c,
-				Type: wardley.EvolvedComponentEdge,
+				F:       n,
+				T:       c,
+				Type:    wardley.EvolvedComponentEdge,
+				Inertia: inertia,
 			})
 		}
 		currentID++
