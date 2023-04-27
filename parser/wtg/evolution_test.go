@@ -109,6 +109,13 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			29,
 			0,
 			false,
+		}, {
+			"ok with evolutions and inertia",
+			args{s: "|x]|>|...|...|"},
+			9,
+			29,
+			17,
+			false,
 		},
 	}
 	for _, tt := range tests {
@@ -125,7 +132,7 @@ func Test_computeEvolutionPosition(t *testing.T) {
 				t.Errorf("computeEvolutionPosition() got1 = %v, want %v", got1, tt.want1)
 			}
 			if got2 != tt.want2 {
-				t.Errorf("computeEvolutionPosition() got2 = %v, want %v", got1, tt.want1)
+				t.Errorf("computeEvolutionPosition() got2 = %v, want %v", got2, tt.want2)
 			}
 		})
 	}
