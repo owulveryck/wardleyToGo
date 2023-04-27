@@ -300,7 +300,7 @@ func visibilityState(l *lexer) stateFunc {
 }
 
 func evolutionState(l *lexer) stateFunc {
-	l.Take("|.x>")
+	l.Take("|.x>]")
 	if strings.Count(l.Current(), "|") != 5 ||
 		strings.Count(l.Current(), "x") > 1 ||
 		strings.Count(l.Current(), ">") > 1 {

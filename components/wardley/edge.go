@@ -19,6 +19,7 @@ type Collaboration struct {
 	F, T               wardleyToGo.Component
 	Label              string
 	Type               wardleyToGo.EdgeType
+	Inertia            image.Point
 	RenderingLayer     int
 	Visibility         int
 	AbsoluteVisibility int
@@ -91,6 +92,31 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		line.StrokeDashArray = []int{5, 5}
 		line.Stroke = svg.Red
 		line.Class = append(line.Class, "evolutionEdge")
+		if c.Inertia.X != 0 {
+			inertiaPosition := utils.CalcCoords(c.Inertia, canvas)
+			inertia := svg.Rectangle{
+				R: image.Rectangle{
+					Min: image.Point{
+						X: inertiaPosition.X - 5,
+						Y: coordsF.Y - 15,
+					},
+					Max: image.Point{
+						X: inertiaPosition.X + 5,
+						Y: coordsF.Y + 15,
+					},
+				},
+				Rx:          0,
+				Ry:          0,
+				Fill:        svg.Black,
+				Stroke:      svg.Black,
+				StrokeWidth: "",
+				Style:       "",
+			}
+			err := e.Encode(inertia)
+			if err != nil {
+				return err
+			}
+		}
 	case EvolvedEdge:
 		line.Stroke = svg.Red
 	}

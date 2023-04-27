@@ -36,6 +36,7 @@ type Component struct {
 	RenderingLayer      int //The position of the element on the picture
 	Configured          bool
 	EvolutionPos        int
+	Inertia             int
 	Color               color.Color
 	AbsoluteVisibility  int
 	Anchor              int

@@ -62,13 +62,14 @@ func (inv *Inventory) nodeConfiguration() error {
 	//log.Printf(".... %v", inv.peek(2))
 	switch inv.peek(2).Type {
 	case evolutionItem:
-		pos, evolutionPos, err := computeEvolutionPosition(inv.peek(2).Value)
+		pos, evolutionPos, inertia, err := computeEvolutionPosition(inv.peek(2).Value)
 		if err != nil {
 			return err
 		}
 		n.Placement.X = pos
 		n.Configured = true
 		n.EvolutionPos = evolutionPos
+		n.Inertia = inertia
 		inv.offset += 2
 		return nil
 	case startBlockToken:
@@ -95,12 +96,13 @@ func (inv *Inventory) nodeBlock() error {
 		case endBlockToken:
 			openBrackets--
 		case evolutionItem:
-			pos, evolutionPos, err := computeEvolutionPosition(inv.peek(0).Value)
+			pos, evolutionPos, inertia, err := computeEvolutionPosition(inv.peek(0).Value)
 			if err != nil {
 				return err
 			}
 			n.Placement.X = pos
 			n.Configured = true
+			n.Inertia = inertia
 			n.EvolutionPos = evolutionPos
 		case typeItem:
 			switch inv.peek(0).Value {
