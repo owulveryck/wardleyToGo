@@ -42,6 +42,7 @@ type Component struct {
 	Anchor              int
 	PipelinedComponents []*Component
 	PipelineReference   *Component
+	Description         string
 }
 
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor

@@ -19,6 +19,7 @@ type Parser struct {
 	MapSize         image.Rectangle
 	// InvalidEntries reports any invalid of unkonwn token
 	InvalidEntries []error
+	Docs           []byte
 }
 
 func NewParser() *Parser {

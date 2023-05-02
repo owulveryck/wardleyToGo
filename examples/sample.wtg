@@ -47,7 +47,7 @@ water: {
 // you can set the evolution with a >
 kettle: {
   type: build
-  evolution: |...|...x.|..>.|.......|
+  evolution: |...|...x.]|..>.|.......|
 }
 power: {
   type: pipeline

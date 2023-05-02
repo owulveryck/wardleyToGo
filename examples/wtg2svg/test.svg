@@ -49,18 +49,16 @@
         <tspan x="1065" dy="65">Industrialised</tspan>
     </text>
     <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
-        <tspan x="30" dy="865">Genesis</tspan>
+        <tspan x="30" dy="865">genesis / concept</tspan>
     </text>
     <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
-        <tspan x="210" dy="865">Custom-Built</tspan>
+        <tspan x="210" dy="865">custom / emerging</tspan>
     </text>
     <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
-        <tspan x="446" dy="865">Product
-(+rental)</tspan>
+        <tspan x="446" dy="865">product / converging</tspan>
     </text>
     <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif">
-        <tspan x="758" dy="865">Commodity
-(+utility)</tspan>
+        <tspan x="758" dy="865">commodity / accepted</tspan>
     </text>
     <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
         <tspan x="1070" dy="865">Evolution</tspan>
@@ -105,18 +103,6 @@
 	opacity: 0.8;
 }
 
-.visibility8 {
-	opacity: 0.8;
-}
-
-.visibility9 {
-	opacity: 0.8;
-}
-
-.visibility10 {
-	opacity: 0.8;
-}
-
 
 
 .invisibility0 {
@@ -124,42 +110,30 @@
 }
 
 .invisibility1 {
-	opacity: 0.92;
+	opacity: 0.89;
 }
 
 .invisibility2 {
-	opacity: 0.84;
+	opacity: 0.77;
 }
 
 .invisibility3 {
-	opacity: 0.76;
+	opacity: 0.66;
 }
 
 .invisibility4 {
-	opacity: 0.68;
+	opacity: 0.54;
 }
 
 .invisibility5 {
-	opacity: 0.60;
+	opacity: 0.43;
 }
 
 .invisibility6 {
-	opacity: 0.52;
+	opacity: 0.31;
 }
 
 .invisibility7 {
-	opacity: 0.44;
-}
-
-.invisibility8 {
-	opacity: 0.36;
-}
-
-.invisibility9 {
-	opacity: 0.28;
-}
-
-.invisibility10 {
 	opacity: 0.20;
 }
 
@@ -188,12 +162,14 @@
     <script id="SVGScript">var g = new Map();
 var allLinks = new Array(); 
 
-allLinks.push('edge_2_3','edge_2_5','edge_6_7','edge_0_1','edge_1_2',);
+allLinks.push('edge_7_10','edge_7_8','edge_2_1','edge_5_6','edge_5_7','edge_1_3','edge_1_4','edge_1_5','edge_8_15','edge_0_1',);
 
-g.set('element_0',Array('edge_0_1','edge_1_2','edge_2_3','edge_2_5',));
-g.set('element_1',Array('edge_1_2','edge_2_3','edge_2_5',));
-g.set('element_2',Array('edge_2_3','edge_2_5',));
-g.set('element_6',Array('edge_6_7',));
+g.set('element_0',Array('edge_0_1','edge_1_3','edge_1_4','edge_1_5','edge_5_6','edge_5_7','edge_7_10','edge_7_8','edge_8_15',));
+g.set('element_1',Array('edge_1_3','edge_1_4','edge_1_5','edge_5_7','edge_5_6','edge_7_10','edge_7_8','edge_8_15',));
+g.set('element_2',Array('edge_2_1','edge_1_3','edge_1_4','edge_1_5','edge_5_6','edge_5_7','edge_7_10','edge_7_8','edge_8_15',));
+g.set('element_5',Array('edge_5_6','edge_5_7','edge_7_8','edge_7_10','edge_8_15',));
+g.set('element_7',Array('edge_7_10','edge_7_8','edge_8_15',));
+g.set('element_8',Array('edge_8_15',));
 
 const max = 9
 function toggleLink(clicked_id)
@@ -240,12 +216,6 @@ function setVisibility() {
 	allInVisibilities.set('visibility6',document.querySelectorAll('.invisibility6'))
 	allVisibilities.set('invisibility7',document.querySelectorAll('.visibility7'))
 	allInVisibilities.set('visibility7',document.querySelectorAll('.invisibility7'))
-	allVisibilities.set('invisibility8',document.querySelectorAll('.visibility8'))
-	allInVisibilities.set('visibility8',document.querySelectorAll('.invisibility8'))
-	allVisibilities.set('invisibility9',document.querySelectorAll('.visibility9'))
-	allInVisibilities.set('visibility9',document.querySelectorAll('.invisibility9'))
-	allVisibilities.set('invisibility10',document.querySelectorAll('.visibility10'))
-	allInVisibilities.set('visibility10',document.querySelectorAll('.invisibility10'))
 }
 
 var visible = true
@@ -272,93 +242,131 @@ function toggleVisibility() {
 setVisibility();
 </script>
     <text font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
-        <tspan x="550" dy="20"></tspan>
+        <tspan x="550" dy="20">sample map</tspan>
     </text>
     <g id="layer_0">
-        <g id="edge_6_7" class="visibility10">
-            <line x1="342" y1="506" x2="498" y2="794" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_8_15" class="visibility7">
+            <line x1="706" y1="802" x2="966" y2="802" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
         </g>
         <g id="edge_0_1" class="visibility1">
-            <line x1="602" y1="74" x2="654" y2="146" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <line x1="654" y1="74" x2="602" y2="178" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_1_2" class="visibility3">
-            <line x1="654" y1="146" x2="685" y2="290" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_1_5" class="visibility4">
+            <line x1="602" y1="178" x2="914" y2="490" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_2_3" class="visibility5">
-            <line x1="685" y1="290" x2="695" y2="434" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_1_3" class="visibility2">
+            <line x1="602" y1="178" x2="914" y2="282" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
-        <g id="edge_2_5" class="visibility6">
-            <line x1="685" y1="290" x2="508" y2="506" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        <g id="edge_1_4" class="visibility3">
+            <line x1="602" y1="178" x2="924" y2="386" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_10" class="visibility6">
+            <rect x="441" y="683" width="10" height="30" fill="rgb(0,0,0)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0"></rect>
+            <line x1="362" y1="698" x2="633" y2="698" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_8" class="visibility7">
+            <line x1="362" y1="698" x2="706" y2="802" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_1" class="visibility1">
+            <line x1="862" y1="74" x2="602" y2="178" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_6" class="visibility5">
+            <line x1="914" y1="490" x2="924" y2="594" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_7" class="visibility6">
+            <line x1="914" y1="490" x2="362" y2="698" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
         </g>
     </g>
     <g id="layer_10">
-        <g id="element_5" onclick="toggleLink(this.id)" class="visibility6">
-            <g transform=" translate(342,506)">
-                <circle cx="0" cy="0" r="5" fill="rgb(128,128,128)" fill-opacity="1.0" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text fill="rgb(128,128,128)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
-                    <tspan x="0" dy="-10">ee</tspan>
-                </text>
-            </g>
-            <g transform=" translate(508,506)">
-                <rect x="-5" y="-5" width="10" height="10" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="3"></rect>
-                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
-                    <tspan x="-10" dy="6">e</tspan>
-                </text>
-            </g>
-        </g>
-        <g id="element_6" onclick="toggleLink(this.id)" class="visibility6">
-            <g transform=" translate(342,506)">
-                <circle cx="0" cy="0" r="5" fill="rgb(128,128,128)" fill-opacity="1.0" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text fill="rgb(128,128,128)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
-                    <tspan x="0" dy="-10">ee</tspan>
-                </text>
-            </g>
-        </g>
-        <g id="element_7" onclick="toggleLink(this.id)" class="visibility10">
-            <g transform=" translate(498,794)">
+        <g id="element_3" onclick="toggleLink(this.id)" class="visibility2">
+            <g transform=" translate(914,282)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
-                    <tspan x="10" dy="6">f</tspan>
+                    <tspan x="10" dy="6">cup</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_6" onclick="toggleLink(this.id)" class="visibility5">
+            <g transform=" translate(924,594)">
+                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">water</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_8" onclick="toggleLink(this.id)" class="visibility7">
+            <g transform=" translate(706,802)">
+                <rect x="-5" y="-15" width="10" height="10" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="3"></rect>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+                    <tspan x="0" dy="-15">power</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_15" onclick="toggleLink(this.id)" class="visibility7">
+            <g transform=" translate(966,802)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">power</tspan>
                 </text>
             </g>
         </g>
         <g id="element_0" onclick="toggleLink(this.id)" class="visibility0">
-            <g transform=" translate(602,74)">
+            <g transform=" translate(654,74)">
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
-                    <tspan x="0" dy="-10">a</tspan>
+                    <tspan x="0" dy="-10">business</tspan>
                 </text>
             </g>
         </g>
         <g id="element_1" onclick="toggleLink(this.id)" class="visibility1">
-            <g transform=" translate(654,146)">
-                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
-                    <tspan x="10" dy="6">b</tspan>
+            <g transform=" translate(602,178)">
+                <circle cx="0" cy="0" r="5" fill="rgb(0,128,0)" fill-opacity="1.0" stroke="rgb(0,128,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,128,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-10" dy="6">cup of tea</tspan>
                 </text>
             </g>
         </g>
-        <g id="element_2" onclick="toggleLink(this.id)" class="visibility3">
-            <g transform=" translate(685,290)">
+        <g id="element_4" onclick="toggleLink(this.id)" class="visibility3">
+            <g transform=" translate(924,386)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
-                    <tspan x="10" dy="6">c</tspan>
+                    <tspan x="10" dy="6">tea</tspan>
                 </text>
             </g>
         </g>
-        <g id="element_3" onclick="toggleLink(this.id)" class="visibility5">
-            <g transform=" translate(695,434)">
+        <g id="element_7" onclick="toggleLink(this.id)" class="visibility6">
+            <g transform=" translate(362,698)">
+                <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
                 <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
-                    <tspan x="10" dy="6">d</tspan>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-10" dy="6">kettle</tspan>
                 </text>
             </g>
         </g>
-        <g id="element_4" onclick="toggleLink(this.id)" class="visibility0">
-            <g transform=" translate(134,74)">
-                <circle cx="0" cy="0" r="5" fill="rgb(128,128,128)" fill-opacity="1.0" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></circle>
-                <text fill="rgb(128,128,128)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
-                    <tspan x="0" dy="-10">dd</tspan>
+        <g id="element_10" onclick="toggleLink(this.id)" class="visibility6">
+            <g transform=" translate(633,698)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">kettle</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_2" onclick="toggleLink(this.id)" class="visibility0">
+            <g transform=" translate(862,74)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+                    <tspan x="0" dy="-10">public</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_5" onclick="toggleLink(this.id)" class="visibility4">
+            <g transform=" translate(914,490)">
+                <circle cx="0" cy="0" r="5" fill="rgb(0,0,255)" fill-opacity="1.0" stroke="rgb(0,0,255)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,255)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="10" dy="6">hot water</tspan>
                 </text>
             </g>
         </g>
