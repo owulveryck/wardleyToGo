@@ -7,6 +7,8 @@ description: >-
      This is a copy/paste based canvas for Wardley Mapping
 ---
 
+Inspired by the canvas designed by Ben Moisor under CC BY-SA 4.0 - [source](https://learnwardleymapping.com/portfolio/wardley-mapping-canvas/)
+
 ```text
 // # Title
 title: canvas
