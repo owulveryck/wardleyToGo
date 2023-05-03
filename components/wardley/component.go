@@ -269,6 +269,12 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		TextAnchor: anchor,
 		Fill:       col,
 	})
+	components = append(components, struct {
+		XMLName xml.Name `xml:"title"`
+		Text    string   `xml:",innerxml"`
+	}{
+		Text: c.Description,
+	})
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,

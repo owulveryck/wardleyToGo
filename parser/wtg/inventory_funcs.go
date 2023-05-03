@@ -2,7 +2,6 @@ package wtg
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -34,7 +33,7 @@ func (inv *Inventory) Run() error {
 		case visibilityToken:
 			return fmt.Errorf("unhandled element in first col %v", inv.peek(0))
 		case commentToken:
-			log.Println(inv.currentToken().Value)
+			inv.Documentation = append(inv.Documentation, inv.currentToken().Value)
 		}
 		if err != nil {
 			return err
@@ -62,10 +61,7 @@ func (inv *Inventory) inComment() error {
 // offset is a node and offset+1 is a colon
 func (inv *Inventory) nodeConfiguration() error {
 	n := inv.upsertNode(inv.tokens[inv.offset].Value)
-	doc := inv.getComment()
-	if strings.Split(doc, " ")[0] == n.Label {
-		n.Description = doc
-	}
+	inv.getComment(n)
 
 	//log.Printf(".... %v", inv.peek(2))
 	switch inv.peek(2).Type {
@@ -95,10 +91,7 @@ func (inv *Inventory) nodeConfiguration() error {
 // offset is node, offset:1 is colon offset+2 is open bracket
 func (inv *Inventory) nodeBlock() error {
 	n := inv.upsertNode(inv.tokens[inv.offset].Value)
-	doc := inv.getComment()
-	if strings.Split(doc, " ")[0] == n.Label {
-		n.Description = doc
-	}
+	inv.getComment(n)
 
 	openBrackets := 1
 	for inv.offset += 3; openBrackets > 0; inv.offset++ {
@@ -163,10 +156,7 @@ func (inv *Inventory) sourceNodeState() error {
 		return inv.nodeConfiguration()
 	}
 	n := inv.upsertNode(inv.tokens[inv.offset].Value)
-	doc := inv.getComment()
-	if strings.Split(doc, " ")[0] == n.Label {
-		n.Description = doc
-	}
+	inv.getComment(n)
 	return nil
 }
 
@@ -174,16 +164,19 @@ func (inv *Inventory) titleState() error {
 	return fmt.Errorf("not implemented")
 }
 
-func (inv *Inventory) getComment() string {
-	b := ""
+func (inv *Inventory) getComment(n *wardley.Component) {
+	doc := make([]string, 0)
 	for i := inv.offset - 2; inv.tokens[i].Type == commentToken ||
 		inv.tokens[i].Type == endBlockCommentToken ||
 		inv.tokens[i].Type == startBlockCommentToken ||
 		(inv.tokens[i].Type == newLineToken && inv.tokens[i-1].Type != newLineToken) ||
 		inv.tokens[i].Type == singleLineCommentSeparator; i-- {
 		if inv.tokens[i].Type == commentToken {
-			b = inv.tokens[i].Value + b
+			doc = append([]string{inv.tokens[i].Value}, doc...)
 		}
 	}
-	return b
+	if len(doc) > 0 && strings.HasPrefix(strings.TrimSpace(doc[0]), n.Label) {
+		n.Description = strings.Join(doc, "\n")
+		inv.Documentation = inv.Documentation[:len(inv.Documentation)-len(doc)]
+	}
 }

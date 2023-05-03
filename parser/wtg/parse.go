@@ -19,7 +19,7 @@ type Parser struct {
 	MapSize         image.Rectangle
 	// InvalidEntries reports any invalid of unkonwn token
 	InvalidEntries []error
-	Docs           []byte
+	Docs           []string
 }
 
 func NewParser() *Parser {
@@ -69,6 +69,7 @@ func (p *Parser) parse(s string) error {
 	m.Title = inv.Title
 	copy(p.EvolutionStages, inv.EvolutionStages)
 	p.WMap = m
+	p.Docs = inv.Documentation
 	SetCoords(*p.WMap, true)
 	SetLabelAnchor(*p.WMap)
 	return nil

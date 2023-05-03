@@ -17,6 +17,7 @@ type Inventory struct {
 	offset          int
 	EvolutionStages []svgmap.Evolution
 	Title           string
+	Documentation   []string
 }
 
 func NewInventory() *Inventory {
@@ -25,6 +26,7 @@ func NewInventory() *Inventory {
 		EdgeInventory:   make([]*wardley.Collaboration, 0),
 		tokens:          make([]token, 0),
 		EvolutionStages: svgmap.DefaultEvolution,
+		Documentation:   make([]string, 0),
 	}
 }
 
