@@ -12,6 +12,7 @@ type OctoStyle struct {
 	evolutionSteps []Evolution
 	WithValueChain bool
 	WithSpace      bool
+	WithControls   bool
 }
 
 func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
@@ -20,6 +21,7 @@ func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
 		evolutionSteps: evolutionSteps,
 		WithValueChain: true,
 		WithSpace:      true,
+		WithControls:   false,
 	}
 
 }
@@ -85,17 +87,15 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 	})
 
 	verticals := make([]interface{}, 0)
-	markerEnd := ""
 	if w.WithValueChain {
-		markerEnd = "url(#graphArrow)"
+		verticals = append(verticals, svg.Line{
+			F:           image.Point{0, 0},
+			T:           image.Point{canvas.Dy(), 0},
+			Stroke:      svg.Color{color.RGBA{19, 36, 84, 255}},
+			StrokeWidth: "1",
+			MarkerEnd:   "url(#graphArrow)",
+		})
 	}
-	verticals = append(verticals, svg.Line{
-		F:           image.Point{0, 0},
-		T:           image.Point{canvas.Dy(), 0},
-		Stroke:      svg.Color{color.RGBA{19, 36, 84, 255}},
-		StrokeWidth: "1",
-		MarkerEnd:   markerEnd,
-	})
 	for i := 1; i < len(w.evolutionSteps); i++ {
 		position := w.evolutionSteps[i].Position
 		verticals = append(verticals, svg.Line{
@@ -142,7 +142,9 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		Stroke:    svg.Color{color.RGBA{19, 36, 84, 255}},
 		MarkerEnd: "url(#graphArrow)",
 	})
-	displayControls(enc, box, canvas)
+	if w.WithControls {
+		displayControls(enc, box, canvas)
+	}
 	if w.WithSpace {
 		enc.Encode(svg.Text{
 			P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},

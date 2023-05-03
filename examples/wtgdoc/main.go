@@ -194,6 +194,7 @@ func main() {
 		log.Fatal(err)
 	}
 	style := svgmap.NewOctoStyle(p.EvolutionStages)
+	style.WithControls = true
 	e.Init(style)
 	err = e.Encode(p.WMap)
 	if err != nil {
