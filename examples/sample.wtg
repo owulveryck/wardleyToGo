@@ -27,6 +27,8 @@ cup of tea: {
   evolution: |....|....|..x..|........|
   color: Green // you can set colors
 }
+// cup is a component
+// and it is a commodity
 cup: {
   type: buy
   evolution: |....|....|....|....x....|
