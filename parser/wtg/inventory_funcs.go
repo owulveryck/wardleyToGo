@@ -165,12 +165,15 @@ func (inv *Inventory) titleState() error {
 }
 
 func (inv *Inventory) getComment(n *wardley.Component) {
+	if inv.offset < 2 {
+		return
+	}
 	doc := make([]string, 0)
-	for i := inv.offset - 2; inv.tokens[i].Type == commentToken ||
+	for i := inv.offset - 2; i >= 0 && (inv.tokens[i].Type == commentToken ||
 		inv.tokens[i].Type == endBlockCommentToken ||
 		inv.tokens[i].Type == startBlockCommentToken ||
 		(inv.tokens[i].Type == newLineToken && inv.tokens[i-1].Type != newLineToken) ||
-		inv.tokens[i].Type == singleLineCommentSeparator; i-- {
+		inv.tokens[i].Type == singleLineCommentSeparator); i-- {
 		if inv.tokens[i].Type == commentToken {
 			doc = append([]string{inv.tokens[i].Value}, doc...)
 		}
