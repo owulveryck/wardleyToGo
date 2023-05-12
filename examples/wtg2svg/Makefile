@@ -1,3 +1,9 @@
+export WTG2SVG_WITHCONTROLS=false
+export WTG2SVG_WIDTH=1100
+export WTG2SVG_HEIGHT=900
+export WTG2SVG_WITHSPACE=true
+export WTG2SVG_WITHVALUECHAIN=true
+
 WTG2SVG := wtg2svg 
 INKSCAPE := inkscape
 
