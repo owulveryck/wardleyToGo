@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  title: {{ .NameForHuman }}
+  description: {{ .DescriptionForHuman }}
+  version: 'v1'
+servers:
+  - url: {{.BaseURL }}
+paths:
+  /api/mapEvolution:
+    post:
+      summary: create a simple map with a component on a specific evolution phase
+      operationId: evolutionMap
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/evolutionRequest"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+                format: binary
+components:
+    schemas:
+        evolutionRequest:
+            type: object
+            required:
+                - component
+            properties:
+                component:
+                    type: string
+                    description: The component to add to the map
+                    required: true
