@@ -2,15 +2,17 @@ package main
 
 import "net/http"
 
-type apiHandler struct{}
+type apiHandler struct {
+	svgHandler *SVGHandler
+}
 
 // func (a apiHandler) GetMux() *http.ServeMux {
 func (a apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/mapEvolution", mapHandler)
-	mux.HandleFunc("/map.svg", svgHandler)
-	mux.HandleFunc("/", RootHandler)
+	mux.HandleFunc("/mapEvolution", a.mapHandler)
+	mux.Handle("/svg/", a.svgHandler)
+	mux.HandleFunc("/", rootHandler)
 	mux.ServeHTTP(w, r)
 	// return mux
 }

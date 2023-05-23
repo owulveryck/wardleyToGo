@@ -39,7 +39,11 @@ func main() {
 		log.Fatal(err)
 	}
 	mux := http.NewServeMux()
-	mux.Handle("/api/", http.StripPrefix("/api", &apiHandler{}))
+	mux.Handle("/api/", http.StripPrefix("/api", &apiHandler{
+		svgHandler: &SVGHandler{
+			make(map[string][]byte),
+		},
+	}))
 	mux.Handle("/", plumbing)
 
 	fmt.Printf("ingress url: %v://%v\n", spec.scheme, spec.ListenAddr)

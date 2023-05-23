@@ -30,8 +30,18 @@ components:
             type: object
             required:
                 - component
+                - evolution
             properties:
                 component:
                     type: string
                     description: The component to add to the map
+                    required: true
+                evolution:
+                    type: int
+                    description: |
+                        The position on the evolution axis between 0 and 100. 
+                        From 0 to 17 the compoenent is in stage 1 (genesis for an asset or a an activity, novel for a practice, concept for some general knowledge)
+                        From 18 to 40 the component is in stage 2 (custom for an asset or an activity, emerging for a practice, hypothesis for some general knowledge) 
+                        From 40 to 70 the component is in stage 3 (product for and asset or an activity, good for a practice, or theory for some general knowledge)
+                        From 70 to 99 the component is in stage 4 (commodity for an asset of an activity, best for a practice, accepted for some general knwoledge)
                     required: true

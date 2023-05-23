@@ -22,7 +22,7 @@ type AIPlugin struct {
 	LogoURL             string `json:"logo_url"`
 	ContactEmail        string `json:"contact_email"`
 	LegalInfoURL        string `json:"legal_info_url"`
-	BaseURL             string `json:"-"`
+	BaseURL             string `json:"-" cue:"base_url"`
 }
 
 func (a *AIPlugin) Check() error {
@@ -41,8 +41,8 @@ type API struct {
 
 // NewAIPlugin generates an AI plugin from the cue files
 // Host is substituated by Host
-func NewAIPlugin(host string) (*AIPlugin, error) {
-	host = `Host: "` + host + `"`
+func NewAIPlugin(address string) (*AIPlugin, error) {
+	host := `Host: "` + address + `"`
 	constraints, err := ioutil.ReadFile("constraints.cue")
 	if err != nil {
 		return nil, err
@@ -61,5 +61,6 @@ func NewAIPlugin(host string) (*AIPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
+	aiplugin.BaseURL = address
 	return &aiplugin, nil
 }
