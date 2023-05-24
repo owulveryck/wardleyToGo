@@ -8,6 +8,9 @@ import (
 
 func startState(l *lexer) stateFunc {
 	for unicode.IsSpace(l.Peek()) {
+		if l.Peek() == '\n' {
+			l.Emit(newLineToken)
+		}
 		l.Next()
 	}
 	l.Ignore()

@@ -42,6 +42,7 @@ type Component struct {
 	Anchor              int
 	PipelinedComponents []*Component
 	PipelineReference   *Component
+	Description         string
 }
 
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
@@ -267,6 +268,12 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		TextAdjust: true,
 		TextAnchor: anchor,
 		Fill:       col,
+	})
+	components = append(components, struct {
+		XMLName xml.Name `xml:"title"`
+		Text    string   `xml:",innerxml"`
+	}{
+		Text: c.Description,
 	})
 	return e.Encode(svg.Transform{
 		Translate:  coords,

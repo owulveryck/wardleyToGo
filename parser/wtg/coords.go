@@ -8,6 +8,12 @@ import (
 	"gonum.org/v1/gonum/graph/simple"
 )
 
+var (
+	VerticalLabelPosition int = -10
+	VerticalStep          int = 50
+	MaxVisibleHeight      int = 94
+)
+
 // SetLabelCoords sets the label coordinate with simple rules:
 // set anchor to left unless all the the From and To nodes are more advanced on evolution axis
 func SetLabelAnchor(m wardleyToGo.Map) {
@@ -40,7 +46,7 @@ func SetLabelAnchor(m wardleyToGo.Map) {
 			if it.Len() == 0 {
 				// this is a top level node
 				n.Anchor = wardley.AdjustMiddle
-				n.LabelPlacement.Y = -10
+				n.LabelPlacement.Y = VerticalLabelPosition
 				n.LabelPlacement.X = 0
 				continue
 
@@ -118,9 +124,9 @@ func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
 
 // setY sets the placement of the node according to the visibility of the component carried by the scratchmap
 func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
-	vStep := 50
+	vStep := VerticalStep
 	if maxVisibility != 0 {
-		vStep = 94 / maxVisibility
+		vStep = MaxVisibleHeight / maxVisibility
 	}
 	allNodes := buf.Nodes()
 	for allNodes.Next() {

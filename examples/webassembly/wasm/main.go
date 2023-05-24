@@ -142,6 +142,7 @@ func wtg2SVG(s string, width int, height int) (string, error) {
 	}
 	defer e.Close()
 	style := svgmap.NewOctoStyle(p.EvolutionStages)
+	style.WithControls = true
 	e.Init(style)
 	err = e.Encode(p.WMap)
 	if err != nil {
