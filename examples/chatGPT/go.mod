@@ -6,9 +6,11 @@ require (
 	cuelang.org/go v0.5.0
 	github.com/google/uuid v1.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/owulveryck/wardleyToGo v0.9.1
+	github.com/owulveryck/wardleyToGo v0.0.0
 	golang.ngrok.com/ngrok v1.0.0
 )
+
+replace github.com/owulveryck/wardleyToGo v0.0.0 => ../../
 
 require (
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect

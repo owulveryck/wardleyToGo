@@ -37,12 +37,15 @@ func (a *apiHandler) mapHandler(w http.ResponseWriter, r *http.Request) {
 
 	var buf bytes.Buffer
 	// Encode the map
-	e, err := svgmap.NewEncoder(&buf, image.Rect(0, 0, 1100, 200), image.Rect(30, 50, 1070, 150))
+	e, err := svgmap.NewEncoder(&buf, image.Rect(0, 0, 1000, 200), image.Rect(30, 50, 970, 150))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	style := svgmap.NewOctoStyle(svgmap.DefaultEvolution)
+	style.WithSpace = true
+	style.WithControls = false
+	style.WithValueChain = false
 	e.Init(style)
 	err = e.Encode(m)
 	if err != nil {
