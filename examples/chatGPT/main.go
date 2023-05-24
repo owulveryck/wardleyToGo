@@ -40,9 +40,9 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/api/", http.StripPrefix("/api", &apiHandler{
-		svgHandler: &SVGHandler{
-			make(map[string][]byte),
-		},
+		address:    spec.scheme + "://" + spec.ListenAddr,
+		basePath:   "/api",
+		svgHandler: &SVGHandler{memoryStorage(make(map[string][]byte))},
 	}))
 	mux.Handle("/", plumbing)
 

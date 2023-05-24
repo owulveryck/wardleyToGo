@@ -6,15 +6,39 @@ import (
 )
 
 type SVGHandler struct {
-	maps map[string][]byte
+	maps storage
 }
 
 func (s *SVGHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	svgFile := filepath.Base(r.URL.Path)
-	if content, ok := s.maps[svgFile]; ok {
-		w.Header().Set("Content-Type", "image/svg+xml")
-		w.Write(content)
+	content, err := s.maps.get(svgFile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Error(w, "image not found", http.StatusNotFound)
+	if content == nil {
+		http.Error(w, "image not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "image/svg+xml")
+	w.Write(content)
+}
+
+type storage interface {
+	save(key string, value []byte) error
+	get(key string) ([]byte, error)
+}
+
+type memoryStorage map[string][]byte
+
+func (m memoryStorage) save(key string, value []byte) error {
+	m[key] = value
+	return nil
+}
+
+func (m memoryStorage) get(key string) ([]byte, error) {
+	if val, ok := m[key]; ok {
+		return val, nil
+	}
+	return nil, nil
 }

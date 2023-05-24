@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"image"
 	"net/http"
+	"path"
 
 	"github.com/google/uuid"
 	"github.com/owulveryck/wardleyToGo"
@@ -64,13 +65,18 @@ func (a *apiHandler) mapHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Save the map
 	id := uuid.NewString() + ".svg"
-	a.svgHandler.maps[id] = buf.Bytes()
+	err = a.svgHandler.maps.save(id, buf.Bytes())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Return the map
 	result := struct {
 		ImageURL string
 	}{
-		ImageURL: "http://localhost:3333/api/svg/" + id,
+		//ImageURL: "http://localhost:3333/api/svg/" + id,
+		ImageURL: path.Join(a.address, a.basePath, "svg", id),
 	}
 	enc := json.NewEncoder(w)
 	enc.Encode(result)

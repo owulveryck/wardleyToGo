@@ -3,6 +3,8 @@ package main
 import "net/http"
 
 type apiHandler struct {
+	address    string
+	basePath   string
 	svgHandler *SVGHandler
 }
 
