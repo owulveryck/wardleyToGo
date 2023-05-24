@@ -13,8 +13,9 @@ import (
 )
 
 type EvolutionInput struct {
-	Component string `json:"component"`
-	Evolution int    `json:"evolution"`
+	Component string   `json:"component"`
+	Evolution int      `json:"evolution"`
+	Stages    []string `json:"stages" `
 }
 
 func (a *apiHandler) mapHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,12 +38,19 @@ func (a *apiHandler) mapHandler(w http.ResponseWriter, r *http.Request) {
 
 	var buf bytes.Buffer
 	// Encode the map
-	e, err := svgmap.NewEncoder(&buf, image.Rect(0, 0, 1000, 200), image.Rect(30, 50, 970, 150))
+	e, err := svgmap.NewEncoder(&buf, image.Rect(0, 0, 900, 200), image.Rect(30, 50, 870, 150))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	style := svgmap.NewOctoStyle(svgmap.DefaultEvolution)
+	evolution := svgmap.DefaultEvolution
+	if len(input.Stages) == 4 {
+		evolution[0].Label = input.Stages[0]
+		evolution[1].Label = input.Stages[1]
+		evolution[2].Label = input.Stages[2]
+		evolution[3].Label = input.Stages[3]
+	}
+	style := svgmap.NewOctoStyle(evolution)
 	style.WithSpace = true
 	style.WithControls = false
 	style.WithValueChain = false

@@ -27,7 +27,12 @@ func (chatgptplumbing *ChatGPTPlumbing) ServeHTTP(w http.ResponseWriter, r *http
 
 	})
 	mux.HandleFunc("/logo.png", func(w http.ResponseWriter, _ *http.Request) {
-		generateLogo(w)
+		b, err := ioutil.ReadFile("logo.png")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		w.Write(b)
 	})
 
 	//return mux

@@ -31,11 +31,22 @@ components:
             required:
                 - component
                 - evolution
+                - stages
             properties:
                 component:
                     type: string
                     description: The component to add to the map
                     required: true
+                stages:
+                    type: array
+                    description: |
+                        4 entries to describe each stage of eveolution depending on the type of the component.
+                        If the component is an asset or an activity, the array can be: [genesis,custom,product,commodity]
+                        If the component is a practice, the array can be: [novel,emerging,good,best]
+                        If the component is a general knowledge, the array can be: [concent,hypothesis,theory,accepted]
+                        If the component is some data, the array can be: [unmodeled,divergent,convergent,modeled]
+                    items:
+                        type: string
                 evolution:
                     type: int
                     description: |
