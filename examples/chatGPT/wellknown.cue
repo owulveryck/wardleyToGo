@@ -1,7 +1,7 @@
 configuration: #AIPlugin & {
-	name_for_human:        "my test"
-	name_for_model:        "mytest"
-	description_for_human: "this is a test plugin"
-	description_for_model: "this is a super plugin"
+	name_for_human:        "Wardley To Go"
+	name_for_model:        "WardleyToGo"
+	description_for_human: "This plugin draw Wardley Maps"
+	description_for_model: "This plugin draw Wardley Maps"
 	contact_email:         "olivier.wulveryck@gmail.com"
 }
