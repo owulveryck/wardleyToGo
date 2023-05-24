@@ -38,11 +38,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	var store storage
+	switch spec.StoragePath {
+	case "memory":
+		store = memoryStorage(make(map[string][]byte))
+	default:
+		var err error
+		store, err = newPersistentStorage(spec.StoragePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	mux := http.NewServeMux()
 	mux.Handle("/api/", http.StripPrefix("/api", &apiHandler{
 		address:    spec.scheme + "://" + spec.ListenAddr,
 		basePath:   "/api",
-		svgHandler: &SVGHandler{memoryStorage(make(map[string][]byte))},
+		svgHandler: &SVGHandler{store},
 	}))
 	mux.Handle("/", plumbing)
 

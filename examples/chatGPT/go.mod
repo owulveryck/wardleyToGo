@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/owulveryck/wardleyToGo v0.0.0
+	go.etcd.io/bbolt v1.3.7
 	golang.ngrok.com/ngrok v1.0.0
 )
 
@@ -24,7 +25,7 @@ require (
 	github.com/pkg/errors v0.8.1 // indirect
 	golang.org/x/image v0.3.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/term v0.2.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	gonum.org/v1/gonum v0.12.0 // indirect

@@ -1,4 +1,5 @@
 wardleyToGo
+examples/chatGPT/db.db
 tests/test.svg
 dist/checksums.txt
 dist/config.yaml
