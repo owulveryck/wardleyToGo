@@ -27,6 +27,8 @@ cup of tea: {
   evolution: |....|....|..x..|........|
   color: Green // you can set colors
 }
+// cup is a component
+// and it is a commodity
 cup: {
   type: buy
   evolution: |....|....|....|....x....|
@@ -47,7 +49,7 @@ water: {
 // you can set the evolution with a >
 kettle: {
   type: build
-  evolution: |...|...x.|..>.|.......|
+  evolution: |...|...x.]|..>.|.......|
 }
 power: {
   type: pipeline

@@ -96,13 +96,13 @@ func TestStartState(t *testing.T) {
 		{
 			title:          "several empty lines",
 			corpus:         "\n\n\n\n",
-			expectedTokens: []token{{eofToken, ""}},
+			expectedTokens: []token{{newLineToken, ""}, {newLineToken, "\n"}, {newLineToken, "\n"}, {newLineToken, "\n"}, {eofToken, ""}},
 			expectedState:  "",
 		},
 		{
 			title:          "one non space",
 			corpus:         "\n\n\né\n",
-			expectedTokens: []token{},
+			expectedTokens: []token{{newLineToken, ""}, {newLineToken, "\n"}, {newLineToken, "\n"}},
 			expectedState:  "firstRuneAfterSpaceState",
 		},
 	}

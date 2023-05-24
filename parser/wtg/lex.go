@@ -41,6 +41,7 @@ const (
 	stage4Item
 	labelToken
 	labelItem
+	newLineToken
 	eofToken
 )
 
