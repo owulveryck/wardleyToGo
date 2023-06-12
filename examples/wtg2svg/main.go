@@ -18,6 +18,7 @@ type configuration struct {
 	WithSpace      bool `default:"true"`
 	WithControls   bool `default:"true"`
 	WithValueChain bool `default:"true"`
+	WithIndicators bool `default:"false"`
 }
 
 func main() {
@@ -58,7 +59,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer e.Close()
-	style := svgmap.NewOctoStyle(p.EvolutionStages)
+	indicators := []svgmap.Annotator{}
+	if config.WithIndicators {
+		indicators = svgmap.AllEvolutionIndications()
+	}
+	style := svgmap.NewOctoStyle(p.EvolutionStages, indicators...)
 	style.WithSpace = config.WithSpace
 	style.WithControls = config.WithControls
 	style.WithValueChain = config.WithValueChain

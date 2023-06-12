@@ -17,6 +17,12 @@ type Evolution struct {
 	Label    string
 }
 
+const (
+	stage12 float64 = 0.174
+	stage23 float64 = 0.4
+	stage34 float64 = 0.7
+)
+
 //	DataEvolution
 //
 // https://learnwardleymapping.com/2020/01/22/visualizing-the-interaction-of-evolution-and-data-measurement/
@@ -26,15 +32,15 @@ var DataEvolution = []Evolution{
 		Label:    "Unmodeled",
 	},
 	{
-		Position: (float64(100) / 575),
+		Position: stage12,
 		Label:    "Divergent",
 	},
 	{
-		Position: (float64(100) / 250),
+		Position: stage23,
 		Label:    "Convergent",
 	},
 	{
-		Position: (float64(574) / 820),
+		Position: stage34,
 		Label:    "Modeled",
 	},
 }
@@ -45,15 +51,15 @@ var DefaultEvolution = []Evolution{
 		Label:    "🧪 Genesis",
 	},
 	{
-		Position: (float64(100) / 575),
+		Position: stage12,
 		Label:    "⚒️  Custom-Built",
 	},
 	{
-		Position: (float64(100) / 250),
+		Position: stage23,
 		Label:    "🛒 Product\n(+rental)",
 	},
 	{
-		Position: (float64(574) / 820),
+		Position: stage34,
 		Label:    "⛽ Commodity\n(+utility)",
 	},
 }

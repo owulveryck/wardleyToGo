@@ -20,7 +20,7 @@ all: $(PNGS) $(SVGS)
 	cat $< | $(WTG2SVG) > $@
 
 %.png: %.svg %.wtg
-	cat $< | inkscape -p --export-type=png > $@
+	inkscape -p --export-type=png $< > $@
 
 clean:
 	rm $(SVGS) $(PNGS)

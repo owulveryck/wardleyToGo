@@ -92,9 +92,14 @@ type Text struct {
 	FontSize   string
 	FontFamily string
 	TextAdjust bool
+	MaxChars   int
 }
 
 func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	maxChars := t.MaxChars
+	if maxChars == 0 {
+		maxChars = 8
+	}
 	element := xml.StartElement{
 		Name: xml.Name{Local: "text"},
 	}
@@ -155,7 +160,7 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	e.EncodeToken(element)
 	words := []string{string(t.Text)}
 	if t.TextAdjust {
-		words = splitString(string(t.Text), 8)
+		words = splitString(string(t.Text), maxChars)
 	}
 	for i, word := range words {
 		dy := t.P.Y
