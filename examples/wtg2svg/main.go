@@ -40,7 +40,7 @@ func main() {
 	p := wtg.NewParser()
 
 	err = p.Parse(os.Stdin)
-	if err != nil {
+	if err != nil && err != wtg.ErrEmptyMap {
 		log.Fatal(err)
 	}
 	if len(p.InvalidEntries) != 0 {
