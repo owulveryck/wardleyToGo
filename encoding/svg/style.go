@@ -42,19 +42,19 @@ var DataEvolution = []Evolution{
 var DefaultEvolution = []Evolution{
 	{
 		Position: 0,
-		Label:    "Genesis",
+		Label:    "🧪 Genesis",
 	},
 	{
 		Position: (float64(100) / 575),
-		Label:    "Custom-Built",
+		Label:    "⚒️  Custom-Built",
 	},
 	{
 		Position: (float64(100) / 250),
-		Label:    "Product\n(+rental)",
+		Label:    "🛒 Product\n(+rental)",
 	},
 	{
 		Position: (float64(574) / 820),
-		Label:    "Commodity\n(+utility)",
+		Label:    "⛽ Commodity\n(+utility)",
 	},
 }
 
