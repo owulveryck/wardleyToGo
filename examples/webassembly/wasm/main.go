@@ -124,7 +124,7 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 
 	buf := bytes.NewBufferString(s)
 	err := p.Parse(buf)
-	if err != nil {
+	if err != nil && err != wtg.ErrEmptyMap {
 		return "", err
 	}
 	if len(p.InvalidEntries) != 0 {
