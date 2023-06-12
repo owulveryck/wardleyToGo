@@ -27,7 +27,8 @@ Host: string | *"AUTO"
 }
 
 #API: {
-	type:                  string | *"openapi"
-	url:                   string | *"\(Host)/openapi.yaml"
+	type: string | *"openapi"
+	//url:                   string | *"\(Host)/openapi.yaml"
+	url:                   string | *"\(Host)/openapi.json"
 	is_user_authenticated: bool | *false
 }

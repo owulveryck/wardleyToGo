@@ -22,6 +22,15 @@ func (chatgptplumbing *ChatGPTPlumbing) ServeHTTP(w http.ResponseWriter, r *http
 	mux.HandleFunc("/.well-known/ai-plugin.json", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintf(w, "%s", chatgptplumbing.aiPluginPayload)
 	})
+	mux.HandleFunc("/openapi.json", func(w http.ResponseWriter, _ *http.Request) {
+		b, err := ioutil.ReadFile("openapi.json")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(b)
+
+	})
 	mux.HandleFunc("/openapi.yaml", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintf(w, "%s", chatgptplumbing.openAPIContent)
 

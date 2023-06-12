@@ -1,0 +1,212 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Wardley To Go",
+        "description": "This plugin draw wardley maps",
+        "version": "v1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3333"
+        }
+    ],
+    "paths": {
+        "/api/map": {
+            "post": {
+                "summary": "create a complete map with a set of component linked on a value chain and each component placed on its evolution phase",
+                "operationId": "map",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/mapRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Map URL",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/mapURL"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/mapEvolution": {
+            "post": {
+                "summary": "create a map with a single component on a specific evolution phase",
+                "operationId": "evolutionMap",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/evolutionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Map URL",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/mapURL"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/mapValueChain": {
+            "post": {
+                "summary": "create a simple map with a value chain for a set of components",
+                "operationId": "valueChainMap",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/valueChainRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Map URL",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/mapURL"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "evolutionRequest": {
+                "properties": {
+                    "component": {
+                        "description": "The component to add to the map",
+                        "type": "string"
+                    },
+                    "evolution": {
+                        "description": "evolution is the position on the evolution axis between 0 and 100.\nFrom 0 to 17 the compoenent is in stage 1 (genesis for an asset or a an activity, novel for a practice, concept for some general knowledge)\nFrom 18 to 40 the component is in stage 2 (custom for an asset or an activity, emerging for a practice, hypothesis for some general knowledge)\nFrom 40 to 70 the component is in stage 3 (product for and asset or an activity, good for a practice, or theory for some general knowledge)\nFrom 70 to 99 the component is in stage 4 (commodity for an asset of an activity, best for a practice, accepted for some general knwoledge)",
+                        "exclusiveMaximum": true,
+                        "maximum": 100,
+                        "type": "number"
+                    },
+                    "stages": {
+                        "description": "stages 4 entries to describe each stage of eveolution depending on the type of the component.\nIf the component is an asset or an activity, the array can be: [genesis,custom,product,commodity]\nIf the component is a practice, the array can be: [novel,emerging,good,best]\nIf the component is a general knowledge, the array can be: [concent,hypothesis,theory,accepted]\nIf the component is some data, the array can be: [unmodeled,divergent,convergent,modeled]",
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "component",
+                    "stages",
+                    "evolution"
+                ],
+                "type": "object"
+            },
+            "link": {
+                "properties": {
+                    "component": {
+                        "description": "the component that has a requirement",
+                        "type": "string"
+                    },
+                    "dependency": {
+                        "description": "the dependency allowing the source component to fulfill its need",
+                        "type": "string"
+                    },
+                    "visibility": {
+                        "default": 1,
+                        "description": "visibility is how important the dependency is for the component.\nthe greater the less important the dependency is",
+                        "oneOf": [
+                            {
+                                "enum": [
+                                    1
+                                ]
+                            },
+                            {
+                                "exclusiveMaximum": true,
+                                "exclusiveMinimum": true,
+                                "maximum": 5,
+                                "minimum": 1
+                            }
+                        ],
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "component",
+                    "dependency",
+                    "visibility"
+                ],
+                "type": "object"
+            },
+            "mapRequest": {
+                "description": "#mapRequest is the representation of a map with the value chain and the evolution for each component",
+                "properties": {
+                    "components": {
+                        "description": "for each component: its evolution phase.",
+                        "items": {
+                            "$ref": "#/components/schemas/evolutionRequest"
+                        },
+                        "type": "array"
+                    },
+                    "valueChain": {
+                        "$ref": "#/components/schemas/valueChainRequest"
+                    }
+                },
+                "required": [
+                    "valueChain",
+                    "components"
+                ],
+                "type": "object"
+            },
+            "mapURL": {
+                "properties": {
+                    "imageURL": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "imageURL"
+                ],
+                "type": "object"
+            },
+            "valueChainRequest": {
+                "description": "the value chain in a set of couples\na couple is a relation between a component and one of its dependency\na couple may contain information about the visibility of the dependency from the point of view of the component",
+                "properties": {
+                    "couple": {
+                        "items": {
+                            "$ref": "#/components/schemas/link"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "couple"
+                ],
+                "type": "object"
+            }
+        }
+    }
+}

@@ -21,6 +21,40 @@ type EvolutionInput struct {
 
 func (a *apiHandler) mapHandler(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(r.Body)
+	var input map[string]interface{}
+	err := dec.Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	result := struct {
+		ImageURL string `json:"imageURL"`
+	}{
+		//ImageURL: "http://localhost:3333/api/svg/" + id,
+		ImageURL: "http://localhost:3333/test.svg",
+	}
+	enc := json.NewEncoder(w)
+	enc.Encode(result)
+}
+func (a *apiHandler) valueChainHandler(w http.ResponseWriter, r *http.Request) {
+	dec := json.NewDecoder(r.Body)
+	var input map[string]interface{}
+	err := dec.Decode(&input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	result := struct {
+		ImageURL string `json:"imageURL"`
+	}{
+		//ImageURL: "http://localhost:3333/api/svg/" + id,
+		ImageURL: "http://localhost:3333/test.svg",
+	}
+	enc := json.NewEncoder(w)
+	enc.Encode(result)
+}
+func (a *apiHandler) evolutionHandler(w http.ResponseWriter, r *http.Request) {
+	dec := json.NewDecoder(r.Body)
 	var input EvolutionInput
 	err := dec.Decode(&input)
 	if err != nil {
@@ -73,7 +107,7 @@ func (a *apiHandler) mapHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Return the map
 	result := struct {
-		ImageURL string
+		ImageURL string `json:"imageURL"`
 	}{
 		//ImageURL: "http://localhost:3333/api/svg/" + id,
 		ImageURL: path.Join(a.address, a.basePath, "svg", id),
