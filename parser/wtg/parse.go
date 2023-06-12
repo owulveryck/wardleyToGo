@@ -1,6 +1,7 @@
 package wtg
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"io"
@@ -10,6 +11,8 @@ import (
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 )
+
+var ErrEmptyMap = errors.New("no map")
 
 type Parser struct {
 	visibilityOnly  bool
@@ -60,7 +63,7 @@ func (p *Parser) parse(s string) error {
 		return fmt.Errorf("error in parsing: %w", err)
 	}
 	if len(inv.NodeInventory) == 0 {
-		return fmt.Errorf("no map")
+		return ErrEmptyMap
 	}
 	m, err := consolidateMap(inv.NodeInventory, inv.EdgeInventory)
 	if err != nil {
