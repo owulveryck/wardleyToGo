@@ -98,14 +98,18 @@ func wtgWrapper() js.Func {
 		input := args[0].String()
 		width := 1300
 		height := 900
-		if len(args) == 3 {
+		withAnnotations := false
+		if len(args) >= 3 {
 			width = args[1].Int()
 			height = args[2].Int()
 		}
-		if width < 500 || height < 500 {
-			return fmt.Sprintf("size too small %vx%v (expected at least 500x500)", width, height)
+		if len(args) >= 4 {
+			withAnnotations = args[3].Bool()
 		}
-		svg, err := wtg2SVG(input, width, height)
+		if width < 200 || height < 200 {
+			return fmt.Sprintf("size too small %vx%v (expected at least 200x200)", width, height)
+		}
+		svg, err := wtg2SVG(input, width, height, withAnnotations)
 		if err != nil {
 			fmt.Printf("unable to generate svg %s\n", err)
 			return err.Error()
@@ -115,7 +119,7 @@ func wtgWrapper() js.Func {
 	return wtgFunc
 }
 
-func wtg2SVG(s string, width int, height int) (string, error) {
+func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, error) {
 	p := wtg.NewParser()
 
 	buf := bytes.NewBufferString(s)
@@ -141,7 +145,11 @@ func wtg2SVG(s string, width int, height int) (string, error) {
 		return "", err
 	}
 	defer e.Close()
-	style := svgmap.NewOctoStyle(p.EvolutionStages)
+	indicators := []svgmap.Annotator{}
+	if withAnnotations {
+		indicators = svgmap.AllEvolutionIndications()
+	}
+	style := svgmap.NewOctoStyle(p.EvolutionStages, indicators...)
 	style.WithControls = true
 	e.Init(style)
 	err = e.Encode(p.WMap)

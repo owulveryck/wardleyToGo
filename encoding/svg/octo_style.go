@@ -13,17 +13,23 @@ type OctoStyle struct {
 	WithValueChain bool
 	WithSpace      bool
 	WithControls   bool
+	Annotators     []Annotator
 }
 
-func NewOctoStyle(evolutionSteps []Evolution) *OctoStyle {
+func NewOctoStyle(evolutionSteps []Evolution, annotators ...Annotator) *OctoStyle {
 	svg.UpdateDefaultFont("Century Gothic,CenturyGothic,AppleGothic,sans-serif")
 	return &OctoStyle{
 		evolutionSteps: evolutionSteps,
 		WithValueChain: true,
 		WithSpace:      true,
 		WithControls:   false,
+		Annotators:     annotators,
 	}
 
+}
+
+type Annotator interface {
+	MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle)
 }
 
 func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
@@ -182,6 +188,9 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		FontWeight: "bold",
 	})
+	for _, a := range w.Annotators {
+		a.MarshalSVG(enc, box, canvas)
+	}
 }
 
 func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {

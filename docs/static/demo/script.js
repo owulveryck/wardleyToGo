@@ -117,7 +117,7 @@ var gvar = this;
 			var w = parseInt(document.getElementById("width").value);
 			var h = parseInt(document.getElementById("height").value);
 
-			svg = generateSVG(editor.getSession().getDocument().getValue(),w,h);
+			svg = generateSVG(editor.getSession().getDocument().getValue(),w,h, document.getElementById("annotations").checked);
 			updateOutput(svg);
 			// include script from the SVG
 			gvar.eval(document.getElementById('SVGScript').textContent);
@@ -205,6 +205,11 @@ var gvar = this;
 			console.log("rendering")
 			renderGraph()
 		})
+		annotations.addEventListener('click', function(){
+			console.log("rendering")
+			renderGraph()
+		})
+
 
 		// Since apparently HTMLCollection does not implement the oh so convenient array functions
 		HTMLOptionsCollection.prototype.indexOf = function(name) {
