@@ -21,9 +21,13 @@ import (
 )
 
 type configuration struct {
-	Width  int    `default:"1500"`
-	Height int    `default:"900"`
-	Port   string `default:"8080"`
+	Width          int    `default:"1500"`
+	Height         int    `default:"900"`
+	Port           string `default:"8080"`
+	WithSpace      bool   `default:"true"`
+	WithControls   bool   `default:"true"`
+	WithValueChain bool   `default:"true"`
+	WithIndicators bool   `default:"false"`
 }
 
 var config configuration
@@ -161,7 +165,7 @@ func generateSVG(filePath string) ([]byte, error) {
 	}
 	defer f.Close()
 	err = p.Parse(f)
-	if err != nil {
+	if err != nil && err != wtg.ErrEmptyMap {
 		return nil, err
 	}
 	if len(p.InvalidEntries) != 0 {
@@ -182,8 +186,15 @@ func generateSVG(filePath string) ([]byte, error) {
 		return nil, err
 	}
 	defer e.Close()
-	style := svgmap.NewOctoStyle(p.EvolutionStages)
+	indicators := []svgmap.Annotator{}
+	if config.WithIndicators {
+		indicators = svgmap.AllEvolutionIndications()
+	}
+	style := svgmap.NewOctoStyle(p.EvolutionStages, indicators...)
 	style.WithControls = true
+	style.WithSpace = config.WithSpace
+	style.WithControls = config.WithControls
+	style.WithValueChain = config.WithValueChain
 	e.Init(style)
 	err = e.Encode(p.WMap)
 	if err != nil {
