@@ -165,7 +165,7 @@ func generateSVG(filePath string) ([]byte, error) {
 	}
 	defer f.Close()
 	err = p.Parse(f)
-	if err != nil {
+	if err != nil && err != wtg.ErrEmptyMap {
 		return nil, err
 	}
 	if len(p.InvalidEntries) != 0 {
