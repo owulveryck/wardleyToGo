@@ -81,6 +81,15 @@ type InputComponent struct {
 	Type string `json:"type,omitempty"`
 }
 
+// InputElement represents an element (component or anchor) in the input for add_elements
+type InputElement struct {
+	Name        string `json:"name"`
+	X           int    `json:"x"`
+	Y           int    `json:"y"`
+	ElementType string `json:"element_type,omitempty"` // "component" or "anchor", default: "component"
+	Type        string `json:"type,omitempty"`         // for components: "regular", "build", "buy", "outsource", "dataproduct"
+}
+
 // InputLink represents a link in the input for add_links
 type InputLink struct {
 	From string `json:"from"`
@@ -930,14 +939,14 @@ func main() {
 		🔄 COMPLETE WORKFLOWS:
 
 		A) NEW MAP CREATION:
-		   1. get_empty_map(output="json") → Get starting JSON
-		   2. add_components(map_json=..., output="json") → Add all components
+		   1. create_map(output="json") → Get starting JSON
+		   2. add_elements(map_json=..., output="json") → Add components and anchors
 		   3. add_links(map_json=..., output="json") → Add dependencies
-		   4. auto_value_chain(map_json=..., output="json") → Position components (optional)
+		   4. auto_layout(map_json=..., output="json") → Position elements (optional)
 		   5. Final step: Use output="uri" to create shareable link
 
 		B) EDITING EXISTING MAP:
-		   1. decode_map_from_uri(uri="...") → Extract JSON from shareable URI
+		   1. decode_uri(uri="...") → Extract JSON from shareable URI
 		   2. Modify using any tools with output="json"
 		   3. Final step: Use output="uri" to create new shareable link
 
@@ -946,12 +955,12 @@ func main() {
 		   - Visit the URI in a browser to see the interactive map
 
 		🎯 KEY TOOLS BY PURPOSE:
-		- 🚀 START: get_empty_map
-		- 🔧 BUILD: add_components, add_links, link_components
-		- 📐 ARRANGE: move_component, auto_value_chain
-		- 🎨 CUSTOMIZE: set_stages, add_anchor
-		- 🔄 EDIT: decode_map_from_uri
-		- 🗑️ CLEAN: unlink_components
+		- 🚀 CREATE: create_map
+		- 🔧 ADD: add_elements, add_links
+		- 📐 POSITION: move_elements, auto_layout
+		- 🎨 CONFIGURE: configure_evolution
+		- 🔄 CONVERT: decode_uri
+		- 🗑️ REMOVE: remove_elements
 
 		⚠️ IMPORTANT: The JSON format is the universal interchange format. All tools understand it.
 		   URIs contain compressed JSON and can be decoded back to JSON for further editing.
@@ -962,76 +971,25 @@ func main() {
 		server.WithToolCapabilities(false),
 	)
 
-	// Add link_components tool
-	linkComponentsTool := mcp.NewTool("link_components",
-		mcp.WithDescription("Create a dependency link between two existing components in a Wardley map. The 'from' component depends on the 'to' component. Use 'json' output for intermediate operations, 'svg' for final display."),
+	// 📐 POSITION: move_elements tool
+	moveElementsTool := mcp.NewTool("move_elements",
+		mcp.WithDescription("📐 POSITION: Reposition specific elements by name. Handles single or multiple moves. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
 		),
-		mcp.WithString("from_component",
+		mcp.WithString("moves",
 			mcp.Required(),
-			mcp.Description("Name of the source component"),
-		),
-		mcp.WithString("to_component",
-			mcp.Required(),
-			mcp.Description("Name of the target component"),
-		),
-		mcp.WithString("link_type",
-			mcp.Description("Type of link: 'regular' for normal dependencies, 'evolved_component' for evolution of components, 'evolved' for evolved dependencies (default: 'regular')"),
+			mcp.Description("JSON array of move operations. Each move must have: name (string, element name), x (0-100, evolution: 0=genesis/left, 100=commodity/right), y (0-100, visibility: 0=visible/bottom, 100=invisible/top). Example: [{'name':'Customer','x':20,'y':15}, {'name':'Service','x':60,'y':50}]"),
 		),
 		mcp.WithString("output",
 			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
-	// Add unlink_components tool
-	unlinkComponentsTool := mcp.NewTool("unlink_components",
-		mcp.WithDescription("Remove an existing dependency link between two components in a Wardley map. Use 'json' output for intermediate operations, 'svg' for final display."),
-		mcp.WithString("map_json",
-			mcp.Required(),
-			mcp.Description("JSON representation of the current map"),
-		),
-		mcp.WithString("from_component",
-			mcp.Required(),
-			mcp.Description("Name of the source component"),
-		),
-		mcp.WithString("to_component",
-			mcp.Required(),
-			mcp.Description("Name of the target component"),
-		),
-		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
-		),
-	)
-
-	// Add move_component tool
-	moveComponentTool := mcp.NewTool("move_component",
-		mcp.WithDescription("Change the position of an existing component or anchor in a Wardley map. X coordinate represents evolution (0=genesis, 100=commodity), Y coordinate represents visibility (0=invisible, 100=visible). Use 'json' output for intermediate operations, 'svg' for final display."),
-		mcp.WithString("map_json",
-			mcp.Required(),
-			mcp.Description("JSON representation of the current map"),
-		),
-		mcp.WithString("component_name",
-			mcp.Required(),
-			mcp.Description("Name of the component to move"),
-		),
-		mcp.WithNumber("x",
-			mcp.Required(),
-			mcp.Description("New X coordinate (0-100): evolution stage, where 0=genesis/novel (left) and 100=commodity/standard (right)"),
-		),
-		mcp.WithNumber("y",
-			mcp.Required(),
-			mcp.Description("New Y coordinate (0-100): visibility level, where 0=highly visible/customer-facing (bottom) and 100=invisible/internal (top)"),
-		),
-		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
-		),
-	)
-
-	// Add get_empty_map tool
-	getEmptyMapTool := mcp.NewTool("get_empty_map",
-		mcp.WithDescription("🚀 WORKFLOW START: Create a new empty Wardley map. This is your starting point for any new map creation workflow. ALWAYS use 'json' output unless you want an empty map display. The JSON can then be passed to other tools for building your map step by step."),
+	// 🚀 CREATE: create_map tool
+	createMapTool := mcp.NewTool("create_map",
+		mcp.WithDescription("🚀 CREATE: Create a new empty Wardley map. Starting point for all workflows. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("title",
 			mcp.Description("Title for the map (default: 'New Wardley Map')"),
 		),
@@ -1043,41 +1001,41 @@ func main() {
 		),
 	)
 
-	// Add add_components tool
-	addComponentsTool := mcp.NewTool("add_components",
-		mcp.WithDescription("🔧 WORKFLOW BUILD: Add/update multiple components efficiently in one operation. IMPORTANT: Use 'json' output when building/editing (you'll call more tools afterward). Use 'uri' output for final shareable links. More efficient than multiple add_component calls."),
+	// 🔧 ADD: add_elements tool (unified components and anchors)
+	addElementsTool := mcp.NewTool("add_elements",
+		mcp.WithDescription("🔧 ADD: Add or update components and anchors. Handles single or multiple elements. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
 		),
-		mcp.WithString("components",
+		mcp.WithString("elements",
 			mcp.Required(),
-			mcp.Description("JSON array of components. Each component must have: name (string), x (0-100, evolution: 0=genesis/left, 100=commodity/right), y (0-100, visibility: 0=visible/bottom, 100=invisible/top), type (optional: 'regular', 'build', 'buy', 'outsource', 'dataproduct'). Example: [{'name':'User','x':10,'y':10,'type':'regular'}] places User at genesis/visible"),
+			mcp.Description("JSON array of elements. Each element must have: name (string), x (0-100, evolution: 0=genesis/left, 100=commodity/right), y (0-100, visibility: 0=visible/bottom, 100=invisible/top), element_type ('component' or 'anchor', default: 'component'), type (optional for components: 'regular', 'build', 'buy', 'outsource', 'dataproduct'). Example: [{'name':'Customer','x':15,'y':15,'element_type':'anchor'}, {'name':'Service','x':50,'y':50,'element_type':'component','type':'regular'}]"),
 		),
 		mcp.WithString("output",
 			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
-	// Add add_links tool
+	// 🔧 ADD: add_links tool
 	addLinksTool := mcp.NewTool("add_links",
-		mcp.WithDescription("🔧 WORKFLOW BUILD: Add multiple dependency links efficiently in one operation. Links show how components depend on each other. IMPORTANT: Use 'json' output when building/editing (you'll call more tools afterward). Use 'uri' output for final shareable links."),
+		mcp.WithDescription("🔧 ADD: Add dependency relationships between elements. Handles single or multiple links. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
 		),
 		mcp.WithString("links",
 			mcp.Required(),
-			mcp.Description("JSON array of dependency links. Each link must have: from (string, source component name), to (string, target component name), type (optional: 'regular', 'evolved_component', 'evolved'). The 'from' component depends on the 'to' component. Example: [{'from':'User','to':'Service','type':'regular'}]"),
+			mcp.Description("JSON array of dependency links. Each link must have: from (string, source element name), to (string, target element name), type (optional: 'regular', 'evolved_component', 'evolved'). The 'from' element depends on the 'to' element. Example: [{'from':'Customer','to':'Service','type':'regular'}]"),
 		),
 		mcp.WithString("output",
 			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
-	// Add set_stages tool
-	setStagesTool := mcp.NewTool("set_stages",
-		mcp.WithDescription("Customize the evolution stage labels for a Wardley map. These labels appear on the X-axis and define the four stages of evolution from genesis to commodity. Use descriptive labels relevant to your domain. Use 'json' output for intermediate operations, 'svg' for final display."),
+	// 🎨 CONFIGURE: configure_evolution tool
+	configureEvolutionTool := mcp.NewTool("configure_evolution",
+		mcp.WithDescription("🎨 CONFIGURE: Customize the four evolution stage labels displayed on the X-axis. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
@@ -1103,33 +1061,9 @@ func main() {
 		),
 	)
 
-	// Add add_anchor tool
-	addAnchorTool := mcp.NewTool("add_anchor",
-		mcp.WithDescription("Add an anchor point to a Wardley map. Anchors represent external needs, users, or business requirements that drive the value chain. They typically appear at high visibility (Y=0-30, bottom of map) and serve as starting points for dependency chains. Use 'json' output for intermediate operations, 'svg' for final display."),
-		mcp.WithString("map_json",
-			mcp.Required(),
-			mcp.Description("JSON representation of the current map"),
-		),
-		mcp.WithString("anchor_name",
-			mcp.Required(),
-			mcp.Description("Name/label of the anchor to add"),
-		),
-		mcp.WithNumber("x",
-			mcp.Required(),
-			mcp.Description("X coordinate (0-100): evolution stage, often 10-30 for anchors as user needs tend to be stable (left=genesis, right=commodity)"),
-		),
-		mcp.WithNumber("y",
-			mcp.Required(),
-			mcp.Description("Y coordinate (0-100): visibility level, typically 10-30 for anchors as they represent visible user needs (bottom=visible, top=invisible)"),
-		),
-		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
-		),
-	)
-
-	// Add auto_value_chain tool
-	autoValueChainTool := mcp.NewTool("auto_value_chain",
-		mcp.WithDescription("Automatically arrange components vertically based on their dependency depth in the value chain. Calculates the longest path from root components (or anchors) and positions components in horizontal layers. Layer 0 contains roots, layer 1 contains their direct dependencies, etc. Components within each layer are distributed to avoid overlaps. Use 'json' output for intermediate operations, 'svg' for final display."),
+	// 📐 POSITION: auto_layout tool
+	autoLayoutTool := mcp.NewTool("auto_layout",
+		mcp.WithDescription("📐 POSITION: Automatically arrange all elements based on value chain depth analysis. Calculates dependency paths and positions elements in horizontal layers. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
@@ -1139,26 +1073,44 @@ func main() {
 		),
 	)
 
-	// Add decode_map_from_uri tool
-	decodeMapFromUriTool := mcp.NewTool("decode_map_from_uri",
-		mcp.WithDescription("🔄 WORKFLOW EDIT: Decode a shareable URI back to JSON for editing. ESSENTIAL when modifying existing maps shared as URIs. Workflow: 1) Use this tool to get JSON from URI, 2) Edit with other tools using 'json' output, 3) Generate final URI. This enables the complete edit cycle: URI → JSON → modifications → new URI."),
+	// 🔄 CONVERT: decode_uri tool
+	decodeUriTool := mcp.NewTool("decode_uri",
+		mcp.WithDescription("🔄 CONVERT: Extract map JSON from a shareable URI for editing. Essential for modifying existing maps. Returns JSON that can be passed to other tools."),
 		mcp.WithString("uri",
 			mcp.Required(),
 			mcp.Description("The complete URI containing the base64-encoded map data (e.g., 'http://localhost:8585/map?wardley_map_json_base64=...')"),
 		),
 	)
 
+	// 🗑️ REMOVE: remove_elements tool
+	removeElementsTool := mcp.NewTool("remove_elements",
+		mcp.WithDescription("🗑️ REMOVE: Remove components, anchors, or links from the map. Handles single or multiple removals. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
+		mcp.WithString("map_json",
+			mcp.Required(),
+			mcp.Description("JSON representation of the current map"),
+		),
+		mcp.WithString("remove_type",
+			mcp.Required(),
+			mcp.Description("Type of removal: 'elements' to remove components/anchors, 'links' to remove connections"),
+		),
+		mcp.WithString("items",
+			mcp.Required(),
+			mcp.Description("JSON array of items to remove. For elements: [{'name':'ElementName'}]. For links: [{'from':'SourceName','to':'TargetName'}]. Example: [{'name':'Customer'}] or [{'from':'Customer','to':'Service'}]"),
+		),
+		mcp.WithString("output",
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+		),
+	)
+
 	// Add tool handlers
-	s.AddTool(addComponentsTool, addComponentsHandler)
+	s.AddTool(createMapTool, createMapHandler)
+	s.AddTool(addElementsTool, addElementsHandler)
 	s.AddTool(addLinksTool, addLinksHandler)
-	s.AddTool(linkComponentsTool, linkComponentsHandler)
-	s.AddTool(unlinkComponentsTool, unlinkComponentsHandler)
-	s.AddTool(moveComponentTool, moveComponentHandler)
-	s.AddTool(getEmptyMapTool, getEmptyMapHandler)
-	s.AddTool(setStagesTool, setStagesHandler)
-	s.AddTool(addAnchorTool, addAnchorHandler)
-	s.AddTool(autoValueChainTool, autoValueChainHandler)
-	s.AddTool(decodeMapFromUriTool, decodeMapFromUriHandler)
+	s.AddTool(moveElementsTool, moveElementsHandler)
+	s.AddTool(autoLayoutTool, autoLayoutHandler)
+	s.AddTool(configureEvolutionTool, configureEvolutionHandler)
+	s.AddTool(decodeUriTool, decodeUriHandler)
+	s.AddTool(removeElementsTool, removeElementsHandler)
 
 	// Add workflow prompts
 	addWorkflowPrompts(s)
@@ -1299,6 +1251,71 @@ func unlinkComponentsHandler(ctx context.Context, request mcp.CallToolRequest) (
 	return mcp.NewToolResultText(content), nil
 }
 
+func moveElementsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Extract parameters
+	mapJSON, err := request.RequireString("map_json")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get map_json parameter", err), nil
+	}
+
+	movesJSON, err := request.RequireString("moves")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get moves parameter", err), nil
+	}
+
+	output := request.GetString("output", "svg")
+
+	// Parse the map
+	m, err := UnmarshalMap([]byte(mapJSON))
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to parse map JSON", err), nil
+	}
+
+	// Parse moves array
+	type MoveOperation struct {
+		Name string `json:"name"`
+		X    int    `json:"x"`
+		Y    int    `json:"y"`
+	}
+
+	var moves []MoveOperation
+	if err := json.Unmarshal([]byte(movesJSON), &moves); err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to parse moves JSON array", err), nil
+	}
+
+	// Process each move
+	for _, move := range moves {
+		// Validate coordinates
+		if move.X < 0 || move.X > 100 || move.Y < 0 || move.Y > 100 {
+			return mcp.NewToolResultErrorf("Invalid coordinates (%d, %d) for element '%s': both x and y must be between 0 and 100", move.X, move.Y, move.Name), nil
+		}
+
+		// Find the element
+		element := findComponentByName(m, move.Name)
+		if element == nil {
+			return mcp.NewToolResultErrorf("Element '%s' not found in map", move.Name), nil
+		}
+
+		// Update position based on type
+		switch e := element.(type) {
+		case *wardley.Component:
+			e.Placement = image.Pt(move.X, move.Y)
+		case *wardley.Anchor:
+			e.Placement = image.Pt(move.X, move.Y)
+		default:
+			return mcp.NewToolResultErrorf("Unknown element type for '%s'", move.Name), nil
+		}
+	}
+
+	// Generate output in requested format
+	content, err := generateOutput(m, output)
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to generate output", err), nil
+	}
+
+	return mcp.NewToolResultText(content), nil
+}
+
 func moveComponentHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	// Extract parameters
 	mapJSON, err := request.RequireString("map_json")
@@ -1359,7 +1376,7 @@ func moveComponentHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 	return mcp.NewToolResultText(content), nil
 }
 
-func getEmptyMapHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func createMapHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	// Extract optional parameters with defaults
 	title := request.GetString("title", "New Wardley Map")
 	mapID := request.GetInt("map_id", 1)
@@ -1373,6 +1390,139 @@ func getEmptyMapHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	content, err := generateOutput(m, output)
 	if err != nil {
 		return mcp.NewToolResultErrorFromErr("Failed to generate output for empty map", err), nil
+	}
+
+	return mcp.NewToolResultText(content), nil
+}
+
+func addElementsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Extract parameters
+	mapJSON, err := request.RequireString("map_json")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get map_json parameter", err), nil
+	}
+
+	elementsJSON, err := request.RequireString("elements")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get elements parameter", err), nil
+	}
+
+	output := request.GetString("output", "svg")
+
+	// Parse the existing map or create a new one
+	var m *wardleyToGo.Map
+	if mapJSON == "" || mapJSON == "{}" {
+		// Create new map
+		m = wardleyToGo.NewMap(1)
+		m.Title = "New Wardley Map"
+	} else {
+		// Parse existing map
+		m, err = UnmarshalMap([]byte(mapJSON))
+		if err != nil {
+			return mcp.NewToolResultErrorFromErr("Failed to parse map JSON", err), nil
+		}
+	}
+
+	// Parse elements array
+	var inputElements []InputElement
+	if err := json.Unmarshal([]byte(elementsJSON), &inputElements); err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to parse elements JSON array", err), nil
+	}
+
+	// Find the next available ID
+	nextID := int64(1)
+	nodes := m.Nodes()
+	for nodes.Next() {
+		if nodes.Node().ID() >= nextID {
+			nextID = nodes.Node().ID() + 1
+		}
+	}
+
+	// Process each element
+	for _, inputElement := range inputElements {
+		// Validate coordinates
+		if inputElement.X < 0 || inputElement.X > 100 || inputElement.Y < 0 || inputElement.Y > 100 {
+			return mcp.NewToolResultErrorf("Invalid coordinates (%d, %d) for element '%s': both x and y must be between 0 and 100", inputElement.X, inputElement.Y, inputElement.Name), nil
+		}
+
+		// Default element type is component
+		elementType := inputElement.ElementType
+		if elementType == "" {
+			elementType = "component"
+		}
+
+		// Check if element already exists
+		existingElement := findComponentByName(m, inputElement.Name)
+
+		if existingElement != nil {
+			// Update existing element position
+			switch e := existingElement.(type) {
+			case *wardley.Component:
+				e.Placement = image.Pt(inputElement.X, inputElement.Y)
+				// Update type if provided and it's a component
+				if elementType == "component" && inputElement.Type != "" {
+					switch inputElement.Type {
+					case "build":
+						e.Type = wardley.BuildComponent
+					case "buy":
+						e.Type = wardley.BuyComponent
+					case "outsource":
+						e.Type = wardley.OutsourceComponent
+					case "dataproduct":
+						e.Type = wardley.DataProductComponent
+					default:
+						e.Type = wardley.RegularComponent
+					}
+				}
+			case *wardley.Anchor:
+				e.Placement = image.Pt(inputElement.X, inputElement.Y)
+			}
+		} else {
+			// Create new element
+			if elementType == "anchor" {
+				// Create new anchor
+				anchor := wardley.NewAnchor(nextID)
+				anchor.Label = inputElement.Name
+				anchor.Placement = image.Pt(inputElement.X, inputElement.Y)
+
+				// Add anchor to map
+				if err := m.AddComponent(anchor); err != nil {
+					return mcp.NewToolResultErrorFromErr(fmt.Sprintf("Failed to add anchor '%s' to map", anchor.Label), err), nil
+				}
+			} else {
+				// Create new component
+				comp := wardley.NewComponent(nextID)
+				comp.Label = inputElement.Name
+				comp.Placement = image.Pt(inputElement.X, inputElement.Y)
+
+				// Set component type
+				switch inputElement.Type {
+				case "build":
+					comp.Type = wardley.BuildComponent
+				case "buy":
+					comp.Type = wardley.BuyComponent
+				case "outsource":
+					comp.Type = wardley.OutsourceComponent
+				case "dataproduct":
+					comp.Type = wardley.DataProductComponent
+				default:
+					comp.Type = wardley.RegularComponent
+				}
+
+				// Add component to map
+				if err := m.AddComponent(comp); err != nil {
+					return mcp.NewToolResultErrorFromErr(fmt.Sprintf("Failed to add component '%s' to map", comp.Label), err), nil
+				}
+			}
+
+			nextID++
+		}
+	}
+
+	// Generate output in requested format
+	content, err := generateOutput(m, output)
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to generate output", err), nil
 	}
 
 	return mcp.NewToolResultText(content), nil
@@ -1569,7 +1719,7 @@ func addLinksHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	return mcp.NewToolResultText(content), nil
 }
 
-func setStagesHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func configureEvolutionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	// Extract parameters
 	mapJSON, err := request.RequireString("map_json")
 	if err != nil {
@@ -1695,7 +1845,7 @@ func addAnchorHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 	return mcp.NewToolResultText(content), nil
 }
 
-func autoValueChainHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func autoLayoutHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	// Extract parameters
 	mapJSON, err := request.RequireString("map_json")
 	if err != nil {
@@ -1733,7 +1883,7 @@ func autoValueChainHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 	return mcp.NewToolResultText(content), nil
 }
 
-func decodeMapFromUriHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func decodeUriHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	// Extract parameters
 	uri, err := request.RequireString("uri")
 	if err != nil {
@@ -1759,4 +1909,108 @@ func decodeMapFromUriHandler(ctx context.Context, request mcp.CallToolRequest) (
 	}
 
 	return mcp.NewToolResultText(string(jsonData)), nil
+}
+
+func removeElementsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Extract parameters
+	mapJSON, err := request.RequireString("map_json")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get map_json parameter", err), nil
+	}
+
+	removeType, err := request.RequireString("remove_type")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get remove_type parameter", err), nil
+	}
+
+	itemsJSON, err := request.RequireString("items")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get items parameter", err), nil
+	}
+
+	output := request.GetString("output", "svg")
+
+	// Parse the map
+	m, err := UnmarshalMap([]byte(mapJSON))
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to parse map JSON", err), nil
+	}
+
+	if removeType == "elements" {
+		// Remove elements (components or anchors)
+		type RemoveElement struct {
+			Name string `json:"name"`
+		}
+
+		var items []RemoveElement
+		if err := json.Unmarshal([]byte(itemsJSON), &items); err != nil {
+			return mcp.NewToolResultErrorFromErr("Failed to parse items JSON array for elements", err), nil
+		}
+
+		for _, item := range items {
+			element := findComponentByName(m, item.Name)
+			if element == nil {
+				return mcp.NewToolResultErrorf("Element '%s' not found in map", item.Name), nil
+			}
+
+			// Remove all edges connected to this element first
+			edgesToRemove := make([]graph.Edge, 0)
+			edges := m.Edges()
+			for edges.Next() {
+				edge := edges.Edge()
+				if edge.From().ID() == element.ID() || edge.To().ID() == element.ID() {
+					edgesToRemove = append(edgesToRemove, edge)
+				}
+			}
+
+			for _, edge := range edgesToRemove {
+				m.RemoveEdge(edge.From().ID(), edge.To().ID())
+			}
+
+			// Remove the element itself
+			m.RemoveNode(element.ID())
+		}
+
+	} else if removeType == "links" {
+		// Remove links
+		type RemoveLink struct {
+			From string `json:"from"`
+			To   string `json:"to"`
+		}
+
+		var items []RemoveLink
+		if err := json.Unmarshal([]byte(itemsJSON), &items); err != nil {
+			return mcp.NewToolResultErrorFromErr("Failed to parse items JSON array for links", err), nil
+		}
+
+		for _, item := range items {
+			fromElement := findComponentByName(m, item.From)
+			if fromElement == nil {
+				return mcp.NewToolResultErrorf("Source element '%s' not found in map", item.From), nil
+			}
+
+			toElement := findComponentByName(m, item.To)
+			if toElement == nil {
+				return mcp.NewToolResultErrorf("Target element '%s' not found in map", item.To), nil
+			}
+
+			// Check if link exists and remove it
+			if !linkExists(m, item.From, item.To) {
+				return mcp.NewToolResultErrorf("No link found between '%s' and '%s'", item.From, item.To), nil
+			}
+
+			m.RemoveEdge(fromElement.ID(), toElement.ID())
+		}
+
+	} else {
+		return mcp.NewToolResultErrorf("Invalid remove_type '%s': must be 'elements' or 'links'", removeType), nil
+	}
+
+	// Generate output in requested format
+	content, err := generateOutput(m, output)
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to generate output", err), nil
+	}
+
+	return mcp.NewToolResultText(content), nil
 }
