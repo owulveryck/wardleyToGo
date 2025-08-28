@@ -2,31 +2,31 @@ package wtg
 
 func (inv *Inventory) visibilitySetN1N2() {
 	n1 := inv.upsertNode(inv.tokens[inv.offset].Value)
-	n2 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
+	n2 := inv.upsertNode(inv.tokens[inv.offset+VisibilityParseOffset].Value)
 	e := inv.insertEdge(inv.tokens[inv.offset+1].Value)
 	e.F = n1
 	e.T = n2
-	inv.offset += 2
+	inv.offset += VisibilityParseOffset
 }
 func (inv *Inventory) visibilitySetP1a1N2() {
 	P1 := inv.upsertNode(inv.tokens[inv.offset].Value)
-	a1 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
+	a1 := inv.upsertNode(inv.tokens[inv.offset+VisibilityParseOffset].Value)
 	upsertAnchor(P1, a1)
-	P2 := inv.upsertNode(inv.tokens[inv.offset+4].Value)
+	P2 := inv.upsertNode(inv.tokens[inv.offset+PipelineParseOffset].Value)
 	e := inv.insertEdge(inv.tokens[inv.offset+3].Value)
 	e.F = a1
 	e.T = P2
-	inv.offset += 4
+	inv.offset += PipelineParseOffset
 }
 func (inv *Inventory) visibilitySetN1P2a2() {
 	N1 := inv.upsertNode(inv.tokens[inv.offset].Value)
 	e := inv.insertEdge(inv.tokens[inv.offset+1].Value)
-	P2 := inv.upsertNode(inv.tokens[inv.offset+2].Value)
-	a2 := inv.upsertNode(inv.tokens[inv.offset+4].Value)
+	P2 := inv.upsertNode(inv.tokens[inv.offset+VisibilityParseOffset].Value)
+	a2 := inv.upsertNode(inv.tokens[inv.offset+PipelineParseOffset].Value)
 	upsertAnchor(P2, a2)
 	e.F = N1
 	e.T = a2
-	inv.offset += 4
+	inv.offset += PipelineParseOffset
 }
 func (inv *Inventory) visibilitySetP1a1P2a2() {
 	e := inv.insertEdge(inv.tokens[inv.offset+3].Value)

@@ -2,11 +2,18 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
@@ -83,6 +90,21 @@ type InputLink struct {
 
 // Global storage for map stages (in production, this could be a database)
 var mapStages = make(map[int64][]JSONEvolution)
+
+// URI generation environment variables
+var (
+	uriScheme = getEnvWithDefault("WARDLEY_URI_SCHEME", "http")
+	uriHost   = getEnvWithDefault("WARDLEY_URI_HOST", "localhost")
+	uriPort   = getEnvWithDefault("WARDLEY_URI_PORT", "8585")
+)
+
+// getEnvWithDefault returns the environment variable value or a default value if not set
+func getEnvWithDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
 
 // getDefaultStages returns the default evolution stages
 func getDefaultStages() []JSONEvolution {
@@ -192,6 +214,226 @@ func MarshalMap(m *wardleyToGo.Map) ([]byte, error) {
 	}
 
 	return json.Marshal(jsonMap)
+}
+
+// encodeMapToGzippedBase64 compresses the JSON representation of a map using gzip and encodes it in base64
+func encodeMapToGzippedBase64(m *wardleyToGo.Map) (string, error) {
+	// Generate JSON representation
+	jsonData, err := MarshalMap(m)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal map to JSON: %w", err)
+	}
+
+	// Compress JSON data using gzip
+	var buf bytes.Buffer
+	gzWriter := gzip.NewWriter(&buf)
+	if _, err := gzWriter.Write(jsonData); err != nil {
+		return "", fmt.Errorf("failed to compress JSON data: %w", err)
+	}
+	if err := gzWriter.Close(); err != nil {
+		return "", fmt.Errorf("failed to close gzip writer: %w", err)
+	}
+
+	// Encode compressed data to base64
+	return base64.URLEncoding.EncodeToString(buf.Bytes()), nil
+}
+
+// generateURI creates a URI with the gzipped and base64-encoded map data
+func generateURI(m *wardleyToGo.Map) (string, error) {
+	// Encode map data
+	encodedData, err := encodeMapToGzippedBase64(m)
+	if err != nil {
+		return "", fmt.Errorf("failed to encode map data: %w", err)
+	}
+
+	// Construct URI
+	uri := fmt.Sprintf("%s://%s:%s/map?wardley_map_json_base64=%s", uriScheme, uriHost, uriPort, encodedData)
+	return uri, nil
+}
+
+// decodeMapFromGzippedBase64 decompresses and decodes a base64-encoded gzipped JSON map
+func decodeMapFromGzippedBase64(encodedData string) (*wardleyToGo.Map, error) {
+	// Decode base64
+	compressedData, err := base64.URLEncoding.DecodeString(encodedData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode base64 data: %w", err)
+	}
+
+	// Decompress gzip
+	gzReader, err := gzip.NewReader(bytes.NewReader(compressedData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create gzip reader: %w", err)
+	}
+	defer gzReader.Close()
+
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(gzReader); err != nil {
+		return nil, fmt.Errorf("failed to decompress data: %w", err)
+	}
+
+	// Parse JSON and convert to map
+	m, err := UnmarshalMap(buf.Bytes())
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal map JSON: %w", err)
+	}
+
+	return m, nil
+}
+
+// extractBase64FromURI extracts the base64 encoded map data from a URI
+func extractBase64FromURI(uri string) (string, error) {
+	// Parse the URI to extract the base64 data
+	queryParamPrefix := "wardley_map_json_base64="
+	idx := strings.Index(uri, queryParamPrefix)
+	if idx == -1 {
+		return "", fmt.Errorf("URI does not contain wardley_map_json_base64 parameter")
+	}
+
+	// Extract everything after the parameter name
+	encodedData := uri[idx+len(queryParamPrefix):]
+
+	// Remove any additional query parameters that might follow
+	if ampIdx := strings.Index(encodedData, "&"); ampIdx != -1 {
+		encodedData = encodedData[:ampIdx]
+	}
+
+	if encodedData == "" {
+		return "", fmt.Errorf("empty base64 data in URI")
+	}
+
+	return encodedData, nil
+}
+
+// handleMapRequest handles HTTP requests for the /map endpoint
+func handleMapRequest(w http.ResponseWriter, r *http.Request) {
+	// Get the base64 encoded map data from query parameter
+	encodedData := r.URL.Query().Get("wardley_map_json_base64")
+	if encodedData == "" {
+		http.Error(w, "Missing wardley_map_json_base64 query parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Get the output format (default to SVG)
+	outputFormat := r.URL.Query().Get("output")
+	if outputFormat == "" {
+		outputFormat = "svg"
+	}
+
+	// Validate output format
+	if outputFormat != "svg" && outputFormat != "json" {
+		http.Error(w, "Invalid output format. Must be 'svg' or 'json'", http.StatusBadRequest)
+		return
+	}
+
+	// Decode the map data
+	m, err := decodeMapFromGzippedBase64(encodedData)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to decode map data: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	// Generate output in requested format
+	content, err := generateOutput(m, outputFormat)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to generate output: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Set appropriate content type
+	switch outputFormat {
+	case "json":
+		w.Header().Set("Content-Type", "application/json")
+	case "svg":
+		w.Header().Set("Content-Type", "image/svg+xml")
+	}
+
+	// Allow CORS for web applications
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// Handle OPTIONS request for CORS preflight
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Write the content
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(content))
+}
+
+// startWebServer starts the HTTP server for serving Wardley maps
+func startWebServer() {
+	port, err := strconv.Atoi(uriPort)
+	if err != nil {
+		log.Printf("Invalid port number for web server: %s, web server disabled", uriPort)
+		return
+	}
+
+	addr := fmt.Sprintf("%s:%d", uriHost, port)
+
+	// Set up routes
+	http.HandleFunc("/map", handleMapRequest)
+
+	// Add a simple health check endpoint
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok","service":"wardley-map-server"}`))
+	})
+
+	// Add a root endpoint that shows usage
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		usage := `<!DOCTYPE html>
+<html>
+<head>
+    <title>Wardley Map Server</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Wardley Map Server</h1>
+    <p>This server renders Wardley maps from base64-encoded, gzipped JSON data.</p>
+    
+    <h2>Usage</h2>
+    <p>Send a GET request to:</p>
+    <pre><code>/map?wardley_map_json_base64=&lt;encoded_data&gt;&amp;output=&lt;format&gt;</code></pre>
+    
+    <h3>Parameters:</h3>
+    <ul>
+        <li><strong>wardley_map_json_base64</strong> (required): Base64-encoded, gzipped JSON representation of the Wardley map</li>
+        <li><strong>output</strong> (optional): Output format - "svg" (default) or "json"</li>
+    </ul>
+    
+    <h3>Examples:</h3>
+    <ul>
+        <li><code>/map?wardley_map_json_base64=&lt;data&gt;</code> - Returns SVG</li>
+        <li><code>/map?wardley_map_json_base64=&lt;data&gt;&amp;output=svg</code> - Returns SVG</li>
+        <li><code>/map?wardley_map_json_base64=&lt;data&gt;&amp;output=json</code> - Returns JSON</li>
+    </ul>
+    
+    <h3>Health Check:</h3>
+    <p><a href="/health">/health</a> - Returns server status</p>
+</body>
+</html>`
+		w.Write([]byte(usage))
+	})
+
+	log.Printf("Starting Wardley Map web server on %s", addr)
+	log.Printf("Server endpoints:")
+	log.Printf("  GET /map?wardley_map_json_base64=<data>&output=<format>")
+	log.Printf("  GET /health")
+	log.Printf("  GET / (usage information)")
+
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Printf("Web server failed to start: %v", err)
+	}
 }
 
 // ValueChainNode represents a node in the value chain analysis
@@ -424,20 +666,30 @@ func findComponentNameByID(m *wardleyToGo.Map, id int64) string {
 	nodes := m.Nodes()
 	for nodes.Next() {
 		node := nodes.Node()
+		// Check for regular components
 		if comp, ok := node.(*wardley.Component); ok && comp.ID() == id {
 			return comp.Label
+		}
+		// Check for anchors
+		if anchor, ok := node.(*wardley.Anchor); ok && anchor.ID() == id {
+			return anchor.Label
 		}
 	}
 	return ""
 }
 
-// Helper function to find component by name
-func findComponentByName(m *wardleyToGo.Map, name string) *wardley.Component {
+// Helper function to find component by name (includes both components and anchors)
+func findComponentByName(m *wardleyToGo.Map, name string) wardleyToGo.Component {
 	nodes := m.Nodes()
 	for nodes.Next() {
 		node := nodes.Node()
+		// Check for regular components
 		if comp, ok := node.(*wardley.Component); ok && comp.Label == name {
 			return comp
+		}
+		// Check for anchors
+		if anchor, ok := node.(*wardley.Anchor); ok && anchor.Label == name {
+			return anchor
 		}
 	}
 	return nil
@@ -560,7 +812,7 @@ func UnmarshalMap(data []byte) (*wardleyToGo.Map, error) {
 	return m, nil
 }
 
-// generateOutput creates either SVG or JSON representation based on output format
+// generateOutput creates either SVG, JSON, or URI representation based on output format
 func generateOutput(m *wardleyToGo.Map, format string) (string, error) {
 	switch format {
 	case "json":
@@ -569,6 +821,8 @@ func generateOutput(m *wardleyToGo.Map, format string) (string, error) {
 			return "", fmt.Errorf("failed to marshal map to JSON: %w", err)
 		}
 		return string(jsonData), nil
+	case "uri":
+		return generateURI(m)
 	case "svg":
 		fallthrough
 	default:
@@ -651,38 +905,61 @@ func GenerateSVG(m *wardleyToGo.Map) (string, error) {
 }
 
 func main() {
+	// Parse command line flags
+	var disableWeb = flag.Bool("no-web", false, "Disable web server (MCP server only)")
+	flag.Parse()
+
+	// Start the web server in a goroutine unless disabled
+	if !*disableWeb {
+		go startWebServer()
+	}
+
 	// Create a new MCP server
+	/*
+		🤖 AI WORKFLOW GUIDE 🤖
+
+		This MCP server provides tools for creating and editing Wardley Maps with a complete workflow designed for AI agents.
+		The server also runs a web server (localhost:8585) that serves maps from shareable URIs.
+
+		📋 CORE WORKFLOW PRINCIPLES:
+		1. ALWAYS use 'json' output when you plan to make more changes (intermediate operations)
+		2. Use 'uri' output to create shareable links that display SVG maps on the web server
+		3. Use 'svg' output only for final display when no more changes are needed
+		4. Each step should return JSON that is understandable and can be passed to the next tool
+
+		🔄 COMPLETE WORKFLOWS:
+
+		A) NEW MAP CREATION:
+		   1. get_empty_map(output="json") → Get starting JSON
+		   2. add_components(map_json=..., output="json") → Add all components
+		   3. add_links(map_json=..., output="json") → Add dependencies
+		   4. auto_value_chain(map_json=..., output="json") → Position components (optional)
+		   5. Final step: Use output="uri" to create shareable link
+
+		B) EDITING EXISTING MAP:
+		   1. decode_map_from_uri(uri="...") → Extract JSON from shareable URI
+		   2. Modify using any tools with output="json"
+		   3. Final step: Use output="uri" to create new shareable link
+
+		C) QUICK DISPLAY:
+		   - Any tool with output="svg" for immediate visualization
+		   - Visit the URI in a browser to see the interactive map
+
+		🎯 KEY TOOLS BY PURPOSE:
+		- 🚀 START: get_empty_map
+		- 🔧 BUILD: add_components, add_links, link_components
+		- 📐 ARRANGE: move_component, auto_value_chain
+		- 🎨 CUSTOMIZE: set_stages, add_anchor
+		- 🔄 EDIT: decode_map_from_uri
+		- 🗑️ CLEAN: unlink_components
+
+		⚠️ IMPORTANT: The JSON format is the universal interchange format. All tools understand it.
+		   URIs contain compressed JSON and can be decoded back to JSON for further editing.
+	*/
 	s := server.NewMCPServer(
-		"Wardley Map SVG Generator 🗺️",
+		"Wardley Map Generator & Web Server 🗺️",
 		"1.0.0",
 		server.WithToolCapabilities(false),
-	)
-
-	// Add add_component tool
-	addComponentTool := mcp.NewTool("add_component",
-		mcp.WithDescription("Add a single component to a Wardley map. Use 'json' output for intermediate operations when you plan to make more changes. Use 'svg' output (default) only for the final operation when you want to display the map to the user. The SVG contains embedded JSON data that can be extracted for further operations."),
-		mcp.WithString("map_json",
-			mcp.Required(),
-			mcp.Description("JSON representation of the current map"),
-		),
-		mcp.WithString("component_name",
-			mcp.Required(),
-			mcp.Description("Name of the component to add"),
-		),
-		mcp.WithNumber("x",
-			mcp.Required(),
-			mcp.Description("X coordinate (0-100): evolution stage, where 0=genesis/novel (left) and 100=commodity/standard (right)"),
-		),
-		mcp.WithNumber("y",
-			mcp.Required(),
-			mcp.Description("Y coordinate (0-100): visibility level, where 0=highly visible/customer-facing (bottom) and 100=invisible/internal (top)"),
-		),
-		mcp.WithString("component_type",
-			mcp.Description("Type of component: 'regular', 'build', 'buy', 'outsource', or 'dataproduct' (default: 'regular')"),
-		),
-		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
-		),
 	)
 
 	// Add link_components tool
@@ -704,7 +981,7 @@ func main() {
 			mcp.Description("Type of link: 'regular' for normal dependencies, 'evolved_component' for evolution of components, 'evolved' for evolved dependencies (default: 'regular')"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -724,13 +1001,13 @@ func main() {
 			mcp.Description("Name of the target component"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
 	// Add move_component tool
 	moveComponentTool := mcp.NewTool("move_component",
-		mcp.WithDescription("Change the position of an existing component in a Wardley map. X coordinate represents evolution (0=genesis, 100=commodity), Y coordinate represents visibility (0=invisible, 100=visible). Use 'json' output for intermediate operations, 'svg' for final display."),
+		mcp.WithDescription("Change the position of an existing component or anchor in a Wardley map. X coordinate represents evolution (0=genesis, 100=commodity), Y coordinate represents visibility (0=invisible, 100=visible). Use 'json' output for intermediate operations, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
@@ -748,13 +1025,13 @@ func main() {
 			mcp.Description("New Y coordinate (0-100): visibility level, where 0=highly visible/customer-facing (bottom) and 100=invisible/internal (top)"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
 	// Add get_empty_map tool
 	getEmptyMapTool := mcp.NewTool("get_empty_map",
-		mcp.WithDescription("Create a new empty Wardley map with no components or links. This is the starting point for building a new map. Use 'json' output when you plan to add components afterward, 'svg' output for immediate display."),
+		mcp.WithDescription("🚀 WORKFLOW START: Create a new empty Wardley map. This is your starting point for any new map creation workflow. ALWAYS use 'json' output unless you want an empty map display. The JSON can then be passed to other tools for building your map step by step."),
 		mcp.WithString("title",
 			mcp.Description("Title for the map (default: 'New Wardley Map')"),
 		),
@@ -762,13 +1039,13 @@ func main() {
 			mcp.Description("Unique identifier for the map (default: 1). Use different IDs to create multiple independent maps."),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
 	// Add add_components tool
 	addComponentsTool := mcp.NewTool("add_components",
-		mcp.WithDescription("Add or update multiple components in a Wardley map in a single operation. More efficient than calling add_component multiple times. Components with existing names will be updated with new positions/types. Use 'json' output for intermediate operations, 'svg' for final display."),
+		mcp.WithDescription("🔧 WORKFLOW BUILD: Add/update multiple components efficiently in one operation. IMPORTANT: Use 'json' output when building/editing (you'll call more tools afterward). Use 'uri' output for final shareable links. More efficient than multiple add_component calls."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
@@ -778,13 +1055,13 @@ func main() {
 			mcp.Description("JSON array of components. Each component must have: name (string), x (0-100, evolution: 0=genesis/left, 100=commodity/right), y (0-100, visibility: 0=visible/bottom, 100=invisible/top), type (optional: 'regular', 'build', 'buy', 'outsource', 'dataproduct'). Example: [{'name':'User','x':10,'y':10,'type':'regular'}] places User at genesis/visible"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
 	// Add add_links tool
 	addLinksTool := mcp.NewTool("add_links",
-		mcp.WithDescription("Add multiple dependency links between existing components in a Wardley map in a single operation. More efficient than calling link_components multiple times. Duplicate links are automatically skipped. Use 'json' output for intermediate operations, 'svg' for final display."),
+		mcp.WithDescription("🔧 WORKFLOW BUILD: Add multiple dependency links efficiently in one operation. Links show how components depend on each other. IMPORTANT: Use 'json' output when building/editing (you'll call more tools afterward). Use 'uri' output for final shareable links."),
 		mcp.WithString("map_json",
 			mcp.Required(),
 			mcp.Description("JSON representation of the current map"),
@@ -794,7 +1071,7 @@ func main() {
 			mcp.Description("JSON array of dependency links. Each link must have: from (string, source component name), to (string, target component name), type (optional: 'regular', 'evolved_component', 'evolved'). The 'from' component depends on the 'to' component. Example: [{'from':'User','to':'Service','type':'regular'}]"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -822,7 +1099,7 @@ func main() {
 			mcp.Description("Label for stage 4 (Commodity/Accepted): Most evolved, standardized, utility-like"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -846,7 +1123,7 @@ func main() {
 			mcp.Description("Y coordinate (0-100): visibility level, typically 10-30 for anchors as they represent visible user needs (bottom=visible, top=invisible)"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -858,12 +1135,20 @@ func main() {
 			mcp.Description("JSON representation of the current map"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations or chaining multiple commands, 'svg' for final display (default: 'svg'). Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+		),
+	)
+
+	// Add decode_map_from_uri tool
+	decodeMapFromUriTool := mcp.NewTool("decode_map_from_uri",
+		mcp.WithDescription("🔄 WORKFLOW EDIT: Decode a shareable URI back to JSON for editing. ESSENTIAL when modifying existing maps shared as URIs. Workflow: 1) Use this tool to get JSON from URI, 2) Edit with other tools using 'json' output, 3) Generate final URI. This enables the complete edit cycle: URI → JSON → modifications → new URI."),
+		mcp.WithString("uri",
+			mcp.Required(),
+			mcp.Description("The complete URI containing the base64-encoded map data (e.g., 'http://localhost:8585/map?wardley_map_json_base64=...')"),
 		),
 	)
 
 	// Add tool handlers
-	s.AddTool(addComponentTool, addComponentHandler)
 	s.AddTool(addComponentsTool, addComponentsHandler)
 	s.AddTool(addLinksTool, addLinksHandler)
 	s.AddTool(linkComponentsTool, linkComponentsHandler)
@@ -873,97 +1158,15 @@ func main() {
 	s.AddTool(setStagesTool, setStagesHandler)
 	s.AddTool(addAnchorTool, addAnchorHandler)
 	s.AddTool(autoValueChainTool, autoValueChainHandler)
+	s.AddTool(decodeMapFromUriTool, decodeMapFromUriHandler)
+
+	// Add workflow prompts
+	addWorkflowPrompts(s)
 
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Printf("Server error: %v\n", err)
 	}
-}
-
-func addComponentHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	// Extract parameters
-	mapJSON, err := request.RequireString("map_json")
-	if err != nil {
-		return mcp.NewToolResultErrorFromErr("Failed to get map_json parameter", err), nil
-	}
-
-	componentName, err := request.RequireString("component_name")
-	if err != nil {
-		return mcp.NewToolResultErrorFromErr("Failed to get component_name parameter", err), nil
-	}
-
-	x, err := request.RequireInt("x")
-	if err != nil {
-		return mcp.NewToolResultErrorFromErr("Failed to get x coordinate parameter", err), nil
-	}
-
-	y, err := request.RequireInt("y")
-	if err != nil {
-		return mcp.NewToolResultErrorFromErr("Failed to get y coordinate parameter", err), nil
-	}
-
-	componentType := request.GetString("component_type", "regular")
-	output := request.GetString("output", "svg")
-
-	// Validate coordinates
-	if x < 0 || x > 100 || y < 0 || y > 100 {
-		return mcp.NewToolResultErrorf("Invalid coordinates (%d, %d) for component '%s': both x and y must be between 0 and 100", x, y, componentName), nil
-	}
-
-	// Parse the existing map or create a new one
-	var m *wardleyToGo.Map
-	if mapJSON == "" || mapJSON == "{}" {
-		// Create new map
-		m = wardleyToGo.NewMap(1)
-		m.Title = "New Wardley Map"
-	} else {
-		// Parse existing map
-		m, err = UnmarshalMap([]byte(mapJSON))
-		if err != nil {
-			return mcp.NewToolResultErrorFromErr("Failed to parse map JSON", err), nil
-		}
-	}
-
-	// Find the next available ID
-	nextID := int64(1)
-	nodes := m.Nodes()
-	for nodes.Next() {
-		if nodes.Node().ID() >= nextID {
-			nextID = nodes.Node().ID() + 1
-		}
-	}
-
-	// Create new component
-	comp := wardley.NewComponent(nextID)
-	comp.Label = componentName
-	comp.Placement = image.Pt(x, y)
-
-	// Set component type
-	switch componentType {
-	case "build":
-		comp.Type = wardley.BuildComponent
-	case "buy":
-		comp.Type = wardley.BuyComponent
-	case "outsource":
-		comp.Type = wardley.OutsourceComponent
-	case "dataproduct":
-		comp.Type = wardley.DataProductComponent
-	default:
-		comp.Type = wardley.RegularComponent
-	}
-
-	// Add component to map
-	if err := m.AddComponent(comp); err != nil {
-		return mcp.NewToolResultErrorFromErr(fmt.Sprintf("Failed to add component '%s' to map", componentName), err), nil
-	}
-
-	// Generate output in requested format
-	content, err := generateOutput(m, output)
-	if err != nil {
-		return mcp.NewToolResultErrorFromErr("Failed to generate output", err), nil
-	}
-
-	return mcp.NewToolResultText(content), nil
 }
 
 func linkComponentsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -1131,14 +1334,21 @@ func moveComponentHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 		return mcp.NewToolResultErrorFromErr("Failed to parse map JSON", err), nil
 	}
 
-	// Find the component
-	comp := findComponentByName(m, componentName)
-	if comp == nil {
-		return mcp.NewToolResultErrorf("Component '%s' not found in map", componentName), nil
+	// Find the component or anchor
+	element := findComponentByName(m, componentName)
+	if element == nil {
+		return mcp.NewToolResultErrorf("Component or anchor '%s' not found in map", componentName), nil
 	}
 
-	// Update component position
-	comp.Placement = image.Pt(x, y)
+	// Update position based on type
+	switch e := element.(type) {
+	case *wardley.Component:
+		e.Placement = image.Pt(x, y)
+	case *wardley.Anchor:
+		e.Placement = image.Pt(x, y)
+	default:
+		return mcp.NewToolResultErrorf("Unknown element type for '%s'", componentName), nil
+	}
 
 	// Generate output in requested format
 	content, err := generateOutput(m, output)
@@ -1219,26 +1429,32 @@ func addComponentsHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 		}
 
 		// Check if component already exists
-		existingComp := findComponentByName(m, inputComp.Name)
+		existingElement := findComponentByName(m, inputComp.Name)
 
-		if existingComp != nil {
-			// Update existing component position
-			existingComp.Placement = image.Pt(inputComp.X, inputComp.Y)
+		if existingElement != nil {
+			// Only allow updating existing components, not anchors
+			if existingComp, ok := existingElement.(*wardley.Component); ok {
+				// Update existing component position
+				existingComp.Placement = image.Pt(inputComp.X, inputComp.Y)
 
-			// Update type if provided
-			if inputComp.Type != "" {
-				switch inputComp.Type {
-				case "build":
-					existingComp.Type = wardley.BuildComponent
-				case "buy":
-					existingComp.Type = wardley.BuyComponent
-				case "outsource":
-					existingComp.Type = wardley.OutsourceComponent
-				case "dataproduct":
-					existingComp.Type = wardley.DataProductComponent
-				default:
-					existingComp.Type = wardley.RegularComponent
+				// Update type if provided
+				if inputComp.Type != "" {
+					switch inputComp.Type {
+					case "build":
+						existingComp.Type = wardley.BuildComponent
+					case "buy":
+						existingComp.Type = wardley.BuyComponent
+					case "outsource":
+						existingComp.Type = wardley.OutsourceComponent
+					case "dataproduct":
+						existingComp.Type = wardley.DataProductComponent
+					default:
+						existingComp.Type = wardley.RegularComponent
+					}
 				}
+			} else {
+				// If it's an anchor, skip updating it in add_components
+				continue
 			}
 		} else {
 			// Create new component
@@ -1515,4 +1731,32 @@ func autoValueChainHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 	}
 
 	return mcp.NewToolResultText(content), nil
+}
+
+func decodeMapFromUriHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Extract parameters
+	uri, err := request.RequireString("uri")
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to get uri parameter", err), nil
+	}
+
+	// Extract base64 data from URI
+	encodedData, err := extractBase64FromURI(uri)
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to extract base64 data from URI", err), nil
+	}
+
+	// Decode the map data
+	m, err := decodeMapFromGzippedBase64(encodedData)
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to decode map data from URI", err), nil
+	}
+
+	// Return JSON representation
+	jsonData, err := MarshalMap(m)
+	if err != nil {
+		return mcp.NewToolResultErrorFromErr("Failed to marshal decoded map to JSON", err), nil
+	}
+
+	return mcp.NewToolResultText(string(jsonData)), nil
 }

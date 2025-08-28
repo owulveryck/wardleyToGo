@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image"
 	"io"
-	"io/ioutil"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
@@ -44,7 +43,7 @@ func (p *Parser) DumpComponents(w io.Writer) {
 }
 
 func (p *Parser) Parse(r io.Reader) error {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}

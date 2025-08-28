@@ -73,9 +73,9 @@ func newLexer(src string, start stateFunc) *lexer {
 // Start begins executing the Lexer in an asynchronous manner (using a goroutine).
 func (l *lexer) Start() {
 	// Take half the string length as a buffer size.
-	buffSize := len(l.source) / 2
+	buffSize := len(l.source) / TokenBufferSizeDivisor
 	if buffSize <= 0 {
-		buffSize = 1
+		buffSize = MinTokenBufferSize
 	}
 	l.tokens = make(chan token, buffSize)
 	go l.run()

@@ -8,20 +8,20 @@ import (
 	"gonum.org/v1/gonum/graph/simple"
 )
 
-type scratchMapchMap struct {
+type scratchMap struct {
 	backend *simple.DirectedGraph
 }
 
 // Node returns the node with the given ID if it exists
 // in the graph, and nil otherwise.
-func (m *scratchMapchMap) Node(id int64) graph.Node {
+func (m *scratchMap) Node(id int64) graph.Node {
 	return m.backend.Node(id)
 }
 
 // Nodes returns all the nodes in the graph.
 //
 // Nodes must not return nil.
-func (m *scratchMapchMap) Nodes() graph.Nodes {
+func (m *scratchMap) Nodes() graph.Nodes {
 	return m.backend.Nodes()
 }
 
@@ -76,7 +76,7 @@ func (m *mynodes) Node() graph.Node {
 // from the node with the given ID.
 //
 // From must not return nil.
-func (m *scratchMapchMap) From(id int64) graph.Nodes {
+func (m *scratchMap) From(id int64) graph.Nodes {
 	nodes := m.backend.From(id)
 	myn := &mynodes{
 		nodes:  make([]*node, nodes.Len()),
@@ -92,7 +92,7 @@ func (m *scratchMapchMap) From(id int64) graph.Nodes {
 
 // HasEdgeBetween returns whether an edge exists between
 // nodes with IDs xid and yid without considering direction.
-func (m *scratchMapchMap) HasEdgeBetween(xid int64, yid int64) bool {
+func (m *scratchMap) HasEdgeBetween(xid int64, yid int64) bool {
 	return m.backend.HasEdgeBetween(xid, yid)
 }
 
@@ -100,13 +100,13 @@ func (m *scratchMapchMap) HasEdgeBetween(xid int64, yid int64) bool {
 // if such an edge exists and nil otherwise. The node v
 // must be directly reachable from u as defined by the
 // From method.
-func (m *scratchMapchMap) Edge(uid int64, vid int64) graph.Edge {
+func (m *scratchMap) Edge(uid int64, vid int64) graph.Edge {
 	return m.backend.Edge(uid, vid)
 }
 
 // HasEdgeFromTo returns whether an edge exists
 // in the graph from u to v with IDs uid and vid.
-func (m *scratchMapchMap) HasEdgeFromTo(uid int64, vid int64) bool {
+func (m *scratchMap) HasEdgeFromTo(uid int64, vid int64) bool {
 	return m.backend.HasEdgeFromTo(uid, vid)
 }
 
@@ -114,16 +114,16 @@ func (m *scratchMapchMap) HasEdgeFromTo(uid int64, vid int64) bool {
 // to the node with the given ID.
 //
 // To must not return nil.
-func (m *scratchMapchMap) To(id int64) graph.Nodes {
+func (m *scratchMap) To(id int64) graph.Nodes {
 	return m.backend.To(id)
 
 }
 
-func (m *scratchMapchMap) AddNode(n graph.Node) {
+func (m *scratchMap) AddNode(n graph.Node) {
 	m.backend.AddNode(n)
 }
 
-func (m *scratchMapchMap) SetEdge(e graph.Edge) {
+func (m *scratchMap) SetEdge(e graph.Edge) {
 	m.backend.SetEdge(e)
 }
 

@@ -33,25 +33,25 @@ func (p *Parser) parseTeam() (*tt.Team, error) {
 			if err != nil {
 				return nil, err
 			}
-			if coords[0] == components.UndefinedCoord {
-				coords[0] = int(f * 100)
+			if coords[VisibilityIndex1] == components.UndefinedCoord {
+				coords[VisibilityIndex1] = int(f * CoordinateScaleFactor)
 				continue
 			}
-			if coords[1] == components.UndefinedCoord {
-				coords[1] = int(f * 100)
+			if coords[MaturityIndex1] == components.UndefinedCoord {
+				coords[MaturityIndex1] = int(f * CoordinateScaleFactor)
 				continue
 			}
-			if coords[2] == components.UndefinedCoord {
-				coords[2] = int(f * 100)
+			if coords[VisibilityIndex2] == components.UndefinedCoord {
+				coords[VisibilityIndex2] = int(f * CoordinateScaleFactor)
 				continue
 			}
-			if coords[3] == components.UndefinedCoord {
-				coords[3] = int(f * 100)
+			if coords[MaturityIndex2] == components.UndefinedCoord {
+				coords[MaturityIndex2] = int(f * CoordinateScaleFactor)
 				continue
 			}
 		}
 	}
-	team.Area = image.Rect(coords[1], 100-coords[0], coords[3], 100-coords[2])
+	team.Area = image.Rect(coords[MaturityIndex1], MapMaxCoordinate-coords[VisibilityIndex1], coords[MaturityIndex2], MapMaxCoordinate-coords[VisibilityIndex2])
 	team.Label = strings.TrimRight(b.String(), " ")
 	return team, nil
 

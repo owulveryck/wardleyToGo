@@ -70,7 +70,7 @@ func SetLabelAnchor(m wardleyToGo.Map) {
 
 // SetCoords sets the y anx x axis of the components
 func SetCoords(m wardleyToGo.Map, withEvolution bool) {
-	tempMap := &scratchMapchMap{backend: simple.NewDirectedGraph()}
+	tempMap := &scratchMap{backend: simple.NewDirectedGraph()}
 	ns := m.Nodes()
 	inventory := make(map[int64]*node)
 	for ns.Next() {
@@ -123,7 +123,7 @@ func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
 }
 
 // setY sets the placement of the node according to the visibility of the component carried by the scratchmap
-func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
+func setY(buf *scratchMap, m wardleyToGo.Map, maxVisibility int) {
 	vStep := VerticalStep
 	if maxVisibility != 0 {
 		vStep = MaxVisibleHeight / maxVisibility
@@ -142,7 +142,7 @@ func setY(buf *scratchMapchMap, m wardleyToGo.Map, maxVisibility int) {
 	}
 
 }
-func setX(buf *scratchMapchMap, m wardleyToGo.Map, maxEvolution int) {
+func setX(buf *scratchMap, m wardleyToGo.Map, maxEvolution int) {
 	hStep := 50
 	if maxEvolution != 0 {
 		hStep = 80 / maxEvolution

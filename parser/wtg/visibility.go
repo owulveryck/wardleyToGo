@@ -6,7 +6,7 @@ import (
 )
 
 // compute the visibility for each node and return the max visibility found
-func setNodesVisibility(g *scratchMapchMap) int {
+func setNodesVisibility(g *scratchMap) int {
 	roots := findRoot(g)
 	v := &visibilityVisiter{
 		g: g,

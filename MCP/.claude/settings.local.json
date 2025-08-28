@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(goimports:*)",
+      "Bash(go test:*)",
+      "Bash(go:*)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/encoding/svg/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/encoding/svg/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/parser/owm/**)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/components/wardley/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/owm2svg/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -24,7 +24,7 @@ func (e *evolutionSetter) visit(srcNode graph.Node) {
 }
 
 // returns the max evolution
-func setNodesEvolutionStep(g *scratchMapchMap) int {
+func setNodesEvolutionStep(g *scratchMap) int {
 	roots := findRoot(g)
 	e := &evolutionSetter{
 		g: g,

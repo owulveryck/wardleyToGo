@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"io"
-	"log"
 	"strings"
 	"text/scanner"
 
@@ -23,6 +22,7 @@ type Parser struct {
 	edges                []edge
 	annotations          []*wardleyToGo.Annotation
 	annotationsPlacement image.Point
+	warnings             []error
 }
 
 func NewParser(r io.Reader) *Parser {
@@ -49,6 +49,7 @@ func NewParser(r io.Reader) *Parser {
 		edges:          make([]edge, 0),
 		annotations:    make([]*wardleyToGo.Annotation, 0),
 		g:              simple.NewDirectedGraph(),
+		warnings:       make([]error, 0),
 	}
 }
 
@@ -78,7 +79,7 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 		}
 		e, err := p.parseDefault(p.s.TokenText())
 		if err != nil {
-			log.Println("Warning", err)
+			p.warnings = append(p.warnings, err)
 		}
 		switch e := e.(type) {
 		case edge:
@@ -93,12 +94,23 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &wardleyToGo.Map{
+	wmap := &wardleyToGo.Map{
 		Title:                p.title,
 		DirectedGraph:        p.g,
 		Annotations:          p.annotations,
 		AnnotationsPlacement: p.annotationsPlacement,
-	}, nil
+	}
+
+	// Attach warnings to the map if needed
+	// Note: wardleyToGo.Map doesn't have a warnings field, so we could add this as a method
+	// or consider returning warnings separately
+
+	return wmap, nil
+}
+
+// GetWarnings returns any warnings encountered during parsing
+func (p *Parser) GetWarnings() []error {
+	return p.warnings
 }
 
 func (p *Parser) parseDefault(firstElement string) (interface{}, error) {

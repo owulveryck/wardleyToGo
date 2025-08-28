@@ -107,10 +107,14 @@ func firstRuneAfterSpaceState(l *lexer) stateFunc {
 }
 
 func wordState(l *lexer) stateFunc {
+	collectWord(l)
+	return classifyAndEmitWord(l)
+}
+
+// collectWord reads characters to form a complete word
+func collectWord(l *lexer) {
 	for isAllowedCharacterForIdentifier(l.Peek()) {
-		if l.Peek() == ' ' && l.PeekPeek() == ' ' ||
-			l.Peek() == ' ' && l.PeekPeek() == '-' ||
-			l.Peek() == ' ' && !isAllowedCharacterForIdentifier(l.PeekPeek()) {
+		if shouldStopWord(l) {
 			break
 		}
 		l.Next()
@@ -118,22 +122,26 @@ func wordState(l *lexer) stateFunc {
 			break
 		}
 	}
-	switch l.Current() {
-	case "stage1":
+}
+
+// shouldStopWord determines if we should stop collecting characters for the current word
+func shouldStopWord(l *lexer) bool {
+	return (l.Peek() == ' ' && l.PeekPeek() == ' ') ||
+		(l.Peek() == ' ' && l.PeekPeek() == '-') ||
+		(l.Peek() == ' ' && !isAllowedCharacterForIdentifier(l.PeekPeek()))
+}
+
+// classifyAndEmitWord determines what type of token the current word is and emits it
+func classifyAndEmitWord(l *lexer) stateFunc {
+	word := l.Current()
+
+	if isStageKeyword(word) {
 		return stageState
-	case "stage2":
-		return stageState
-	case "stage3":
-		return stageState
-	case "stage4":
-		return stageState
+	}
+
+	switch word {
 	case "":
-		// this is probably a control character
-		l.Emit(unknownToken)
-		if l.Current() == "" {
-			l.Next()
-		}
-		l.Next()
+		return handleEmptyWord(l)
 	case "color":
 		return colorState
 	case "label":
@@ -147,6 +155,23 @@ func wordState(l *lexer) stateFunc {
 	default:
 		l.Emit(identifierToken)
 	}
+	l.Ignore()
+	return startState
+}
+
+// isStageKeyword checks if the word is a stage keyword
+func isStageKeyword(word string) bool {
+	return word == "stage1" || word == "stage2" || word == "stage3" || word == "stage4"
+}
+
+// handleEmptyWord handles the case when the current word is empty
+func handleEmptyWord(l *lexer) stateFunc {
+	// this is probably a control character
+	l.Emit(unknownToken)
+	if l.Current() == "" {
+		l.Next()
+	}
+	l.Next()
 	l.Ignore()
 	return startState
 }

@@ -13,6 +13,7 @@ This is a Model Context Protocol (MCP) server that provides tools for generating
 - **move_component**: Move a component to new coordinates and return the updated map as SVG
 - **set_stages**: Set custom evolution stage labels for a Wardley map and return the updated map as SVG
 - **add_anchor**: Add an anchor (text label) to a Wardley map and return the updated map as SVG
+- **auto_value_chain**: Automatically position components in a value chain based on their depth from anchor nodes
 
 ## Installation
 
@@ -174,6 +175,30 @@ SVG content with embedded JSON data as comment containing the updated map with t
 
 **Usage Example:**
 Anchors are commonly used to mark reference points like "Business" or "Public" on Wardley maps to indicate different perspectives or user types.
+
+### auto_value_chain Tool
+
+Automatically positions components in a value chain based on their depth from anchor nodes. This tool analyzes the graph structure and repositions components vertically to create a proper value chain visualization.
+
+**Parameters:**
+- `map_json` (required): JSON representation of the current map
+
+**Returns:**
+SVG content with embedded JSON data as comment containing the updated map with repositioned components.
+
+**Algorithm:**
+1. **Anchor Detection**: Identifies all anchor nodes as the top of the value chain (depth 0)
+2. **Depth Calculation**: Uses breadth-first search to calculate the depth of each component from anchor nodes
+3. **Zone Assignment**: Divides the vertical space into 4 zones and assigns components based on their depth
+4. **Distribution**: Distributes components within each zone to avoid overlapping, maintaining horizontal order
+
+**Use Cases:**
+- Automatically organize complex maps with multiple components
+- Create proper value chain visualization from unorganized component layouts
+- Maintain relationships while improving readability
+- Quick positioning after adding multiple components
+
+**Note:** Components without connections to anchors will be distributed evenly if no anchor-based hierarchy exists.
 
 ## Embedded JSON Format
 

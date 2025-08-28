@@ -75,9 +75,9 @@ func (inv *Inventory) upsertNode(s string) *wardley.Component {
 	if _, ok := inv.NodeInventory[s]; !ok {
 		c := wardley.NewComponent(int64(len(inv.NodeInventory)))
 		c.Label = s
-		c.LabelPlacement.X = 10
+		c.LabelPlacement.X = DefaultLabelOffsetX
 		//c.LabelPlacement.Y = 6
-		c.Placement = image.Pt(0, 50)
+		c.Placement = image.Pt(DefaultPlacementX, DefaultPlacementY)
 		inv.NodeInventory[s] = c
 	}
 	return inv.NodeInventory[s]
