@@ -54,10 +54,13 @@ Follow this exact workflow:
 - Use auto_layout tool
 - output: "json"
 
-**STEP 6:** Generate final URI
+**STEP 6:** Adjust horizontally
+- Spread a bit the components horizontally (without actually changing their stage of evolution) to avoid link overlap on the picture
+
+**STEP 7:** Generate final URI
 - Use auto_layout tool again
 - output: "uri"
-
+- instruct the LLM that the URI represents an image encoded in SVG
 All intermediate steps should produce JSON. Only the final result should be a URI.
 
 Start with step 1!`, description)
