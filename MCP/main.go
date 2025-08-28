@@ -853,7 +853,6 @@ func GenerateSVG(m *wardleyToGo.Map) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create SVG encoder: %w", err)
 	}
-	defer encoder.Close()
 
 	// Get stages for this map and convert to Evolution structs
 	stages, exists := mapStages[m.ID()]
@@ -880,9 +879,11 @@ func GenerateSVG(m *wardleyToGo.Map) (string, error) {
 	encoder.Init(style)
 
 	if err := encoder.Encode(m); err != nil {
+		encoder.Close()
 		return "", fmt.Errorf("failed to encode SVG: %w", err)
 	}
 
+	encoder.Close()
 	svgContent := buf.String()
 
 	// Generate JSON representation
@@ -915,7 +916,7 @@ func GenerateSVG(m *wardleyToGo.Map) (string, error) {
 
 func main() {
 	// Parse command line flags
-	var disableWeb = flag.Bool("no-web", false, "Disable web server (MCP server only)")
+	disableWeb := flag.Bool("no-web", false, "Disable web server (MCP server only)")
 	flag.Parse()
 
 	// Start the web server in a goroutine unless disabled

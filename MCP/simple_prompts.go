@@ -10,70 +10,71 @@ import (
 
 // addWorkflowPrompts adds simple prompts that guide AI to use MCP tools
 func addWorkflowPrompts(s *server.MCPServer) {
-	// Simple map creation prompt
+	// Map creation prompt
 	s.AddPrompt(mcp.NewPrompt("create_wardley_map",
-		mcp.WithPromptDescription("🗺️ Step-by-step guide for creating Wardley Maps using MCP tools"),
-		mcp.WithArgument("title", mcp.ArgumentDescription("Map title")),
-		mcp.WithArgument("components", mcp.ArgumentDescription("Comma-separated components")),
+		mcp.WithPromptDescription("🗺️ Create Wardley Maps from text descriptions using MCP tools"),
+		mcp.WithArgument("description", mcp.ArgumentDescription("Text description containing all information about the map")),
 	), func(ctx context.Context, request mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
-		title := request.Params.Arguments["title"]
-		components := request.Params.Arguments["components"]
+		description := request.Params.Arguments["description"]
 
 		// Always provide defaults - never return nil
-		if title == "" {
-			title = "New Wardley Map"
-		}
-		if components == "" {
-			components = "User Interface, Service, Database"
+		if description == "" {
+			description = "A system with users, services, and data storage"
 		}
 
-		guide := fmt.Sprintf(`I'll guide you through creating "%s" with components: %s
+		guide := fmt.Sprintf(`You are an assistant to help me create Wardley maps. I will provide you a text with all the information and your role is to design the map.
 
-Execute these MCP tool calls in order:
+Text description: %s
 
-**STEP 1:** get_empty_map
-- title: "%s"
+Follow this exact workflow:
+
+**STEP 1:** Start with an empty map
+- Use create_map tool
 - output: "json"
 
-**STEP 2:** add_anchor
-- map_json: [result from step 1]
-- anchor_name: "User"
-- x: 15, y: 15
+**STEP 2:** Analyze each component to find their place on the evolution axis (the X axis)
+- Genesis/Concept (X=10): Novel, experimental, uncertain
+- Custom/Emerging (X=30): Bespoke, tailored solutions  
+- Product/Converging (X=60): Packaged, feature-complete products
+- Commodity/Accepted (X=90): Standardized, utility-like
+
+**STEP 3:** Add all components and anchors to the map
+- Use add_elements tool
+- Default vertical placement is 50%% (Y=50) for all elements
+- Anchors: element_type="anchor", typically users/business needs
+- Components: element_type="component"
 - output: "json"
 
-**STEP 3:** add_components
-- map_json: [result from step 2]
-- components: [array from: %s]
+**STEP 4:** Add all links between elements
+- Use add_links tool  
+- Show dependencies: 'from' element depends on 'to' element
 - output: "json"
 
-**STEP 4:** add_links
-- map_json: [result from step 3]
-- links: [dependency array]
+**STEP 5:** Apply automatic layout
+- Use auto_layout tool
 - output: "json"
 
-**STEP 5:** auto_value_chain (REQUIRED)
-- map_json: [result from step 4]
-- output: "json"
-
-**STEP 6:** auto_value_chain (final URI)
-- map_json: [result from step 5]
+**STEP 6:** Generate final URI
+- Use auto_layout tool again
 - output: "uri"
 
-Start with step 1!`, title, components, title, components)
+All intermediate steps should produce JSON. Only the final result should be a URI.
+
+Start with step 1!`, description)
 
 		return mcp.NewGetPromptResult(
-			fmt.Sprintf("Create: %s", title),
+			"Create Wardley Map",
 			[]mcp.PromptMessage{
 				mcp.NewPromptMessage(mcp.RoleAssistant, mcp.NewTextContent(guide)),
 			},
 		), nil
 	})
 
-	// Simple map editing prompt
+	// Map editing prompt
 	s.AddPrompt(mcp.NewPrompt("edit_wardley_map",
-		mcp.WithPromptDescription("✏️ Step-by-step guide for editing Wardley Maps using MCP tools"),
-		mcp.WithArgument("uri", mcp.ArgumentDescription("Existing map URI")),
-		mcp.WithArgument("changes", mcp.ArgumentDescription("Changes to make")),
+		mcp.WithPromptDescription("✏️ Edit existing Wardley Maps using MCP tools"),
+		mcp.WithArgument("uri", mcp.ArgumentDescription("Existing map URI to edit")),
+		mcp.WithArgument("changes", mcp.ArgumentDescription("Description of changes to make")),
 	), func(ctx context.Context, request mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
 		uri := request.Params.Arguments["uri"]
 		changes := request.Params.Arguments["changes"]
@@ -83,31 +84,41 @@ Start with step 1!`, title, components, title, components)
 			uri = "http://localhost:8585/map?wardley_map_json_base64=..."
 		}
 		if changes == "" {
-			changes = "modify the map"
+			changes = "modify the existing map"
 		}
 
-		guide := fmt.Sprintf(`I'll help you edit: %s
-Changes: %s
+		guide := fmt.Sprintf(`You are an assistant to help me edit Wardley maps. I will provide you the URI of an existing map and describe the changes needed.
 
-Execute these MCP tool calls in order:
+Existing map URI: %s
+Changes needed: %s
 
-**STEP 1:** decode_map_from_uri
+Follow this exact workflow:
+
+**STEP 1:** Get the existing map
+- Use decode_uri tool
 - uri: "%s"
+- This returns the JSON representation of the map
 
-**STEP 2:** Apply changes using:
-- add_components (new components)
-- add_links (new dependencies)
-- move_component (reposition)
-- unlink_components (remove links)
-(Use output="json" for all)
+**STEP 2:** Work on the JSON of the map
+- Apply the requested changes using appropriate tools:
+  - add_elements: Add new components/anchors
+  - add_links: Add new dependencies  
+  - move_elements: Reposition elements
+  - remove_elements: Remove elements or links
+  - configure_evolution: Change stage labels
+- Always use output: "json" for intermediate steps
 
-**STEP 3:** auto_value_chain (REQUIRED)
+**STEP 3:** Apply automatic layout
+- Use auto_layout tool
 - map_json: [result from step 2]
 - output: "json"
 
-**STEP 4:** auto_value_chain (final URI)
+**STEP 4:** Generate final URI
+- Use auto_layout tool again
 - map_json: [result from step 3]
 - output: "uri"
+
+All intermediate steps should produce JSON. Only the final result should be a URI.
 
 Start with step 1!`, uri, changes, uri)
 
