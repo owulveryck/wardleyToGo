@@ -1,245 +1,263 @@
-# Wardley Map MCP Server
+# Wardley Map MCP Server 🗺️
 
-This is a Model Context Protocol (MCP) server that provides tools for generating and manipulating Wardley Maps as SVG images. All tools return SVG content with the map's JSON data embedded as comments for easy parsing by LLMs.
+A comprehensive Model Context Protocol (MCP) server for creating, editing, and visualizing Wardley Maps. Features a complete workflow system with multiple output formats, integrated web server, and AI-guided prompts.
 
-## Features
+## 🚀 Features
 
-- **get_empty_map**: Get an empty Wardley map with no components as SVG
-- **add_component**: Add a single component to a Wardley map and return the updated map as SVG
-- **add_components**: Add or update multiple components in a Wardley map and return the updated map as SVG
-- **link_components**: Link two components with a collaboration/dependency and return the updated map as SVG
-- **add_links**: Add multiple links between components in a Wardley map and return the updated map as SVG
-- **unlink_components**: Remove a link between two components and return the updated map as SVG
-- **move_component**: Move a component to new coordinates and return the updated map as SVG
-- **set_stages**: Set custom evolution stage labels for a Wardley map and return the updated map as SVG
-- **add_anchor**: Add an anchor (text label) to a Wardley map and return the updated map as SVG
-- **auto_value_chain**: Automatically position components in a value chain based on their depth from anchor nodes
+### Core Capabilities
+- **🗺️ Complete Wardley Map Creation & Editing**: Create maps from scratch or modify existing ones
+- **🌐 Integrated Web Server**: Shareable URIs that render interactive SVG maps
+- **📊 Multiple Output Formats**: JSON (for workflows), SVG (for display), URI (for sharing)
+- **🤖 AI Workflow Prompts**: Built-in prompts that guide AI assistants through map creation
+- **🔄 Value Chain Auto-Layout**: Intelligent positioning based on dependency analysis
+- **📱 CORS-Enabled**: Web server supports cross-origin requests for web applications
 
-## Installation
+### Tool Architecture
+The server provides 7 unified tools designed for efficient AI workflows:
+
+- **🚀 CREATE**: `create_map` - Start with empty maps
+- **🔧 ADD**: `add_elements`, `add_links` - Build map content
+- **📐 POSITION**: `move_elements`, `auto_layout` - Arrange components
+- **🎨 CONFIGURE**: `configure_evolution` - Customize evolution stages
+- **🔄 CONVERT**: `decode_uri` - Extract maps from shareable links
+- **🗑️ REMOVE**: `remove_elements` - Clean up maps
+
+## 📦 Installation
 
 ```bash
 cd MCP
 go build
 ```
 
-## Usage
+## 🎯 Usage
 
-The server runs as an MCP server that communicates via stdio. It accepts JSON-RPC requests and returns responses.
+### Command Line Options
 
-### get_empty_map Tool
+```bash
+# Standard mode (tools only, web server enabled)
+./mcp-server
 
-Creates an empty Wardley map with no components.
+# Enable prompts for AI assistants
+./mcp-server -prompt
 
-**Parameters:**
-- `title` (optional): Title for the map (default: "New Wardley Map")
-- `map_id` (optional): ID for the map (default: 1)
+# Disable web server (MCP only)
+./mcp-server -no-web
 
-**Returns:**
-SVG content with embedded JSON data as comment:
-```xml
-<svg ...>
-<!-- WARDLEY_MAP_DATA: {"id":1,"title":"New Wardley Map","components":[],"collaborations":[]} -->
-<!-- SVG content follows -->
-</svg>
+# Both flags
+./mcp-server -prompt -no-web
 ```
 
-### add_component Tool
+### Flags
+- **`-prompt`**: Enable prompt capabilities for AI workflow guidance
+- **`-no-web`**: Disable the integrated web server (port 8585)
 
-Adds a component to a Wardley map.
+## 🔄 Workflow System
+
+### Output Formats
+All tools support three output formats via the `output` parameter:
+
+- **`json`** (default for workflows): Structured data for chaining operations
+- **`svg`**: Rendered map for final display
+- **`uri`**: Shareable link to interactive map on web server
+
+### Recommended Workflow Pattern
+```
+1. create_map(output="json")
+2. add_elements(map_json=..., output="json") 
+3. add_links(map_json=..., output="json")
+4. auto_layout(map_json=..., output="json")
+5. [final tool](map_json=..., output="uri") → Share the link!
+```
+
+## 🌐 Web Server
+
+When enabled (default), the server runs on `http://localhost:8585` with:
+
+- **`/map`**: Render maps from base64-encoded data
+- **`/health`**: Health check endpoint
+- **`/`**: Usage documentation
+
+**Environment Variables:**
+- `WARDLEY_URI_SCHEME`: URL scheme (default: "http")
+- `WARDLEY_URI_HOST`: Host (default: "localhost")  
+- `WARDLEY_URI_PORT`: Port (default: "8585")
+
+## 🤖 AI Prompts
+
+When started with `-prompt`, the server exposes workflow prompts:
+
+### `create_wardley_map`
+**Purpose**: Guide AI through complete map creation from text descriptions
+**Parameter**: `description` - Text containing all map information
+**Workflow**: Empty map → Add elements → Add links → Auto-layout → Generate URI
+
+### `edit_wardley_map`  
+**Purpose**: Guide AI through editing existing maps
+**Parameters**: 
+- `uri` - Existing map URI to edit
+- `changes` - Description of modifications needed
+**Workflow**: Decode URI → Apply changes → Auto-layout → Generate new URI
+
+## 🛠️ Tools Reference
+
+### 🚀 CREATE: create_map
+Creates a new empty Wardley map.
 
 **Parameters:**
-- `map_json` (required): JSON representation of the current map (use `"{}"` for empty map)
-- `component_name` (required): Name of the component to add
-- `x` (required): X coordinate (0-100)
-- `y` (required): Y coordinate (0-100)  
-- `component_type` (optional): Type of component - "regular", "build", "buy", "outsource", or "dataproduct" (default: "regular")
+- `title` (optional): Map title (default: "New Wardley Map")
+- `map_id` (optional): Unique identifier (default: 1)
+- `output` (optional): Format - "json", "svg", or "uri" (default: "svg")
 
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with the new component.
-
-### add_components Tool
-
-Adds or updates multiple components in a Wardley map. If a component with the same name already exists, only its coordinates (and optionally type) are updated without returning an error.
+### 🔧 ADD: add_elements  
+Add or update components and anchors in bulk.
 
 **Parameters:**
-- `map_json` (required): JSON representation of the current map (use `"{}"` for empty map)
-- `components` (required): JSON array of components to add/update
+- `map_json` (required): JSON representation of current map
+- `elements` (required): JSON array of elements to add/update
+- `output` (optional): Output format (default: "svg")
 
-**Component format:**
+**Element Format:**
 ```json
 [
   {
-    "name": "Component Name",
+    "name": "Customer",
+    "x": 15,
+    "y": 85,
+    "element_type": "anchor"
+  },
+  {
+    "name": "Service",
     "x": 50,
-    "y": 60,
+    "y": 50,
+    "element_type": "component",
     "type": "regular"
   }
 ]
 ```
 
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with all components added/updated.
+**Element Types:**
+- `element_type`: "component" (default) or "anchor"
+- `type` (for components): "regular", "build", "buy", "outsource", "dataproduct"
 
-### link_components Tool
-
-Links two components with a collaboration/dependency.
-
-**Parameters:**
-- `map_json` (required): JSON representation of the current map
-- `from_component` (required): Name of the source component
-- `to_component` (required): Name of the target component
-- `link_type` (optional): Type of link - "regular", "evolved_component", or "evolved" (default: "regular")
-
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with the new link.
-
-### add_links Tool
-
-Adds multiple links between components in a Wardley map. If a link between two components already exists, it is skipped without returning an error.
+### 🔧 ADD: add_links
+Add dependency relationships between elements.
 
 **Parameters:**
-- `map_json` (required): JSON representation of the current map
-- `links` (required): JSON array of links to add
+- `map_json` (required): JSON representation of current map
+- `links` (required): JSON array of dependency links
+- `output` (optional): Output format (default: "svg")
 
-**Link format:**
+**Link Format:**
 ```json
 [
   {
-    "from": "Component A",
-    "to": "Component B", 
+    "from": "Customer",
+    "to": "Service",
     "type": "regular"
   }
 ]
 ```
 
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with all links added.
+**Link Types:**
+- `regular`: Standard dependency (default)
+- `evolved_component`: Evolution with arrow (red dashed)
+- `evolved`: Evolution (red solid)
 
-### unlink_components Tool
-
-Removes a link between two components.
-
-**Parameters:**
-- `map_json` (required): JSON representation of the current map
-- `from_component` (required): Name of the source component
-- `to_component` (required): Name of the target component
-
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with the link removed.
-
-### move_component Tool
-
-Moves a component to new coordinates.
+### 📐 POSITION: move_elements
+Reposition specific elements by name.
 
 **Parameters:**
-- `map_json` (required): JSON representation of the current map
-- `component_name` (required): Name of the component to move
-- `x` (required): New X coordinate (0-100)
-- `y` (required): New Y coordinate (0-100)
+- `map_json` (required): JSON representation of current map
+- `moves` (required): JSON array of move operations
+- `output` (optional): Output format (default: "svg")
 
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with the component moved to its new position.
+**Move Format:**
+```json
+[
+  {
+    "name": "Customer",
+    "x": 20,
+    "y": 80
+  }
+]
+```
 
-### set_stages Tool
-
-Sets custom evolution stage labels for a Wardley map. This tool allows you to customize the four evolution stages that appear on the map.
-
-**Parameters:**
-- `map_json` (required): JSON representation of the current map
-- `stage1` (required): Label for stage 1 (Genesis/Concept position, default: "Genesis / Concept")
-- `stage2` (required): Label for stage 2 (Custom/Emerging position, default: "Custom / Emerging")
-- `stage3` (required): Label for stage 3 (Product/Converging position, default: "Product / Converging")
-- `stage4` (required): Label for stage 4 (Commodity/Accepted position, default: "Commodity / Accepted")
-
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with custom evolution stage labels.
-
-**Default Stages:**
-- Stage 1 (Position 0): "Genesis / Concept"
-- Stage 2 (Position 0.174): "Custom / Emerging"
-- Stage 3 (Position 0.4): "Product / Converging"
-- Stage 4 (Position 0.7): "Commodity / Accepted"
-
-### add_anchor Tool
-
-Adds an anchor (text label) to a Wardley map. Anchors are reference points that appear as plain text on the map without visual decoration.
+### 📐 POSITION: auto_layout
+Automatically arrange elements based on value chain analysis.
 
 **Parameters:**
-- `map_json` (required): JSON representation of the current map (use `"{}"` for empty map)
-- `anchor_name` (required): Name/label of the anchor to add
-- `x` (required): X coordinate (0-100)
-- `y` (required): Y coordinate (0-100)
-
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with the new anchor.
-
-**Usage Example:**
-Anchors are commonly used to mark reference points like "Business" or "Public" on Wardley maps to indicate different perspectives or user types.
-
-### auto_value_chain Tool
-
-Automatically positions components in a value chain based on their depth from anchor nodes. This tool analyzes the graph structure and repositions components vertically to create a proper value chain visualization.
-
-**Parameters:**
-- `map_json` (required): JSON representation of the current map
-
-**Returns:**
-SVG content with embedded JSON data as comment containing the updated map with repositioned components.
+- `map_json` (required): JSON representation of current map
+- `output` (optional): Output format (default: "svg")
 
 **Algorithm:**
-1. **Anchor Detection**: Identifies all anchor nodes as the top of the value chain (depth 0)
-2. **Depth Calculation**: Uses breadth-first search to calculate the depth of each component from anchor nodes
-3. **Zone Assignment**: Divides the vertical space into 4 zones and assigns components based on their depth
-4. **Distribution**: Distributes components within each zone to avoid overlapping, maintaining horizontal order
+1. Analyzes dependency relationships
+2. Calculates depth from anchor points
+3. Distributes elements in horizontal layers
+4. Maintains evolution positioning (X-axis)
 
-**Use Cases:**
-- Automatically organize complex maps with multiple components
-- Create proper value chain visualization from unorganized component layouts
-- Maintain relationships while improving readability
-- Quick positioning after adding multiple components
+### 🎨 CONFIGURE: configure_evolution
+Customize evolution stage labels on X-axis.
 
-**Note:** Components without connections to anchors will be distributed evenly if no anchor-based hierarchy exists.
+**Parameters:**
+- `map_json` (required): JSON representation of current map
+- `stage1` (required): Genesis/Concept label
+- `stage2` (required): Custom/Emerging label  
+- `stage3` (required): Product/Converging label
+- `stage4` (required): Commodity/Accepted label
+- `output` (optional): Output format (default: "svg")
 
-## Embedded JSON Format
+### 🔄 CONVERT: decode_uri
+Extract map JSON from shareable URI for editing.
 
-All SVG outputs contain the map data as an embedded comment in this format:
+**Parameters:**
+- `uri` (required): Complete URI with base64 map data
 
-```xml
-<!-- WARDLEY_MAP_DATA: {"id":1,"title":"My Wardley Map","components":[...],"collaborations":[...]} -->
+**Returns:** JSON representation for use with other tools
+
+### 🗑️ REMOVE: remove_elements
+Remove components, anchors, or links from maps.
+
+**Parameters:**
+- `map_json` (required): JSON representation of current map
+- `remove_type` (required): "elements" or "links"
+- `items` (required): JSON array of items to remove
+- `output` (optional): Output format (default: "svg")
+
+**Remove Formats:**
+```json
+// For elements
+[{"name": "ComponentName"}]
+
+// For links  
+[{"from": "SourceName", "to": "TargetName"}]
 ```
 
-The JSON structure follows this format:
+## 📊 Data Formats
 
+### JSON Map Structure
 ```json
 {
   "id": 1,
-  "title": "My Wardley Map", 
+  "title": "My Wardley Map",
   "components": [
     {
       "id": 1,
-      "name": "Customer",
-      "x": 10,
-      "y": 80,
-      "type": "regular"
-    },
-    {
-      "id": 2,
-      "name": "Product",
-      "x": 50,
-      "y": 60,
+      "name": "Customer", 
+      "x": 15,
+      "y": 85,
       "type": "regular"
     }
   ],
   "collaborations": [
     {
       "from": "Customer",
-      "to": "Product", 
+      "to": "Service",
       "type": "regular"
     }
   ],
   "anchors": [
     {
-      "id": 3,
+      "id": 2,
       "name": "Business",
       "x": 94,
       "y": 55
@@ -266,27 +284,84 @@ The JSON structure follows this format:
 }
 ```
 
-**Extracting JSON from SVG:**
-LLMs can extract the JSON data by finding the comment that starts with `<!-- WARDLEY_MAP_DATA:` and parsing the JSON content.
+### SVG Output
+All SVG outputs include embedded JSON data as comments:
+```xml
+<svg ...>
+<!-- WARDLEY_MAP_DATA: {"id":1,"title":"My Map",...} -->
+<!-- SVG content follows -->
+</svg>
+```
 
-## Component Types
+### URI Format
+Shareable links encode compressed map data:
+```
+http://localhost:8585/map?wardley_map_json_base64=<compressed_data>&output=svg
+```
 
-- `regular`: Standard component (default)
-- `build`: Build component (custom built)
-- `buy`: Buy component (off-the-shelf)
-- `outsource`: Outsourced component
-- `dataproduct`: Data product component
+## 📏 Coordinate System
 
-## Link Types
+- **Range**: 0-100 for both X and Y coordinates
+- **Origin**: (0,0) at top-left, (100,100) at bottom-right
+- **X-axis (Evolution)**: 0=Genesis/Novel → 100=Commodity/Utility
+- **Y-axis (Visibility)**: 0=Invisible/Infrastructure → 100=Visible/User-facing
 
-- `regular`: Standard collaboration/dependency (default)
-- `evolved_component`: Evolution edge with arrow (red dashed line)
-- `evolved`: Evolution edge (red solid line)
+### Evolution Guidelines
+- **Genesis (X≈10)**: Novel, experimental, uncertain
+- **Custom (X≈30)**: Bespoke, tailored solutions
+- **Product (X≈60)**: Packaged, feature-complete
+- **Commodity (X≈90)**: Standardized, utility-like
 
-## Coordinate System
+## 🔗 Integration Examples
 
-The map uses a 100x100 coordinate system where:
-- (0,0) is top-left
-- (100,100) is bottom-right
-- X represents evolution (0 = genesis, 100 = commodity)
-- Y represents visibility (0 = invisible, 100 = visible)
+### Claude Desktop MCP Configuration
+```json
+{
+  "mcpServers": {
+    "wardley-maps": {
+      "command": "/path/to/mcp-server",
+      "args": ["-prompt"]
+    }
+  }
+}
+```
+
+### Web Application Integration
+```javascript
+// Fetch map from URI
+const response = await fetch('http://localhost:8585/map?wardley_map_json_base64=...');
+const svgContent = await response.text();
+
+// Display in browser
+document.getElementById('map-container').innerHTML = svgContent;
+```
+
+## 🚀 Quick Start Example
+
+```bash
+# Start server with prompts
+./mcp-server -prompt
+
+# Use the create_wardley_map prompt with your AI assistant:
+# "Create a map showing: Customer needs a mobile app that uses an API connected to a database"
+
+# The AI will guide you through:
+# 1. Creating empty map
+# 2. Adding elements (Customer, Mobile App, API, Database)  
+# 3. Adding dependencies
+# 4. Auto-positioning
+# 5. Generating shareable URI
+
+# Result: Interactive map at http://localhost:8585/map?wardley_map_json_base64=...
+```
+
+## 📋 Dependencies
+
+- Go 1.19+
+- github.com/mark3labs/mcp-go
+- github.com/owulveryck/wardleyToGo (core library)
+- gonum.org/v1/gonum/graph (graph operations)
+
+## 🤝 Contributing
+
+This MCP server is part of the WardleyToGo project. See the main project documentation for development guidelines and architecture details.

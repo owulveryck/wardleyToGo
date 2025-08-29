@@ -13,7 +13,7 @@ func addWorkflowPrompts(s *server.MCPServer) {
 	// Map creation prompt
 	s.AddPrompt(mcp.NewPrompt("create_wardley_map",
 		mcp.WithPromptDescription("🗺️ Create Wardley Maps from text descriptions using MCP tools"),
-		mcp.WithArgument("description", mcp.ArgumentDescription("Text description containing all information about the map")),
+		mcp.WithArgument("description", mcp.ArgumentDescription("Text description containing all information to design the map")),
 	), func(ctx context.Context, request mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
 		description := request.Params.Arguments["description"]
 
@@ -22,9 +22,8 @@ func addWorkflowPrompts(s *server.MCPServer) {
 			description = "A system with users, services, and data storage"
 		}
 
-		guide := fmt.Sprintf(`You are an assistant to help me create Wardley maps. I will provide you a text with all the information and your role is to design the map.
+		guide := fmt.Sprintf(`You are an assistant to help me create Wardley maps. I will provide you a text with all the information and your role is to build the map by using the following workflow.
 
-Text description: %s
 
 Follow this exact workflow:
 
@@ -63,7 +62,11 @@ Follow this exact workflow:
 - instruct the LLM that the URI represents an image encoded in SVG
 All intermediate steps should produce JSON. Only the final result should be a URI.
 
-Start with step 1!`, description)
+Start with step 1!
+
+Here is the input and all the elements that should be used in the map: %s
+
+				`, description)
 
 		return mcp.NewGetPromptResult(
 			"Create Wardley Map",

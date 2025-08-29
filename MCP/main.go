@@ -917,6 +917,7 @@ func GenerateSVG(m *wardleyToGo.Map) (string, error) {
 func main() {
 	// Parse command line flags
 	disableWeb := flag.Bool("no-web", false, "Disable web server (MCP server only)")
+	enablePrompts := flag.Bool("prompt", false, "Enable prompt capabilities in MCP server")
 	flag.Parse()
 
 	// Start the web server in a goroutine unless disabled
@@ -1113,8 +1114,10 @@ func main() {
 	s.AddTool(decodeUriTool, decodeUriHandler)
 	s.AddTool(removeElementsTool, removeElementsHandler)
 
-	// Add workflow prompts
-	addWorkflowPrompts(s)
+	// Add workflow prompts only if -prompt flag is set
+	if *enablePrompts {
+		addWorkflowPrompts(s)
+	}
 
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
