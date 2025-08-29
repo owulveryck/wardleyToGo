@@ -42,11 +42,18 @@ go test ./...
 # Run tests with coverage
 go test -coverprofile=coverage.txt ./...
 
+# Run a single test
+go test -run TestSpecificFunction ./path/to/package
+
 # Build a specific example tool
 cd examples/wtg2svg && go build
 
 # Format imports (run after modifying Go files)
 goimports -w .
+
+# Clean module cache and dependencies
+go clean -modcache
+go mod tidy
 ```
 
 ### Working with Examples
@@ -100,3 +107,25 @@ make install
 - Unit tests use `*_test.go` convention
 - Example tests demonstrate usage patterns
 - Fuzz testing available in `parser/wtg/testdata/fuzz/`
+
+## MCP Server
+
+The project includes an MCP (Model Context Protocol) server in the `MCP/` directory that provides AI-integrated Wardley Map creation and editing capabilities.
+
+### MCP Development
+```bash
+# Build MCP server
+cd MCP && go build
+
+# Run MCP server with prompts enabled
+./mcp-server -prompt
+
+# Run tests for MCP server
+cd MCP && go test ./...
+```
+
+### MCP Architecture
+- **Tools**: 7 unified tools for map creation, editing, and visualization
+- **Prompts**: AI workflow guidance for complete map creation from text descriptions
+- **Web Server**: Integrated server on port 8585 for sharing interactive maps
+- **Output Formats**: JSON (workflows), SVG (display), URI (sharing)
