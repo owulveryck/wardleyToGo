@@ -87,7 +87,7 @@ Here is the input and all the elements that should be used in the map: %s
 
 		// Always provide defaults - never return nil
 		if uri == "" {
-			uri = "http://localhost:8585/map?wardley_map_json_base64=..."
+			uri = "http://localhost:8585/map.svg?wardley_map_json_base64=..."
 		}
 		if changes == "" {
 			changes = "modify the existing map"

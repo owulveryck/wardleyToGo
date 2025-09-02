@@ -79,7 +79,7 @@ func main() {
 			mcp.Description("JSON array of move operations. Each move must have: name (string, element name), x (0-100, evolution: 0=genesis/left, 100=commodity/right), y (0-100, visibility: 0=visible/bottom, 100=invisible/top). Example: [{'name':'Customer','x':20,'y':15}, {'name':'Service','x':60,'y':50}]"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -93,7 +93,7 @@ func main() {
 			mcp.Description("Unique identifier for the map (default: 1). Use different IDs to create multiple independent maps."),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -109,7 +109,7 @@ func main() {
 			mcp.Description("JSON array of elements. Each element must have: name (string), x (0-100, evolution: 0=genesis/left, 100=commodity/right), y (0-100, visibility: 0=visible/bottom, 100=invisible/top), element_type ('component' or 'anchor', default: 'component'), type (optional for components: 'regular', 'build', 'buy', 'outsource', 'dataproduct'). Example: [{'name':'Customer','x':15,'y':15,'element_type':'anchor'}, {'name':'Service','x':50,'y':50,'element_type':'component','type':'regular'}]"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -125,7 +125,7 @@ func main() {
 			mcp.Description("JSON array of dependency links. Each link must have: from (string, source element name), to (string, target element name), type (optional: 'regular', 'evolved_component', 'evolved'). The 'from' element depends on the 'to' element. Example: [{'from':'Customer','to':'Service','type':'regular'}]"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -153,7 +153,7 @@ func main() {
 			mcp.Description("Label for stage 4 (Commodity/Accepted): Most evolved, standardized, utility-like"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -165,7 +165,7 @@ func main() {
 			mcp.Description("JSON representation of the current map"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 
@@ -174,7 +174,7 @@ func main() {
 		mcp.WithDescription("🔄 CONVERT: Extract map JSON from a shareable URI for editing. Essential for modifying existing maps. Returns JSON that can be passed to other tools."),
 		mcp.WithString("uri",
 			mcp.Required(),
-			mcp.Description("The complete URI containing the base64-encoded map data (e.g., 'http://localhost:8585/map?wardley_map_json_base64=...')"),
+			mcp.Description("The complete URI containing the base64-encoded map data (e.g., 'http://localhost:8585/map.svg?wardley_map_json_base64=...')"),
 		),
 	)
 
@@ -194,7 +194,7 @@ func main() {
 			mcp.Description("JSON array of items to remove. For elements: [{'name':'ElementName'}]. For links: [{'from':'SourceName','to':'TargetName'}]. Example: [{'name':'Customer'}] or [{'from':'Customer','to':'Service'}]"),
 		),
 		mcp.WithString("output",
-			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), or 'uri' for shareable link. Always use 'json' when planning to call more tools afterward."),
+			mcp.Description("Output format: 'json' for intermediate operations, 'svg' for final display (default: 'svg'), 'uri' for shareable link, or 'markdown' for markdown-formatted image link. Always use 'json' when planning to call more tools afterward."),
 		),
 	)
 

@@ -26,7 +26,10 @@
       "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
       "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/**)",
       "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/**)",
-      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/owm2svg/**)"
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/examples/owm2svg/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)",
+      "Read(/Users/olivier.wulveryck/github.com/owulveryck/wardleyToGo/**)"
     ],
     "deny": [],
     "ask": []

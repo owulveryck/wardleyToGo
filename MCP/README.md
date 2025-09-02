@@ -73,7 +73,7 @@ All tools support three output formats via the `output` parameter:
 
 When enabled (default), the server runs on `http://localhost:8585` with:
 
-- **`/map`**: Render maps from base64-encoded data
+- **`/map.svg`**: Render maps from base64-encoded data
 - **`/health`**: Health check endpoint
 - **`/`**: Usage documentation
 
@@ -296,7 +296,7 @@ All SVG outputs include embedded JSON data as comments:
 ### URI Format
 Shareable links encode compressed map data:
 ```
-http://localhost:8585/map?wardley_map_json_base64=<compressed_data>&output=svg
+http://localhost:8585/map.svg?wardley_map_json_base64=<compressed_data>&output=svg
 ```
 
 ## 📏 Coordinate System
@@ -329,7 +329,7 @@ http://localhost:8585/map?wardley_map_json_base64=<compressed_data>&output=svg
 ### Web Application Integration
 ```javascript
 // Fetch map from URI
-const response = await fetch('http://localhost:8585/map?wardley_map_json_base64=...');
+const response = await fetch('http://localhost:8585/map.svg?wardley_map_json_base64=...');
 const svgContent = await response.text();
 
 // Display in browser
@@ -352,7 +352,7 @@ document.getElementById('map-container').innerHTML = svgContent;
 # 4. Auto-positioning
 # 5. Generating shareable URI
 
-# Result: Interactive map at http://localhost:8585/map?wardley_map_json_base64=...
+# Result: Interactive map at http://localhost:8585/map.svg?wardley_map_json_base64=...
 ```
 
 ## 📋 Dependencies

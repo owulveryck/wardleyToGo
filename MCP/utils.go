@@ -326,7 +326,7 @@ func generateURI(m *wardleyToGo.Map) (string, error) {
 	}
 
 	// Construct URI
-	uri := fmt.Sprintf("%s://%s:%s/map?wardley_map_json_base64=%s", uriScheme, uriHost, uriPort, encodedData)
+	uri := fmt.Sprintf("%s://%s:%s/map.svg?wardley_map_json_base64=%s", uriScheme, uriHost, uriPort, encodedData)
 	return uri, nil
 }
 
@@ -383,7 +383,7 @@ func extractBase64FromURI(uri string) (string, error) {
 	return encodedData, nil
 }
 
-// generateOutput creates either SVG, JSON, or URI representation based on output format
+// generateOutput creates either SVG, JSON, URI, or Markdown representation based on output format
 func generateOutput(m *wardleyToGo.Map, format string) (string, error) {
 	switch format {
 	case "json":
@@ -394,6 +394,12 @@ func generateOutput(m *wardleyToGo.Map, format string) (string, error) {
 		return string(jsonData), nil
 	case "uri":
 		return generateURI(m)
+	case "markdown":
+		uri, err := generateURI(m)
+		if err != nil {
+			return "", fmt.Errorf("failed to generate URI for markdown: %w", err)
+		}
+		return fmt.Sprintf("![The map](%s)", uri), nil
 	case "svg":
 		fallthrough
 	default:

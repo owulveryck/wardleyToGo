@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// handleMapRequest handles HTTP requests for the /map endpoint
+// handleMapRequest handles HTTP requests for the /map.svg endpoint
 func handleMapRequest(w http.ResponseWriter, r *http.Request) {
 	// Get the base64 encoded map data from query parameter
 	encodedData := r.URL.Query().Get("wardley_map_json_base64")
@@ -77,7 +77,7 @@ func startWebServer() {
 	addr := fmt.Sprintf("%s:%d", uriHost, port)
 
 	// Set up routes
-	http.HandleFunc("/map", handleMapRequest)
+	http.HandleFunc("/map.svg", handleMapRequest)
 
 	// Add a simple health check endpoint
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +106,7 @@ func startWebServer() {
     
     <h2>Usage</h2>
     <p>Send a GET request to:</p>
-    <pre><code>/map?wardley_map_json_base64=&lt;encoded_data&gt;&amp;output=&lt;format&gt;</code></pre>
+    <pre><code>/map.svg?wardley_map_json_base64=&lt;encoded_data&gt;&amp;output=&lt;format&gt;</code></pre>
     
     <h3>Parameters:</h3>
     <ul>
@@ -116,9 +116,9 @@ func startWebServer() {
     
     <h3>Examples:</h3>
     <ul>
-        <li><code>/map?wardley_map_json_base64=&lt;data&gt;</code> - Returns SVG</li>
-        <li><code>/map?wardley_map_json_base64=&lt;data&gt;&amp;output=svg</code> - Returns SVG</li>
-        <li><code>/map?wardley_map_json_base64=&lt;data&gt;&amp;output=json</code> - Returns JSON</li>
+        <li><code>/map.svg?wardley_map_json_base64=&lt;data&gt;</code> - Returns SVG</li>
+        <li><code>/map.svg?wardley_map_json_base64=&lt;data&gt;&amp;output=svg</code> - Returns SVG</li>
+        <li><code>/map.svg?wardley_map_json_base64=&lt;data&gt;&amp;output=json</code> - Returns JSON</li>
     </ul>
     
     <h3>Health Check:</h3>
@@ -130,7 +130,7 @@ func startWebServer() {
 
 	log.Printf("Starting Wardley Map web server on %s", addr)
 	log.Printf("Server endpoints:")
-	log.Printf("  GET /map?wardley_map_json_base64=<data>&output=<format>")
+	log.Printf("  GET /map.svg?wardley_map_json_base64=<data>&output=<format>")
 	log.Printf("  GET /health")
 	log.Printf("  GET / (usage information)")
 

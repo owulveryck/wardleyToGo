@@ -105,7 +105,7 @@ func TestCompleteWorkflow(t *testing.T) {
 			t.Fatalf("Failed to generate URI: %v", err)
 		}
 
-		if !strings.HasPrefix(uriOutput, "http://localhost:8585/map?wardley_map_json_base64=") {
+		if !strings.HasPrefix(uriOutput, "http://localhost:8585/map.svg?wardley_map_json_base64=") {
 			t.Errorf("URI format incorrect: %s", uriOutput)
 		}
 
@@ -233,12 +233,12 @@ func TestURIDecodeFunction(t *testing.T) {
 	}
 
 	// Test error cases
-	_, err = extractBase64FromURI("http://example.com/map?other=param")
+	_, err = extractBase64FromURI("http://example.com/map.svg?other=param")
 	if err == nil {
 		t.Error("Expected error for URI without base64 parameter")
 	}
 
-	_, err = extractBase64FromURI("http://example.com/map?wardley_map_json_base64=")
+	_, err = extractBase64FromURI("http://example.com/map.svg?wardley_map_json_base64=")
 	if err == nil {
 		t.Error("Expected error for URI with empty base64 parameter")
 	}

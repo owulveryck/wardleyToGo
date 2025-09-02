@@ -32,7 +32,7 @@ func TestURIGeneration(t *testing.T) {
 	}
 
 	// Verify URI format
-	expectedPrefix := "http://localhost:8585/map?wardley_map_json_base64="
+	expectedPrefix := "http://localhost:8585/map.svg?wardley_map_json_base64="
 	if !strings.HasPrefix(uri, expectedPrefix) {
 		t.Errorf("Expected URI to start with %s, got: %s", expectedPrefix, uri)
 	}
@@ -129,8 +129,26 @@ func TestOutputGeneration(t *testing.T) {
 		t.Fatalf("Failed to generate URI output: %v", err)
 	}
 
-	if !strings.HasPrefix(output, "http://localhost:8585/map?wardley_map_json_base64=") {
+	if !strings.HasPrefix(output, "http://localhost:8585/map.svg?wardley_map_json_base64=") {
 		t.Errorf("URI output format incorrect: %s", output)
+	}
+
+	// Test Markdown output
+	markdownOutput, err := generateOutput(m, "markdown")
+	if err != nil {
+		t.Fatalf("Failed to generate Markdown output: %v", err)
+	}
+
+	if !strings.HasPrefix(markdownOutput, "![The map](") {
+		t.Errorf("Markdown output should start with ![The map](, got: %s", markdownOutput)
+	}
+
+	if !strings.HasSuffix(markdownOutput, ")") {
+		t.Errorf("Markdown output should end with ), got: %s", markdownOutput)
+	}
+
+	if !strings.Contains(markdownOutput, "http://localhost:8585/map.svg?wardley_map_json_base64=") {
+		t.Errorf("Markdown output should contain URI, got: %s", markdownOutput)
 	}
 
 	// Test JSON output still works

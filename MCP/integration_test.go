@@ -100,7 +100,7 @@ func TestWebServerIntegration(t *testing.T) {
 
 	// Test map endpoint with SVG output
 	t.Run("Map SVG Output", func(t *testing.T) {
-		url := fmt.Sprintf("http://localhost:8585/map?wardley_map_json_base64=%s&output=svg", encodedData)
+		url := fmt.Sprintf("http://localhost:8585/map.svg?wardley_map_json_base64=%s&output=svg", encodedData)
 		resp, err := http.Get(url)
 		if err != nil {
 			t.Skipf("Web server not available: %v", err)
@@ -139,7 +139,7 @@ func TestWebServerIntegration(t *testing.T) {
 
 	// Test map endpoint with JSON output
 	t.Run("Map JSON Output", func(t *testing.T) {
-		url := fmt.Sprintf("http://localhost:8585/map?wardley_map_json_base64=%s&output=json", encodedData)
+		url := fmt.Sprintf("http://localhost:8585/map.svg?wardley_map_json_base64=%s&output=json", encodedData)
 		resp, err := http.Get(url)
 		if err != nil {
 			t.Skipf("Web server not available: %v", err)
@@ -180,7 +180,7 @@ func TestWebServerIntegration(t *testing.T) {
 
 	// Test map endpoint with default output (should be SVG)
 	t.Run("Map Default Output", func(t *testing.T) {
-		url := fmt.Sprintf("http://localhost:8585/map?wardley_map_json_base64=%s", encodedData)
+		url := fmt.Sprintf("http://localhost:8585/map.svg?wardley_map_json_base64=%s", encodedData)
 		resp, err := http.Get(url)
 		if err != nil {
 			t.Skipf("Web server not available: %v", err)
@@ -195,7 +195,7 @@ func TestWebServerIntegration(t *testing.T) {
 
 	// Test error cases
 	t.Run("Missing Parameter", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8585/map")
+		resp, err := http.Get("http://localhost:8585/map.svg")
 		if err != nil {
 			t.Skipf("Web server not available: %v", err)
 		}
@@ -207,7 +207,7 @@ func TestWebServerIntegration(t *testing.T) {
 	})
 
 	t.Run("Invalid Output Format", func(t *testing.T) {
-		url := fmt.Sprintf("http://localhost:8585/map?wardley_map_json_base64=%s&output=invalid", encodedData)
+		url := fmt.Sprintf("http://localhost:8585/map.svg?wardley_map_json_base64=%s&output=invalid", encodedData)
 		resp, err := http.Get(url)
 		if err != nil {
 			t.Skipf("Web server not available: %v", err)
@@ -220,7 +220,7 @@ func TestWebServerIntegration(t *testing.T) {
 	})
 
 	t.Run("Invalid Base64 Data", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8585/map?wardley_map_json_base64=invalid_base64_data")
+		resp, err := http.Get("http://localhost:8585/map.svg?wardley_map_json_base64=invalid_base64_data")
 		if err != nil {
 			t.Skipf("Web server not available: %v", err)
 		}
