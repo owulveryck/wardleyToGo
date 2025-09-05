@@ -35,14 +35,14 @@ func main() {
 		🔄 COMPLETE WORKFLOWS:
 
 		A) NEW MAP CREATION:
-		   1. create_map(output="json") → Get starting JSON
-		   2. add_elements(map_json=..., output="json") → Add components and anchors
-		   3. add_links(map_json=..., output="json") → Add dependencies
-		   4. auto_layout(map_json=..., output="json") → Position elements (optional)
+		   1. wardley_map_create_map(output="json") → Get starting JSON
+		   2. wardley_map_add_elements(map_json=..., output="json") → Add components and anchors
+		   3. wardley_map_add_links(map_json=..., output="json") → Add dependencies
+		   4. wardley_map_auto_layout(map_json=..., output="json") → Position elements (optional)
 		   5. Final step: Use output="uri" to create shareable link
 
 		B) EDITING EXISTING MAP:
-		   1. decode_uri(uri="...") → Extract JSON from shareable URI
+		   1. wardley_map_decode_uri(uri="...") → Extract JSON from shareable URI
 		   2. Modify using any tools with output="json"
 		   3. Final step: Use output="uri" to create new shareable link
 
@@ -51,12 +51,12 @@ func main() {
 		   - Visit the URI in a browser to see the interactive map
 
 		🎯 KEY TOOLS BY PURPOSE:
-		- 🚀 CREATE: create_map
-		- 🔧 ADD: add_elements, add_links
-		- 📐 POSITION: move_elements, auto_layout
-		- 🎨 CONFIGURE: configure_evolution
-		- 🔄 CONVERT: decode_uri
-		- 🗑️ REMOVE: remove_elements
+		- 🚀 CREATE: wardley_map_create_map
+		- 🔧 ADD: wardley_map_add_elements, wardley_map_add_links
+		- 📐 POSITION: wardley_map_move_elements, wardley_map_auto_layout
+		- 🎨 CONFIGURE: wardley_map_configure_evolution
+		- 🔄 CONVERT: wardley_map_decode_uri
+		- 🗑️ REMOVE: wardley_map_remove_elements
 
 		⚠️ IMPORTANT: The JSON format is the universal interchange format. All tools understand it.
 		   URIs contain compressed JSON and can be decoded back to JSON for further editing.
@@ -68,7 +68,7 @@ func main() {
 	)
 
 	// 📐 POSITION: move_elements tool
-	moveElementsTool := mcp.NewTool("move_elements",
+	moveElementsTool := mcp.NewTool("wardley_map_move_elements",
 		mcp.WithDescription("📐 POSITION: Reposition specific elements by name. Handles single or multiple moves. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
@@ -84,7 +84,7 @@ func main() {
 	)
 
 	// 🚀 CREATE: create_map tool
-	createMapTool := mcp.NewTool("create_map",
+	createMapTool := mcp.NewTool("wardley_map_create_map",
 		mcp.WithDescription("🚀 CREATE: Create a new empty Wardley map. Starting point for all workflows. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("title",
 			mcp.Description("Title for the map (default: 'New Wardley Map')"),
@@ -98,7 +98,7 @@ func main() {
 	)
 
 	// 🔧 ADD: add_elements tool (unified components and anchors)
-	addElementsTool := mcp.NewTool("add_elements",
+	addElementsTool := mcp.NewTool("wardley_map_add_elements",
 		mcp.WithDescription("🔧 ADD: Add or update components and anchors. Handles single or multiple elements. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
@@ -114,7 +114,7 @@ func main() {
 	)
 
 	// 🔧 ADD: add_links tool
-	addLinksTool := mcp.NewTool("add_links",
+	addLinksTool := mcp.NewTool("wardley_map_add_links",
 		mcp.WithDescription("🔧 ADD: Add dependency relationships between elements. Handles single or multiple links. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
@@ -130,7 +130,7 @@ func main() {
 	)
 
 	// 🎨 CONFIGURE: configure_evolution tool
-	configureEvolutionTool := mcp.NewTool("configure_evolution",
+	configureEvolutionTool := mcp.NewTool("wardley_map_configure_evolution",
 		mcp.WithDescription("🎨 CONFIGURE: Customize the four evolution stage labels displayed on the X-axis. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
@@ -158,7 +158,7 @@ func main() {
 	)
 
 	// 📐 POSITION: auto_layout tool
-	autoLayoutTool := mcp.NewTool("auto_layout",
+	autoLayoutTool := mcp.NewTool("wardley_map_auto_layout",
 		mcp.WithDescription("📐 POSITION: Automatically arrange all elements based on value chain depth analysis. Calculates dependency paths and positions elements in horizontal layers. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
@@ -170,7 +170,7 @@ func main() {
 	)
 
 	// 🔄 CONVERT: decode_uri tool
-	decodeUriTool := mcp.NewTool("decode_uri",
+	decodeUriTool := mcp.NewTool("wardley_map_decode_uri",
 		mcp.WithDescription("🔄 CONVERT: Extract map JSON from a shareable URI for editing. Essential for modifying existing maps. Returns JSON that can be passed to other tools."),
 		mcp.WithString("uri",
 			mcp.Required(),
@@ -179,7 +179,7 @@ func main() {
 	)
 
 	// 🗑️ REMOVE: remove_elements tool
-	removeElementsTool := mcp.NewTool("remove_elements",
+	removeElementsTool := mcp.NewTool("wardley_map_remove_elements",
 		mcp.WithDescription("🗑️ REMOVE: Remove components, anchors, or links from the map. Handles single or multiple removals. Use 'json' output for building workflows, 'uri' for shareable links, 'svg' for final display."),
 		mcp.WithString("map_json",
 			mcp.Required(),
