@@ -219,7 +219,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	fillColor := svg.White
 	r, g, b, a := c.Color.RGBA()
 	if r != 0 || g != 0 || b != 0 || a != 65535 {
-		fillColor = svg.Color{col}
+		fillColor = svg.Color{Color: col}
 	}
 	baseCircle := svg.Circle{
 		R:           5,
@@ -234,27 +234,27 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			R:           20,
 			StrokeWidth: "1",
 			Stroke:      svg.Black,
-			Fill:        svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
+			Fill:        svg.Color{Color: color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
 		})
 	case BuyComponent:
 		components = append(components, svg.Circle{
 			R:           20,
 			StrokeWidth: "1",
-			Fill:        svg.Color{color.RGBA{0xaa, 0xa5, 0xa9, 0xff}},
-			Stroke:      svg.Color{color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
+			Fill:        svg.Color{Color: color.RGBA{0xaa, 0xa5, 0xa9, 0xff}},
+			Stroke:      svg.Color{Color: color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
 		})
 	case OutsourceComponent:
 		components = append(components, svg.Circle{
 			R:           20,
 			StrokeWidth: "1",
-			Fill:        svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
-			Stroke:      svg.Color{color.RGBA{0x44, 0x44, 0x44, 0xff}},
+			Fill:        svg.Color{Color: color.RGBA{0x44, 0x44, 0x44, 0xff}},
+			Stroke:      svg.Color{Color: color.RGBA{0x44, 0x44, 0x44, 0xff}},
 		})
 	case DataProductComponent:
 		components = append(components, svg.Circle{
 			R:           14,
 			StrokeWidth: "1",
-			Fill:        svg.Color{color.RGBA{246, 72, 22, 0xff}},
+			Fill:        svg.Color{Color: color.RGBA{246, 72, 22, 0xff}},
 		})
 	}
 	components = append(components, baseCircle)
@@ -356,5 +356,5 @@ func (e *EvolvedComponent) String() string {
 }
 
 func (c *EvolvedComponent) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
-	return c.marshalSVG(e, canvas, svg.Color{color.RGBA{255, 0, 0, 255}})
+	return c.marshalSVG(e, canvas, svg.Color{Color: color.RGBA{255, 0, 0, 255}})
 }

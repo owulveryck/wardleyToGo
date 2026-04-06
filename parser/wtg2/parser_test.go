@@ -13,7 +13,10 @@ author: Test Author
 scope: B2C mobile
 question: "Where to invest?"
 `
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -35,7 +38,10 @@ question: "Where to invest?"
 
 func TestParseStages(t *testing.T) {
 	input := `stages: Genèse, Sur-mesure, Produit, Commodité`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +55,10 @@ func TestParseStages(t *testing.T) {
 
 func TestParseComponentShorthand(t *testing.T) {
 	input := `Application Mobile : III.5`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -69,7 +78,10 @@ func TestParseComponentShorthand(t *testing.T) {
 
 func TestParseComponentWithType(t *testing.T) {
 	input := `Données OSM : III.8 (buy)`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -96,7 +108,10 @@ func TestParseComponentWithEvolution(t *testing.T) {
   color: #3498DB
   note: "Notre différenciant clé"
 }`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +146,10 @@ func TestParseComponentWithEvolution(t *testing.T) {
 
 func TestParseEdgeChain(t *testing.T) {
 	input := `A -> B -> C`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -150,7 +168,10 @@ func TestParseEdgeChain(t *testing.T) {
 
 func TestParseAnnotatedEdge(t *testing.T) {
 	input := `A -[Open Data, licence annuelle]-> B`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -170,7 +191,10 @@ func TestParsePipeline(t *testing.T) {
   Algo A : III.5
   Algo B : II.3
 }`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -194,7 +218,10 @@ func TestParsePipeline(t *testing.T) {
 func TestParseAnnotation(t *testing.T) {
 	input := `note "Candidat à l'externalisation" on Système de Paiement
 warning "SPOF" on Moteur`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -219,7 +246,10 @@ warning "SPOF" on Moteur`
 
 func TestParseSignal(t *testing.T) {
 	input := `signal accelerating on Algo Prédictif IA`
-	p := NewParser(strings.NewReader(input))
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -237,7 +267,7 @@ func TestParseSignal(t *testing.T) {
 }
 
 func TestParseExampleFile(t *testing.T) {
-	f, err := os.Open("testdatestdata/example.wtg2")
+	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {
 		// Try from wtg2 directory
 		f, err = os.Open("testdata/example.wtg2")
@@ -247,7 +277,10 @@ func TestParseExampleFile(t *testing.T) {
 	}
 	defer f.Close()
 
-	p := NewParser(f)
+	p, err := NewParser(f)
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)

@@ -35,7 +35,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Label:          `bla`,
 					Anchor:         1,
@@ -52,7 +52,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Label:          `bla bla`,
 					Anchor:         1,
@@ -69,7 +69,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla 0.3`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{30, components.UndefinedCoord},
 					Anchor:         1,
 					Label:          `bla bla`,
@@ -86,7 +86,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla 0.3 label [12,12]`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{30, components.UndefinedCoord},
 					Label:          `bla bla`,
 					Anchor:         1,
@@ -103,7 +103,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla 0.3 label [-12,12]`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{30, components.UndefinedCoord},
 					Label:          `bla bla`,
 					Anchor:         1,
@@ -121,7 +121,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla (build)`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Label:          `bla bla`,
 					Anchor:         1,
@@ -139,7 +139,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla (buy)`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Anchor:         1,
 					Placement:      image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Label:          `bla bla`,
@@ -157,7 +157,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla (outsource)`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Anchor:         1,
 					Placement:      image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Label:          `bla bla`,
@@ -175,7 +175,7 @@ func Test_scanEvolve(t *testing.T) {
 				s: newScanner(`bla   bla (dataProduct)`),
 			},
 			&wardley.EvolvedComponent{
-				&wardley.Component{
+				Component: &wardley.Component{
 					Placement:      image.Point{components.UndefinedCoord, components.UndefinedCoord},
 					Anchor:         1,
 					Label:          `bla bla`,

@@ -52,7 +52,10 @@ func wtgWrapper() js.Func {
 }
 
 func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, error) {
-	p := wtg2.NewParser(bytes.NewBufferString(s))
+	p, err := wtg2.NewParser(bytes.NewBufferString(s))
+	if err != nil {
+		return "", err
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		return "", err

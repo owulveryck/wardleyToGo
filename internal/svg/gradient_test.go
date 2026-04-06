@@ -17,19 +17,19 @@ func Test_linearGradient(t *testing.T) {
 		Stops: []Stop{
 			{
 				Offset:    "0%",
-				StopColor: Color{color.RGBA{196, 196, 196, 255}},
+				StopColor: Color{Color: color.RGBA{196, 196, 196, 255}},
 			},
 			{
 				Offset:    "30%",
-				StopColor: Color{color.RGBA{255, 255, 255, 255}},
+				StopColor: Color{Color: color.RGBA{255, 255, 255, 255}},
 			},
 			{
 				Offset:    "70%",
-				StopColor: Color{color.RGBA{255, 255, 255, 255}},
+				StopColor: Color{Color: color.RGBA{255, 255, 255, 255}},
 			},
 			{
 				Offset:    "100%",
-				StopColor: Color{color.RGBA{196, 196, 196, 255}},
+				StopColor: Color{Color: color.RGBA{196, 196, 196, 255}},
 			},
 		},
 	}

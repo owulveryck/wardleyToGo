@@ -16,7 +16,10 @@ import (
 )
 
 func main() {
-	p := wtg2.NewParser(os.Stdin)
+	p, err := wtg2.NewParser(os.Stdin)
+	if err != nil {
+		log.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		log.Fatal(err)

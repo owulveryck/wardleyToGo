@@ -16,6 +16,14 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
 
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
       - name: Generate coverage report
         run: |
           go test `go list ./... | grep -v examples` -coverprofile=coverage.txt -covermode=atomic

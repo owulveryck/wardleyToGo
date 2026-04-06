@@ -35,7 +35,7 @@ func (a *Annotation) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 				svg.Circle{
 					R:           15,
 					Fill:        svg.White,
-					Stroke:      svg.Color{color.RGBA{0x59, 0x59, 0x59, 0xff}},
+					Stroke:      svg.Color{Color: color.RGBA{R: 0x59, G: 0x59, B: 0x59, A: 0xff}},
 					StrokeWidth: "2",
 				},
 				svg.Text{

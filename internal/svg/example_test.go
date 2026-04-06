@@ -22,7 +22,7 @@ func Example() {
 	enc.EncodeToken(s)
 	enc.Encode(svg.Rectangle{
 		R:    image.Rect(0, 0, 1050, 1050),
-		Fill: svg.Color{color.Gray{Y: 128}},
+		Fill: svg.Color{Color: color.Gray{Y: 128}},
 	})
 	enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
@@ -31,7 +31,7 @@ func Example() {
 			Stops: []svg.Stop{
 				{
 					Offset:    "0%",
-					StopColor: svg.Color{color.RGBA{196, 196, 196, 255}},
+					StopColor: svg.Color{Color: color.RGBA{196, 196, 196, 255}},
 				},
 				{
 					Offset:    "30%",
@@ -43,7 +43,7 @@ func Example() {
 				},
 				{
 					Offset:    "100%",
-					StopColor: svg.Color{color.RGBA{196, 196, 196, 255}},
+					StopColor: svg.Color{Color: color.RGBA{196, 196, 196, 255}},
 				},
 			},
 		},
@@ -69,7 +69,7 @@ func Example() {
 				ViewBox:      "0 -5 10 10",
 				Path: &svg.Path{
 					D:    "M0,-5L10,0L0,5",
-					Fill: svg.Color{color.Black}},
+					Fill: svg.Color{Color: color.Black}},
 			},
 		},
 	})
@@ -85,7 +85,7 @@ func Example() {
 			svg.Line{
 				F:           image.Point{0, 0},
 				T:           image.Point{1000, 0},
-				Stroke:      svg.Color{color.Black},
+				Stroke:      svg.Color{Color: color.Black},
 				StrokeWidth: "1",
 				MarkerEnd:   "url(#graphArrow)",
 			},
@@ -131,7 +131,7 @@ func Example() {
 	enc.Encode(svg.Line{
 		F:         image.Point{25, 1025},
 		T:         image.Point{1025, 1025},
-		Stroke:    svg.Color{color.Black},
+		Stroke:    svg.Color{Color: color.Black},
 		MarkerEnd: "url(#graphArrrow)",
 	})
 	enc.Encode(svg.Text{

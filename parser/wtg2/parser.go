@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -13,11 +14,14 @@ type Parser struct {
 }
 
 // NewParser creates a parser from an io.Reader.
-func NewParser(r io.Reader) *Parser {
-	data, _ := io.ReadAll(r)
+func NewParser(r io.Reader) (*Parser, error) {
+	data, err := io.ReadAll(r)
+	if err != nil {
+		return nil, fmt.Errorf("reading input: %w", err)
+	}
 	return &Parser{
 		lexer: NewLexer(string(data)),
-	}
+	}, nil
 }
 
 // Parse reads the entire WTG2 input and produces a Document.
@@ -190,7 +194,9 @@ func parseShorthand(node *NodeDecl, s string) error {
 	if atIdx := strings.LastIndex(s, "@"); atIdx >= 0 {
 		visStr := strings.TrimSpace(s[atIdx+1:])
 		s = strings.TrimSpace(s[:atIdx])
-		fmt.Sscanf(visStr, "%f", &node.Visibility)
+		if v, err := strconv.ParseFloat(visStr, 64); err == nil {
+			node.Visibility = v
+		}
 	}
 
 	// Extract (type) if present
@@ -269,7 +275,9 @@ func parseBlockConfig(node *NodeDecl, lines []string) error {
 		case "color":
 			node.Color = value
 		case "visibility":
-			fmt.Sscanf(value, "%f", &node.Visibility)
+			if v, err := strconv.ParseFloat(value, 64); err == nil {
+				node.Visibility = v
+			}
 		case "note":
 			node.Note = value
 		}

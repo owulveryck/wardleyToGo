@@ -97,7 +97,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		verticals = append(verticals, svg.Line{
 			F:           image.Point{0, 0},
 			T:           image.Point{canvas.Dy(), 0},
-			Stroke:      svg.Color{color.RGBA{19, 36, 84, 255}},
+			Stroke:      svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			StrokeWidth: "1",
 			MarkerEnd:   "url(#graphArrow)",
 		})
@@ -107,7 +107,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		verticals = append(verticals, svg.Line{
 			F:               image.Point{0, int(float64(canvas.Dx()) * position)},
 			T:               image.Point{canvas.Dy(), int(float64(canvas.Dx()) * position)},
-			Stroke:          svg.Color{color.RGBA{19, 36, 84, 255}},
+			Stroke:          svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			StrokeWidth:     "1",
 			StrokeDashArray: []int{2, 2},
 		})
@@ -117,21 +117,21 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		verticals = append(verticals, svg.Text{
 			P:          image.Point{5, -10},
 			Text:       []byte(`Invisible`),
-			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 			TextAnchor: svg.TextAnchorStart,
 		})
 		verticals = append(verticals, svg.Text{
 			P:          image.Point{canvas.Dy() - 5, -10},
 			Text:       []byte(`Visible`),
-			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 			TextAnchor: svg.TextAnchorEnd,
 		})
 		verticals = append(verticals, svg.Text{
 			P:          image.Point{canvas.Dy() / 2, -10},
 			Text:       []byte(`Value Chain`),
-			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			TextAnchor: svg.TextAnchorMiddle,
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 			FontWeight: "bold",
@@ -145,7 +145,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 	enc.Encode(svg.Line{
 		F:         image.Point{canvas.Min.X, canvas.Max.Y},
 		T:         canvas.Max,
-		Stroke:    svg.Color{color.RGBA{19, 36, 84, 255}},
+		Stroke:    svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 		MarkerEnd: "url(#graphArrow)",
 	})
 	if w.WithControls {
@@ -158,14 +158,14 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			FontSize:   "11px",
 			Text:       []byte(`Uncharted`),
 			TextAnchor: svg.TextAnchorStart,
-			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
 		enc.Encode(svg.Text{
 			P:          image.Point{canvas.Max.X - 5, canvas.Min.Y + 15},
 			FontWeight: "bold",
 			FontSize:   "11px",
-			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			Text:       []byte(`Industrialised`),
 			TextAnchor: svg.TextAnchorEnd,
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
@@ -176,7 +176,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		enc.Encode(svg.Text{
 			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
 			Text:       []byte(axis.Label),
-			Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
 	}
@@ -184,7 +184,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		P:          image.Point{canvas.Max.X, canvas.Max.Y + 15},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
-		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		FontWeight: "bold",
 	})
@@ -212,7 +212,7 @@ func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 		FontSize:   "11px",
 		Text:       []byte(`Toggle visibility`),
 		TextAnchor: svg.TextAnchorStart,
-		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 	})
 	enc.EncodeToken(visibilityGroup.End())
@@ -234,7 +234,7 @@ func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 		FontSize:   "11px",
 		Text:       []byte(`Toggle links`),
 		TextAnchor: svg.TextAnchorStart,
-		Fill:       svg.Color{color.RGBA{19, 36, 84, 255}},
+		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 	})
 	enc.EncodeToken(linkGroup.End())

@@ -16,7 +16,7 @@ func (c *component) MarshalSVG(e *xml.Encoder, bounds image.Rectangle) error {
 		Translate: image.Point{50, 100},
 		Components: []interface{}{
 			&svg.Circle{
-				Fill: svg.Color{color.Black},
+				Fill: svg.Color{Color: color.Black},
 			},
 		},
 	})

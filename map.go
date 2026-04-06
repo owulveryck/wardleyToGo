@@ -106,19 +106,6 @@ func (m *Map) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.
 	}
 }
 
-// SVG representation, class is subMapElement and element
-/*
-func (m *Map) SVG(s *svg.SVG, bounds image.Rectangle) {
-	coords := utils.CalcCoords(m.GetPosition(), bounds)
-	s.Gid(strconv.FormatInt(m.id, 10))
-	s.Translate(coords.X, coords.Y)
-	s.Text(10, 10, m.Title)
-	s.Circle(0, 0, 5, `stroke-width="1"`, `stroke="black"`, `fill="black"`, `class="subMapElement, element"`)
-	s.Gend()
-	s.Gend()
-}
-*/
-
 // AddComponent add e to the graph. It returns an error if e is out-of-bounds,
 // meaning its coordinates are less than 0 or more that 100
 func (m *Map) AddComponent(e Component) error {

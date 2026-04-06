@@ -12,14 +12,14 @@ type Color struct {
 }
 
 var (
-	Black       = Color{color.Black}
-	Red         = Color{color.RGBA{0xff, 0x00, 0x00, 0xff}}
-	Transparent = Color{color.RGBA{0xff, 0xff, 0xff, 0x00}}
-	White       = Color{color.White}
+	Black       = Color{Color: color.Black}
+	Red         = Color{Color: color.RGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xff}}
+	Transparent = Color{Color: color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0x00}}
+	White       = Color{Color: color.White}
 )
 
 func Gray(Y uint8) Color {
-	return Color{color.Gray{Y: Y}}
+	return Color{Color: color.Gray{Y: Y}}
 }
 
 func (c Color) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {

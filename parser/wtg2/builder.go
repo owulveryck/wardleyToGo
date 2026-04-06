@@ -1,6 +1,7 @@
 package wtg2
 
 import (
+	"encoding/hex"
 	"fmt"
 	"image"
 	"image/color"
@@ -230,23 +231,20 @@ func buildEvolutionStages(stages [4]string) []svgmap.Evolution {
 // parseHexColor parses a hex color string like "#3498DB" or "#abc".
 func parseHexColor(s string) (color.Color, error) {
 	s = strings.TrimPrefix(s, "#")
-	var r, g, b uint8
 	switch len(s) {
 	case 6:
-		_, err := fmt.Sscanf(s, "%02x%02x%02x", &r, &g, &b)
+		b, err := hex.DecodeString(s)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid hex color: %w", err)
 		}
+		return color.RGBA{R: b[0], G: b[1], B: b[2], A: 255}, nil
 	case 3:
-		_, err := fmt.Sscanf(s, "%1x%1x%1x", &r, &g, &b)
+		b, err := hex.DecodeString(s[0:1] + s[0:1] + s[1:2] + s[1:2] + s[2:3] + s[2:3])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid hex color: %w", err)
 		}
-		r = r*16 + r
-		g = g*16 + g
-		b = b*16 + b
+		return color.RGBA{R: b[0], G: b[1], B: b[2], A: 255}, nil
 	default:
 		return nil, fmt.Errorf("invalid hex color: %q", s)
 	}
-	return color.RGBA{R: r, G: g, B: b, A: 255}, nil
 }

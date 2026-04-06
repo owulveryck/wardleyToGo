@@ -134,7 +134,7 @@ func TestBuildMap_WithPipeline(t *testing.T) {
 }
 
 func TestBuildMap_ExampleFile(t *testing.T) {
-	f, err := os.Open("testdatestdata/example.wtg2")
+	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {
 		f, err = os.Open("testdata/example.wtg2")
 		if err != nil {
@@ -143,7 +143,10 @@ func TestBuildMap_ExampleFile(t *testing.T) {
 	}
 	defer f.Close()
 
-	p := NewParser(f)
+	p, err := NewParser(f)
+	if err != nil {
+		t.Fatal(err)
+	}
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
