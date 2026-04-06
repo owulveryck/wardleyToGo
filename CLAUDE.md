@@ -89,9 +89,15 @@ make install
 ### WTG2 Parser Pipeline
 - **Lexer** (`parser/wtg2/lexer.go`): Line-oriented tokenization with block accumulation
 - **Parser** (`parser/wtg2/parser.go`): Builds an AST (`Document`) from tokens
-- **Layout** (`parser/wtg2/layout.go`): Computes Y positions from dependency graph (BFS)
 - **Builder** (`parser/wtg2/builder.go`): Converts AST to `wardleyToGo.Map` with `wardley.*` types
 - **Evolution** (`parser/wtg2/evolution.go`): Converts roman numeral positions (I.0-IV.9) to 0-100 coords
+
+### Layout Engine (`layout/`)
+Standalone package for vertical placement of components on the value chain axis.
+- **Interface**: `Layouter` with abstract `Graph`/`Node`/`Edge` types — decoupled from the parser AST
+- **Algorithm**: Topological sort (Kahn) for rank assignment + force-directed repulsion for spacing
+- **Options**: Configurable min spacing, repulsion strength, damping, iteration count
+- The builder calls `layout.New(layout.DefaultOptions()).Layout(graph)` to compute Y positions
 
 ### Rendering Pipeline
 - Components and collaborations that implement `draw.Drawer` are automatically rendered

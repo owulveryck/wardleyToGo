@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/owulveryck/wardleyToGo"
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
+	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/layout"
 )
 
 // BuildResult holds the map and evolution stages produced by the builder.
@@ -39,7 +40,9 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	nodeDict := make(map[string]*nodeEntry)
 
 	// Compute Y positions from dependency graph
-	yPositions := ComputeYPositions(doc)
+	lg := documentToLayoutGraph(doc)
+	layouter := layout.New(layout.DefaultOptions())
+	yPositions := layouter.Layout(lg)
 
 	// Phase 1: Create all declared nodes
 	for _, nd := range doc.Nodes {
@@ -226,6 +229,41 @@ func buildEvolutionStages(stages [4]string) []svgmap.Evolution {
 		{Position: 0.50, Label: stages[2]},
 		{Position: 0.75, Label: stages[3]},
 	}
+}
+
+// documentToLayoutGraph converts a Document AST to the abstract layout.Graph.
+func documentToLayoutGraph(doc *Document) *layout.Graph {
+	g := &layout.Graph{}
+	for _, n := range doc.Nodes {
+		kind := layout.KindRegular
+		if n.Kind == KindAnchor {
+			kind = layout.KindAnchor
+		}
+		g.Nodes = append(g.Nodes, layout.Node{Name: n.Name, Kind: kind})
+	}
+	for _, e := range doc.Edges {
+		g.Edges = append(g.Edges, layout.Edge{From: e.From, To: e.To})
+	}
+	for _, pl := range doc.Pipelines {
+		p := layout.Pipeline{Parent: pl.Name}
+		for _, m := range pl.Members {
+			p.Members = append(p.Members, m.Name)
+			g.Nodes = append(g.Nodes, layout.Node{Name: m.Name, Kind: layout.KindRegular})
+		}
+		g.Pipelines = append(g.Pipelines, p)
+	}
+	return g
+}
+
+// colonMemberIndex returns the index of ':' in a "Pipeline:Member" reference,
+// but only if there are no spaces around the colon (distinguishing from " : ").
+func colonMemberIndex(s string) int {
+	for i, c := range s {
+		if c == ':' && i > 0 && s[i-1] != ' ' && i < len(s)-1 && s[i+1] != ' ' {
+			return i
+		}
+	}
+	return -1
 }
 
 // parseHexColor parses a hex color string like "#3498DB" or "#abc".
