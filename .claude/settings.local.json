@@ -21,7 +21,11 @@
       "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && head -30 \"{}\"')",
       "Bash(bash /tmp/analyze_imports.sh)",
       "Bash(bash /tmp/package_analysis.sh)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(ls:*)",
+      "Bash(bash:*)",
+      "Bash(git rm:*)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []

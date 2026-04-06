@@ -1,0 +1,119 @@
+// ═══════════════════════════════════════════════
+//  Carte Wardley — Plateforme de Navigation GPS
+// ═══════════════════════════════════════════════
+
+// ─── 1. Métadonnées ───────────────────────────
+
+title: Plateforme de Navigation — Stratégie 2026
+date: 2026-01-15
+author: Cellule Stratégie Produit
+scope: Application mobile B2C, marché européen
+question: "Où investir pour se différencier face à Google Maps ?"
+
+// ─── 2. Configuration ────────────────────────
+
+stages: Genèse, Sur-mesure, Produit, Commodité
+
+// ─── 3. Ancres ───────────────────────────────
+
+anchor Automobiliste
+anchor Collectivité Locale
+
+// ─── 4. Composants ───────────────────────────
+
+// Couche visible
+Application Mobile : III.5
+Itinéraire Affiché : III.2
+Alertes Trafic en Temps Réel : II.3
+
+// Coeur métier
+Moteur de Calcul d'Itinéraire : II.7 !! >> III.5 {
+  type: build
+  color: #3498DB
+  note: "Notre différenciant clé — 12 ETP, 1.2M€/an"
+}
+
+// Pipeline : le moteur existe sous plusieurs formes
+pipeline Moteur de Calcul d'Itinéraire {
+  Algo Dijkstra Classique : III.5
+  Algo Prédictif IA : II.3
+  Algo Quantique : I.2
+}
+
+Modèle de Données Carto : III.1 (buy)
+API Partenaires B2G : II.1
+
+// Infrastructure
+Données OSM : III.8 (buy)
+Flux Temps Réel Capteurs : I.8 ! >> II.5 {
+  type: build
+  color: #E67E22
+  note: "Partenariat en cours avec Waze/TomTom"
+}
+Infrastructure Cloud : IV.3 (buy)
+CDN : IV.5 (buy)
+Réseau Mobile : IV.7 (outsource)
+
+// Sous-carte
+submap Système de Paiement : III.6
+
+// ─── 5. Chaîne de valeur ─────────────────────
+
+// Flux principal automobiliste
+Automobiliste -> Application Mobile -> Itinéraire Affiché -> Moteur de Calcul d'Itinéraire
+Application Mobile -> Alertes Trafic en Temps Réel -> Flux Temps Réel Capteurs
+Moteur de Calcul d'Itinéraire -> Modèle de Données Carto -> Données OSM
+Moteur de Calcul d'Itinéraire -> Infrastructure Cloud
+Flux Temps Réel Capteurs -> Infrastructure Cloud
+
+// Flux collectivité locale
+Collectivité Locale -> API Partenaires B2G -[Open Data, licence annuelle]-> Modèle de Données Carto
+Collectivité Locale -> Alertes Trafic en Temps Réel
+
+// Infrastructure partagée
+Application Mobile -> CDN -> Infrastructure Cloud
+Infrastructure Cloud -> Réseau Mobile
+
+// Paiement
+Application Mobile -> Système de Paiement
+
+// Lien au membre spécifique du pipeline
+Alertes Trafic en Temps Réel -> Moteur de Calcul d'Itinéraire:Algo Prédictif IA
+
+// ─── 6. Groupes ──────────────────────────────
+
+group Équipe Core Navigation {
+  Moteur de Calcul d'Itinéraire
+  Algo Prédictif IA
+  Modèle de Données Carto
+}
+
+group Équipe Plateforme {
+  Infrastructure Cloud
+  CDN
+  Système de Paiement
+}
+
+group Équipe Data {
+  Flux Temps Réel Capteurs
+  Données OSM
+  Algo Quantique
+}
+
+// ─── 7. Annotations & Signaux ────────────────
+
+// Risques
+warning "SPOF — aucun fallback si indisponible" on Moteur de Calcul d'Itinéraire
+warning "Vendor lock-in AWS, coût en hausse de 30%/an" on Infrastructure Cloud
+warning "Dépendance critique à un seul fournisseur" on Données OSM
+
+// Observations stratégiques
+note "Candidat à l'externalisation Q4 2026" on Système de Paiement
+note "Partenariat signé avec 12 métropoles" on API Partenaires B2G
+note "Budget R&D 400k€, horizon 2028" on Algo Quantique
+
+// Signaux de marché
+signal accelerating on Algo Prédictif IA
+signal accelerating on Flux Temps Réel Capteurs
+signal stagnating on Algo Dijkstra Classique
+signal declining on Données OSM
