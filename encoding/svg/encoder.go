@@ -11,7 +11,6 @@ import (
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/encoding"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
-	"gonum.org/v1/gonum/graph"
 )
 
 type Encoder struct {
@@ -74,15 +73,13 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		TextAnchor: svg.TextAnchorMiddle,
 	})
 	elems := make([]SVGMarshaler, 0)
-	edges := m.Edges()
-	for edges.Next() {
-		if e, ok := edges.Edge().(SVGMarshaler); ok {
+	for _, c := range m.Collaborations() {
+		if e, ok := c.(SVGMarshaler); ok {
 			elems = append(elems, e)
 		}
 	}
-	n := m.Nodes()
-	for n.Next() {
-		if n, ok := n.Node().(SVGMarshaler); ok {
+	for _, n := range m.Components() {
+		if n, ok := n.(SVGMarshaler); ok {
 			elems = append(elems, n)
 		}
 	}
@@ -99,7 +96,7 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			}
 		}
 		var g *group
-		if elem, ok := element.(graph.Node); ok {
+		if elem, ok := element.(wardleyToGo.Component); ok {
 			g = makeGroup("element", int(elem.ID()))
 			g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
 				Name:  xml.Name{Local: "onclick"},
@@ -126,7 +123,7 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			}
 			e.e.EncodeToken(g.StartElement)
 		}
-		if elem, ok := element.(graph.Edge); ok {
+		if elem, ok := element.(wardleyToGo.Collaboration); ok {
 			g = makeGroup(fmt.Sprintf("edge_%v", int(elem.From().ID())), int(elem.To().ID()))
 			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
 				found := false

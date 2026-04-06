@@ -7,8 +7,6 @@ import (
 	"text/template"
 
 	"github.com/owulveryck/wardleyToGo"
-	"gonum.org/v1/gonum/graph"
-	"gonum.org/v1/gonum/graph/traverse"
 )
 
 //go:embed assets/embeded.js
@@ -27,30 +25,34 @@ type jsData struct {
 }
 
 func generateJsData(w *wardleyToGo.Map) jsData {
-	allEdges := w.Edges()
-	allLinks := make([]string, allEdges.Len())
-	for i := 0; allEdges.Next(); i++ {
-		allLinks[i] = fmt.Sprintf("edge_%v_%v", allEdges.Edge().From().ID(), allEdges.Edge().To().ID())
+	allCollabs := w.Collaborations()
+	allLinks := make([]string, len(allCollabs))
+	for i, c := range allCollabs {
+		allLinks[i] = fmt.Sprintf("edge_%v_%v", c.From().ID(), c.To().ID())
 	}
-	allNodes := w.Nodes()
-	paths := make(map[string][]string, allNodes.Len())
-	for allNodes.Next() {
-		currentNode := allNodes.Node()
-		if w.From(currentNode.ID()).Len() == 0 {
+
+	paths := make(map[string][]string)
+	for _, n := range w.Components() {
+		successors := w.From(n.ID())
+		if len(successors) == 0 {
 			continue
 		}
-		element := fmt.Sprintf("element_%v", currentNode.ID())
+		element := fmt.Sprintf("element_%v", n.ID())
 		paths[element] = make([]string, 0)
-		df := &traverse.DepthFirst{
-			Visit: func(n graph.Node) {
-				t := w.From(n.ID())
-				for t.Next() {
-					paths[element] = append(paths[element], fmt.Sprintf("edge_%v_%v", n.ID(), t.Node().ID()))
-				}
-			},
+		// DFS to collect all edges reachable from this node
+		visited := make(map[int64]bool)
+		var dfs func(id int64)
+		dfs = func(id int64) {
+			if visited[id] {
+				return
+			}
+			visited[id] = true
+			for _, succ := range w.From(id) {
+				paths[element] = append(paths[element], fmt.Sprintf("edge_%v_%v", id, succ.ID()))
+				dfs(succ.ID())
+			}
 		}
-		df.Walk(w, currentNode, nil)
-
+		dfs(n.ID())
 	}
 	return jsData{
 		AllLinks: allLinks,
@@ -60,11 +62,10 @@ func generateJsData(w *wardleyToGo.Map) jsData {
 
 func generateCSSData(w *wardleyToGo.Map) []cssVisibility {
 	maxVisibility := 0
-	nodes := w.Nodes()
-	for nodes.Next() {
-		if n, ok := nodes.Node().(wardleyToGo.Chainer); ok {
-			if n.GetAbsoluteVisibility() > maxVisibility {
-				maxVisibility = n.GetAbsoluteVisibility()
+	for _, n := range w.Components() {
+		if c, ok := n.(wardleyToGo.Chainer); ok {
+			if c.GetAbsoluteVisibility() > maxVisibility {
+				maxVisibility = c.GetAbsoluteVisibility()
 			}
 		}
 	}

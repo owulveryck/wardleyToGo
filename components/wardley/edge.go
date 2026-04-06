@@ -5,14 +5,11 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"strconv"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
-	"gonum.org/v1/gonum/graph"
-	dotencoding "gonum.org/v1/gonum/graph/encoding"
 )
 
 // Compile-time interface compliance check.
@@ -33,38 +30,14 @@ func (c *Collaboration) GetAbsoluteVisibility() int {
 	return c.AbsoluteVisibility
 }
 
-func (c *Collaboration) Attributes() []dotencoding.Attribute {
-	return []dotencoding.Attribute{
-		{
-			Key:   "minlen",
-			Value: strconv.Itoa(c.Visibility),
-		},
-	}
-}
-
-// From returns the from node of the edge.
-func (c *Collaboration) From() graph.Node {
+// From returns the source component of the edge.
+func (c *Collaboration) From() wardleyToGo.Component {
 	return c.F
 }
 
-// To returns the to node of the edge.
-func (c *Collaboration) To() graph.Node {
+// To returns the destination component of the edge.
+func (c *Collaboration) To() wardleyToGo.Component {
 	return c.T
-}
-
-// ReversedEdge returns the edge reversal of the receiver
-// if a reversal is valid for the data type.
-// When a reversal is valid an edge of the same type as
-// the receiver with nodes of the receiver swapped should
-// be returned, otherwise the receiver should be returned
-// unaltered.
-func (c *Collaboration) ReversedEdge() graph.Edge {
-	return &Collaboration{
-		F:     c.T,
-		T:     c.F,
-		Label: c.Label,
-		Type:  c.Type,
-	}
 }
 
 func (c *Collaboration) GetLayer() int {
@@ -76,8 +49,8 @@ func (c *Collaboration) GetType() wardleyToGo.EdgeType {
 }
 
 func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
-	fromCoord := c.F.(wardleyToGo.Component).GetPosition()
-	toCoord := c.T.(wardleyToGo.Component).GetPosition()
+	fromCoord := c.F.GetPosition()
+	toCoord := c.T.GetPosition()
 	coordsF := utils.CalcCoords(fromCoord, canvas)
 	coordsT := utils.CalcCoords(toCoord, canvas)
 	line := svg.Line{
@@ -130,8 +103,8 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 // rectangle r in dst with the result of drawing src on dst.
 func (c *Collaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	dash := [2]int{0, 0}
-	coordsF := utils.CalcCoords(c.F.(wardleyToGo.Component).GetPosition(), r)
-	coordsT := utils.CalcCoords(c.T.(wardleyToGo.Component).GetPosition(), r)
+	coordsF := utils.CalcCoords(c.F.GetPosition(), r)
+	coordsT := utils.CalcCoords(c.T.GetPosition(), r)
 	var col color.Color
 	switch c.Type {
 	case EvolvedComponentEdge:

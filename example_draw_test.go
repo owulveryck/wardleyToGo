@@ -5,15 +5,11 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"math"
 	"strconv"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
-	"gonum.org/v1/gonum/graph"
-	"gonum.org/v1/gonum/graph/path"
-	"gonum.org/v1/gonum/graph/simple"
 )
 
 type dummyComponent struct {
@@ -32,18 +28,22 @@ func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image
 	dst.Set(coords.X, coords.Y, color.Gray{Y: 255})
 }
 
-type dummyCollaboration struct{ simple.Edge }
+type dummyCollaboration struct {
+	f, t wardleyToGo.Component
+}
 
+func (d *dummyCollaboration) From() wardleyToGo.Component  { return d.f }
+func (d *dummyCollaboration) To() wardleyToGo.Component    { return d.t }
 func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
 
 func (d *dummyCollaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
-	coordsF := utils.CalcCoords(d.F.(wardleyToGo.Component).GetPosition(), r)
-	coordsT := utils.CalcCoords(d.T.(wardleyToGo.Component).GetPosition(), r)
+	coordsF := utils.CalcCoords(d.f.GetPosition(), r)
+	coordsT := utils.CalcCoords(d.t.GetPosition(), r)
 	drawing.Line(dst, coordsF.X, coordsF.Y, coordsT.X, coordsT.Y, color.Gray{Y: 128}, [2]int{})
 }
 
 func newCollaboration(a, b wardleyToGo.Component) wardleyToGo.Collaboration {
-	return &dummyCollaboration{Edge: simple.Edge{F: a, T: b}}
+	return &dummyCollaboration{f: a, t: b}
 }
 
 func ExampleMap_String() {
@@ -79,10 +79,6 @@ func Example_canvas() {
 	m.AddComponent(c1)
 	m.AddComponent(c2)
 	m.AddComponent(c3)
-	// c0 -> c1
-	// c1 -> c2
-	// c2 -> c3
-	// c1 -> c3
 	m.SetCollaboration(newCollaboration(c0, c1))
 	m.SetCollaboration(newCollaboration(c1, c2))
 	m.SetCollaboration(newCollaboration(c2, c3))
@@ -96,19 +92,8 @@ func Example_canvas() {
 	m.Canvas = &simpleCanvas{}
 
 	m.Draw(im, image.Rect(5, 2, 75, 38), im, image.Point{X: 0, Y: 0})
-	//m.Draw(im, im.Bounds(), im, image.Point{X: 0, Y: 0})
-	// Very trivial example to draw a map on stdout
 	render(im)
 
-	//	drawMap(m)
-
-	// Find the shortest path betwen c0 and c3
-	p, _ := path.AStar(c0, c3, m, euclideanDistance)
-	c0Toc3, _ := p.To(c3.ID())
-	fmt.Printf("Shortest path from c0 to c3: ")
-	for _, c := range c0Toc3 {
-		fmt.Printf("-%v", c.ID())
-	}
 	//Output:
 	//████████████████████████████████████████████████████████████████████████████████
 	//████████████████████████████████████████████████████████████████████████████████
@@ -150,7 +135,6 @@ func Example_canvas() {
 	//█████▒▒▓▒▒▒▒▒▒▒▒▓▒▒▓▒▒▓▒▒▒▒▒▒▒▒▒▓▒▒▓▒▒▓▒▒▓▒▒▓▒▒▒▒▓▒▒▓▒▒▓▒▒▓▒▒▓▒▒▒▒▒▓▒▒▓▒▒▒▒█████
 	//████████████████████████████████████████████████████████████████████████████████
 	//████████████████████████████████████████████████████████████████████████████████
-	//Shortest path from c0 to c3: -0-1-3
 }
 
 type simpleCanvas struct{}
@@ -177,12 +161,4 @@ func render(im image.Image) {
 			fmt.Print("\n")
 		}
 	}
-}
-
-var euclideanDistance path.Heuristic = func(x, y graph.Node) float64 {
-	xC := x.(wardleyToGo.Component).GetPosition()
-	yC := y.(wardleyToGo.Component).GetPosition()
-	a := xC.X - yC.X
-	b := xC.Y - yC.Y
-	return math.Sqrt(float64(a*a) + float64(b*b))
 }

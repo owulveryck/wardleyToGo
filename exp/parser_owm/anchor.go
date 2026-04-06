@@ -10,11 +10,11 @@ import (
 )
 
 func (p *Parser) parseAnchor() error {
-	a, err := scanAnchor(p.s, p.g.NewNode().ID())
+	a, err := scanAnchor(p.s, p.newID())
 	if err != nil {
 		return err
 	}
-	p.g.AddNode(a)
+	p.m.AddComponent(a)
 	p.nodeDict[a.Label] = a
 	return nil
 }

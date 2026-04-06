@@ -11,11 +11,11 @@ import (
 )
 
 func (p *Parser) parseEvolve() error {
-	c, err := scanEvolve(p.s, p.g.NewNode().ID())
+	c, err := scanEvolve(p.s, p.newID())
 	if err != nil {
 		return err
 	}
-	p.g.AddNode(c)
+	p.m.AddComponent(c)
 	p.nodeEvolveDict[c.Label] = c
 	return nil
 }

@@ -14,7 +14,7 @@ WardleyToGo is a Go library and set of tools for creating and rendering Wardley 
 ## Key Architecture
 
 ### Core Components
-- **Map** (`map.go`): Central structure representing a Wardley Map as a directed graph using `gonum.org/v1/gonum/graph`
+- **Map** (`map.go`): Central structure representing a Wardley Map as a directed graph using `internal/graph`
 - **Component** (`defs.go`): Interface for map elements with positions on a 100x100 coordinate system
 - **Collaboration** (`collaboration.go`): Interface for edges/relationships between components
 - **Area**: Interface for rectangular regions on the map
@@ -81,7 +81,7 @@ make install
 - Use `image.Point` for positions and `image.Rectangle` for areas
 
 ### Graph Structure
-- Maps extend `gonum.org/v1/gonum/graph/simple.DirectedGraph`
+- Maps embed `*internal/graph.DirectedGraph` (stdlib-only, no external deps)
 - Components are nodes implementing the `Component` interface
 - Collaborations are edges implementing the `Collaboration` interface
 - Maps can contain other maps (submapping) since Map implements Component

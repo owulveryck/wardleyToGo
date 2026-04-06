@@ -9,46 +9,38 @@ import (
 
 	"github.com/owulveryck/wardleyToGo"
 	tt "github.com/owulveryck/wardleyToGo/exp/teamtopologies"
-	"gonum.org/v1/gonum/graph"
-	"gonum.org/v1/gonum/graph/simple"
 )
 
 type Parser struct {
 	s                    *scanner.Scanner
 	title                string
-	g                    *simple.DirectedGraph
-	nodeDict             map[string]graph.Node
-	nodeEvolveDict       map[string]graph.Node
+	m                    *wardleyToGo.Map
+	nextID               int64
+	nodeDict             map[string]wardleyToGo.Component
+	nodeEvolveDict       map[string]wardleyToGo.Component
 	edges                []edge
 	annotations          []*wardleyToGo.Annotation
 	annotationsPlacement image.Point
 	warnings             []error
 }
 
+func (p *Parser) newID() int64 {
+	id := p.nextID
+	p.nextID++
+	return id
+}
+
 func NewParser(r io.Reader) *Parser {
 	var s scanner.Scanner
 	s.Init(r)
 	s.Whitespace ^= 1 << '\n' // don't skip tabs and new lines
-	/*
-		s.IsIdentRune = func(ch rune, i int) bool {
-			fmt.Printf("%s", string(ch))
-			if ch == '\'' && i > 0 {
-				return true
-			}
-			if unicode.IsGraphic(ch) && !unicode.IsSpace(ch) {
-				return true
-			}
-			fmt.Println("")
-			return false
-		}
-	*/
 	return &Parser{
 		s:              &s,
-		nodeDict:       make(map[string]graph.Node),
-		nodeEvolveDict: make(map[string]graph.Node),
+		nodeDict:       make(map[string]wardleyToGo.Component),
+		nodeEvolveDict: make(map[string]wardleyToGo.Component),
 		edges:          make([]edge, 0),
 		annotations:    make([]*wardleyToGo.Annotation, 0),
-		g:              simple.NewDirectedGraph(),
+		m:              wardleyToGo.NewMap(0),
 		warnings:       make([]error, 0),
 	}
 }
@@ -94,18 +86,11 @@ func (p *Parser) Parse() (*wardleyToGo.Map, error) {
 	if err != nil {
 		return nil, err
 	}
-	wmap := &wardleyToGo.Map{
-		Title:                p.title,
-		DirectedGraph:        p.g,
-		Annotations:          p.annotations,
-		AnnotationsPlacement: p.annotationsPlacement,
-	}
+	p.m.Title = p.title
+	p.m.Annotations = p.annotations
+	p.m.AnnotationsPlacement = p.annotationsPlacement
 
-	// Attach warnings to the map if needed
-	// Note: wardleyToGo.Map doesn't have a warnings field, so we could add this as a method
-	// or consider returning warnings separately
-
-	return wmap, nil
+	return p.m, nil
 }
 
 // GetWarnings returns any warnings encountered during parsing

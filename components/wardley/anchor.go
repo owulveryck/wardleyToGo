@@ -10,9 +10,6 @@ import (
 	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
-	"golang.org/x/image/math/fixed"
 )
 
 // Compile-time interface compliance check.
@@ -66,15 +63,7 @@ func (a *Anchor) GetPosition() image.Point {
 }
 
 func (a *Anchor) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
+	// Anchor bitmap rendering: place a single pixel marker at the anchor position.
 	placement := utils.CalcCoords(a.Placement, r)
-	//coords := components.CalcCoords(c.Placement, r)
-	// Create the circle with the correct
-	dot := fixed.P(placement.X-len(a.Label)*3, placement.Y)
-	d := font.Drawer{
-		Dst:  dst,
-		Src:  image.NewUniform(color.Black),
-		Face: basicfont.Face7x13,
-		Dot:  dot,
-	}
-	d.DrawString(a.Label)
+	dst.Set(placement.X, placement.Y, color.Black)
 }

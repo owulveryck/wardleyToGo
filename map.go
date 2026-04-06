@@ -7,8 +7,16 @@ import (
 	"image/draw"
 	"strings"
 
-	"gonum.org/v1/gonum/graph/simple"
+	"github.com/owulveryck/wardleyToGo/internal/graph"
 )
+
+// collabEdge is an internal adapter that wraps a Collaboration to satisfy graph.Edge.
+type collabEdge struct {
+	c Collaboration
+}
+
+func (e collabEdge) From() graph.Node { return e.c.From().(graph.Node) }
+func (e collabEdge) To() graph.Node   { return e.c.To().(graph.Node) }
 
 // a Map is a directed graph whose components knows their own position wrt to an anchor.
 // The anchor is the point A of a rectangle as defined by
@@ -24,18 +32,14 @@ type Map struct {
 	Annotations          []*Annotation
 	AnnotationsPlacement image.Point
 	area                 image.Rectangle
-	*simple.DirectedGraph
+	g                    *graph.DirectedGraph
+	collabs              map[int64]map[int64]Collaboration
 }
 
 func (m *Map) String() string {
 	var b strings.Builder
 	b.WriteString("map {\n")
-	nodes := m.DirectedGraph.Nodes()
-	for nodes.Next() {
-		n, ok := nodes.Node().(Component)
-		if !ok {
-			continue
-		}
+	for _, n := range m.Components() {
 		if a, ok := n.(Area); ok {
 			b.WriteString(
 				fmt.Sprintf("\t%v '%v' [%v,%v,%v,%v];\n", a.ID(), a,
@@ -46,14 +50,8 @@ func (m *Map) String() string {
 		}
 	}
 	b.WriteString("\n")
-	edges := m.DirectedGraph.Edges()
-	for edges.Next() {
-		e, ok := edges.Edge().(Collaboration)
-		if !ok {
-			continue
-		}
+	for _, e := range m.Collaborations() {
 		b.WriteString(fmt.Sprintf("\t%v -> %v [%v];\n", e.From().ID(), e.To().ID(), e.GetType()))
-
 	}
 	b.WriteString("}\n")
 	return b.String()
@@ -62,9 +60,10 @@ func (m *Map) String() string {
 // NewMap with initial area of 100x100
 func NewMap(id int64) *Map {
 	return &Map{
-		id:            id,
-		area:          image.Rect(0, 0, 100, 100),
-		DirectedGraph: simple.NewDirectedGraph(),
+		id:      id,
+		area:    image.Rect(0, 0, 100, 100),
+		g:       graph.NewDirectedGraph(),
+		collabs: make(map[int64]map[int64]Collaboration),
 	}
 }
 
@@ -92,36 +91,117 @@ func (m *Map) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.
 		m.Canvas.Draw(dst, r, src, sp)
 	}
 	// Draw edges first
-	edges := m.Edges()
-	for edges.Next() {
-		if e, ok := edges.Edge().(draw.Drawer); ok {
+	for _, c := range m.Collaborations() {
+		if e, ok := c.(draw.Drawer); ok {
 			e.Draw(dst, r, src, sp)
 		}
 	}
-	nodes := m.Nodes()
-	for nodes.Next() {
-		if n, ok := nodes.Node().(draw.Drawer); ok {
-			n.Draw(dst, r, src, sp)
+	for _, n := range m.Components() {
+		if d, ok := n.(draw.Drawer); ok {
+			d.Draw(dst, r, src, sp)
 		}
 	}
 }
 
 // AddComponent add e to the graph. It returns an error if e is out-of-bounds,
-// meaning its coordinates are less than 0 or more that 100
+// meaning its coordinates are less than 0 or more that 100.
+// Area-type components skip bounds checking since their position is derived from their area.
 func (m *Map) AddComponent(e Component) error {
-	if !e.GetPosition().In(image.Rect(0, 0, 100, 100)) {
-		return errors.New("component out of bounds")
+	if _, isArea := e.(Area); !isArea {
+		if !e.GetPosition().In(image.Rect(0, 0, 100, 100)) {
+			return errors.New("component out of bounds")
+		}
 	}
-	m.DirectedGraph.AddNode(e)
+	m.g.AddNode(e)
 	return nil
 }
 
 func (m *Map) SetCollaboration(e Collaboration) error {
-	if e.From().ID() == e.To().ID() {
-		return fmt.Errorf("self-loop not allowed: node %d", e.From().ID())
+	fid := e.From().ID()
+	tid := e.To().ID()
+	if fid == tid {
+		return fmt.Errorf("self-loop not allowed: node %d", fid)
 	}
-	m.DirectedGraph.SetEdge(e)
+	// Store the Collaboration in our map
+	if m.collabs[fid] == nil {
+		m.collabs[fid] = make(map[int64]Collaboration)
+	}
+	m.collabs[fid][tid] = e
+	// Store an adapter edge in the internal graph for traversal
+	m.g.SetEdge(collabEdge{c: e})
 	return nil
+}
+
+// RemoveEdge removes the edge from uid to vid.
+func (m *Map) RemoveEdge(uid, vid int64) {
+	m.g.RemoveEdge(uid, vid)
+	if m.collabs[uid] != nil {
+		delete(m.collabs[uid], vid)
+	}
+}
+
+// Components returns all components in the map.
+func (m *Map) Components() []Component {
+	nodes := m.g.Nodes()
+	result := make([]Component, 0, nodes.Len())
+	for nodes.Next() {
+		if c, ok := nodes.Node().(Component); ok {
+			result = append(result, c)
+		}
+	}
+	return result
+}
+
+// Collaborations returns all collaborations in the map.
+func (m *Map) Collaborations() []Collaboration {
+	var result []Collaboration
+	for _, targets := range m.collabs {
+		for _, c := range targets {
+			result = append(result, c)
+		}
+	}
+	return result
+}
+
+// From returns all components reachable from the component with the given id.
+func (m *Map) From(id int64) []Component {
+	nodes := m.g.From(id)
+	result := make([]Component, 0, nodes.Len())
+	for nodes.Next() {
+		if c, ok := nodes.Node().(Component); ok {
+			result = append(result, c)
+		}
+	}
+	return result
+}
+
+// To returns all components that have an edge to the component with the given id.
+func (m *Map) To(id int64) []Component {
+	nodes := m.g.To(id)
+	result := make([]Component, 0, nodes.Len())
+	for nodes.Next() {
+		if c, ok := nodes.Node().(Component); ok {
+			result = append(result, c)
+		}
+	}
+	return result
+}
+
+// Node returns the component with the given id, or nil if not found.
+func (m *Map) Node(id int64) Component {
+	n := m.g.Node(id)
+	if n == nil {
+		return nil
+	}
+	if c, ok := n.(Component); ok {
+		return c
+	}
+	return nil
+}
+
+// HasEdgeFromTo reports whether an edge exists from uid to vid.
+func (m *Map) HasEdgeFromTo(uid, vid int64) bool {
+	return m.g.HasEdgeFromTo(uid, vid)
 }
 
 // Chainer is a component that is part of a value chain

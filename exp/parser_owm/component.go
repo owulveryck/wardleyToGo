@@ -11,11 +11,11 @@ import (
 )
 
 func (p *Parser) parseComponent() error {
-	c, err := scanComponent(p.s, p.g.NewNode().ID())
+	c, err := scanComponent(p.s, p.newID())
 	if err != nil {
 		return err
 	}
-	p.g.AddNode(c)
+	p.m.AddComponent(c)
 	p.nodeDict[c.Label] = c
 	return nil
 }

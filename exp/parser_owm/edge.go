@@ -5,34 +5,15 @@ import (
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
-	"gonum.org/v1/gonum/graph"
 )
 
 type edge struct {
 	ToLabel   string
 	FromLabel string
-	T         graph.Node
-	F         graph.Node
+	T         wardleyToGo.Component
+	F         wardleyToGo.Component
 	EdgeLabel string
 	EdgeType  wardleyToGo.EdgeType
-}
-
-func (e edge) From() graph.Node {
-	return e.F
-}
-
-func (e edge) ReversedEdge() graph.Edge {
-	return edge{
-		F:         e.T,
-		T:         e.F,
-		ToLabel:   e.FromLabel,
-		FromLabel: e.ToLabel,
-		EdgeLabel: e.EdgeLabel,
-	}
-}
-
-func (e edge) To() graph.Node {
-	return e.T
 }
 
 func (p *Parser) createEdges() error {
@@ -48,9 +29,8 @@ func (p *Parser) createEdges() error {
 	if err != nil {
 		return err
 	}
-	e := p.g.Edges()
-	for e.Next() {
-		if e, ok := e.Edge().(*wardley.Collaboration); ok {
+	for _, c := range p.m.Collaborations() {
+		if e, ok := c.(*wardley.Collaboration); ok {
 			e.RenderingLayer = 5
 		}
 	}
@@ -68,9 +48,9 @@ func (p *Parser) createRegularEdges() error {
 		if !ok {
 			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
 		}
-		p.g.SetEdge(&wardley.Collaboration{
-			F:     edge.F.(wardleyToGo.Component),
-			T:     edge.T.(wardleyToGo.Component),
+		p.m.SetCollaboration(&wardley.Collaboration{
+			F:     edge.F,
+			T:     edge.T,
 			Type:  wardley.RegularEdge,
 			Label: edge.EdgeLabel,
 		})
@@ -80,15 +60,14 @@ func (p *Parser) createRegularEdges() error {
 }
 
 func (p *Parser) createEvolvingComponentEdges() error {
-	// TODO
 	for name, nodeEvolved := range p.nodeEvolveDict {
 		node, ok := p.nodeDict[name]
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		p.g.SetEdge(&wardley.Collaboration{
-			F:    node.(wardleyToGo.Component),
-			T:    nodeEvolved.(wardleyToGo.Component),
+		p.m.SetCollaboration(&wardley.Collaboration{
+			F:    node,
+			T:    nodeEvolved,
 			Type: wardley.EvolvedComponentEdge,
 		})
 	}
@@ -96,27 +75,24 @@ func (p *Parser) createEvolvingComponentEdges() error {
 }
 
 func (p *Parser) createEvolvingEdges() error {
-	// TODO
 	for name, nodeEvolved := range p.nodeEvolveDict {
 		node, ok := p.nodeDict[name]
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		fromIT := p.g.From(node.ID())
-		for fromIT.Next() {
-			p.g.RemoveEdge(nodeEvolved.ID(), fromIT.Node().ID())
-			p.g.SetEdge(&wardley.Collaboration{
-				F:    nodeEvolved.(wardleyToGo.Component),
-				T:    fromIT.Node().(wardleyToGo.Component),
+		for _, succ := range p.m.From(node.ID()) {
+			p.m.RemoveEdge(nodeEvolved.ID(), succ.ID())
+			p.m.SetCollaboration(&wardley.Collaboration{
+				F:    nodeEvolved,
+				T:    succ,
 				Type: wardley.EvolvedEdge,
 			})
 		}
-		toIT := p.g.To(node.ID())
-		for toIT.Next() {
-			p.g.RemoveEdge(toIT.Node().ID(), nodeEvolved.ID())
-			p.g.SetEdge(&wardley.Collaboration{
-				F:    toIT.Node().(wardleyToGo.Component),
-				T:    nodeEvolved.(wardleyToGo.Component),
+		for _, pred := range p.m.To(node.ID()) {
+			p.m.RemoveEdge(pred.ID(), nodeEvolved.ID())
+			p.m.SetCollaboration(&wardley.Collaboration{
+				F:    pred,
+				T:    nodeEvolved,
 				Type: wardley.EvolvedEdge,
 			})
 		}

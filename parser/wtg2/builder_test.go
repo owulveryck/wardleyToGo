@@ -32,21 +32,13 @@ func TestBuildMap_SimpleChain(t *testing.T) {
 	}
 
 	// Count nodes
-	nodes := result.Map.Nodes()
-	count := 0
-	for nodes.Next() {
-		count++
-	}
+	count := len(result.Map.Components())
 	if count != 3 {
 		t.Errorf("node count = %d, want 3", count)
 	}
 
 	// Count edges
-	edges := result.Map.Edges()
-	edgeCount := 0
-	for edges.Next() {
-		edgeCount++
-	}
+	edgeCount := len(result.Map.Collaborations())
 	if edgeCount != 2 {
 		t.Errorf("edge count = %d, want 2", edgeCount)
 	}
@@ -75,21 +67,15 @@ func TestBuildMap_WithEvolution(t *testing.T) {
 	}
 
 	// Should have 2 nodes: original + evolved
-	nodes := result.Map.Nodes()
-	count := 0
-	for nodes.Next() {
-		count++
-	}
+	count := len(result.Map.Components())
 	if count != 2 {
 		t.Errorf("node count = %d, want 2 (original + evolved)", count)
 	}
 
 	// Should have 1 evolution edge
-	edges := result.Map.Edges()
 	edgeCount := 0
-	for edges.Next() {
-		e := edges.Edge()
-		collab, ok := e.(*wardley.Collaboration)
+	for _, c := range result.Map.Collaborations() {
+		collab, ok := c.(*wardley.Collaboration)
 		if ok && collab.Type == wardley.EvolvedComponentEdge {
 			edgeCount++
 		}
@@ -123,11 +109,7 @@ func TestBuildMap_WithPipeline(t *testing.T) {
 	}
 
 	// Should have 3 nodes: pipeline parent + 2 members
-	nodes := result.Map.Nodes()
-	count := 0
-	for nodes.Next() {
-		count++
-	}
+	count := len(result.Map.Components())
 	if count != 3 {
 		t.Errorf("node count = %d, want 3", count)
 	}
@@ -162,21 +144,13 @@ func TestBuildMap_ExampleFile(t *testing.T) {
 	}
 
 	// Count nodes
-	nodes := result.Map.Nodes()
-	count := 0
-	for nodes.Next() {
-		count++
-	}
+	count := len(result.Map.Components())
 	if count < 15 {
 		t.Errorf("node count = %d, want >= 15", count)
 	}
 
 	// Count edges
-	edges := result.Map.Edges()
-	edgeCount := 0
-	for edges.Next() {
-		edgeCount++
-	}
+	edgeCount := len(result.Map.Collaborations())
 	if edgeCount < 10 {
 		t.Errorf("edge count = %d, want >= 10", edgeCount)
 	}

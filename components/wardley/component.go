@@ -6,11 +6,6 @@ import (
 	"image/color"
 	"image/draw"
 
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
-	"golang.org/x/image/math/fixed"
-	dotencoding "gonum.org/v1/gonum/graph/encoding"
-
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
@@ -56,15 +51,6 @@ func (c *Component) GetAbsoluteVisibility() int {
 	return c.AbsoluteVisibility
 }
 
-func (c *Component) Attributes() []dotencoding.Attribute {
-	return []dotencoding.Attribute{
-		{
-			Key:   "label",
-			Value: c.Label,
-		},
-	}
-}
-
 // NewComponent with the corresponding id and default UndefinedCoords
 func NewComponent(id int64) *Component {
 	return &Component{
@@ -90,16 +76,7 @@ func (c *Component) ID() int64 {
 // rectangle r in dst with the result of drawing src on dst.
 func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	placement := utils.CalcCoords(c.Placement, r)
-	//coords := components.CalcCoords(c.Placement, r)
-	labelP := c.LabelPlacement
-	if labelP.X == components.UndefinedCoord {
-		labelP.X = 18
-	}
-	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = 10
-	}
-	labelP = labelP.Add(placement)
-	// First create the circle with a correct resolution
+	// Draw type-specific outer circle
 	switch c.Type {
 	case BuildComponent:
 		drawing.DrawCircle(dst, 10, placement, color.Black, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
@@ -111,16 +88,6 @@ func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp 
 		drawing.DrawCircle(dst, 7, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{246, 72, 22, 0xff})
 	}
 	drawing.DrawCircle(dst, 5, placement, color.Black, color.White)
-
-	// Create the circle with the correct
-	dot := fixed.P(labelP.X, labelP.Y)
-	d := font.Drawer{
-		Dst:  dst,
-		Src:  image.NewUniform(color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xFF}),
-		Face: basicfont.Face7x13,
-		Dot:  dot,
-	}
-	d.DrawString(c.Label)
 }
 
 func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
@@ -313,16 +280,7 @@ func NewEvolvedComponent(id int64) *EvolvedComponent {
 // rectangle r in dst with the result of drawing src on dst.
 func (c *EvolvedComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	placement := utils.CalcCoords(c.Placement, r)
-	//coords := components.CalcCoords(c.Placement, r)
-	labelP := c.LabelPlacement
-	if labelP.X == components.UndefinedCoord {
-		labelP.X = 18
-	}
-	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = -5
-	}
-	labelP = labelP.Add(placement)
-	// First create the circle with a correct resolution
+	// Draw type-specific outer circle
 	switch c.Type {
 	case BuildComponent:
 		drawing.DrawCircle(dst, 10, placement, color.Black, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
@@ -334,16 +292,6 @@ func (c *EvolvedComponent) Draw(dst draw.Image, r image.Rectangle, src image.Ima
 		drawing.DrawCircle(dst, 7, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{246, 72, 22, 0xff})
 	}
 	drawing.DrawCircle(dst, 5, placement, color.RGBA{0xff, 0, 0, 0xff}, color.White)
-
-	// Create the circle with the correct
-	dot := fixed.P(labelP.X, labelP.Y)
-	d := font.Drawer{
-		Dst:  dst,
-		Src:  image.NewUniform(color.RGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xFF}),
-		Face: basicfont.Face7x13,
-		Dot:  dot,
-	}
-	d.DrawString(c.Label)
 }
 
 // GetCoordinates fulfils the Element interface
