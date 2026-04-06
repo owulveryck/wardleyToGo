@@ -1,6 +1,10 @@
-# OWM Parser
+# OWM Parser (Experimental)
 
-This is parser that generates a `wardleyToGo.Map` from a set of commands.
+> **Note:** This package lives under `exp/` and is experimental. Its API may
+> change or be removed without notice. For new projects, use the
+> [WTG2 parser](../../parser/wtg2/) instead.
+
+This is a parser that generates a `wardleyToGo.Map` from a set of commands.
 The syntax is a copy of [onlinewardleymaps](https://onlinewardleymaps.com/).
 
 _Note_: Not all the DSL is implemented as of today.

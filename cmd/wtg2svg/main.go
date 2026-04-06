@@ -1,3 +1,9 @@
+// wtg2svg reads a WTG2 Wardley Map description from stdin and writes
+// an SVG rendering to stdout.
+//
+// Usage:
+//
+//	cat map.wtg2 | wtg2svg > map.svg
 package main
 
 import (
