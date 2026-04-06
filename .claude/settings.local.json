@@ -9,7 +9,19 @@
       "Bash(go get:*)",
       "Bash(go:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(wc:*)",
+      "Bash(grep -r \"^//\" /home/olivierwulveryck/github.com/owulveryck/wardleyToGo/*.go)",
+      "Bash(grep:*)",
+      "Bash(find /home/olivierwulveryck/github.com/owulveryck/wardleyToGo -maxdepth 1 -name \"*.go\" -type f -exec wc -l {} +)",
+      "Bash(find:*)",
+      "Bash(ls -la /home/olivierwulveryck/github.com/owulveryck/wardleyToGo/parser/wtg/*funcs*)",
+      "Bash(xargs ls:*)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && head -30 \"{}\"')",
+      "Bash(bash /tmp/analyze_imports.sh)",
+      "Bash(bash /tmp/package_analysis.sh)",
+      "Bash(git tag:*)"
     ],
     "deny": [],
     "ask": []

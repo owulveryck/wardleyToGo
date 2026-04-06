@@ -205,7 +205,7 @@ test // comment on a line
 		{t: newLineToken, v: "\n"},
 		{t: evolutionToken, v: "evolution"},
 		{t: colonToken, v: ":"},
-		{t: identifierToken, v: "blabla"},
+		{t: evolutionItem, v: "blabla"},
 		{t: newLineToken, v: ""},
 		{t: identifierToken, v: "this is an evolution"},
 		{t: colonToken, v: ":"},

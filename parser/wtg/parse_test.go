@@ -190,6 +190,8 @@ func TestInventory(t *testing.T) {
 	t.Run("visibility on nil node", visibilityOnNilNode)
 	t.Run("evolution on nil node", evolutionOnNilNode)
 	t.Run("type", types)
+	t.Run("roman evolution", romanEvolution)
+	t.Run("roman evolution with evolution target", romanEvolutionWithTarget)
 }
 
 func allCommented(t *testing.T) {
@@ -436,5 +438,54 @@ func types(t *testing.T) {
 				t.Error("exected outsource type")
 			}
 		}
+	}
+}
+
+func romanEvolution(t *testing.T) {
+	nodes := `
+	node1: {
+		evolution: II.5
+	}
+	`
+	p := NewInventory()
+	err := p.init(nodes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = p.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Fatal("should have node1")
+	}
+	if p.NodeInventory["node1"].Placement.X != 29 {
+		t.Errorf("expected placement to be 29, but is %v", p.NodeInventory["node1"].Placement.X)
+	}
+}
+
+func romanEvolutionWithTarget(t *testing.T) {
+	nodes := `
+	node1: {
+		evolution: I.5 > III.0
+	}
+	`
+	p := NewInventory()
+	err := p.init(nodes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = p.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := p.NodeInventory["node1"]; !ok {
+		t.Fatal("should have node1")
+	}
+	if p.NodeInventory["node1"].Placement.X != 9 {
+		t.Errorf("expected placement to be 9, but is %v", p.NodeInventory["node1"].Placement.X)
+	}
+	if p.NodeInventory["node1"].EvolutionPos != 40 {
+		t.Errorf("expected evolution pos to be 40, but is %v", p.NodeInventory["node1"].EvolutionPos)
 	}
 }

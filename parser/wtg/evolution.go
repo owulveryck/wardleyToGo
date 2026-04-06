@@ -3,6 +3,8 @@ package wtg
 import (
 	"fmt"
 	"math"
+	"strconv"
+	"strings"
 
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/traverse"
@@ -38,7 +40,89 @@ func setNodesEvolutionStep(g *scratchMap) int {
 	return e.currentStep
 }
 
+// stagePositions defines the boundary positions for the 4 evolution phases.
+var stagePositions = []float64{0, 17.4, 40, 70, 100}
+
 func computeEvolutionPosition(s string) (int, int, int, error) {
+	s = strings.TrimSpace(s)
+	if strings.HasPrefix(s, "|") {
+		return computePipeEvolutionPosition(s)
+	}
+	return parseRomanEvolution(s)
+}
+
+// romanToPosition converts a roman numeral notation (e.g. "II.5") to a position on the evolution axis.
+func romanToPosition(s string) (int, error) {
+	s = strings.TrimSpace(s)
+	romanMap := map[string]int{"I": 0, "II": 1, "III": 2, "IV": 3}
+
+	parts := strings.SplitN(s, ".", 2)
+	roman := parts[0]
+	decimal := 0
+
+	if len(parts) == 2 {
+		var err error
+		decimal, err = strconv.Atoi(parts[1])
+		if err != nil || decimal < 0 || decimal > 9 {
+			return 0, fmt.Errorf("invalid decimal in %q", s)
+		}
+	}
+
+	phase, ok := romanMap[roman]
+	if !ok {
+		return 0, fmt.Errorf("unknown roman numeral %q", roman)
+	}
+
+	position := stagePositions[phase] + float64(decimal)/10.0*(stagePositions[phase+1]-stagePositions[phase])
+	return int(math.Round(position)), nil
+}
+
+// parseRomanEvolution parses the roman numeral evolution format.
+// Supports: "II.5", "II.5 > IV.2", "II.5 ]III > IV.2"
+func parseRomanEvolution(s string) (int, int, int, error) {
+	s = strings.TrimSpace(s)
+
+	var mainPart, evolvedPart string
+	inertia := 0
+
+	if idx := strings.Index(s, ">"); idx != -1 {
+		mainPart = strings.TrimSpace(s[:idx])
+		evolvedPart = strings.TrimSpace(s[idx+1:])
+	} else {
+		mainPart = s
+	}
+
+	// Handle inertia (]III in "II.5 ]III")
+	if idx := strings.Index(mainPart, "]"); idx != -1 {
+		inertiaPart := strings.TrimSpace(mainPart[idx+1:])
+		mainPart = strings.TrimSpace(mainPart[:idx])
+		inertiaPos, err := romanToPosition(inertiaPart)
+		if err != nil {
+			return 0, 0, 0, fmt.Errorf("invalid inertia: %w", err)
+		}
+		inertia = inertiaPos
+	}
+
+	position, err := romanToPosition(mainPart)
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("invalid position: %w", err)
+	}
+
+	evolvedPosition := 0
+	if evolvedPart != "" {
+		evolvedPosition, err = romanToPosition(evolvedPart)
+		if err != nil {
+			return 0, 0, 0, fmt.Errorf("invalid evolution target: %w", err)
+		}
+		if position >= evolvedPosition {
+			return 0, 0, 0, fmt.Errorf("evolution target must be after current position")
+		}
+	}
+
+	return position, evolvedPosition, inertia, nil
+}
+
+func computePipeEvolutionPosition(s string) (int, int, int, error) {
 	// stages is an array containing the size of each stage
 	// for example if the string is |...|....|.....|......|
 	// then stages is [3,4,5,6]
@@ -49,8 +133,6 @@ func computeEvolutionPosition(s string) (int, int, int, error) {
 	stage := 0
 	evolvedCursor := 0
 	evolvedStage := 0
-	// Position of each stage
-	stagePositions := []float64{0, 17.4, 40, 70, 100}
 	iteratorStage := -1
 	iteratorCursor := 0
 	inertia := 0

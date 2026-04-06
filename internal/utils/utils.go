@@ -2,7 +2,7 @@ package utils
 
 import "image"
 
-// CalclCoords calculates the coordinates wrt to the bounds.
+// CalcCoords calculates the coordinates wrt to the bounds.
 // it scales accordingly
 func CalcCoords(p image.Point, bounds image.Rectangle) image.Point {
 	scale := bounds.Max.Sub(bounds.Min)

@@ -24,7 +24,7 @@ func (d *dummyComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image
 	draw.Draw(dst, image.Rect(coords.X, coords.Y, coords.X+2, coords.Y+2), &image.Uniform{blue}, image.Point{}, draw.Src)
 }
 
-func ExampleComponent_Draw() {
+func Example_draw() {
 	const width = 130
 	const height = 20
 

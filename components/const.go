@@ -6,7 +6,7 @@ const (
 	Undefined wardleyToGo.ComponentType = iota
 	Wardley                             = 32 << iota
 	TeamTopologies
-	UnedfinedEdge uint8 = iota
+	UndefinedEdge uint8 = iota
 
 	maxUint        = ^uint(0)
 	maxInt         = int(maxUint >> 1)

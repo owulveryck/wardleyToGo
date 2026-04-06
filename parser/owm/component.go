@@ -87,5 +87,10 @@ func scanComponent(s *scanner.Scanner, id int64) (*wardley.Component, error) {
 		prevTok = tok
 	}
 	labelize(c, &b)
+	if c.Placement.X != components.UndefinedCoord && c.Placement.Y != components.UndefinedCoord {
+		if c.Placement.X < 0 || c.Placement.X > 100 || c.Placement.Y < 0 || c.Placement.Y > 100 {
+			return nil, fmt.Errorf("coordinates out of bounds [0,100] for component %q: (%d, %d)", c.Label, c.Placement.X, c.Placement.Y)
+		}
+	}
 	return c, nil
 }

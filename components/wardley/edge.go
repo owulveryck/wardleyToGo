@@ -15,6 +15,9 @@ import (
 	dotencoding "gonum.org/v1/gonum/graph/encoding"
 )
 
+// Compile-time interface compliance check.
+var _ wardleyToGo.Collaboration = (*Collaboration)(nil)
+
 type Collaboration struct {
 	F, T               wardleyToGo.Component
 	Label              string

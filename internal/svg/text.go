@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"image"
 	"strconv"
+	"sync"
 )
 
 const (
@@ -13,10 +14,21 @@ const (
 	TextAnchorEnd
 )
 
-var defaultFont = ""
+var (
+	defaultFontMu sync.RWMutex
+	defaultFont   string
+)
 
 func UpdateDefaultFont(fontName string) {
+	defaultFontMu.Lock()
+	defer defaultFontMu.Unlock()
 	defaultFont = fontName
+}
+
+func getDefaultFont() string {
+	defaultFontMu.RLock()
+	defer defaultFontMu.RUnlock()
+	return defaultFont
 }
 
 type TextArea struct {
@@ -54,8 +66,8 @@ func (t TextArea) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	style := ""
 	if t.FontFamily != "" {
 		style = style + "font-family:" + t.FontFamily + ";"
-	} else if defaultFont != "" {
-		style = style + "font-family:" + defaultFont + ";"
+	} else if f := getDefaultFont(); f != "" {
+		style = style + "font-family:" + f + ";"
 	}
 	atr, _ := t.Fill.MarshalXMLAttr(xml.Name{Local: "fill"})
 	style = style + "color:" + atr.Value + ";"
@@ -128,10 +140,10 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 			Name:  xml.Name{Local: "font-family"},
 			Value: t.FontFamily,
 		})
-	} else if defaultFont != "" {
+	} else if f := getDefaultFont(); f != "" {
 		element.Attr = append(element.Attr, xml.Attr{
 			Name:  xml.Name{Local: "font-family"},
-			Value: defaultFont,
+			Value: f,
 		})
 	}
 	if t.FontSize != "" {

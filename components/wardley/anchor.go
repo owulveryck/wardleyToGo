@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/draw"
 
+	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 	"github.com/owulveryck/wardleyToGo/internal/utils"
@@ -13,6 +14,9 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
 )
+
+// Compile-time interface compliance check.
+var _ wardleyToGo.Component = (*Anchor)(nil)
 
 // An Anchor of the map
 type Anchor struct {

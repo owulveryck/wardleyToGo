@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"io"
 	"os"
 	"strings"
 
@@ -345,9 +346,13 @@ func decodeMapFromGzippedBase64(encodedData string) (*wardleyToGo.Map, error) {
 	}
 	defer gzReader.Close()
 
+	const maxDecompressedSize = 10 * 1024 * 1024 // 10 MB
 	var buf bytes.Buffer
-	if _, err := buf.ReadFrom(gzReader); err != nil {
+	if _, err := buf.ReadFrom(io.LimitReader(gzReader, maxDecompressedSize+1)); err != nil {
 		return nil, fmt.Errorf("failed to decompress data: %w", err)
+	}
+	if buf.Len() > maxDecompressedSize {
+		return nil, fmt.Errorf("decompressed data exceeds maximum size of %d bytes", maxDecompressedSize)
 	}
 
 	// Parse JSON and convert to map

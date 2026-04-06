@@ -32,7 +32,10 @@ func (m *Map) String() string {
 	b.WriteString("map {\n")
 	nodes := m.DirectedGraph.Nodes()
 	for nodes.Next() {
-		n := nodes.Node().(Component)
+		n, ok := nodes.Node().(Component)
+		if !ok {
+			continue
+		}
 		if a, ok := n.(Area); ok {
 			b.WriteString(
 				fmt.Sprintf("\t%v '%v' [%v,%v,%v,%v];\n", a.ID(), a,
@@ -45,7 +48,10 @@ func (m *Map) String() string {
 	b.WriteString("\n")
 	edges := m.DirectedGraph.Edges()
 	for edges.Next() {
-		e := edges.Edge().(Collaboration)
+		e, ok := edges.Edge().(Collaboration)
+		if !ok {
+			continue
+		}
 		b.WriteString(fmt.Sprintf("\t%v -> %v [%v];\n", e.From().ID(), e.To().ID(), e.GetType()))
 
 	}
@@ -62,12 +68,12 @@ func NewMap(id int64) *Map {
 	}
 }
 
-// a Map fulfills the graph.Node interface; thererfore if can be part of a graph of maps
+// a Map fulfills the graph.Node interface; therefore it can be part of a graph of maps
 func (m *Map) ID() int64 {
 	return m.id
 }
 
-// GetPosition fulfills the componnts.Component interface. Therefore a map can be a component of another map.
+// GetPosition fulfills the components.Component interface. Therefore a map can be a component of another map.
 // This allows doing submaping.
 // The position is the  center of the area of the map
 func (m *Map) GetPosition() image.Point {
@@ -79,7 +85,7 @@ func (m *Map) GetArea() image.Rectangle {
 
 // Draw aligns r.Min in dst with sp in src and then replaces the
 // rectangle r in dst with the result of drawing src on dst.
-// If the Components and Collaboration elemts of the maps are draw.Drawer, their methods
+// If the Components and Collaboration elements of the maps are draw.Drawer, their methods
 // are called accordingly
 func (m *Map) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	if m.Canvas != nil {
@@ -124,6 +130,9 @@ func (m *Map) AddComponent(e Component) error {
 }
 
 func (m *Map) SetCollaboration(e Collaboration) error {
+	if e.From().ID() == e.To().ID() {
+		return fmt.Errorf("self-loop not allowed: node %d", e.From().ID())
+	}
 	m.DirectedGraph.SetEdge(e)
 	return nil
 }

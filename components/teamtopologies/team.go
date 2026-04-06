@@ -1,9 +1,13 @@
 package tt
 
 import (
+	"encoding/xml"
 	"image"
+	"image/color"
 
 	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
 type Team struct {
@@ -37,4 +41,23 @@ func (t *Team) GetPosition() image.Point {
 }
 func (t *Team) GetArea() image.Rectangle {
 	return t.Area
+}
+
+// marshalTeamSVG renders a team as an SVG rectangle with the given style parameters.
+func marshalTeamSVG(team *Team, e *xml.Encoder, canvas image.Rectangle, rx, ry int, fill, stroke color.RGBA) error {
+	placement := utils.CalcCoords(team.Area.Min, canvas)
+	w, h := utils.Scale(team.Area.Dx(), team.Area.Dy(), canvas)
+	return e.Encode(svg.Transform{
+		Translate: placement,
+		Components: []any{
+			svg.Rectangle{
+				R:           image.Rect(0, 0, w, h),
+				Rx:          rx,
+				Ry:          ry,
+				Fill:        svg.Color{fill},
+				Stroke:      svg.Color{stroke},
+				StrokeWidth: "5px",
+			},
+		},
+	})
 }

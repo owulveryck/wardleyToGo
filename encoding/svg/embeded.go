@@ -17,20 +17,8 @@ var embededJS string
 //go:embed assets/embeded.css
 var embededCSS string
 
-var jsTmpl *template.Template
-var cssTmpl *template.Template
-
-func init() {
-	var err error
-	jsTmpl, err = template.New("JS").Parse(embededJS)
-	if err != nil {
-		panic(err)
-	}
-	cssTmpl, err = template.New("CSS").Parse(embededCSS)
-	if err != nil {
-		panic(err)
-	}
-}
+var jsTmpl = template.Must(template.New("JS").Parse(embededJS))
+var cssTmpl = template.Must(template.New("CSS").Parse(embededCSS))
 
 type jsData struct {
 	AllLinks   []string            // in the form edge_F_T

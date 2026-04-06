@@ -22,7 +22,7 @@ func startState(l *lexer) stateFunc {
 }
 
 func commentBlockState(l *lexer) stateFunc {
-	for l.Peek() != '*' || l.Peek() != eofRune {
+	for {
 		if l.Peek() == eofRune {
 			l.Emit(commentToken)
 			return nil
@@ -37,7 +37,6 @@ func commentBlockState(l *lexer) stateFunc {
 			return startState
 		}
 	}
-	return startState
 }
 func oneLineCommentState(l *lexer) stateFunc {
 	for l.Peek() != '\n' && l.Peek() != eofRune {
@@ -152,11 +151,50 @@ func classifyAndEmitWord(l *lexer) stateFunc {
 		return typeState
 	case "evolution":
 		l.Emit(evolutionToken)
+		l.Ignore()
+		return evolutionDispatchState
 	default:
 		l.Emit(identifierToken)
 	}
 	l.Ignore()
 	return startState
+}
+
+// evolutionDispatchState handles what comes after the "evolution" keyword.
+// If followed by '|', delegates to the old pipe format (evolutionState).
+// If followed by ':', emits a colonToken then collects the rest of the line as an evolutionItem (new roman numeral format).
+// Otherwise returns to startState for normal processing.
+func evolutionDispatchState(l *lexer) stateFunc {
+	// Skip spaces
+	for l.Peek() == ' ' {
+		l.Next()
+	}
+	l.Ignore()
+
+	switch l.Peek() {
+	case '|':
+		// Old pipe format — delegate to existing evolutionState
+		return evolutionState
+	case ':':
+		// New roman numeral format: evolution: II.5
+		l.Next()
+		l.Emit(colonToken)
+		l.Ignore()
+		// Skip spaces after colon
+		for l.Peek() == ' ' {
+			l.Next()
+		}
+		l.Ignore()
+		// Collect everything until newline or EOF as evolutionItem
+		for l.Peek() != '\n' && l.Peek() != eofRune {
+			l.Next()
+		}
+		l.Emit(evolutionItem)
+		l.Ignore()
+		return startState
+	default:
+		return startState
+	}
 }
 
 // isStageKeyword checks if the word is a stage keyword

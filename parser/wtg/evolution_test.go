@@ -117,6 +117,99 @@ func Test_computeEvolutionPosition(t *testing.T) {
 			17,
 			false,
 		},
+		// Roman numeral format
+		{
+			"roman I.0",
+			args{s: "I.0"},
+			0,
+			0,
+			0,
+			false,
+		}, {
+			"roman I.5",
+			args{s: "I.5"},
+			9,
+			0,
+			0,
+			false,
+		}, {
+			"roman II.0",
+			args{s: "II.0"},
+			17,
+			0,
+			0,
+			false,
+		}, {
+			"roman II.5",
+			args{s: "II.5"},
+			29,
+			0,
+			0,
+			false,
+		}, {
+			"roman III.0",
+			args{s: "III.0"},
+			40,
+			0,
+			0,
+			false,
+		}, {
+			"roman IV.0",
+			args{s: "IV.0"},
+			70,
+			0,
+			0,
+			false,
+		}, {
+			"roman IV.9",
+			args{s: "IV.9"},
+			97,
+			0,
+			0,
+			false,
+		}, {
+			"roman no decimal",
+			args{s: "II"},
+			17,
+			0,
+			0,
+			false,
+		}, {
+			"roman with evolution",
+			args{s: "I.5 > III.0"},
+			9,
+			40,
+			0,
+			false,
+		}, {
+			"roman with inertia and evolution",
+			args{s: "II.5 ]III > IV.0"},
+			29,
+			70,
+			40,
+			false,
+		}, {
+			"roman bad numeral",
+			args{s: "V.0"},
+			0,
+			0,
+			0,
+			true,
+		}, {
+			"roman bad decimal",
+			args{s: "II.15"},
+			0,
+			0,
+			0,
+			true,
+		}, {
+			"roman reversed evolution",
+			args{s: "III.0 > II.0"},
+			0,
+			0,
+			0,
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -248,8 +341,8 @@ func computeYThreeNodes(t *testing.T) {
 	if c2.GetPosition().Y != 34 {
 		t.Errorf("expected position of c2 to be 34, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 96 {
-		t.Errorf("expected position of c3 to be 96, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 97 {
+		t.Errorf("expected position of c3 to be 97, but is %v", c3.GetPosition().Y)
 	}
 }
 func computeYFourNodes(t *testing.T) {
@@ -284,10 +377,10 @@ func computeYFourNodes(t *testing.T) {
 	if c2.GetPosition().Y != 26 {
 		t.Errorf("expected position of c2 to be 26, but is %v", c2.GetPosition().Y)
 	}
-	if c3.GetPosition().Y != 72 {
-		t.Errorf("expected position of c3 to be 72, but is %v", c3.GetPosition().Y)
+	if c3.GetPosition().Y != 73 {
+		t.Errorf("expected position of c3 to be 73, but is %v", c3.GetPosition().Y)
 	}
-	if c4.GetPosition().Y != 95 {
-		t.Errorf("expected position of c4 to be 95, but is %v", c4.GetPosition().Y)
+	if c4.GetPosition().Y != 97 {
+		t.Errorf("expected position of c4 to be 97, but is %v", c4.GetPosition().Y)
 	}
 }

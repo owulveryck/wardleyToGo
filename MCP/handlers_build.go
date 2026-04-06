@@ -65,6 +65,9 @@ func addElementsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	if err := json.Unmarshal([]byte(elementsJSON), &inputElements); err != nil {
 		return mcp.NewToolResultErrorFromErr("Failed to parse elements JSON array", err), nil
 	}
+	if len(inputElements) > 500 {
+		return mcp.NewToolResultErrorf("Too many elements: %d (max 500)", len(inputElements)), nil
+	}
 
 	// Find the next available ID
 	nextID := int64(1)
@@ -77,6 +80,11 @@ func addElementsHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 
 	// Process each element
 	for _, inputElement := range inputElements {
+		// Validate name
+		if len(inputElement.Name) == 0 || len(inputElement.Name) > 200 {
+			return mcp.NewToolResultErrorf("Invalid element name length: must be 1-200 characters, got %d", len(inputElement.Name)), nil
+		}
+
 		// Validate coordinates
 		if inputElement.X < 0 || inputElement.X > 100 || inputElement.Y < 0 || inputElement.Y > 100 {
 			return mcp.NewToolResultErrorf("Invalid coordinates (%d, %d) for element '%s': both x and y must be between 0 and 100", inputElement.X, inputElement.Y, inputElement.Name), nil
@@ -189,6 +197,9 @@ func addLinksHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Cal
 	var inputLinks []InputLink
 	if err := json.Unmarshal([]byte(linksJSON), &inputLinks); err != nil {
 		return mcp.NewToolResultErrorFromErr("Failed to parse links JSON array", err), nil
+	}
+	if len(inputLinks) > 1000 {
+		return mcp.NewToolResultErrorf("Too many links: %d (max 1000)", len(inputLinks)), nil
 	}
 
 	// Process each link

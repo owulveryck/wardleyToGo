@@ -7,7 +7,7 @@ import (
 )
 
 // A Component is a node of a graph that have coordinates.
-// A Component can represent iself on a 100x100 map
+// A Component can represent itself on a 100x100 map
 type Component interface {
 	// GetPosition of the element wrt a 100x100 map
 	GetPosition() image.Point

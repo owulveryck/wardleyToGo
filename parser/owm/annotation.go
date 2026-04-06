@@ -62,6 +62,9 @@ func (p *Parser) parseAnnotations() error {
 			coords = append(coords, c)
 		}
 	}
+	if len(coords) < 2 {
+		return fmt.Errorf("annotations requires at least 2 coordinates, got %d", len(coords))
+	}
 	p.annotationsPlacement = image.Point{100 - coords[1], coords[0]}
 	return nil
 }

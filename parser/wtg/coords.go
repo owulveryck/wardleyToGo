@@ -122,42 +122,42 @@ func setEdgeAbsoluteVisibility(m wardleyToGo.Map) {
 	}
 }
 
-// setY sets the placement of the node according to the visibility of the component carried by the scratchmap
+// setY sets the placement of the node according to the visibility of the component carried by the scratchmap.
+// It distributes components uniformly from Y=3 (most visible) to Y=97 (least visible).
 func setY(buf *scratchMap, m wardleyToGo.Map, maxVisibility int) {
-	vStep := VerticalStep
-	if maxVisibility != 0 {
-		vStep = MaxVisibleHeight / maxVisibility
-	}
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
 		n := allNodes.Node().(*node)
+		y := 3
+		if maxVisibility != 0 {
+			// Multiply before dividing to preserve precision
+			y = n.visibility*MaxVisibleHeight/maxVisibility + 3
+		}
 		if c, ok := m.Node(n.ID()).(*wardley.Component); ok {
-			c.Placement.Y = n.visibility*vStep + 3
+			c.Placement.Y = y
 			c.AbsoluteVisibility = n.visibility
 		}
 		if c, ok := m.Node(n.ID()).(*wardley.EvolvedComponent); ok {
-			c.Placement.Y = n.visibility*vStep + 3
+			c.Placement.Y = y
 			c.AbsoluteVisibility = n.visibility
 		}
 	}
-
 }
 func setX(buf *scratchMap, m wardleyToGo.Map, maxEvolution int) {
-	hStep := 50
-	if maxEvolution != 0 {
-		hStep = 80 / maxEvolution
-	}
 	allNodes := buf.Nodes()
 	for allNodes.Next() {
 		n := allNodes.Node().(*node)
 		if nn, ok := m.Node(n.ID()).(*wardley.Component); ok {
 			if !nn.Configured {
-				nn.Placement.X = n.evolutionStep*hStep + 10
+				x := 10
+				if maxEvolution != 0 {
+					x = n.evolutionStep*80/maxEvolution + 10
+				}
+				nn.Placement.X = x
 				nn.Color = Colors["Grey"]
 			}
 		}
 	}
-
 }
 
 func setLabelPlacement(n *wardley.Component, placement string) error {

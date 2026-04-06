@@ -4,10 +4,18 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"strings"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
+
+// escapeDOT escapes special characters in DOT label strings.
+func escapeDOT(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	return s
+}
 
 type Encoder struct {
 	box    image.Rectangle
@@ -32,15 +40,15 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		x := pos.X * 11
 		y := 800 - pos.Y*8
 		if component, ok := current.(*wardley.Anchor); ok {
-			fmt.Fprintf(e.w, "\t\tnode_%v [label=\"%v\", shape=none, fontsize=14, pos=\"%v,%v\"];\n", current.ID(), component.Label, x, y)
+			fmt.Fprintf(e.w, "\t\tnode_%v [label=\"%v\", shape=none, fontsize=14, pos=\"%v,%v\"];\n", current.ID(), escapeDOT(component.Label), x, y)
 			continue
 		}
 		if component, ok := current.(*wardley.Component); ok {
-			fmt.Fprintf(e.w, "\t\tnode_%v [xlabel=\"%v\", fontsize=9, pos=\"%v,%v\"];\n", current.ID(), component.Label, x, y)
+			fmt.Fprintf(e.w, "\t\tnode_%v [xlabel=\"%v\", fontsize=9, pos=\"%v,%v\"];\n", current.ID(), escapeDOT(component.Label), x, y)
 			continue
 		}
 		if component, ok := current.(*wardley.EvolvedComponent); ok {
-			fmt.Fprintf(e.w, "\t\tnode_%v [xlabel=\"%v\", fontsize=9, color=red, pos=\"%v,%v\"];\n", current.ID(), component.Label, x, y)
+			fmt.Fprintf(e.w, "\t\tnode_%v [xlabel=\"%v\", fontsize=9, color=red, pos=\"%v,%v\"];\n", current.ID(), escapeDOT(component.Label), x, y)
 			continue
 		}
 	}

@@ -18,6 +18,12 @@ import (
 	"github.com/owulveryck/wardleyToGo/internal/utils"
 )
 
+// Compile-time interface compliance checks.
+var (
+	_ wardleyToGo.Component = (*Component)(nil)
+	_ wardleyToGo.Component = (*EvolvedComponent)(nil)
+)
+
 const (
 	DefaultComponentRenderingLayer int = 10
 	AdjustUndefined                int = iota
