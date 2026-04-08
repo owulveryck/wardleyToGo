@@ -1,6 +1,7 @@
 package svgmap
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/xml"
 	"fmt"
@@ -12,11 +13,31 @@ import (
 //go:embed assets/embeded.js
 var embededJS string
 
-//go:embed assets/embeded.css
-var embededCSS string
-
 var jsTmpl = template.Must(template.New("JS").Parse(embededJS))
-var cssTmpl = template.Must(template.New("CSS").Parse(embededCSS))
+
+// JSTheme embeds JavaScript for interactive toggling of links and visibility.
+// It also implements ComponentDecorator to add onclick handlers to components.
+type JSTheme struct{}
+
+func (t *JSTheme) Embed(enc *xml.Encoder, m *wardleyToGo.Map) error {
+	var buf bytes.Buffer
+	data := generateJsData(m)
+	data.Visibility = generateCSSData(m)
+	if err := jsTmpl.Execute(&buf, data); err != nil {
+		return err
+	}
+	return enc.Encode(script{Data: buf.String(), ID: "SVGScript"})
+}
+
+// DecorateComponent adds an onclick handler that toggles linked edges.
+func (t *JSTheme) DecorateComponent(c wardleyToGo.Component) []xml.Attr {
+	return []xml.Attr{
+		{
+			Name:  xml.Name{Local: "onclick"},
+			Value: "toggleLink(this.id)",
+		},
+	}
+}
 
 type jsData struct {
 	AllLinks   []string            // in the form edge_F_T
@@ -60,39 +81,8 @@ func generateJsData(w *wardleyToGo.Map) jsData {
 	}
 }
 
-func generateCSSData(w *wardleyToGo.Map) []cssVisibility {
-	maxVisibility := 0
-	for _, n := range w.Components() {
-		if c, ok := n.(wardleyToGo.Chainer); ok {
-			if c.GetAbsoluteVisibility() > maxVisibility {
-				maxVisibility = c.GetAbsoluteVisibility()
-			}
-		}
-	}
-	step := 0.80 / float64(maxVisibility)
-	output := make([]cssVisibility, maxVisibility+1)
-	for i := 0; i <= maxVisibility; i++ {
-		output[i] = cssVisibility{
-			Visibility: fmt.Sprintf("visibility%v", i),
-			Opacity:    fmt.Sprintf("%0.2f", 1-float64(i)*step),
-		}
-	}
-	return output
-}
-
-type cssVisibility struct {
-	Visibility string
-	Opacity    string
-}
-
-type style struct {
-	XMLName xml.Name `xml:"style"`
-	Data    string   `xml:",cdata"`
-}
-
 type script struct {
 	XMLName xml.Name `xml:"script"`
-	//Data    string   `xml:",cdata"`
-	Data string `xml:",innerxml"`
-	ID   string `xml:"id,attr"`
+	Data    string   `xml:",innerxml"`
+	ID      string   `xml:"id,attr"`
 }

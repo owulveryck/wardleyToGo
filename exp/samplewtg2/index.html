@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WTG2 Playground</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/monokai.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #1e1e1e; color: #ccc; }
+        #toolbar { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: #2d2d2d; border-bottom: 1px solid #444; flex-shrink: 0; }
+        #toolbar h1 { font-size: 14px; color: #e0e0e0; margin-right: auto; }
+        #toolbar label { font-size: 13px; cursor: pointer; }
+        #toolbar input[type="checkbox"] { margin-right: 4px; }
+        #status { font-size: 12px; color: #888; }
+        #main { display: flex; flex: 1; overflow: hidden; }
+        #editor-pane { width: 35%; display: flex; flex-direction: column; border-right: 2px solid #444; }
+        #output-pane { flex: 1; overflow: auto; background: #fff; display: flex; align-items: center; justify-content: center; }
+        #output-pane svg { max-width: 100%; max-height: 100%; }
+        #output-pane .error { color: #e74c3c; font-family: monospace; padding: 20px; background: #fff5f5; width: 100%; }
+        .CodeMirror { flex: 1; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <h1>WTG2 Playground</h1>
+        <label><input type="checkbox" id="static"> Static SVG (no JS/CSS)</label>
+        <span id="status">Loading WASM...</span>
+    </div>
+    <div id="main">
+        <div id="editor-pane">
+            <textarea id="source"></textarea>
+        </div>
+        <div id="output-pane"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/monokai.min.js"></script>
+    <script src="wasm_exec.js"></script>
+    <script>
+    // WTG2 syntax mode for CodeMirror
+    CodeMirror.defineSimpleMode("wtg2", {
+        start: [
+            { regex: /\/\/.*/, token: "comment" },
+            { regex: /\/\*.*?\*\//, token: "comment" },
+            { regex: /^(title|date|author|scope|question|stages)\s*:/, token: "keyword" },
+            { regex: /^(anchor|submap|pipeline|group|component)\b/, token: "keyword" },
+            { regex: /^(note|warning)\b/, token: "tag" },
+            { regex: /^(signal)\s+(accelerating|stagnating|declining)\b/, token: ["tag", "variable-2"] },
+            { regex: /->|<->/, token: "operator" },
+            { regex: /-\[/, token: "operator", push: "edgeLabel" },
+            { regex: />>/, token: "operator" },
+            { regex: /!!?/, token: "variable-2" },
+            { regex: /\(buy\)|\(outsource\)|\(build\)/, token: "atom" },
+            { regex: /\{/, token: "bracket", indent: true },
+            { regex: /\}/, token: "bracket", dedent: true },
+            { regex: /"[^"]*"/, token: "string" },
+            { regex: /\b[IVX]+\.\d+\b/, token: "number" },
+            { regex: /#[0-9a-fA-F]{3,8}\b/, token: "number" },
+            { regex: /\b(type|color|note)\s*:/, token: "property" },
+        ],
+        edgeLabel: [
+            { regex: /\]->/, token: "operator", pop: true },
+            { regex: /./, token: "string" },
+        ],
+        meta: {
+            lineComment: "//",
+        }
+    });
+
+    const sample = `// Sample Wardley Map
+title: Tea Shop
+
+anchor Customer
+
+Cup of Tea : III.5
+Tea : II.8
+Hot Water : III.7
+Cup : IV.5
+Water : IV.8
+Kettle : III.5 >> IV.2 {
+  type: build
+  note: "Considering outsourcing"
+}
+Power : IV.9 (outsource)
+
+Customer -> Cup of Tea -> Tea
+Cup of Tea -> Hot Water -> Water
+Hot Water -> Kettle -> Power
+Cup of Tea -> Cup
+`;
+
+    let editor, renderTimer;
+
+    function initEditor() {
+        editor = CodeMirror.fromTextArea(document.getElementById("source"), {
+            mode: "wtg2",
+            theme: "monokai",
+            lineNumbers: true,
+            tabSize: 2,
+            autofocus: true,
+        });
+
+        // Load saved content or use sample
+        const saved = localStorage.getItem("wtg2-source");
+        editor.setValue(saved || sample);
+
+        editor.on("change", () => {
+            localStorage.setItem("wtg2-source", editor.getValue());
+            scheduleRender();
+        });
+
+        document.getElementById("static").addEventListener("change", render);
+    }
+
+    function scheduleRender() {
+        clearTimeout(renderTimer);
+        renderTimer = setTimeout(render, 500);
+    }
+
+    function render() {
+        const text = editor.getValue();
+        if (!text.trim()) {
+            document.getElementById("output-pane").innerHTML = "";
+            return;
+        }
+        if (typeof generateSVG !== "function") {
+            document.getElementById("status").textContent = "WASM not loaded yet";
+            return;
+        }
+        const isStatic = document.getElementById("static").checked;
+        const result = generateSVG(text, isStatic);
+        const output = document.getElementById("output-pane");
+        if (result.startsWith("error:")) {
+            output.innerHTML = '<div class="error">' + escapeHtml(result) + '</div>';
+        } else {
+            output.innerHTML = result;
+        }
+        document.getElementById("status").textContent = "OK";
+    }
+
+    function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    // WASM init
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(result => {
+        go.run(result.instance);
+        document.getElementById("status").textContent = "Ready";
+        initEditor();
+        render();
+    }).catch(err => {
+        document.getElementById("status").textContent = "WASM load failed: " + err;
+        initEditor();
+    });
+    </script>
+</body>
+</html>

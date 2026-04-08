@@ -7,6 +7,7 @@
 package main
 
 import (
+	"flag"
 	"image"
 	"log"
 	"os"
@@ -16,6 +17,9 @@ import (
 )
 
 func main() {
+	static := flag.Bool("static", false, "produce static SVG without CSS/JS interactivity")
+	flag.Parse()
+
 	p, err := wtg2.NewParser(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
@@ -37,6 +41,10 @@ func main() {
 		log.Fatal(err)
 	}
 	defer e.Close()
+
+	if *static {
+		e.Themes = nil
+	}
 
 	style := svgmap.NewOctoStyle(result.Stages)
 	style.WithSpace = true

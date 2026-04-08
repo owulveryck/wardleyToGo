@@ -25,3 +25,4 @@ examples/webassembly/assets/*
 docs/static/demo/wtg.wasm
 .envrc
 .claude/settings.local.json
+coverage.out

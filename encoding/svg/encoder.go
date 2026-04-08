@@ -1,7 +1,6 @@
 package svgmap
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"image"
@@ -18,6 +17,10 @@ type Encoder struct {
 	box    image.Rectangle
 	canvas image.Rectangle
 	e      *xml.Encoder
+	// Themes are applied in order during encoding to add CSS, JS, or other
+	// content to the SVG output. Set to nil for pure SVG without any
+	// styling or interactivity.
+	Themes []Theme
 }
 
 func NewEncoder(w io.Writer, box image.Rectangle, canvas image.Rectangle) (*Encoder, error) {
@@ -36,6 +39,7 @@ func NewEncoder(w io.Writer, box image.Rectangle, canvas image.Rectangle) (*Enco
 		box:    box,
 		canvas: canvas,
 		e:      e,
+		Themes: []Theme{&CSSTheme{}, &JSTheme{}},
 	}, nil
 }
 
@@ -49,24 +53,12 @@ func (e *Encoder) Init(s SVGStyleMarshaler) {
 }
 
 func (e *Encoder) Encode(m *wardleyToGo.Map) error {
-	var buf bytes.Buffer
-	cssData := generateCSSData(m)
-	err := cssTmpl.Execute(&buf, cssData)
-	if err != nil {
-		return err
+	for _, t := range e.Themes {
+		if err := t.Embed(e.e, m); err != nil {
+			return err
+		}
 	}
 
-	e.e.Encode(style{Data: buf.String()})
-
-	buf.Reset()
-	jsData := generateJsData(m)
-	jsData.Visibility = cssData
-	err = jsTmpl.Execute(&buf, jsData)
-	if err != nil {
-		return err
-	}
-
-	e.e.Encode(script{Data: buf.String(), ID: "SVGScript"})
 	e.e.Encode(svg.Text{
 		P:          image.Pt(e.box.Dx()/2, 20),
 		Text:       []byte(m.Title),
@@ -98,11 +90,11 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		var g *group
 		if elem, ok := element.(wardleyToGo.Component); ok {
 			g = makeGroup("element", int(elem.ID()))
-			g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
-				Name:  xml.Name{Local: "onclick"},
-				Value: "toggleLink(this.id)",
-			},
-			)
+			for _, t := range e.Themes {
+				if dec, ok := t.(ComponentDecorator); ok {
+					g.StartElement.Attr = append(g.StartElement.Attr, dec.DecorateComponent(elem)...)
+				}
+			}
 			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
 				found := false
 				for i := range g.StartElement.Attr {
