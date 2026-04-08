@@ -18,6 +18,7 @@
         #toolbar .slider-group { display: flex; align-items: center; gap: 6px; }
         #toolbar .slider-group input[type="range"] { width: 80px; accent-color: #5e9ed6; }
         #toolbar .slider-group span { min-width: 32px; text-align: center; font-variant-numeric: tabular-nums; }
+        #toolbar select { background: #3a3a3a; color: #ccc; border: 1px solid #555; border-radius: 4px; padding: 4px 6px; font-size: 12px; cursor: pointer; }
         #toolbar button { background: #3a3a3a; color: #ccc; border: 1px solid #555; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
         #toolbar button:hover { background: #4a4a4a; border-color: #777; }
         #main { display: flex; flex: 1; overflow: hidden; }
@@ -32,6 +33,17 @@
     <div id="toolbar">
         <h1>WTG2 Playground</h1>
         <label><input type="checkbox" id="static"> Static SVG (no JS/CSS)</label>
+        <div class="separator"></div>
+        <div class="slider-group">
+            <label for="ratio">Ratio</label>
+            <select id="ratio">
+                <option value="1200,900" selected>4:3</option>
+                <option value="1600,900">16:9</option>
+                <option value="1440,900">16:10</option>
+                <option value="900,900">1:1</option>
+                <option value="1273,900">A4</option>
+            </select>
+        </div>
         <div class="separator"></div>
         <div class="slider-group">
             <label for="resolution">Définition</label>
@@ -129,6 +141,7 @@ Cup of Tea -> Cup
         });
 
         document.getElementById("static").addEventListener("change", render);
+        document.getElementById("ratio").addEventListener("change", render);
 
         const resSlider = document.getElementById("resolution");
         const resLabel = document.getElementById("res-label");
@@ -144,6 +157,11 @@ Cup of Tea -> Cup
 
     function getResolution() {
         return parseInt(document.getElementById("resolution").value, 10);
+    }
+
+    function getBaseDimensions() {
+        const parts = document.getElementById("ratio").value.split(",");
+        return [parseInt(parts[0], 10), parseInt(parts[1], 10)];
     }
 
     function scheduleRender() {
@@ -162,7 +180,8 @@ Cup of Tea -> Cup
             return;
         }
         const isStatic = document.getElementById("static").checked;
-        const result = generateSVG(text, isStatic, getResolution());
+        const [baseW, baseH] = getBaseDimensions();
+        const result = generateSVG(text, isStatic, getResolution(), baseW, baseH);
         const output = document.getElementById("output-pane");
         if (result.startsWith("error:")) {
             output.innerHTML = '<div class="error">' + escapeHtml(result) + '</div>';
@@ -199,7 +218,8 @@ body{width:100vw;height:100vh;background:#fff;overflow:hidden}
         if (!detachedWindow || detachedWindow.closed) { detachedWindow = null; return; }
         const text = editor.getValue();
         if (!text.trim() || typeof generateSVG !== "function") return;
-        const result = generateSVG(text, true, getResolution());
+        const [baseW, baseH] = getBaseDimensions();
+        const result = generateSVG(text, true, getResolution(), baseW, baseH);
         if (result.startsWith("error:")) return;
         const container = detachedWindow.document.getElementById("map");
         if (container) container.innerHTML = result;
@@ -210,7 +230,8 @@ body{width:100vw;height:100vh;background:#fff;overflow:hidden}
     function getExportSVG() {
         const text = editor.getValue();
         if (!text.trim() || typeof generateSVG !== "function") return null;
-        const result = generateSVG(text, true, getResolution());
+        const [baseW, baseH] = getBaseDimensions();
+        const result = generateSVG(text, true, getResolution(), baseW, baseH);
         if (result.startsWith("error:")) return null;
         return result;
     }
@@ -236,8 +257,9 @@ body{width:100vw;height:100vh;background:#fff;overflow:hidden}
         const svgStr = getExportSVG();
         if (!svgStr) return;
         const resPct = getResolution();
-        const w = Math.round(1100 * resPct / 100);
-        const h = Math.round(900 * resPct / 100);
+        const [baseW, baseH] = getBaseDimensions();
+        const w = Math.round(baseW * resPct / 100);
+        const h = Math.round(baseH * resPct / 100);
 
         const canvas = document.createElement("canvas");
         canvas.width = w;

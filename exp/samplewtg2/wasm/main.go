@@ -32,7 +32,7 @@ func generate(_ js.Value, args []js.Value) any {
 	if len(args) >= 2 {
 		static = args[1].Bool()
 	}
-	// Third argument: resolution scale percentage (100 = default 1100x900)
+	// Third argument: resolution scale percentage (100 = default)
 	scalePct := 100
 	if len(args) >= 3 {
 		scalePct = args[2].Int()
@@ -42,6 +42,13 @@ func generate(_ js.Value, args []js.Value) any {
 		if scalePct > 400 {
 			scalePct = 400
 		}
+	}
+	// Fourth and fifth arguments: base width and height (before scaling)
+	baseW := 1200
+	baseH := 900
+	if len(args) >= 5 {
+		baseW = args[3].Int()
+		baseH = args[4].Int()
 	}
 
 	p, err := wtg2.NewParser(bytes.NewBufferString(input))
@@ -59,8 +66,8 @@ func generate(_ js.Value, args []js.Value) any {
 	}
 
 	// Scale viewBox and canvas proportionally
-	boxW := 1100 * scalePct / 100
-	boxH := 900 * scalePct / 100
+	boxW := baseW * scalePct / 100
+	boxH := baseH * scalePct / 100
 	marginL := 30 * scalePct / 100
 	marginT := 50 * scalePct / 100
 	marginR := 30 * scalePct / 100
