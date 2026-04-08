@@ -17,13 +17,16 @@
         #toolbar .separator { width: 1px; height: 20px; background: #555; }
         #toolbar .slider-group { display: flex; align-items: center; gap: 6px; }
         #toolbar .slider-group input[type="range"] { width: 80px; accent-color: #5e9ed6; }
-        #toolbar .slider-group span { min-width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
-        #toolbar button { background: #3a3a3a; color: #ccc; border: 1px solid #555; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+        #toolbar .slider-group span { min-width: 32px; text-align: center; font-variant-numeric: tabular-nums; }
+        #toolbar button { background: #3a3a3a; color: #ccc; border: 1px solid #555; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; white-space: nowrap; }
         #toolbar button:hover { background: #4a4a4a; border-color: #777; }
         #main { display: flex; flex: 1; overflow: hidden; }
         #editor-pane { width: 35%; display: flex; flex-direction: column; border-right: 2px solid #444; }
-        #output-pane { flex: 1; overflow: auto; background: #fff; display: flex; align-items: center; justify-content: center; }
-        #output-pane svg { max-width: 100%; max-height: 100%; }
+        #output-pane { flex: 1; overflow: auto; background: #fff; }
+        #output-pane.fit { display: flex; align-items: center; justify-content: center; }
+        #output-pane.fit svg { max-width: 100%; max-height: 100%; }
+        #output-pane.zoomed { display: block; padding: 8px; }
+        #output-pane.zoomed svg { max-width: none; max-height: none; }
         #output-pane .error { color: #e74c3c; font-family: monospace; padding: 20px; background: #fff5f5; width: 100%; }
         .CodeMirror { flex: 1; font-size: 14px; }
     </style>
@@ -34,20 +37,21 @@
         <label><input type="checkbox" id="static"> Static SVG (no JS/CSS)</label>
         <div class="separator"></div>
         <div class="slider-group">
-            <label for="resolution">Résolution</label>
-            <input type="range" id="resolution" min="1" max="4" step="1" value="2">
-            <span id="res-label">2x</span>
+            <label for="zoom">Zoom</label>
+            <input type="range" id="zoom" min="25" max="400" step="25" value="100">
+            <span id="zoom-label">100%</span>
         </div>
         <div class="separator"></div>
-        <button id="dl-svg" title="Télécharger SVG">⬇ SVG</button>
-        <button id="dl-png" title="Télécharger PNG">⬇ PNG</button>
+        <button id="dl-svg" title="Télécharger SVG">&#11015; SVG</button>
+        <button id="dl-png" title="Télécharger PNG">&#11015; PNG</button>
+        <button id="detach" title="Ouvrir dans une fenêtre séparée">&#8599; Détacher</button>
         <span id="status">Loading WASM...</span>
     </div>
     <div id="main">
         <div id="editor-pane">
             <textarea id="source"></textarea>
         </div>
-        <div id="output-pane"></div>
+        <div id="output-pane" class="fit"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
@@ -107,7 +111,7 @@ Hot Water -> Kettle -> Power
 Cup of Tea -> Cup
 `;
 
-    let editor, renderTimer;
+    let editor, renderTimer, detachedWindow = null;
 
     function initEditor() {
         editor = CodeMirror.fromTextArea(document.getElementById("source"), {
@@ -129,14 +133,16 @@ Cup of Tea -> Cup
 
         document.getElementById("static").addEventListener("change", render);
 
-        const resSlider = document.getElementById("resolution");
-        const resLabel = document.getElementById("res-label");
-        resSlider.addEventListener("input", () => {
-            resLabel.textContent = resSlider.value + "x";
+        const zoomSlider = document.getElementById("zoom");
+        const zoomLabel = document.getElementById("zoom-label");
+        zoomSlider.addEventListener("input", () => {
+            zoomLabel.textContent = zoomSlider.value + "%";
+            applyZoom();
         });
 
         document.getElementById("dl-svg").addEventListener("click", downloadSVG);
         document.getElementById("dl-png").addEventListener("click", downloadPNG);
+        document.getElementById("detach").addEventListener("click", detachMap);
     }
 
     function scheduleRender() {
@@ -161,12 +167,69 @@ Cup of Tea -> Cup
             output.innerHTML = '<div class="error">' + escapeHtml(result) + '</div>';
         } else {
             output.innerHTML = result;
+            applyZoom();
         }
         document.getElementById("status").textContent = "OK";
+        updateDetached();
     }
 
+    function applyZoom() {
+        const pane = document.getElementById("output-pane");
+        const svg = pane.querySelector("svg");
+        if (!svg) return;
+        const pct = parseInt(document.getElementById("zoom").value, 10);
+        if (pct === 100) {
+            pane.className = "fit";
+            svg.removeAttribute("width");
+            svg.removeAttribute("height");
+            svg.style.width = "";
+            svg.style.height = "";
+        } else {
+            pane.className = "zoomed";
+            const w = Math.round(1100 * pct / 100);
+            const h = Math.round(900 * pct / 100);
+            svg.style.width = w + "px";
+            svg.style.height = h + "px";
+            svg.removeAttribute("width");
+            svg.removeAttribute("height");
+        }
+    }
+
+    // --- Detach map into its own resizable window ---
+
+    function detachMap() {
+        if (detachedWindow && !detachedWindow.closed) {
+            detachedWindow.focus();
+            updateDetached();
+            return;
+        }
+        detachedWindow = window.open("", "WardleyMap", "width=1100,height=900,resizable=yes");
+        if (!detachedWindow) return;
+        detachedWindow.document.write(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Wardley Map</title>
+<style>
+*{margin:0;padding:0}
+body{width:100vw;height:100vh;background:#fff;overflow:hidden}
+#map{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#map svg{width:100%;height:100%}
+</style></head><body><div id="map"></div></body></html>`);
+        detachedWindow.document.close();
+        updateDetached();
+    }
+
+    function updateDetached() {
+        if (!detachedWindow || detachedWindow.closed) { detachedWindow = null; return; }
+        const text = editor.getValue();
+        if (!text.trim() || typeof generateSVG !== "function") return;
+        const result = generateSVG(text, true);
+        if (result.startsWith("error:")) return;
+        const container = detachedWindow.document.getElementById("map");
+        if (container) container.innerHTML = result;
+    }
+
+    // --- Export ---
+
     function getExportSVG() {
-        // Generate a static SVG for export (no interactive JS/CSS)
         const text = editor.getValue();
         if (!text.trim() || typeof generateSVG !== "function") return null;
         const result = generateSVG(text, true);
@@ -194,7 +257,8 @@ Cup of Tea -> Cup
     function downloadPNG() {
         const svgStr = getExportSVG();
         if (!svgStr) return;
-        const scale = parseInt(document.getElementById("resolution").value, 10);
+        const zoomPct = parseInt(document.getElementById("zoom").value, 10);
+        const scale = Math.max(1, Math.round(zoomPct / 100));
         const baseW = 1100, baseH = 900;
         const w = baseW * scale, h = baseH * scale;
 
@@ -203,7 +267,6 @@ Cup of Tea -> Cup
         canvas.height = h;
         const ctx = canvas.getContext("2d");
 
-        // White background
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, w, h);
 
