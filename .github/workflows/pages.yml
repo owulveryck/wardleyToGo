@@ -1,0 +1,61 @@
+name: Deploy playground to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build WASM
+        run: GOOS=js GOARCH=wasm go build -o site/main.wasm ./exp/samplewtg2/wasm/
+
+      - name: Copy wasm_exec.js
+        run: |
+          GOROOT=$(go env GOROOT)
+          if [ -f "$GOROOT/misc/wasm/wasm_exec.js" ]; then
+            cp "$GOROOT/misc/wasm/wasm_exec.js" site/
+          else
+            cp "$GOROOT/lib/wasm/wasm_exec.js" site/
+          fi
+
+      - name: Copy index.html
+        run: cp exp/samplewtg2/index.html site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

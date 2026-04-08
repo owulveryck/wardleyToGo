@@ -1,9 +1,9 @@
-name: codecov
+name: ci
 on: [push]
 jobs:
 
-  codecov:
-    name: codecov
+  ci:
+    name: ci
     runs-on: ubuntu-latest
     steps:
 
@@ -11,9 +11,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.25'
-        id: go
 
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@v4
 
       - name: Run go vet
@@ -24,13 +23,5 @@ jobs:
         with:
           version: latest
 
-      - name: Generate coverage report
-        run: |
-          go test `go list ./... | grep -v examples` -coverprofile=coverage.txt -covermode=atomic
-      - name: Upload coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.txt
-          flags: unittests
-          name: codecov-umbrella
+      - name: Run tests
+        run: go test ./...
