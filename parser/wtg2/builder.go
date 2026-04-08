@@ -289,6 +289,49 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	// Phase 3.5: Detect near-parallel edges and assign curve offsets.
 	spreadOverlappingEdges(m)
 
+	// Phase 3.7: Create group components
+	defaultGroupColors := []color.RGBA{
+		{0x34, 0x98, 0xDB, 0x30}, // blue
+		{0x2E, 0xCC, 0x71, 0x30}, // green
+		{0xE7, 0x4C, 0x3C, 0x30}, // red
+		{0x9B, 0x59, 0xB6, 0x30}, // purple
+		{0xE6, 0x7E, 0x22, 0x30}, // orange
+		{0x1A, 0xBC, 0x9C, 0x30}, // teal
+		{0xF3, 0x9C, 0x12, 0x30}, // yellow
+		{0x34, 0x49, 0x5E, 0x30}, // dark blue
+	}
+	for i, gd := range doc.Groups {
+		var memberPoints []image.Point
+		for _, memberName := range gd.Members {
+			entry, ok := nodeDict[memberName]
+			if !ok {
+				continue
+			}
+			memberPoints = append(memberPoints, entry.node.GetPosition())
+		}
+		if len(memberPoints) == 0 {
+			continue
+		}
+
+		var fillColor color.Color
+		if gd.Color != "" {
+			c, err := parseHexColor(gd.Color)
+			if err == nil {
+				// Set alpha to 0x30 for translucency
+				r, g, b, _ := c.RGBA()
+				fillColor = color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0x30}
+			}
+		}
+		if fillColor == nil {
+			fillColor = defaultGroupColors[i%len(defaultGroupColors)]
+		}
+
+		group := wardley.NewGroup(newID(), gd.Name, memberPoints, fillColor)
+		if err := m.AddComponent(group); err != nil {
+			return nil, fmt.Errorf("group %q: %w", gd.Name, err)
+		}
+	}
+
 	// Phase 4: Build evolution stages
 	stages := buildEvolutionStages(doc.Stages)
 

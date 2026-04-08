@@ -62,6 +62,7 @@ type EdgeDecl struct {
 // GroupDecl represents a visual group of components.
 type GroupDecl struct {
 	Name    string
+	Color   string // "#RRGGBB" or "", empty = auto-assign
 	Members []string
 }
 

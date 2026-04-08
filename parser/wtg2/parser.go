@@ -381,6 +381,11 @@ func (p *Parser) parseGroup(doc *Document, line string, block []string) error {
 		if bline == "" || strings.HasPrefix(bline, "//") {
 			continue
 		}
+		// Parse optional color directive
+		if strings.HasPrefix(strings.ToLower(bline), "color:") {
+			group.Color = strings.TrimSpace(strings.TrimPrefix(bline, bline[:len("color:")]))
+			continue
+		}
 		// Members can be node names or edge declarations (ignored for now)
 		if strings.Contains(bline, " -> ") || strings.Contains(bline, " <-> ") {
 			continue

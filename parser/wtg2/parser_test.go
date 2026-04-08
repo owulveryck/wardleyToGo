@@ -266,6 +266,68 @@ func TestParseSignal(t *testing.T) {
 	}
 }
 
+func TestParseGroupWithColor(t *testing.T) {
+	input := `group Backend {
+  color: #E74C3C
+  API
+  DB
+  Cache
+}`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(doc.Groups) != 1 {
+		t.Fatalf("got %d groups, want 1", len(doc.Groups))
+	}
+	g := doc.Groups[0]
+	if g.Name != "Backend" {
+		t.Errorf("name = %q, want %q", g.Name, "Backend")
+	}
+	if g.Color != "#E74C3C" {
+		t.Errorf("color = %q, want %q", g.Color, "#E74C3C")
+	}
+	if len(g.Members) != 3 {
+		t.Fatalf("got %d members, want 3", len(g.Members))
+	}
+	if g.Members[0] != "API" || g.Members[1] != "DB" || g.Members[2] != "Cache" {
+		t.Errorf("members = %v, want [API DB Cache]", g.Members)
+	}
+}
+
+func TestParseGroupWithoutColor(t *testing.T) {
+	input := `group Frontend {
+  App
+}`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(doc.Groups) != 1 {
+		t.Fatalf("got %d groups, want 1", len(doc.Groups))
+	}
+	g := doc.Groups[0]
+	if g.Name != "Frontend" {
+		t.Errorf("name = %q, want %q", g.Name, "Frontend")
+	}
+	if g.Color != "" {
+		t.Errorf("color = %q, want empty", g.Color)
+	}
+	if len(g.Members) != 1 {
+		t.Fatalf("got %d members, want 1", len(g.Members))
+	}
+}
+
 func TestParseExampleFile(t *testing.T) {
 	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {
