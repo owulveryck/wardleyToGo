@@ -32,6 +32,17 @@ func generate(_ js.Value, args []js.Value) any {
 	if len(args) >= 2 {
 		static = args[1].Bool()
 	}
+	// Third argument: resolution scale percentage (100 = default 1100x900)
+	scalePct := 100
+	if len(args) >= 3 {
+		scalePct = args[2].Int()
+		if scalePct < 25 {
+			scalePct = 25
+		}
+		if scalePct > 400 {
+			scalePct = 400
+		}
+	}
 
 	p, err := wtg2.NewParser(bytes.NewBufferString(input))
 	if err != nil {
@@ -47,10 +58,18 @@ func generate(_ js.Value, args []js.Value) any {
 		return fmt.Sprintf("error: %v", err)
 	}
 
+	// Scale viewBox and canvas proportionally
+	boxW := 1100 * scalePct / 100
+	boxH := 900 * scalePct / 100
+	marginL := 30 * scalePct / 100
+	marginT := 50 * scalePct / 100
+	marginR := 30 * scalePct / 100
+	marginB := 50 * scalePct / 100
+
 	output := new(bytes.Buffer)
 	e, err := svgmap.NewEncoder(output,
-		image.Rect(0, 0, 1100, 900),
-		image.Rect(30, 50, 1070, 850))
+		image.Rect(0, 0, boxW, boxH),
+		image.Rect(marginL, marginT, boxW-marginR, boxH-marginB))
 	if err != nil {
 		return fmt.Sprintf("error: %v", err)
 	}
