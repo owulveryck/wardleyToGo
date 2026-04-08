@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"math"
 	"strings"
 
 	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
 	"github.com/owulveryck/wardleyToGo/layout"
+	"github.com/owulveryck/wardleyToGo/layout/labels"
 )
 
 // BuildResult holds the map and evolution stages produced by the builder.
@@ -174,6 +177,93 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 		}
 	}
 
+	// Phase 2.5: Automatic label placement.
+	// Collect all components (including anchors and evolved ones).
+	type labelTarget struct {
+		comp    *wardley.Component
+		evolved *wardley.EvolvedComponent
+		anchor  *wardley.Anchor
+	}
+	labelTargets := make(map[string]labelTarget)
+	labelComps := make([]labels.Component, 0)
+
+	for _, n := range m.Components() {
+		switch c := n.(type) {
+		case *wardley.Anchor:
+			if c.LabelPlacement.X != components.UndefinedCoord {
+				continue
+			}
+			key := fmt.Sprintf("anchor:%s@%d,%d", c.Label, c.Placement.X, c.Placement.Y)
+			labelTargets[key] = labelTarget{anchor: c}
+			labelComps = append(labelComps, labels.Component{
+				Name:     key,
+				Position: c.Placement,
+				Label:    c.Label,
+			})
+		case *wardley.Component:
+			if c.LabelPlacement.X != components.UndefinedCoord {
+				continue
+			}
+			key := fmt.Sprintf("%s@%d,%d", c.Label, c.Placement.X, c.Placement.Y)
+			labelTargets[key] = labelTarget{comp: c}
+			labelComps = append(labelComps, labels.Component{
+				Name:       key,
+				Position:   c.Placement,
+				Label:      c.Label,
+				IsPipeline: c.Type == wardley.PipelineComponent,
+			})
+		case *wardley.EvolvedComponent:
+			if c.LabelPlacement.X != components.UndefinedCoord {
+				continue
+			}
+			key := fmt.Sprintf("%s@%d,%d", c.Label, c.Placement.X, c.Placement.Y)
+			labelTargets[key] = labelTarget{evolved: c}
+			labelComps = append(labelComps, labels.Component{
+				Name:     key,
+				Position: c.Placement,
+				Label:    c.Label,
+			})
+		}
+	}
+
+	if len(labelComps) > 1 {
+		placements := labels.PlaceLabels(labelComps, labels.DefaultOptions())
+		for key, target := range labelTargets {
+			r, ok := placements[key]
+			if !ok {
+				continue
+			}
+			// Map labels.Anchor* to wardley.Adjust* constants.
+			adjustAnchor := wardley.AdjustUndefined
+			switch r.Anchor {
+			case labels.AnchorStart:
+				adjustAnchor = wardley.AdjustStart
+			case labels.AnchorMiddle:
+				adjustAnchor = wardley.AdjustMiddle
+			case labels.AnchorEnd:
+				adjustAnchor = wardley.AdjustEnd
+			}
+			if target.comp != nil {
+				target.comp.LabelPlacement = r.Offset
+				if adjustAnchor != wardley.AdjustUndefined {
+					target.comp.Anchor = adjustAnchor
+				}
+			}
+			if target.evolved != nil {
+				target.evolved.LabelPlacement = r.Offset
+				if adjustAnchor != wardley.AdjustUndefined {
+					target.evolved.Anchor = adjustAnchor
+				}
+			}
+			if target.anchor != nil {
+				target.anchor.LabelPlacement = r.Offset
+				if adjustAnchor != wardley.AdjustUndefined {
+					target.anchor.Anchor = adjustAnchor
+				}
+			}
+		}
+	}
+
 	// Phase 3: Create edges
 	for _, ed := range doc.Edges {
 		fromNode := resolveNodeRef(ed.From, nodeDict)
@@ -195,6 +285,9 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 			continue
 		}
 	}
+
+	// Phase 3.5: Detect near-parallel edges and assign curve offsets.
+	spreadOverlappingEdges(m)
 
 	// Phase 4: Build evolution stages
 	stages := buildEvolutionStages(doc.Stages)
@@ -264,6 +357,91 @@ func colonMemberIndex(s string) int {
 		}
 	}
 	return -1
+}
+
+// spreadOverlappingEdges detects edges that share an endpoint and have
+// nearly parallel paths, then assigns CurveOffset to spread them apart
+// visually using Bézier curves.
+func spreadOverlappingEdges(m *wardleyToGo.Map) {
+	collabs := m.Collaborations()
+
+	// Collect concrete collaborations.
+	edges := make([]*wardley.Collaboration, 0, len(collabs))
+	for _, c := range collabs {
+		if wc, ok := c.(*wardley.Collaboration); ok {
+			edges = append(edges, wc)
+		}
+	}
+
+	// For each pair of edges, check if they share an endpoint and
+	// their non-shared endpoints are close enough that the lines
+	// would visually overlap.
+	const angleThreshold = 0.26   // ~15 degrees in radians
+	const proximityThreshold = 15 // max distance between non-shared endpoints (100-unit space)
+	const curvePixels = 20        // perpendicular offset in SVG pixels
+
+	for i := 0; i < len(edges); i++ {
+		for j := i + 1; j < len(edges); j++ {
+			a := edges[i]
+			b := edges[j]
+
+			af := a.F.GetPosition()
+			at := a.T.GetPosition()
+			bf := b.F.GetPosition()
+			bt := b.T.GetPosition()
+
+			// Check if they share an endpoint.
+			var shared, otherA, otherB image.Point
+			switch {
+			case af == bf:
+				shared, otherA, otherB = af, at, bt
+			case af == bt:
+				shared, otherA, otherB = af, at, bf
+			case at == bf:
+				shared, otherA, otherB = at, af, bt
+			case at == bt:
+				shared, otherA, otherB = at, af, bf
+			default:
+				continue
+			}
+
+			// Check if the non-shared endpoints are close to each other.
+			dx := float64(otherA.X - otherB.X)
+			dy := float64(otherA.Y - otherB.Y)
+			dist := math.Sqrt(dx*dx + dy*dy)
+			if dist > proximityThreshold {
+				continue
+			}
+
+			// Compute angle between the two edges from the shared point.
+			dxA := float64(otherA.X - shared.X)
+			dyA := float64(otherA.Y - shared.Y)
+			dxB := float64(otherB.X - shared.X)
+			dyB := float64(otherB.Y - shared.Y)
+			lenA := math.Sqrt(dxA*dxA + dyA*dyA)
+			lenB := math.Sqrt(dxB*dxB + dyB*dyB)
+			if lenA < 1 || lenB < 1 {
+				continue
+			}
+			cosAngle := (dxA*dxB + dyA*dyB) / (lenA * lenB)
+			if cosAngle > 1 {
+				cosAngle = 1
+			}
+			if cosAngle < -1 {
+				cosAngle = -1
+			}
+			angle := math.Acos(cosAngle)
+
+			if angle < angleThreshold {
+				if a.CurveOffset == 0 {
+					a.CurveOffset = curvePixels
+				}
+				if b.CurveOffset == 0 {
+					b.CurveOffset = -curvePixels
+				}
+			}
+		}
+	}
 }
 
 // parseHexColor parses a hex color string like "#3498DB" or "#abc".

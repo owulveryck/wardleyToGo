@@ -204,22 +204,9 @@ func New(opts Options) Layouter {
 // by force-directed spacing.
 func (l *defaultLayouter) Layout(g *Graph) map[string]int {
 	// Phase 1: topological rank assignment
-	ranks, maxRank := topoRanks(g)
+	ranks, _ := topoRanks(g)
 
-	// Phase 2: initial linear placement then force-directed spacing
-	positions := make(map[string]float64, len(ranks))
-	minY := float64(l.opts.MinY)
-	maxY := float64(l.opts.MaxY)
-
-	for name, r := range ranks {
-		if maxRank == 0 {
-			positions[name] = minY
-		} else {
-			positions[name] = minY + float64(r)*(maxY-minY)/float64(maxRank)
-		}
-	}
-
-	// Collect non-pipeline-member names for force simulation
+	// Collect pipeline members early so we can compute effective max rank
 	pipelineMembers := make(map[string]bool)
 	for _, pl := range g.Pipelines {
 		for _, m := range pl.Members {
@@ -227,7 +214,34 @@ func (l *defaultLayouter) Layout(g *Graph) map[string]int {
 		}
 	}
 
-	positions = forceSpread(positions, g.Edges, pipelineMembers, ranks, maxRank, l.opts)
+	// Compute effectiveMaxRank: highest rank among non-pipeline-member
+	// nodes. Disconnected pipeline members get inflated ranks from
+	// topoRanks, but they inherit their parent's Y later, so their
+	// ranks should not compress the layout for other nodes.
+	effectiveMaxRank := 0
+	for name, r := range ranks {
+		if !pipelineMembers[name] && r > effectiveMaxRank {
+			effectiveMaxRank = r
+		}
+	}
+
+	// Phase 2: initial linear placement then force-directed spacing
+	positions := make(map[string]float64, len(ranks))
+	minY := float64(l.opts.MinY)
+	maxY := float64(l.opts.MaxY)
+
+	for name, r := range ranks {
+		if pipelineMembers[name] {
+			continue // pipeline members inherit parent Y in post-processing
+		}
+		if effectiveMaxRank == 0 {
+			positions[name] = minY
+		} else {
+			positions[name] = minY + float64(r)*(maxY-minY)/float64(effectiveMaxRank)
+		}
+	}
+
+	positions = forceSpread(positions, g.Edges, pipelineMembers, ranks, effectiveMaxRank, l.opts)
 
 	// Phase 3: round to int, apply pipeline inheritance, clamp
 	result := make(map[string]int, len(positions))

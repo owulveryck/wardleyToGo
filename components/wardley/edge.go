@@ -2,9 +2,11 @@ package wardley
 
 import (
 	"encoding/xml"
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"math"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/drawing"
@@ -20,6 +22,7 @@ type Collaboration struct {
 	Label              string
 	Type               wardleyToGo.EdgeType
 	Inertia            image.Point
+	CurveOffset        int // perpendicular offset in pixels for Bézier control point; 0 = straight line
 	RenderingLayer     int
 	Visibility         int
 	AbsoluteVisibility int
@@ -53,21 +56,20 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 	toCoord := c.T.GetPosition()
 	coordsF := utils.CalcCoords(fromCoord, canvas)
 	coordsT := utils.CalcCoords(toCoord, canvas)
-	line := svg.Line{
-		F:           coordsF,
-		T:           coordsT,
-		StrokeWidth: "1",
-		//Class:       []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
-		Class: []string{},
-	}
+
+	var stroke svg.Color
+	var markerEnd string
+	var dashArray []int
+	classes := []string{}
+
 	switch c.Type {
 	case RegularEdge:
-		line.Stroke = svg.Gray(128)
+		stroke = svg.Gray(128)
 	case EvolvedComponentEdge:
-		line.MarkerEnd = "url(#arrow)"
-		line.StrokeDashArray = []int{5, 5}
-		line.Stroke = svg.Red
-		line.Class = append(line.Class, "evolutionEdge")
+		markerEnd = "url(#arrow)"
+		dashArray = []int{5, 5}
+		stroke = svg.Red
+		classes = append(classes, "evolutionEdge")
 		if c.Inertia.X != 0 {
 			inertiaPosition := utils.CalcCoords(c.Inertia, canvas)
 			inertia := svg.Rectangle{
@@ -81,22 +83,58 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 						Y: coordsF.Y + 15,
 					},
 				},
-				Rx:          0,
-				Ry:          0,
-				Fill:        svg.Black,
-				Stroke:      svg.Black,
-				StrokeWidth: "",
-				Style:       "",
+				Fill:   svg.Black,
+				Stroke: svg.Black,
 			}
-			err := e.Encode(inertia)
-			if err != nil {
+			if err := e.Encode(inertia); err != nil {
 				return err
 			}
 		}
 	case EvolvedEdge:
-		line.Stroke = svg.Red
+		stroke = svg.Red
 	}
-	return e.Encode(line)
+
+	if c.CurveOffset != 0 {
+		// Render as a quadratic Bézier curve.
+		cx, cy := curveControlPoint(coordsF, coordsT, c.CurveOffset)
+		d := fmt.Sprintf("M %d,%d Q %d,%d %d,%d",
+			coordsF.X, coordsF.Y, cx, cy, coordsT.X, coordsT.Y)
+		return e.Encode(svg.Path{
+			D:               d,
+			Stroke:          stroke,
+			StrokeWidth:     "1",
+			StrokeDashArray: dashArray,
+			MarkerEnd:       markerEnd,
+			Class:           classes,
+		})
+	}
+
+	return e.Encode(svg.Line{
+		F:               coordsF,
+		T:               coordsT,
+		StrokeWidth:     "1",
+		Stroke:          stroke,
+		StrokeDashArray: dashArray,
+		MarkerEnd:       markerEnd,
+		Class:           classes,
+	})
+}
+
+// curveControlPoint computes the control point for a quadratic Bézier
+// curve by offsetting the midpoint perpendicular to the line direction.
+func curveControlPoint(from, to image.Point, offset int) (int, int) {
+	mx := float64(from.X+to.X) / 2
+	my := float64(from.Y+to.Y) / 2
+	dx := float64(to.X - from.X)
+	dy := float64(to.Y - from.Y)
+	length := math.Sqrt(dx*dx + dy*dy)
+	if length < 1 {
+		return int(mx), int(my)
+	}
+	// Perpendicular unit vector
+	px := -dy / length
+	py := dx / length
+	return int(mx + px*float64(offset)), int(my + py*float64(offset))
 }
 
 // Draw aligns r.Min in dst with sp in src and then replaces the

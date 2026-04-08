@@ -20,13 +20,16 @@ type Anchor struct {
 	id             int64
 	Placement      image.Point
 	Label          string
-	RenderingLayer int //The position of the element on the picture
+	LabelPlacement image.Point // LabelPlacement is relative to the placement
+	Anchor         int         // text-anchor: AdjustStart, AdjustMiddle, AdjustEnd
+	RenderingLayer int         //The position of the element on the picture
 }
 
 func NewAnchor(id int64) *Anchor {
 	return &Anchor{
-		id:        id,
-		Placement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
+		id:             id,
+		Placement:      image.Pt(components.UndefinedCoord, components.UndefinedCoord),
+		LabelPlacement: image.Pt(components.UndefinedCoord, components.UndefinedCoord),
 	}
 }
 
@@ -40,14 +43,31 @@ func (a *Anchor) ID() int64 {
 
 func (a *Anchor) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	coords := components.CalcCoords(a.Placement, canvas)
-	//s.Gid(strconv.FormatInt(a.id, 10))
+	labelP := a.LabelPlacement
+	if labelP.X == components.UndefinedCoord {
+		labelP.X = 0
+	}
+	if labelP.Y == components.UndefinedCoord {
+		labelP.Y = 5
+	}
+	textAnchor := svg.TextAnchorMiddle
+	switch a.Anchor {
+	case AdjustStart:
+		textAnchor = svg.TextAnchorStart
+	case AdjustMiddle:
+		textAnchor = svg.TextAnchorMiddle
+	case AdjustEnd:
+		textAnchor = svg.TextAnchorEnd
+	}
 	e.Encode(svg.Transform{
 		Translate: coords,
 		Components: []interface{}{
 			svg.Text{
+				P:          labelP,
 				Text:       []byte(a.Label),
 				FontSize:   "14px",
-				TextAnchor: svg.TextAnchorMiddle,
+				TextAnchor: textAnchor,
+				TextAdjust: true,
 			},
 		},
 	})

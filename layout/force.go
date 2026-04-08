@@ -74,7 +74,9 @@ func forceSpread(
 	for iter := 0; iter < opts.ForceIterations; iter++ {
 		displacements := make(map[string]float64, len(names))
 
-		// Pairwise repulsion between all active nodes (including pinned for repulsion source)
+		// Pairwise repulsion between all active nodes (including pinned for repulsion source).
+		// Same-rank nodes get a weaker repulsion (30%) to separate them
+		// without compressing the overall layout.
 		for i := 0; i < len(allNames); i++ {
 			for j := i + 1; j < len(allNames); j++ {
 				a, b := allNames[i], allNames[j]
@@ -90,7 +92,11 @@ func forceSpread(
 							dy = -0.1
 						}
 					}
-					force := opts.RepulsionStrength / (absDy * absDy)
+					strength := opts.RepulsionStrength
+					if ranks[a] == ranks[b] {
+						strength *= 0.3
+					}
+					force := strength / (absDy * absDy)
 					sign := 1.0
 					if dy < 0 {
 						sign = -1.0
@@ -131,9 +137,22 @@ func forceSpread(
 			}
 		}
 
-		// Apply displacements with damping
+		// Apply displacements with damping, capping per-iteration movement
+		// to minSpacing. Without the cap, coincident same-rank nodes
+		// generate enormous repulsion (strength/0.01 ≈ 240) that throws
+		// them to the [minY,maxY] boundaries in a single step.
+		// enforceRankOrder then uses the outlier's position as the floor
+		// for subsequent ranks, cascading all deeper nodes to maxY.
+		maxDisp := minSpacing
 		for _, name := range names {
-			positions[name] += displacements[name] * damping
+			d := displacements[name] * damping
+			if d > maxDisp {
+				d = maxDisp
+			}
+			if d < -maxDisp {
+				d = -maxDisp
+			}
+			positions[name] += d
 			if positions[name] < minY {
 				positions[name] = minY
 			}
@@ -154,35 +173,48 @@ func forceSpread(
 // enforceRankOrder restores the topological ordering invariant after
 // force displacements.
 //
-// Nodes are sorted by rank, then swept forward: each node's Y is raised
-// to at least (previous node's Y + minSpacing) if its rank is higher than
-// the previous node's rank. This prevents crossings where a downstream
-// node ends up above an upstream one due to accumulated repulsive forces.
+// Nodes are sorted by rank, then swept forward per rank group: all
+// nodes in a rank group are raised to at least (previous group's max Y
+// + minSpacing). Within a rank group, the relative ordering produced by
+// repulsion is preserved but no minimum spacing is enforced — this
+// prevents same-rank separation from compressing deeper nodes toward
+// the bottom.
 //
 // Anchor nodes (rank 0) are left untouched because they are already
 // pinned at the top of the map.
-func enforceRankOrder(positions map[string]float64, names []string, ranks map[string]int, minY, maxY, minSpacing float64) {
-	// Sort names by rank
+func enforceRankOrder(positions map[string]float64, names []string, ranks map[string]int, minY, _, minSpacing float64) {
+	// Sort names by rank, then by position within same rank
 	sorted := make([]string, len(names))
 	copy(sorted, names)
 	sort.Slice(sorted, func(i, j int) bool {
-		return ranks[sorted[i]] < ranks[sorted[j]]
+		ri, rj := ranks[sorted[i]], ranks[sorted[j]]
+		if ri != rj {
+			return ri < rj
+		}
+		return positions[sorted[i]] < positions[sorted[j]]
 	})
 
-	// Sweep forward: ensure each node is at least minSpacing below the previous rank group
+	// Sweep forward per rank group: enforce minSpacing only between
+	// different rank groups, not between siblings at the same rank.
 	prevRank := -1
-	prevMaxY := minY - minSpacing
+	prevRankMaxY := minY - minSpacing
+	currentRankMinAllowed := minY
+
 	for _, name := range sorted {
 		r := ranks[name]
 		if r != prevRank {
+			// Entering a new rank group — compute minimum allowed Y
+			// based on the previous group's maximum.
+			currentRankMinAllowed = prevRankMaxY + minSpacing
 			prevRank = r
 		}
-		minAllowed := prevMaxY + minSpacing
-		if r > 0 && positions[name] < minAllowed {
-			positions[name] = minAllowed
+		if r > 0 && positions[name] < currentRankMinAllowed {
+			positions[name] = currentRankMinAllowed
 		}
-		if positions[name] > prevMaxY {
-			prevMaxY = positions[name]
+		// Track the max Y across the current rank group. When we
+		// transition to the next rank, this becomes prevRankMaxY.
+		if positions[name] > prevRankMaxY {
+			prevRankMaxY = positions[name]
 		}
 	}
 }

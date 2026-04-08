@@ -296,8 +296,8 @@ func TestLayout_MissingEdgeEndpoints(t *testing.T) {
 		},
 		Edges: []Edge{
 			{From: "A", To: "B"},
-			{From: "A", To: "Ghost"},     // "Ghost" not in Nodes
-			{From: "Missing", To: "B"},    // "Missing" not in Nodes
+			{From: "A", To: "Ghost"},   // "Ghost" not in Nodes
+			{From: "Missing", To: "B"}, // "Missing" not in Nodes
 		},
 	}
 
@@ -395,6 +395,209 @@ func TestLayout_PipelineMemberEdgeInForce(t *testing.T) {
 		t.Errorf("AlgoA.Y=%d should equal Engine.Y=%d", pos["AlgoA"], pos["Engine"])
 	}
 	assertInRange(t, pos, "DB")
+}
+
+func TestLayout_VerticalSpreadWithPipeline(t *testing.T) {
+	// Mimics the GPS navigation example map structure.
+	// Verifies nodes are spread evenly, not bunched at bottom.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Anchor1", Kind: KindAnchor},
+			{Name: "Anchor2", Kind: KindAnchor},
+			{Name: "App"},
+			{Name: "API"},
+			{Name: "Display"},
+			{Name: "Alerts"},
+			{Name: "CDN"},
+			{Name: "Engine"},
+			{Name: "Feed"},
+			{Name: "DataModel"},
+			{Name: "Cloud"},
+			{Name: "OSMData"},
+			{Name: "Mobile"},
+		},
+		Edges: []Edge{
+			{From: "Anchor1", To: "App"},
+			{From: "Anchor2", To: "API"},
+			{From: "Anchor2", To: "Alerts"},
+			{From: "App", To: "Display"},
+			{From: "App", To: "Alerts"},
+			{From: "App", To: "CDN"},
+			{From: "Display", To: "Engine"},
+			{From: "Alerts", To: "Feed"},
+			{From: "Alerts", To: "Engine:AlgoPredictive"},
+			{From: "API", To: "DataModel"},
+			{From: "Engine", To: "DataModel"},
+			{From: "Engine", To: "Cloud"},
+			{From: "Feed", To: "Cloud"},
+			{From: "CDN", To: "Cloud"},
+			{From: "DataModel", To: "OSMData"},
+			{From: "Cloud", To: "Mobile"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "Engine", Members: []string{"AlgoClassic", "AlgoPredictive", "AlgoQuantum"}},
+		},
+	}
+
+	l := New(DefaultOptions())
+	pos := l.Layout(g)
+
+	opts := DefaultOptions()
+	for _, name := range []string{"Anchor1", "Anchor2", "App", "API", "Display", "Alerts", "CDN", "Engine", "Feed", "DataModel", "Cloud", "OSMData", "Mobile"} {
+		assertInRange(t, pos, name)
+	}
+
+	// Pipeline members inherit parent Y
+	if pos["AlgoClassic"] != pos["Engine"] {
+		t.Errorf("AlgoClassic.Y=%d should equal Engine.Y=%d", pos["AlgoClassic"], pos["Engine"])
+	}
+	if pos["AlgoPredictive"] != pos["Engine"] {
+		t.Errorf("AlgoPredictive.Y=%d should equal Engine.Y=%d", pos["AlgoPredictive"], pos["Engine"])
+	}
+
+	// Verify vertical spread: mid-depth nodes should be near the
+	// middle of the range, not crammed near maxY. The threshold
+	// accounts for same-rank nodes being slightly spread apart.
+	midY := (opts.MinY + opts.MaxY) / 2
+	if pos["Engine"] > midY+25 {
+		t.Errorf("Engine.Y=%d is too far below midpoint %d, nodes are bunched at bottom", pos["Engine"], midY)
+	}
+	if pos["App"] > midY {
+		t.Errorf("App.Y=%d should be in the upper half (midY=%d)", pos["App"], midY)
+	}
+}
+
+func TestLayout_SameRankNodesCloseY(t *testing.T) {
+	// B, C, D are all at rank 1. They should have similar Y values.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "A", Kind: KindAnchor},
+			{Name: "B"},
+			{Name: "C"},
+			{Name: "D"},
+			{Name: "E"},
+		},
+		Edges: []Edge{
+			{From: "A", To: "B"},
+			{From: "A", To: "C"},
+			{From: "A", To: "D"},
+			{From: "B", To: "E"},
+			{From: "C", To: "E"},
+			{From: "D", To: "E"},
+		},
+	}
+
+	l := New(DefaultOptions())
+	pos := l.Layout(g)
+
+	maxDiff := 0
+	for _, n1 := range []string{"B", "C", "D"} {
+		for _, n2 := range []string{"B", "C", "D"} {
+			diff := pos[n1] - pos[n2]
+			if diff < 0 {
+				diff = -diff
+			}
+			if diff > maxDiff {
+				maxDiff = diff
+			}
+		}
+	}
+	opts := DefaultOptions()
+	if maxDiff > 2*opts.MinSpacing {
+		t.Errorf("same-rank nodes B,C,D have Y spread of %d (B=%d, C=%d, D=%d), want <= %d",
+			maxDiff, pos["B"], pos["C"], pos["D"], 2*opts.MinSpacing)
+	}
+}
+
+func TestLayout_GPSNavigationMap(t *testing.T) {
+	// Mimics the real GPS navigation Wardley Map that triggered the
+	// cascading compression bug: 2 anchors, 6 rank-deep DAG, a pipeline,
+	// and many same-rank nodes. Before the displacement cap fix, 11 of
+	// 17 components were clamped at Y=97.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Automobiliste", Kind: KindAnchor},
+			{Name: "Collectivite", Kind: KindAnchor},
+			{Name: "AppMobile"},
+			{Name: "API"},
+			{Name: "Itineraire"},
+			{Name: "Alertes"},
+			{Name: "CDN"},
+			{Name: "Paiement"},
+			{Name: "Moteur"}, // pipeline parent
+			{Name: "FluxTrafic"},
+			{Name: "Donnees"},
+			{Name: "Cloud"},
+			{Name: "OSM"},
+			{Name: "Hebergement"},
+		},
+		Edges: []Edge{
+			{From: "Automobiliste", To: "AppMobile"},
+			{From: "Collectivite", To: "API"},
+			{From: "Collectivite", To: "Alertes"},
+			{From: "AppMobile", To: "Itineraire"},
+			{From: "AppMobile", To: "Alertes"},
+			{From: "AppMobile", To: "CDN"},
+			{From: "AppMobile", To: "Paiement"},
+			{From: "Itineraire", To: "Moteur"},
+			{From: "Alertes", To: "FluxTrafic"},
+			{From: "Alertes", To: "Moteur:AlgoPredictif"},
+			{From: "API", To: "Donnees"},
+			{From: "Moteur", To: "Donnees"},
+			{From: "Moteur", To: "Cloud"},
+			{From: "FluxTrafic", To: "Cloud"},
+			{From: "CDN", To: "Cloud"},
+			{From: "Donnees", To: "OSM"},
+			{From: "Cloud", To: "Hebergement"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "Moteur", Members: []string{"AlgoClassique", "AlgoPredictif", "AlgoQuantique"}},
+		},
+	}
+
+	l := New(DefaultOptions())
+	pos := l.Layout(g)
+
+	opts := DefaultOptions()
+	nonPipeline := []string{
+		"Automobiliste", "Collectivite", "AppMobile", "API",
+		"Itineraire", "Alertes", "CDN", "Paiement",
+		"Moteur", "FluxTrafic", "Donnees", "Cloud", "OSM", "Hebergement",
+	}
+	for _, name := range nonPipeline {
+		assertInRange(t, pos, name)
+	}
+
+	// Pipeline members inherit parent Y
+	if pos["AlgoClassique"] != pos["Moteur"] {
+		t.Errorf("AlgoClassique.Y=%d should equal Moteur.Y=%d", pos["AlgoClassique"], pos["Moteur"])
+	}
+
+	// Key assertion: no more than 3 non-pipeline nodes at the exact same Y.
+	// Before the fix, 11 nodes were all at Y=97.
+	yCounts := make(map[int]int)
+	for _, name := range nonPipeline {
+		yCounts[pos[name]]++
+	}
+	for y, count := range yCounts {
+		if count > 3 {
+			t.Errorf("%d non-pipeline nodes at Y=%d, want <= 3 (nodes bunched)", count, y)
+		}
+	}
+
+	// Mid-depth nodes should be in the middle third, not at the bottom
+	midY := (opts.MinY + opts.MaxY) / 2
+	if pos["Moteur"] > midY+25 {
+		t.Errorf("Moteur.Y=%d should be near middle (midY=%d), not at bottom", pos["Moteur"], midY)
+	}
+
+	// Anchors at top, deepest nodes at bottom, with spread in between
+	if pos["OSM"] <= pos["Moteur"] {
+		t.Errorf("OSM.Y=%d should be below Moteur.Y=%d", pos["OSM"], pos["Moteur"])
+	}
+	if pos["Hebergement"] <= pos["Cloud"] {
+		t.Errorf("Hebergement.Y=%d should be below Cloud.Y=%d", pos["Hebergement"], pos["Cloud"])
+	}
 }
 
 func assertInRange(t *testing.T, pos map[string]int, name string) {
