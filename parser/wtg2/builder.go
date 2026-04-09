@@ -101,12 +101,25 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 				}
 			}
 
-			// Set description from note
+			// Build description from note, cost, and asset for SVG tooltip
+			var descParts []string
 			if nd.Note != "" {
-				comp.Description = nd.Note
+				descParts = append(descParts, nd.Note)
+			}
+			if nd.Asset != "" {
+				comp.Asset = nd.Asset
+				descParts = append(descParts, "Asset: "+nd.Asset)
+			}
+			if nd.Cost != "" {
+				comp.Cost = nd.Cost
+				descParts = append(descParts, "Cost: "+nd.Cost)
+			}
+			if len(descParts) > 0 {
+				comp.Description = strings.Join(descParts, " | ")
 			}
 
 			comp.Inertia = nd.Inertia
+			comp.InertiaKinds = nd.InertiaKinds
 
 			if err := m.AddComponent(comp); err != nil {
 				return nil, fmt.Errorf("component %q: %w", nd.Name, err)
@@ -133,10 +146,11 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 					inertiaX = x + (evolvedX-x)/3
 				}
 				collab := &wardley.Collaboration{
-					F:       comp,
-					T:       evolved,
-					Type:    wardley.EvolvedComponentEdge,
-					Inertia: image.Pt(inertiaX, 0),
+					F:            comp,
+					T:            evolved,
+					Type:         wardley.EvolvedComponentEdge,
+					Inertia:      image.Pt(inertiaX, 0),
+					InertiaKinds: nd.InertiaKinds,
 				}
 				if err := m.SetCollaboration(collab); err != nil {
 					return nil, fmt.Errorf("evolution edge for %q: %w", nd.Name, err)
@@ -327,8 +341,44 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 		}
 
 		group := wardley.NewGroup(newID(), gd.Name, memberPoints, fillColor)
+		group.TeamType = gd.Team
 		if err := m.AddComponent(group); err != nil {
 			return nil, fmt.Errorf("group %q: %w", gd.Name, err)
+		}
+	}
+
+	// Phase 3.8: Attach signals, annotations, and gameplays to components
+	for _, sig := range doc.Signals {
+		entry, ok := nodeDict[sig.Target]
+		if !ok {
+			continue
+		}
+		if comp, ok := entry.node.(*wardley.Component); ok {
+			comp.Signals = append(comp.Signals, wardley.ComponentSignal{Type: sig.Type})
+		}
+	}
+	for _, ann := range doc.Annotations {
+		entry, ok := nodeDict[ann.Target]
+		if !ok {
+			continue
+		}
+		if comp, ok := entry.node.(*wardley.Component); ok {
+			comp.Annotations = append(comp.Annotations, wardley.ComponentAnnotation{
+				Kind: ann.Kind,
+				Text: ann.Text,
+			})
+		}
+	}
+	for _, gp := range doc.Gameplays {
+		entry, ok := nodeDict[gp.Target]
+		if !ok {
+			continue
+		}
+		if comp, ok := entry.node.(*wardley.Component); ok {
+			comp.Gameplays = append(comp.Gameplays, wardley.ComponentGameplay{
+				Type: gp.Type,
+				Text: gp.Text,
+			})
 		}
 	}
 

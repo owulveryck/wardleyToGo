@@ -22,6 +22,7 @@ const (
 	TokenNote
 	TokenWarning
 	TokenSignal
+	TokenGameplay
 )
 
 // Token represents a classified statement from the source.
@@ -166,6 +167,10 @@ func classifyLine(line string) TokenType {
 		return TokenWarning
 	case hasKeywordPrefix(lower, "signal "):
 		return TokenSignal
+	case hasKeywordPrefix(lower, "gameplay "):
+		return TokenGameplay
+	case hasKeywordPrefix(lower, "doctrine:") || hasKeywordPrefix(lower, "doctrine :"):
+		return TokenMeta
 	case strings.Contains(line, " -> ") || strings.Contains(line, " <-> ") || strings.Contains(line, "-["):
 		return TokenEdge
 	case strings.Contains(line, " : "):

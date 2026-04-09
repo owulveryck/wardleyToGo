@@ -328,6 +328,249 @@ func TestParseGroupWithoutColor(t *testing.T) {
 	}
 }
 
+func TestParseDoctrine(t *testing.T) {
+	input := `title: My Map
+doctrine: context
+`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if doc.Doctrine != "context" {
+		t.Errorf("doctrine = %q, want %q", doc.Doctrine, "context")
+	}
+}
+
+func TestParseComponentWithAssetAndCost(t *testing.T) {
+	input := `AI Team : II.3 {
+  type: build
+  asset: human
+  cost: "1.2M/year, 12 FTEs"
+  note: "Key differentiator"
+}`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(doc.Nodes) != 1 {
+		t.Fatalf("got %d nodes, want 1", len(doc.Nodes))
+	}
+	n := doc.Nodes[0]
+	if n.Asset != "human" {
+		t.Errorf("asset = %q, want %q", n.Asset, "human")
+	}
+	if n.Cost != "1.2M/year, 12 FTEs" {
+		t.Errorf("cost = %q, want %q", n.Cost, "1.2M/year, 12 FTEs")
+	}
+	if n.Type != "build" {
+		t.Errorf("type = %q, want %q", n.Type, "build")
+	}
+}
+
+func TestParseQualifiedInertia(t *testing.T) {
+	tests := []struct {
+		name          string
+		input         string
+		wantInertia   int
+		wantKinds     []string
+		wantEvolution string
+		wantEvolvedTo string
+	}{
+		{
+			name:          "unqualified inertia",
+			input:         `Comp : II.7 !! >> III.5`,
+			wantInertia:   2,
+			wantKinds:     nil,
+			wantEvolution: "II.7",
+			wantEvolvedTo: "III.5",
+		},
+		{
+			name:          "single qualified kind",
+			input:         `Comp : II.7 !(financial) >> III.5`,
+			wantInertia:   1,
+			wantKinds:     []string{"financial"},
+			wantEvolution: "II.7",
+			wantEvolvedTo: "III.5",
+		},
+		{
+			name:          "multiple qualified kinds",
+			input:         `Comp : II.7 !!(tech,human) >> III.5`,
+			wantInertia:   2,
+			wantKinds:     []string{"tech", "human"},
+			wantEvolution: "II.7",
+			wantEvolvedTo: "III.5",
+		},
+		{
+			name:          "triple inertia with kinds",
+			input:         `Comp : II.7 !!!(tech,financial,social) >> III.5`,
+			wantInertia:   3,
+			wantKinds:     []string{"tech", "financial", "social"},
+			wantEvolution: "II.7",
+			wantEvolvedTo: "III.5",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := NewParser(strings.NewReader(tt.input))
+			if err != nil {
+				t.Fatal(err)
+			}
+			doc, err := p.Parse()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if len(doc.Nodes) != 1 {
+				t.Fatalf("got %d nodes, want 1", len(doc.Nodes))
+			}
+			n := doc.Nodes[0]
+			if n.Inertia != tt.wantInertia {
+				t.Errorf("inertia = %d, want %d", n.Inertia, tt.wantInertia)
+			}
+			if n.Evolution != tt.wantEvolution {
+				t.Errorf("evolution = %q, want %q", n.Evolution, tt.wantEvolution)
+			}
+			if n.EvolvedTo != tt.wantEvolvedTo {
+				t.Errorf("evolvedTo = %q, want %q", n.EvolvedTo, tt.wantEvolvedTo)
+			}
+			if len(n.InertiaKinds) != len(tt.wantKinds) {
+				t.Fatalf("inertiaKinds = %v, want %v", n.InertiaKinds, tt.wantKinds)
+			}
+			for i, k := range n.InertiaKinds {
+				if k != tt.wantKinds[i] {
+					t.Errorf("inertiaKinds[%d] = %q, want %q", i, k, tt.wantKinds[i])
+				}
+			}
+		})
+	}
+}
+
+func TestParseExtendedSignals(t *testing.T) {
+	input := `signal co-evolution on DevOps
+signal red-queen on Search Engine
+signal commoditization on Cloud
+signal network-effects on Platform
+signal economies-of-scale on DC`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(doc.Signals) != 5 {
+		t.Fatalf("got %d signals, want 5", len(doc.Signals))
+	}
+
+	expected := []struct{ typ, target string }{
+		{"co-evolution", "DevOps"},
+		{"red-queen", "Search Engine"},
+		{"commoditization", "Cloud"},
+		{"network-effects", "Platform"},
+		{"economies-of-scale", "DC"},
+	}
+	for i, e := range expected {
+		if doc.Signals[i].Type != e.typ {
+			t.Errorf("signal[%d].type = %q, want %q", i, doc.Signals[i].Type, e.typ)
+		}
+		if doc.Signals[i].Target != e.target {
+			t.Errorf("signal[%d].target = %q, want %q", i, doc.Signals[i].Target, e.target)
+		}
+	}
+}
+
+func TestParseGameplay(t *testing.T) {
+	input := `gameplay ILC on Platform API
+gameplay open-source "Commoditize compute" on Cloud Infra
+gameplay strangler-fig on Legacy CRM`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(doc.Gameplays) != 3 {
+		t.Fatalf("got %d gameplays, want 3", len(doc.Gameplays))
+	}
+
+	// Test simple gameplay (no description)
+	if doc.Gameplays[0].Type != "ILC" {
+		t.Errorf("gameplay[0].type = %q, want %q", doc.Gameplays[0].Type, "ILC")
+	}
+	if doc.Gameplays[0].Target != "Platform API" {
+		t.Errorf("gameplay[0].target = %q, want %q", doc.Gameplays[0].Target, "Platform API")
+	}
+	if doc.Gameplays[0].Text != "" {
+		t.Errorf("gameplay[0].text = %q, want empty", doc.Gameplays[0].Text)
+	}
+
+	// Test gameplay with description
+	if doc.Gameplays[1].Type != "open-source" {
+		t.Errorf("gameplay[1].type = %q, want %q", doc.Gameplays[1].Type, "open-source")
+	}
+	if doc.Gameplays[1].Text != "Commoditize compute" {
+		t.Errorf("gameplay[1].text = %q, want %q", doc.Gameplays[1].Text, "Commoditize compute")
+	}
+	if doc.Gameplays[1].Target != "Cloud Infra" {
+		t.Errorf("gameplay[1].target = %q, want %q", doc.Gameplays[1].Target, "Cloud Infra")
+	}
+
+	// Test another simple gameplay
+	if doc.Gameplays[2].Type != "strangler-fig" {
+		t.Errorf("gameplay[2].type = %q, want %q", doc.Gameplays[2].Type, "strangler-fig")
+	}
+	if doc.Gameplays[2].Target != "Legacy CRM" {
+		t.Errorf("gameplay[2].target = %q, want %q", doc.Gameplays[2].Target, "Legacy CRM")
+	}
+}
+
+func TestParseGroupWithTeam(t *testing.T) {
+	input := `group R&D Team {
+  team: explorer
+  color: #E74C3C
+  Algo
+  Cache
+}`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(doc.Groups) != 1 {
+		t.Fatalf("got %d groups, want 1", len(doc.Groups))
+	}
+	g := doc.Groups[0]
+	if g.Team != "explorer" {
+		t.Errorf("team = %q, want %q", g.Team, "explorer")
+	}
+	if g.Color != "#E74C3C" {
+		t.Errorf("color = %q, want %q", g.Color, "#E74C3C")
+	}
+	if len(g.Members) != 2 {
+		t.Fatalf("got %d members, want 2", len(g.Members))
+	}
+}
+
 func TestParseExampleFile(t *testing.T) {
 	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {

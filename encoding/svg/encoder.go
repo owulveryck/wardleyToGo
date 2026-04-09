@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"image"
+	"image/color"
 	"io"
 	"sort"
 
@@ -62,9 +63,12 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 	}
 
 	if err := e.e.Encode(svg.Text{
-		P:          image.Pt(e.box.Dx()/2, 20),
+		P:          image.Pt(e.canvas.Min.X+(e.canvas.Dx()/2), e.canvas.Min.Y-15),
 		Text:       []byte(m.Title),
 		TextAnchor: svg.TextAnchorMiddle,
+		FontWeight: "bold",
+		FontSize:   "16px",
+		Fill:       svg.Color{Color: color.RGBA{0x13, 0x24, 0x54, 0xff}},
 	}); err != nil {
 		return err
 	}

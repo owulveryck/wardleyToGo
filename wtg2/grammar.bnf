@@ -17,6 +17,7 @@
                       | <group-decl>
                       | <annotation>
                       | <signal>
+                      | <gameplay>
                       | <blank-line>
 
 <blank-line>        ::= <newline>
@@ -35,6 +36,9 @@
                       | "author" ":" <text> <newline>
                       | "scope" ":" <text> <newline>
                       | "question" ":" <text> <newline>
+                      | "doctrine" ":" <doctrine-value> <newline>
+
+<doctrine-value>    ::= "hygiene" | "context" | "excellence" | "evolution"
 
 <date-value>        ::= <digit>{4} "-" <digit>{2} "-" <digit>{2}
 
@@ -65,8 +69,10 @@
 
 <node-config>       ::= <evolution-config>
                       | <type-config>
+                      | <asset-config>
                       | <color-config>
                       | <visibility-config>
+                      | <cost-config>
                       | <note-config>
                       | <comment>
 
@@ -77,6 +83,11 @@
 <note-config>       ::= "note" ":" <text> <newline>
 
 <type-value>        ::= "build" | "buy" | "outsource"
+
+<asset-config>      ::= "asset" ":" <asset-value> <newline>
+<asset-value>       ::= "tech" | "financial" | "human" | "relational" | "social"
+
+<cost-config>       ::= "cost" ":" <text> <newline>
 
 <color-value>       ::= "#" <hex>{6}
                       | "#" <hex>{3}
@@ -99,9 +110,14 @@
 
 <roman>             ::= "I" | "II" | "III" | "IV"
 
-<inertia>           ::= "!"                     (* modérée *)
+<inertia>           ::= <inertia-level>
+                      | <inertia-level> "(" <inertia-kind> ("," <inertia-kind>)* ")"
+
+<inertia-level>     ::= "!"                     (* modérée *)
                       | "!!"                    (* forte *)
                       | "!!!"                   (* bloquante *)
+
+<inertia-kind>      ::= "tech" | "financial" | "human" | "relational" | "social"
 
 (* Sémantique de <position> :
      Le chiffre romain identifie la phase (I → IV, gauche → droite).
@@ -145,8 +161,15 @@
 
 <group-body>        ::= <node-decl>
                       | <edge>
+                      | <color-directive>
+                      | <team-directive>
                       | <comment>
                       | <blank-line>
+
+<color-directive>   ::= "color" ":" <color-value> <newline>
+<team-directive>    ::= "team" ":" <team-type> <newline>
+<team-type>         ::= "explorer" | "settler" | "town-planner"
+                      | "pioneer" | "villager"
 
 
 (* ─── Annotations & signaux ────────────────────────────────── *)
@@ -156,6 +179,18 @@
 
 <signal>            ::= "signal" <signal-type> "on" <identifier> <newline>
 <signal-type>       ::= "accelerating" | "stagnating" | "declining"
+                      | "co-evolution" | "red-queen"
+                      | "commoditization" | "network-effects"
+                      | "economies-of-scale"
+
+
+(* ─── Manœuvres stratégiques (gameplays) ──────────────────── *)
+
+<gameplay>          ::= "gameplay" <gameplay-type> "on" <identifier> <newline>
+                      | "gameplay" <gameplay-type> <quoted-text> "on" <identifier> <newline>
+
+<gameplay-type>     ::= "ILC" | "open-source" | "land-grab" | "embrace-extend"
+                      | "tower-moat" | "FUD" | "strangler-fig" | "signal-distortion"
 
 <quoted-text>       ::= '"' <text> '"'
 
@@ -171,12 +206,21 @@
 
 <reserved>          ::= "anchor" | "component" | "submap"
                       | "pipeline" | "group"
-                      | "note" | "warning" | "signal"
+                      | "note" | "warning" | "signal" | "gameplay"
                       | "title" | "date" | "author" | "scope" | "question"
-                      | "stages"
-                      | "evolution" | "type" | "color" | "visibility"
+                      | "stages" | "doctrine"
+                      | "evolution" | "type" | "asset" | "color" | "visibility"
+                      | "cost" | "team"
                       | "build" | "buy" | "outsource"
+                      | "tech" | "financial" | "human" | "relational" | "social"
                       | "accelerating" | "stagnating" | "declining"
+                      | "co-evolution" | "red-queen" | "commoditization"
+                      | "network-effects" | "economies-of-scale"
+                      | "ILC" | "open-source" | "land-grab" | "embrace-extend"
+                      | "tower-moat" | "FUD" | "strangler-fig" | "signal-distortion"
+                      | "explorer" | "settler" | "town-planner"
+                      | "pioneer" | "villager"
+                      | "hygiene" | "context" | "excellence"
                       | "on"
 
 <letter>            ::= "a".."z" | "A".."Z" | <unicode-letter>
@@ -192,12 +236,14 @@
 (*  CONVENTIONS D'USAGE (non syntaxiques)                      *)
 (*                                                             *)
 (*  Ordre canonique recommandé :                               *)
-(*    1. Métadonnées (title, date, author, scope, question)    *)
+(*    1. Métadonnées (title, date, author, scope, question,    *)
+(*       doctrine)                                             *)
 (*    2. Configuration (stages)                                *)
 (*    3. Ancres et composants (anchor, node-decl, pipeline)    *)
 (*    4. Chaîne de valeur (edges)                              *)
 (*    5. Groupes (group)                                       *)
-(*    6. Annotations et signaux (note, warning, signal)        *)
+(*    6. Annotations, signaux et gameplays                     *)
+(*       (note, warning, signal, gameplay)                     *)
 (*                                                             *)
 (*  Règles sémantiques :                                       *)
 (*    - Tout noeud référencé dans un edge, une annotation ou   *)

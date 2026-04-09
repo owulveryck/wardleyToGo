@@ -20,6 +20,7 @@ type Group struct {
 	MemberPoints []image.Point // positions in 100x100 space
 	FillColor    color.Color   // RGBA with low alpha for translucency
 	StrokeColor  color.Color   // same RGB, higher alpha for border
+	TeamType     string        // EVT/PST team type: "explorer", "settler", "town-planner", "pioneer", "villager"
 }
 
 // NewGroup creates a Group with the given member positions and fill color.
@@ -123,22 +124,56 @@ func (g *Group) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 		return err
 	}
 
-	// Render stroke path
+	// Render stroke path with team-type-specific styling
+	strokeWidth := "2"
+	if g.TeamType == "town-planner" {
+		strokeWidth = "4"
+	}
 	strokePath := xml.StartElement{
 		Name: xml.Name{Local: "path"},
 		Attr: []xml.Attr{
 			{Name: xml.Name{Local: "d"}, Value: pathD},
 			{Name: xml.Name{Local: "fill"}, Value: "none"},
-			{Name: xml.Name{Local: "stroke-width"}, Value: "2"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: strokeWidth},
 		},
 	}
 	sc := svg.Color{Color: g.StrokeColor}
 	strokePath.Attr = append(strokePath.Attr, must(sc.MarshalXMLAttr(xml.Name{Local: "stroke"})))
 	strokePath.Attr = append(strokePath.Attr, must(sc.MarshalXMLAttr(xml.Name{Local: "stroke-opacity"})))
+
+	// Apply team-type-specific border style
+	if g.TeamType == "explorer" || g.TeamType == "pioneer" {
+		strokePath.Attr = append(strokePath.Attr, xml.Attr{Name: xml.Name{Local: "stroke-dasharray"}, Value: "8,4"})
+	}
+
 	if err := e.EncodeToken(strokePath); err != nil {
 		return err
 	}
-	return e.EncodeToken(strokePath.End())
+	if err := e.EncodeToken(strokePath.End()); err != nil {
+		return err
+	}
+
+	// For town-planner, render a second inner stroke for double-line effect
+	if g.TeamType == "town-planner" {
+		innerPath := xml.StartElement{
+			Name: xml.Name{Local: "path"},
+			Attr: []xml.Attr{
+				{Name: xml.Name{Local: "d"}, Value: pathD},
+				{Name: xml.Name{Local: "fill"}, Value: "none"},
+				{Name: xml.Name{Local: "stroke-width"}, Value: "1"},
+			},
+		}
+		innerPath.Attr = append(innerPath.Attr, must(sc.MarshalXMLAttr(xml.Name{Local: "stroke"})))
+		innerPath.Attr = append(innerPath.Attr, must(sc.MarshalXMLAttr(xml.Name{Local: "stroke-opacity"})))
+		if err := e.EncodeToken(innerPath); err != nil {
+			return err
+		}
+		if err := e.EncodeToken(innerPath.End()); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func must(a xml.Attr, err error) xml.Attr {

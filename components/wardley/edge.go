@@ -22,7 +22,8 @@ type Collaboration struct {
 	Label              string
 	Type               wardleyToGo.EdgeType
 	Inertia            image.Point
-	CurveOffset        int // perpendicular offset in pixels for Bézier control point; 0 = straight line
+	InertiaKinds       []string // Qualified inertia types for colored bar rendering
+	CurveOffset        int      // perpendicular offset in pixels for Bézier control point; 0 = straight line
 	RenderingLayer     int
 	Visibility         int
 	AbsoluteVisibility int
@@ -72,22 +73,53 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		classes = append(classes, "evolutionEdge")
 		if c.Inertia.X != 0 {
 			inertiaPosition := utils.CalcCoords(c.Inertia, canvas)
-			inertia := svg.Rectangle{
-				R: image.Rectangle{
-					Min: image.Point{
-						X: inertiaPosition.X - 5,
-						Y: coordsF.Y - 15,
+			if len(c.InertiaKinds) > 0 {
+				// Qualified inertia: render colored bars side by side
+				barWidth := 10 / len(c.InertiaKinds)
+				if barWidth < 3 {
+					barWidth = 3
+				}
+				totalWidth := barWidth * len(c.InertiaKinds)
+				startX := inertiaPosition.X - totalWidth/2
+				for i, kind := range c.InertiaKinds {
+					kindColor := inertiaKindColor(kind)
+					bar := svg.Rectangle{
+						R: image.Rectangle{
+							Min: image.Point{
+								X: startX + i*barWidth,
+								Y: coordsF.Y - 15,
+							},
+							Max: image.Point{
+								X: startX + (i+1)*barWidth,
+								Y: coordsF.Y + 15,
+							},
+						},
+						Fill:   svg.Color{Color: kindColor},
+						Stroke: svg.Color{Color: kindColor},
+					}
+					if err := e.Encode(bar); err != nil {
+						return err
+					}
+				}
+			} else {
+				// Unqualified inertia: single black bar (backward compatible)
+				inertia := svg.Rectangle{
+					R: image.Rectangle{
+						Min: image.Point{
+							X: inertiaPosition.X - 5,
+							Y: coordsF.Y - 15,
+						},
+						Max: image.Point{
+							X: inertiaPosition.X + 5,
+							Y: coordsF.Y + 15,
+						},
 					},
-					Max: image.Point{
-						X: inertiaPosition.X + 5,
-						Y: coordsF.Y + 15,
-					},
-				},
-				Fill:   svg.Black,
-				Stroke: svg.Black,
-			}
-			if err := e.Encode(inertia); err != nil {
-				return err
+					Fill:   svg.Black,
+					Stroke: svg.Black,
+				}
+				if err := e.Encode(inertia); err != nil {
+					return err
+				}
 			}
 		}
 	case EvolvedEdge:
@@ -99,17 +131,24 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		cx, cy := curveControlPoint(coordsF, coordsT, c.CurveOffset)
 		d := fmt.Sprintf("M %d,%d Q %d,%d %d,%d",
 			coordsF.X, coordsF.Y, cx, cy, coordsT.X, coordsT.Y)
-		return e.Encode(svg.Path{
+		if err := e.Encode(svg.Path{
 			D:               d,
 			Stroke:          stroke,
 			StrokeWidth:     "1",
 			StrokeDashArray: dashArray,
 			MarkerEnd:       markerEnd,
 			Class:           classes,
-		})
+		}); err != nil {
+			return err
+		}
+		if c.Label != "" {
+			// Place label near the control point (midpoint of curve).
+			return e.Encode(edgeLabelText(cx, cy-8, c.Label))
+		}
+		return nil
 	}
 
-	return e.Encode(svg.Line{
+	if err := e.Encode(svg.Line{
 		F:               coordsF,
 		T:               coordsT,
 		StrokeWidth:     "1",
@@ -117,7 +156,35 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		StrokeDashArray: dashArray,
 		MarkerEnd:       markerEnd,
 		Class:           classes,
-	})
+	}); err != nil {
+		return err
+	}
+	if c.Label != "" {
+		// Place label at midpoint of straight edge.
+		mx := (coordsF.X + coordsT.X) / 2
+		my := (coordsF.Y + coordsT.Y) / 2
+		return e.Encode(edgeLabelText(mx, my-8, c.Label))
+	}
+	return nil
+}
+
+// edgeLabelText creates SVG elements for an edge label at (x, y).
+// It wraps the text in a transform group so multi-line labels render
+// with proper line spacing.
+func edgeLabelText(x, y int, label string) svg.Transform {
+	return svg.Transform{
+		Translate: image.Pt(x, y),
+		Components: []any{
+			svg.Text{
+				P:          image.Pt(0, 0),
+				Text:       []byte(label),
+				TextAnchor: svg.TextAnchorMiddle,
+				TextAdjust: true,
+				Fill:       svg.Gray(100),
+				FontSize:   "11px",
+			},
+		},
+	}
 }
 
 // curveControlPoint computes the control point for a quadratic Bézier

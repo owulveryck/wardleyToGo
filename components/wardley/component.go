@@ -38,12 +38,35 @@ type Component struct {
 	Configured          bool
 	EvolutionPos        int
 	Inertia             int
+	InertiaKinds        []string // Qualified inertia: "tech", "financial", "human", "relational", "social"
 	Color               color.Color
 	AbsoluteVisibility  int
 	Anchor              int
 	PipelinedComponents []*Component
 	PipelineReference   *Component
 	Description         string
+	Asset               string                // Capital type: "tech", "financial", "human", "relational", "social"
+	Cost                string                // Free-text cost annotation
+	Signals             []ComponentSignal     // Market signals attached to this component
+	Annotations         []ComponentAnnotation // Notes/warnings attached to this component
+	Gameplays           []ComponentGameplay   // Strategic maneuvers on this component
+}
+
+// ComponentSignal is a signal attached to a component for SVG rendering.
+type ComponentSignal struct {
+	Type string // "accelerating", "declining", "co-evolution", etc.
+}
+
+// ComponentAnnotation is a note or warning attached to a component.
+type ComponentAnnotation struct {
+	Kind string // "note" or "warning"
+	Text string
+}
+
+// ComponentGameplay is a strategic maneuver annotation.
+type ComponentGameplay struct {
+	Type string // "ILC", "open-source", etc.
+	Text string // optional description
 }
 
 // GetAbsoluteVisibility returns the visibility of the component as seen from the anchor
@@ -244,10 +267,31 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 	})
 	components = append(components, struct {
 		XMLName xml.Name `xml:"title"`
-		Text    string   `xml:",innerxml"`
+		Text    string   `xml:",chardata"`
 	}{
 		Text: c.Description,
 	})
+
+	// Render signals as small indicators above-right of the component
+	for i, sig := range c.Signals {
+		offsetY := -15 - i*14
+		components = append(components, signalIndicator(sig.Type, 15, offsetY)...)
+	}
+
+	// Render warnings as small orange triangles
+	for i, ann := range c.Annotations {
+		if ann.Kind == "warning" {
+			offsetX := -20 - i*16
+			components = append(components, warningIndicator(offsetX, 0, ann.Text)...)
+		}
+	}
+
+	// Render gameplays as small labeled badges below the component
+	for i, gp := range c.Gameplays {
+		offsetY := 18 + i*14
+		components = append(components, gameplayBadge(gp.Type, 0, offsetY)...)
+	}
+
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,

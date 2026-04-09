@@ -23,17 +23,128 @@ Key principles:
 
 ---
 
+## Strategic Concepts for Richer Maps
+
+### Gameplays (Strategic Maneuvers)
+
+A gameplay is a deliberate action to modify your position on the map. Annotate gameplays on the component that is the *target* of the maneuver.
+
+| Gameplay | Description | Typical context |
+|----------|-------------|-----------------|
+| `ILC` | Innovate-Leverage-Commoditize: provide infrastructure, observe what thrives, absorb | Platform with ecosystem |
+| `open-source` | Commoditize a layer to capture value in an adjacent layer | Competitor with proprietary rent |
+| `land-grab` | Sacrifice profitability for rapid market share | New market with strong network effects |
+| `embrace-extend` | Adopt a standard, add proprietary extensions, close ecosystem | Standard you want to control |
+| `tower-moat` | Erect barriers: patents, lock-in, closed protocols | Protecting an existing rent |
+| `FUD` | Spread fear/uncertainty/doubt to slow competitor adoption | Competitor gaining traction |
+| `strangler-fig` | Progressively replace a legacy system by commoditizing non-differentiating layers | Legacy system blocking evolution |
+| `signal-distortion` | Mislead competitors about strategic intent | Competitive misdirection |
+
+```wtg2
+gameplay ILC on Platform API
+gameplay open-source "Commoditize compute to capture AI layer" on Cloud Infra
+gameplay strangler-fig on Legacy CRM
+```
+
+### Five Capitals (Asset Classification)
+
+Components represent different types of organizational capital. The `asset` field classifies the *nature* of the asset (orthogonal to `type` which classifies sourcing):
+
+| Asset type | Description | Example |
+|------------|-------------|---------|
+| `tech` | Technological capital: code, infrastructure, patents | A routing engine, a data pipeline |
+| `financial` | Financial capital: revenue models, pricing power | A billing system, a licensing model |
+| `human` | Human capital: expertise, skills, tacit knowledge | An ML engineering team, domain experts |
+| `relational` | Relational capital: partnerships, brand, contracts | A partner API, a brand, a patent portfolio |
+| `social` | Social/environmental capital: community, regulatory | Open-source community, regulatory compliance |
+
+```wtg2
+AI Team : II.3 {
+    type: build
+    asset: human
+    note: "12 ML engineers, hard to replace"
+}
+```
+
+### Qualified Inertia
+
+Inertia is not just a severity level — it has a *nature*. The book identifies 5 forms:
+
+| Kind | Meaning | Symptom |
+|------|---------|---------|
+| `tech` | Technology lock-in, infrastructure debt | "We've always used Java" |
+| `financial` | Sunk costs, established revenue models | "We've invested 5M in this" |
+| `human` | Skills gap, identity threat, expertise obsolescence | "Our team doesn't know cloud-native" |
+| `relational` | Contractual obligations, partner dependencies | "We have a 3-year vendor contract" |
+| `social` | Cultural resistance, regulatory inertia | "That's not how we do things here" |
+
+```wtg2
+Component : II.7 !!(tech,human) >> III.5    // tech and human inertia
+Component : II.7 !(financial) >> III.5      // financial inertia only
+Component : II.7 !!! >> III.5              // unqualified (backward-compatible)
+```
+
+### Climatic Patterns (Extended Signals)
+
+Beyond `accelerating`/`stagnating`/`declining`, mark climatic forces that explain *why* components evolve:
+
+| Signal | Meaning |
+|--------|---------|
+| `co-evolution` | Technology and practice evolving together (e.g., containers + DevOps) |
+| `red-queen` | Must evolve constantly just to maintain position |
+| `commoditization` | Gravitational pull toward utility/commodity |
+| `network-effects` | Value increases with number of users/participants |
+| `economies-of-scale` | Cost advantage from volume, favoring consolidation |
+
+```wtg2
+signal co-evolution on DevOps Practices
+signal commoditization on Cloud Infrastructure
+signal network-effects on Social Platform
+```
+
+### EVT/PST Team Alignment
+
+The Explorer-Villager-Town-planner model aligns team types to evolution phases. Use `team:` in groups to declare this alignment:
+
+| Team type | Evolution phase | Mindset |
+|-----------|----------------|---------|
+| `explorer` / `pioneer` | Genesis (I) | Discovery, intuition, high failure tolerance |
+| `settler` / `villager` | Custom-Product (II-III) | Productization, standards, analysis |
+| `town-planner` | Commodity (IV) | Industrialization, cost optimization, experience-driven |
+
+A mismatch between team type and component evolution phase is a strategic signal worth highlighting.
+
+```wtg2
+group R&D Team {
+    team: explorer
+    Quantum Algo
+}
+```
+
+### Carrying Cost
+
+The book emphasizes that 70-80% of IT budgets go to maintenance. Use `cost:` to annotate financial context:
+
+```wtg2
+Legacy CRM : III.2 {
+    type: buy
+    cost: "850k/year, 80% maintenance"
+}
+```
+
+---
+
 ## Document Structure
 
 A WTG2 document follows this canonical order:
 
 ```
-1. Metadata       (title, date, author, scope, question)
+1. Metadata       (title, date, author, scope, question, doctrine)
 2. Configuration   (stages)
 3. Nodes           (anchors, components, submaps, pipelines)
 4. Value chain     (edges / dependencies)
 5. Groups          (visual organization)
-6. Annotations     (notes, warnings, signals)
+6. Annotations     (notes, warnings, signals, gameplays)
 ```
 
 All sections are optional. Comments can appear anywhere.
@@ -60,6 +171,12 @@ question: "Where should we invest to differentiate?"
 ```
 
 All metadata fields are optional. The `question` value should be quoted.
+
+```
+doctrine: context
+```
+
+The `doctrine` field indicates organizational maturity phase: `hygiene`, `context`, `excellence`, or `evolution`.
 
 ### Stage Labels
 
@@ -114,8 +231,10 @@ Block config fields:
 | Field        | Values                              |
 |--------------|-------------------------------------|
 | `type`       | `build`, `buy`, `outsource`         |
+| `asset`      | `tech`, `financial`, `human`, `relational`, `social` |
 | `color`      | `#RRGGBB`, `#RGB`, or CSS color name |
 | `visibility` | `0.0` (bottom) to `1.0` (top)      |
+| `cost`       | Free-text cost annotation           |
 | `note`       | Quoted text description             |
 
 ### Evolution Positioning
@@ -161,15 +280,17 @@ This renders an arrow from position II.7 to III.5 on the map.
 
 ### Inertia
 
-Mark resistance to evolution with `!` (1-3 levels):
+Mark resistance to evolution with `!` (1-3 levels), optionally qualified by kind:
 
 ```
-Component : II.7 ! >> III.5     // moderate inertia
-Component : II.7 !! >> III.5    // strong inertia
-Component : II.7 !!! >> III.5   // blocking inertia
+Component : II.7 ! >> III.5               // moderate inertia
+Component : II.7 !! >> III.5              // strong inertia
+Component : II.7 !!! >> III.5             // blocking inertia
+Component : II.7 !!(tech,human) >> III.5  // qualified: tech + human inertia
+Component : II.7 !(financial) >> III.5    // qualified: financial inertia
 ```
 
-Inertia appears between the current position and the `>>` movement operator.
+Inertia appears between the current position and the `>>` movement operator. The optional `(kind,...)` qualifier specifies the nature of the resistance (see "Qualified Inertia" above).
 
 ### Visibility Override
 
@@ -228,7 +349,7 @@ Rules:
 
 ### Groups
 
-Visually group components (purely visual, no scoping):
+Visually group components (purely visual, no scoping). Optionally specify team type for EVT/PST alignment:
 
 ```
 group Team Name {
@@ -236,9 +357,23 @@ group Team Name {
   Component B
   Component C
 }
+
+group R&D Team {
+  team: explorer
+  color: #E74C3C
+  Quantum Algo
+  Experimental Cache
+}
 ```
 
 Members must reference existing component names.
+
+Group directives:
+
+| Directive | Values |
+|-----------|--------|
+| `color:`  | `#RRGGBB`, `#RGB`, or CSS color name |
+| `team:`   | `explorer`, `settler`, `town-planner`, `pioneer`, `villager` |
 
 ### Annotations
 
@@ -249,13 +384,33 @@ warning "Risk description" on Component Name
 
 ### Signals
 
-Mark market dynamics on a component:
+Mark market dynamics and climatic patterns on a component:
 
 ```
 signal accelerating on Component Name    // moving rapidly toward commodity
 signal stagnating on Component Name      // evolution has plateaued
 signal declining on Component Name       // regression in relevance
+signal co-evolution on Component Name    // technology-practice mutual reinforcement
+signal red-queen on Component Name       // must evolve to maintain position
+signal commoditization on Component Name // gravitational pull toward utility
+signal network-effects on Component Name // value grows with adoption
+signal economies-of-scale on Component   // cost advantage from volume
 ```
+
+### Gameplays
+
+Annotate strategic maneuvers on a component:
+
+```
+gameplay ILC on Platform API
+gameplay open-source "Commoditize to capture adjacent value" on Database Engine
+gameplay strangler-fig on Legacy System
+gameplay land-grab on New Market
+```
+
+Gameplay types: `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`.
+
+The quoted description is optional and provides strategic context.
 
 ---
 
@@ -267,7 +422,7 @@ Identifiers (component names, group names, etc.):
 - Spaces are allowed inside identifiers (e.g., `Application Mobile`)
 - Cannot be a reserved keyword used alone
 
-**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `title`, `date`, `author`, `scope`, `question`, `stages`, `evolution`, `type`, `color`, `visibility`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `on`
+**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`
 
 ---
 
@@ -292,6 +447,7 @@ date: 2026-01-15
 author: Product Strategy Cell
 scope: B2C mobile app, European market
 question: "Where to invest to differentiate against Google Maps?"
+doctrine: context
 
 stages: Genesis, Custom, Product, Commodity
 
@@ -304,11 +460,13 @@ Application : III.5
 Displayed Route : III.2
 Real-Time Traffic Alerts : II.3
 
-// Core engine with evolution and inertia
-Route Calculation Engine : II.7 !! >> III.5 {
+// Core engine with qualified inertia and asset/cost
+Route Calculation Engine : II.7 !!(tech,human) >> III.5 {
   type: build
+  asset: tech
   color: #3498DB
-  note: "Key differentiator — 12 FTEs, 1.2M/year"
+  cost: "1.2M/year, 12 FTEs"
+  note: "Key differentiator"
 }
 
 // Pipeline: the engine exists in multiple forms
@@ -319,16 +477,22 @@ pipeline Route Calculation Engine {
 }
 
 Cartographic Data Model : III.1 (buy)
-B2G Partner API : II.1
+B2G Partner API : II.1 {
+  asset: relational
+}
 
 // Infrastructure
 OSM Data : III.8 (buy)
-Real-Time Sensor Feed : I.8 ! >> II.5 {
+Real-Time Sensor Feed : I.8 !(relational) >> II.5 {
   type: build
+  asset: tech
   color: #E67E22
+  cost: "300k/year"
   note: "Partnership in progress with Waze/TomTom"
 }
-Cloud Infrastructure : IV.3 (buy)
+Cloud Infrastructure : IV.3 (buy) {
+  cost: "500k/year, rising 30%"
+}
 CDN : IV.5 (buy)
 Mobile Network : IV.7 (outsource)
 
@@ -351,20 +515,23 @@ Application -> Payment System
 // Link to specific pipeline member
 Real-Time Traffic Alerts -> Route Calculation Engine:Predictive AI
 
-// Groups
+// Groups with team types
 group Core Navigation Team {
+  team: settler
   Route Calculation Engine
   Predictive AI
   Cartographic Data Model
 }
 
 group Platform Team {
+  team: town-planner
   Cloud Infrastructure
   CDN
   Payment System
 }
 
 group Data Team {
+  team: explorer
   Real-Time Sensor Feed
   OSM Data
   Quantum Algo
@@ -379,11 +546,18 @@ note "Candidate for outsourcing Q4 2026" on Payment System
 note "Partnership signed with 12 cities" on B2G Partner API
 note "R&D budget 400k, horizon 2028" on Quantum Algo
 
-// Market signals
+// Market signals and climatic patterns
 signal accelerating on Predictive AI
-signal accelerating on Real-Time Sensor Feed
+signal co-evolution on Real-Time Sensor Feed
 signal stagnating on Classic Dijkstra
+signal commoditization on Cloud Infrastructure
 signal declining on OSM Data
+signal red-queen on Application
+
+// Gameplays
+gameplay strangler-fig "Replace Classic Dijkstra with Predictive AI" on Route Calculation Engine
+gameplay open-source "Commoditize mapping data to reduce dependency" on OSM Data
+gameplay ILC on B2G Partner API
 ```
 
 ---
@@ -415,3 +589,30 @@ When generating a WTG2 map:
 9. **Keep identifiers readable.** Use natural language names with spaces, not camelCase or snake_case.
 
 10. **Follow the canonical section order:** metadata, stages, nodes, edges, groups, annotations.
+
+11. **Annotate gameplays** when the map represents a competitive strategy. Ask: "What maneuver is being applied to which component?" Use `gameplay` to make strategic intent explicit.
+
+12. **Classify asset types** for components where the strategic value is non-obvious. A database is `tech` capital; a brand is `relational` capital; a specialized team is `human` capital.
+
+13. **Qualify inertia** beyond severity. When marking `!!`, ask: "Is this technical debt (`tech`), sunk cost (`financial`), skills gap (`human`), contractual lock-in (`relational`), or cultural resistance (`social`)?"
+
+14. **Apply climatic patterns** to explain evolutionary forces. Components in phase III with many dependents should likely have `signal commoditization`. Use `signal co-evolution` when a practice and technology evolve together.
+
+15. **Align teams to evolution phases.** When defining groups with `team:`, verify that explorer teams own Genesis-phase components and town-planner teams own Commodity-phase components. Highlight mismatches as strategic risks.
+
+16. **Annotate cost** for components consuming significant budget. This enables run/change ratio analysis across the value chain. Use `cost:` in block config.
+
+---
+
+## Strategic Completeness Checklist
+
+Before finalizing a map, verify:
+
+1. Every anchor has at least one dependency chain to infrastructure
+2. Components in Genesis (I) have movement (`>>`) or a signal
+3. Inertia is qualified by kind when the nature of resistance is known
+4. Groups carrying team types align with component evolution phases
+5. At least one gameplay is identified if the map is strategic
+6. Warnings exist for SPOF, vendor lock-in, or single-supplier risks
+7. Cost annotations exist for high-budget components
+8. Signals reflect observed market dynamics, not speculation

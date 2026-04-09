@@ -16,8 +16,14 @@ var defaultCandidates = []candidate{
 	{name: "left", dx: -12, dy: 0, anchor: AnchorEnd},
 	{name: "above-left", dx: -12, dy: -8, anchor: AnchorEnd},
 	{name: "above-center", dx: 0, dy: -8, anchor: AnchorMiddle},
+	{name: "below-center", dx: 0, dy: 18, anchor: AnchorMiddle},
 	{name: "below-left", dx: -12, dy: 18, anchor: AnchorEnd},
 	{name: "far-right", dx: 25, dy: 0, anchor: AnchorStart},
+	{name: "far-left", dx: -25, dy: 0, anchor: AnchorEnd},
+	{name: "far-above", dx: 0, dy: -20, anchor: AnchorMiddle},
+	{name: "far-below", dx: 0, dy: 30, anchor: AnchorMiddle},
+	{name: "far-above-right", dx: 12, dy: -20, anchor: AnchorStart},
+	{name: "far-below-right", dx: 12, dy: 30, anchor: AnchorStart},
 }
 
 // scoreCandidate evaluates how good a candidate bounding box is.

@@ -115,6 +115,103 @@ func TestBuildMap_WithPipeline(t *testing.T) {
 	}
 }
 
+func TestBuildMap_SignalsAnnotationsGameplays(t *testing.T) {
+	doc := &Document{
+		Title:    "Enriched Test",
+		Doctrine: "context",
+		Stages:   [4]string{"I", "II", "III", "IV"},
+		Nodes: []*NodeDecl{
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1, Asset: "tech", Cost: "500k/year"},
+			{Name: "Engine", Kind: KindComponent, Evolution: "II.7", EvolvedTo: "III.5", Inertia: 2, InertiaKinds: []string{"tech", "human"}, Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "App", To: "Engine"},
+		},
+		Signals: []*SignalDecl{
+			{Type: "accelerating", Target: "App"},
+			{Type: "co-evolution", Target: "Engine"},
+		},
+		Annotations: []*AnnotationDecl{
+			{Kind: "warning", Text: "SPOF", Target: "Engine"},
+			{Kind: "note", Text: "Migration planned", Target: "App"},
+		},
+		Gameplays: []*GameplayDecl{
+			{Type: "ILC", Target: "App"},
+			{Type: "strangler-fig", Text: "Replace legacy", Target: "Engine"},
+		},
+		Groups: []*GroupDecl{
+			{Name: "Dev Team", Team: "explorer", Members: []string{"App", "Engine"}},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check signals are attached to components
+	for _, n := range result.Map.Components() {
+		comp, ok := n.(*wardley.Component)
+		if !ok {
+			continue
+		}
+		switch comp.Label {
+		case "App":
+			if len(comp.Signals) != 1 || comp.Signals[0].Type != "accelerating" {
+				t.Errorf("App signals = %v, want [accelerating]", comp.Signals)
+			}
+			if len(comp.Annotations) != 1 || comp.Annotations[0].Kind != "note" {
+				t.Errorf("App annotations = %v, want [note]", comp.Annotations)
+			}
+			if len(comp.Gameplays) != 1 || comp.Gameplays[0].Type != "ILC" {
+				t.Errorf("App gameplays = %v, want [ILC]", comp.Gameplays)
+			}
+			if comp.Asset != "tech" {
+				t.Errorf("App asset = %q, want %q", comp.Asset, "tech")
+			}
+			if comp.Cost != "500k/year" {
+				t.Errorf("App cost = %q, want %q", comp.Cost, "500k/year")
+			}
+		case "Engine":
+			if len(comp.Signals) != 1 || comp.Signals[0].Type != "co-evolution" {
+				t.Errorf("Engine signals = %v, want [co-evolution]", comp.Signals)
+			}
+			if len(comp.Annotations) != 1 || comp.Annotations[0].Kind != "warning" {
+				t.Errorf("Engine annotations = %v, want [warning]", comp.Annotations)
+			}
+			if len(comp.Gameplays) != 1 || comp.Gameplays[0].Type != "strangler-fig" {
+				t.Errorf("Engine gameplays = %v, want [strangler-fig]", comp.Gameplays)
+			}
+			if comp.InertiaKinds[0] != "tech" || comp.InertiaKinds[1] != "human" {
+				t.Errorf("Engine inertia kinds = %v, want [tech human]", comp.InertiaKinds)
+			}
+		}
+	}
+
+	// Check evolution edge has InertiaKinds
+	for _, c := range result.Map.Collaborations() {
+		collab, ok := c.(*wardley.Collaboration)
+		if !ok {
+			continue
+		}
+		if collab.Type == wardley.EvolvedComponentEdge {
+			if len(collab.InertiaKinds) != 2 {
+				t.Errorf("evolution edge InertiaKinds = %v, want [tech human]", collab.InertiaKinds)
+			}
+		}
+	}
+
+	// Check group has team type
+	for _, n := range result.Map.Components() {
+		group, ok := n.(*wardley.Group)
+		if ok && group.Label == "Dev Team" {
+			if group.TeamType != "explorer" {
+				t.Errorf("group TeamType = %q, want %q", group.TeamType, "explorer")
+			}
+		}
+	}
+}
+
 func TestBuildMap_ExampleFile(t *testing.T) {
 	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {

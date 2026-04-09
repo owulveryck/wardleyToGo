@@ -1,0 +1,196 @@
+package wardley
+
+import (
+	"encoding/xml"
+	"fmt"
+	"image"
+	"image/color"
+
+	"github.com/owulveryck/wardleyToGo/internal/svg"
+)
+
+// signalIndicator returns SVG elements for a signal icon at the given offset.
+// Signals render as small arrows or symbols to the upper-right of a component.
+func signalIndicator(signalType string, offsetX, offsetY int) []interface{} {
+	var elements []interface{}
+
+	switch signalType {
+	case "accelerating":
+		// Double right chevron ">>"
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 5,-5 l -5,-5 M %d,%d l 5,-5 l -5,-5", offsetX, offsetY+5, offsetX+6, offsetY+5),
+			Stroke:      svg.Color{Color: color.RGBA{0x27, 0xAE, 0x60, 0xFF}}, // green
+			StrokeWidth: "2",
+		})
+	case "declining":
+		// Downward arrow
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 0,10 l -4,-4 M %d,%d l 0,10 l 4,-4", offsetX, offsetY, offsetX, offsetY),
+			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}}, // red
+			StrokeWidth: "2",
+		})
+	case "stagnating":
+		// Horizontal double bar "="
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d h 10 M %d,%d h 10", offsetX, offsetY-2, offsetX, offsetY+2),
+			Stroke:      svg.Color{Color: color.RGBA{0x95, 0xA5, 0xA6, 0xFF}}, // gray
+			StrokeWidth: "2",
+		})
+	case "co-evolution":
+		// Intertwined arrows (double helix simplified)
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d q 3,-5 6,0 q 3,5 6,0", offsetX, offsetY),
+			Stroke:      svg.Color{Color: color.RGBA{0x8E, 0x44, 0xAD, 0xFF}}, // purple
+			StrokeWidth: "2",
+		})
+	case "red-queen":
+		// Running arrow (right arrow with speed lines)
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 8,0 l -3,-3 M %d,%d l 8,0 l -3,3 M %d,%d h 4 M %d,%d h 3", offsetX, offsetY, offsetX, offsetY, offsetX-3, offsetY-3, offsetX-3, offsetY+3),
+			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}}, // red
+			StrokeWidth: "1.5",
+		})
+	case "commoditization":
+		// Downward-right gravity arrow
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 8,6 l -4,0 M %d,%d l 8,6 l 0,-4", offsetX, offsetY, offsetX, offsetY),
+			Stroke:      svg.Color{Color: color.RGBA{0x34, 0x49, 0x5E, 0xFF}}, // dark blue
+			StrokeWidth: "2",
+		})
+	case "network-effects":
+		// Small network/star pattern
+		cx, cy := offsetX+5, offsetY
+		elements = append(elements, svg.Circle{
+			P:           image.Pt(cx, cy),
+			R:           2,
+			Fill:        svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
+			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
+			StrokeWidth: "1",
+		})
+		// Lines radiating out
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 5,-3 M %d,%d l 5,3 M %d,%d l -5,-3 M %d,%d l -5,3", cx, cy, cx, cy, cx, cy, cx, cy),
+			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
+			StrokeWidth: "1",
+		})
+	case "economies-of-scale":
+		// Expanding concentric arcs
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d a 3,3 0 0,1 6,0 M %d,%d a 5,5 0 0,1 10,0", offsetX, offsetY, offsetX-2, offsetY),
+			Stroke:      svg.Color{Color: color.RGBA{0x16, 0xA0, 0x85, 0xFF}}, // teal
+			StrokeWidth: "1.5",
+		})
+	default:
+		// Generic signal: small diamond
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 4,-4 l 4,4 l -4,4 Z", offsetX, offsetY),
+			Stroke:      svg.Color{Color: color.RGBA{0xF3, 0x9C, 0x12, 0xFF}}, // amber
+			StrokeWidth: "1.5",
+		})
+	}
+
+	return elements
+}
+
+// warningIndicator returns SVG elements for a warning triangle at the given offset.
+func warningIndicator(offsetX, offsetY int, text string) []interface{} {
+	triColor := svg.Color{Color: color.RGBA{0xE6, 0x7E, 0x22, 0xFF}} // orange
+	elements := []interface{}{
+		// Warning triangle
+		svg.Path{
+			D:    fmt.Sprintf("M %d,%d l 5,-10 l 5,10 Z", offsetX-5, offsetY+5),
+			Fill: triColor,
+		},
+		// Exclamation mark inside triangle
+		svg.Text{
+			P:          image.Pt(offsetX, offsetY+3),
+			Text:       []byte("!"),
+			FontSize:   "8px",
+			FontWeight: "bold",
+			TextAnchor: svg.TextAnchorMiddle,
+			Fill:       svg.White,
+		},
+	}
+	// Tooltip with warning text
+	elements = append(elements, struct {
+		XMLName xml.Name `xml:"title"`
+		Text    string   `xml:",chardata"`
+	}{
+		Text: "⚠ " + text,
+	})
+	return elements
+}
+
+// gameplayBadge returns SVG elements for a gameplay annotation badge.
+func gameplayBadge(gameplayType string, offsetX, offsetY int) []interface{} {
+	// Short label for the badge
+	label := gameplayType
+	badgeWidth := len(label)*6 + 8
+
+	badgeColor := gameplayColor(gameplayType)
+	col := svg.Color{Color: badgeColor}
+
+	elements := []interface{}{
+		// Rounded background rectangle
+		svg.Rectangle{
+			R:           image.Rect(offsetX-badgeWidth/2, offsetY-6, offsetX+badgeWidth/2, offsetY+6),
+			Rx:          3,
+			Ry:          3,
+			Fill:        col,
+			Stroke:      col,
+			StrokeWidth: "1",
+		},
+		// Label text
+		svg.Text{
+			P:          image.Pt(offsetX, offsetY+4),
+			Text:       []byte(label),
+			FontSize:   "8px",
+			FontWeight: "bold",
+			TextAnchor: svg.TextAnchorMiddle,
+			Fill:       svg.White,
+		},
+	}
+	return elements
+}
+
+// gameplayColor returns the badge color for a gameplay type.
+func gameplayColor(gpType string) color.RGBA {
+	switch gpType {
+	case "ILC":
+		return color.RGBA{0x8E, 0x44, 0xAD, 0xFF} // purple
+	case "open-source":
+		return color.RGBA{0x27, 0xAE, 0x60, 0xFF} // green
+	case "land-grab":
+		return color.RGBA{0xE7, 0x4C, 0x3C, 0xFF} // red
+	case "embrace-extend":
+		return color.RGBA{0xE6, 0x7E, 0x22, 0xFF} // orange
+	case "tower-moat":
+		return color.RGBA{0x34, 0x49, 0x5E, 0xFF} // dark blue
+	case "FUD":
+		return color.RGBA{0x7F, 0x8C, 0x8D, 0xFF} // gray
+	case "strangler-fig":
+		return color.RGBA{0x16, 0xA0, 0x85, 0xFF} // teal
+	case "signal-distortion":
+		return color.RGBA{0xF3, 0x9C, 0x12, 0xFF} // amber
+	default:
+		return color.RGBA{0x95, 0xA5, 0xA6, 0xFF} // light gray
+	}
+}
+
+// inertiaKindColor returns a color for an inertia kind.
+func inertiaKindColor(kind string) color.RGBA {
+	switch kind {
+	case "tech":
+		return color.RGBA{0x29, 0x80, 0xB9, 0xFF} // blue
+	case "financial":
+		return color.RGBA{0x27, 0xAE, 0x60, 0xFF} // green
+	case "human":
+		return color.RGBA{0xE6, 0x7E, 0x22, 0xFF} // orange
+	case "relational":
+		return color.RGBA{0x8E, 0x44, 0xAD, 0xFF} // purple
+	case "social":
+		return color.RGBA{0x16, 0xA0, 0x85, 0xFF} // teal
+	default:
+		return color.RGBA{0x00, 0x00, 0x00, 0xFF} // black
+	}
+}

@@ -78,10 +78,10 @@ func DefaultOptions() Options {
 		CanvasHeight:    800,
 		MapSize:         100,
 		ComponentRadius: 0.5,
-		CharWidth:       0.65,
+		CharWidth:       0.75,
 		LineHeight:      2.25,
 		MaxCharsPerLine: 8,
-		Padding:         0.5,
+		Padding:         0.8,
 		DensityRadius:   15,
 	}
 }

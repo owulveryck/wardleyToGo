@@ -7,6 +7,7 @@ type Document struct {
 	Author   string
 	Scope    string
 	Question string
+	Doctrine string    // Organizational maturity: "hygiene", "context", "excellence", "evolution"
 	Stages   [4]string // Custom stage labels; default: "I", "II", "III", "IV"
 
 	Nodes       []*NodeDecl
@@ -15,6 +16,7 @@ type Document struct {
 	Groups      []*GroupDecl
 	Annotations []*AnnotationDecl
 	Signals     []*SignalDecl
+	Gameplays   []*GameplayDecl
 }
 
 // NodeKind distinguishes anchors, components, and submaps.
@@ -28,15 +30,18 @@ const (
 
 // NodeDecl represents a node declaration in the source.
 type NodeDecl struct {
-	Name       string
-	Kind       NodeKind
-	Evolution  string  // Raw position string, e.g. "III.5"
-	EvolvedTo  string  // Target position if ">>" present
-	Inertia    int     // 0-3 (count of '!')
-	Type       string  // "build", "buy", "outsource", or ""
-	Color      string  // "#3498DB" or ""
-	Visibility float64 // Explicit @visibility override, -1 if unset
-	Note       string
+	Name         string
+	Kind         NodeKind
+	Evolution    string   // Raw position string, e.g. "III.5"
+	EvolvedTo    string   // Target position if ">>" present
+	Inertia      int      // 0-3 (count of '!')
+	InertiaKinds []string // Qualified inertia kinds: "tech", "financial", "human", "relational", "social"
+	Type         string   // "build", "buy", "outsource", or ""
+	Asset        string   // Capital type: "tech", "financial", "human", "relational", "social"
+	Color        string   // "#3498DB" or ""
+	Visibility   float64  // Explicit @visibility override, -1 if unset
+	Cost         string   // Free-text cost annotation
+	Note         string
 }
 
 // PipelineDecl represents a pipeline block.
@@ -63,6 +68,7 @@ type EdgeDecl struct {
 type GroupDecl struct {
 	Name    string
 	Color   string // "#RRGGBB" or "", empty = auto-assign
+	Team    string // EVT/PST team type: "explorer", "settler", "town-planner", "pioneer", "villager"
 	Members []string
 }
 
@@ -75,6 +81,13 @@ type AnnotationDecl struct {
 
 // SignalDecl represents a market signal on a node.
 type SignalDecl struct {
-	Type   string // "accelerating", "stagnating", "declining"
+	Type   string // "accelerating", "stagnating", "declining", "co-evolution", "red-queen", etc.
+	Target string // Node name
+}
+
+// GameplayDecl represents a strategic maneuver annotation on a node.
+type GameplayDecl struct {
+	Type   string // "ILC", "open-source", "land-grab", "embrace-extend", "tower-moat", "FUD", "strangler-fig", "signal-distortion"
+	Text   string // Optional description
 	Target string // Node name
 }

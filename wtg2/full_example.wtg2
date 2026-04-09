@@ -1,0 +1,171 @@
+// ═══════════════════════════════════════════════
+//  Wardley Map — Online Retail Platform Strategy
+// ═══════════════════════════════════════════════
+
+// ─── 1. Metadata ─────────────────────────────
+
+title: Online Retail Platform — Strategic Review 2026
+date: 2026-04-09
+author: Platform Strategy Team
+scope: B2C e-commerce, EU market
+question: "How do we reduce infrastructure costs while accelerating AI-driven personalisation?"
+
+// ─── 2. Configuration ───────────────────────
+
+stages: Genesis, Custom-Built, Product, Commodity
+
+// ─── 3. Anchors ─────────────────────────────
+
+anchor Customer
+anchor Merchant
+
+// ─── 4. Components ──────────────────────────
+
+// User-facing layer
+Web Storefront : III.7
+Mobile App : III.4
+Search and Discovery : III.0
+
+// Core business logic
+Recommendation Engine : II.5 !! >> III.3 {
+  type: build
+  color: #8E44AD
+  note: "Key differentiator — 8 engineers, 900k EUR/yr"
+}
+
+Order Management : III.5 (buy)
+Inventory Service : III.2 (buy)
+Pricing Engine : II.8 ! >> III.4 {
+  type: build
+  color: #2980B9
+}
+
+// Pipeline: Recommendation Engine variants
+pipeline Recommendation Engine {
+  Collaborative Filtering : III.3
+  Deep Learning Recommender : II.3
+  Contextual Bandit : I.5
+}
+
+// Merchant-facing
+Merchant Portal : II.8
+Merchant Analytics : II.2 {
+  type: build
+  color: #27AE60
+}
+
+// Payments
+Payment Gateway : IV.2 (outsource)
+
+// Data layer
+Customer Data Platform : II.6 (build) {
+  color: #E74C3C
+}
+Product Catalogue : III.6 (buy)
+
+// Infrastructure
+Cloud Compute : IV.5 (buy)
+CDN : IV.7 (outsource)
+Container Orchestration : IV.1 (buy)
+Observability Stack : III.5 (buy)
+Message Queue : IV.3 (buy)
+
+// Emerging
+Real-Time Personalisation : I.7 ! >> II.4 {
+  type: build
+  color: #E67E22
+  note: "R&D initiative — 3 engineers, 6-month horizon"
+}
+
+// Sub-map
+submap Fulfilment and Logistics : III.8
+
+// ─── 5. Value chain ────────────────────────
+
+// Customer flow
+Customer -> Web Storefront -> Search and Discovery -> Recommendation Engine
+Customer -> Mobile App -> Search and Discovery
+Web Storefront -> Order Management -> Inventory Service
+Mobile App -> Order Management
+Order Management -> Payment Gateway
+Order Management -> Fulfilment and Logistics
+
+// Recommendation pipeline
+Recommendation Engine -> Customer Data Platform
+Recommendation Engine -> Product Catalogue
+Search and Discovery -> Product Catalogue
+
+// Pricing
+Web Storefront -> Pricing Engine -> Product Catalogue
+Pricing Engine -> Customer Data Platform
+
+// Merchant flow
+Merchant -> Merchant Portal -> Inventory Service
+Merchant -> Merchant Analytics -[sales data feed]-> Customer Data Platform
+Merchant Portal -> Product Catalogue
+
+// Real-time personalisation
+Search and Discovery -> Real-Time Personalisation -> Customer Data Platform
+Real-Time Personalisation -> Recommendation Engine:Deep Learning Recommender
+
+// Infrastructure dependencies
+Order Management -> Message Queue -> Cloud Compute
+Customer Data Platform -> Cloud Compute
+Cloud Compute -> Container Orchestration
+Web Storefront -> CDN -> Cloud Compute
+Mobile App -> CDN
+Observability Stack -> Cloud Compute
+
+// ─── 6. Groups ──────────────────────────────
+
+group AI and Personalisation {
+  Recommendation Engine
+  Deep Learning Recommender
+  Contextual Bandit
+  Real-Time Personalisation
+  Customer Data Platform
+  team: explorer
+}
+
+group Commerce Core {
+  Order Management
+  Inventory Service
+  Pricing Engine
+  Payment Gateway
+  Product Catalogue
+  team: town-planner
+}
+
+group Platform Infrastructure {
+  Cloud Compute
+  CDN
+  Container Orchestration
+  Message Queue
+  Observability Stack
+  color: #95A5A6
+}
+
+group Merchant Experience {
+  Merchant Portal
+  Merchant Analytics
+}
+
+// ─── 7. Annotations and signals ─────────────
+
+// Risks
+warning "Single vendor lock-in — AWS costs rising 25% YoY" on Cloud Compute
+warning "GDPR compliance gap in cross-border data flows" on Customer Data Platform
+warning "Legacy monolith — hard to scale independently" on Order Management
+
+// Strategic observations
+note "Evaluate Stripe vs Adyen migration Q3 2026" on Payment Gateway
+note "Target: real-time inventory sync by Q2 2026" on Inventory Service
+note "Patent filed for contextual bandit approach" on Contextual Bandit
+
+// Market signals
+signal accelerating on Deep Learning Recommender
+signal accelerating on Real-Time Personalisation
+signal stagnating on Collaborative Filtering
+signal commoditization on Container Orchestration
+signal network-effects on Merchant Portal
+signal economies-of-scale on Cloud Compute

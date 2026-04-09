@@ -60,6 +60,8 @@ func (p *Parser) Parse() (*Document, error) {
 			err = p.parseAnnotation(doc, "warning", tok.Text)
 		case TokenSignal:
 			err = p.parseSignal(doc, tok.Text)
+		case TokenGameplay:
+			err = p.parseGameplay(doc, tok.Text)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("line %d: %w", tok.Line, err)
@@ -89,6 +91,8 @@ func (p *Parser) parseMeta(doc *Document, line string) error {
 		doc.Scope = value
 	case "question":
 		doc.Question = value
+	case "doctrine":
+		doc.Doctrine = value
 	}
 	return nil
 }
@@ -199,13 +203,17 @@ func parseShorthand(node *NodeDecl, s string) error {
 		}
 	}
 
-	// Extract (type) if present
+	// Extract (type) if present — but not inertia qualifiers like !(tech)
 	if openParen := strings.Index(s, "("); openParen >= 0 {
-		closeParen := strings.Index(s, ")")
-		if closeParen > openParen {
-			node.Type = strings.TrimSpace(s[openParen+1 : closeParen])
-			s = strings.TrimSpace(s[:openParen]) + " " + strings.TrimSpace(s[closeParen+1:])
-			s = strings.TrimSpace(s)
+		// Skip if preceded by '!' (inertia qualifier)
+		isInertiaQualifier := openParen > 0 && s[openParen-1] == '!'
+		if !isInertiaQualifier {
+			closeParen := strings.Index(s, ")")
+			if closeParen > openParen {
+				node.Type = strings.TrimSpace(s[openParen+1 : closeParen])
+				s = strings.TrimSpace(s[:openParen]) + " " + strings.TrimSpace(s[closeParen+1:])
+				s = strings.TrimSpace(s)
+			}
 		}
 	}
 
@@ -213,7 +221,8 @@ func parseShorthand(node *NodeDecl, s string) error {
 	return parseEvolutionExpr(node, s)
 }
 
-// parseEvolutionExpr parses "II.7", "II.7 >> III.5", or "II.7 !! >> III.5".
+// parseEvolutionExpr parses "II.7", "II.7 >> III.5", "II.7 !! >> III.5",
+// or "II.7 !!(tech,human) >> III.5".
 func parseEvolutionExpr(node *NodeDecl, s string) error {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -226,28 +235,66 @@ func parseEvolutionExpr(node *NodeDecl, s string) error {
 		left := strings.TrimSpace(parts[0])
 		node.EvolvedTo = strings.TrimSpace(parts[1])
 
-		// Extract inertia (!) from left part
-		node.Inertia = countInertia(left)
-		left = strings.TrimRight(left, "! ")
+		// Extract inertia (!) and optional kinds from left part
+		node.Inertia, node.InertiaKinds = parseInertia(left)
+		left = stripInertia(left)
 		node.Evolution = strings.TrimSpace(left)
 	} else {
 		// Extract inertia
-		node.Inertia = countInertia(s)
-		s = strings.TrimRight(s, "! ")
+		node.Inertia, node.InertiaKinds = parseInertia(s)
+		s = stripInertia(s)
 		node.Evolution = strings.TrimSpace(s)
 	}
 
 	return nil
 }
 
-func countInertia(s string) int {
+// parseInertia extracts inertia level and optional kinds from a string like
+// "II.7 !!(tech,human)" → (2, ["tech","human"]) or "II.7 !!" → (2, nil).
+func parseInertia(s string) (int, []string) {
 	count := 0
 	for _, c := range s {
 		if c == '!' {
 			count++
 		}
 	}
-	return count
+	if count == 0 {
+		return 0, nil
+	}
+
+	// Check for qualified inertia: !!(kind1,kind2)
+	// Find the last '!' then look for '(' immediately after
+	lastBang := strings.LastIndex(s, "!")
+	if lastBang < len(s)-1 {
+		after := strings.TrimSpace(s[lastBang+1:])
+		if strings.HasPrefix(after, "(") {
+			closeIdx := strings.Index(after, ")")
+			if closeIdx > 0 {
+				inner := after[1:closeIdx]
+				var kinds []string
+				for _, k := range strings.Split(inner, ",") {
+					k = strings.TrimSpace(k)
+					if k != "" {
+						kinds = append(kinds, k)
+					}
+				}
+				return count, kinds
+			}
+		}
+	}
+
+	return count, nil
+}
+
+// stripInertia removes inertia markers (!, !!(kind,...)) from a string,
+// returning only the position part.
+func stripInertia(s string) string {
+	// Find the first '!' to know where inertia starts
+	bangIdx := strings.Index(s, "!")
+	if bangIdx < 0 {
+		return s
+	}
+	return strings.TrimSpace(s[:bangIdx])
 }
 
 // parseBlockConfig parses key-value lines inside a node's {...} block.
@@ -272,12 +319,16 @@ func parseBlockConfig(node *NodeDecl, lines []string) error {
 			}
 		case "type":
 			node.Type = value
+		case "asset":
+			node.Asset = value
 		case "color":
 			node.Color = value
 		case "visibility":
 			if v, err := strconv.ParseFloat(value, 64); err == nil {
 				node.Visibility = v
 			}
+		case "cost":
+			node.Cost = value
 		case "note":
 			node.Note = value
 		}
@@ -386,6 +437,11 @@ func (p *Parser) parseGroup(doc *Document, line string, block []string) error {
 			group.Color = strings.TrimSpace(strings.TrimPrefix(bline, bline[:len("color:")]))
 			continue
 		}
+		// Parse optional team directive
+		if strings.HasPrefix(strings.ToLower(bline), "team:") {
+			group.Team = strings.TrimSpace(bline[len("team:"):])
+			continue
+		}
 		// Members can be node names or edge declarations (ignored for now)
 		if strings.Contains(bline, " -> ") || strings.Contains(bline, " <-> ") {
 			continue
@@ -448,5 +504,43 @@ func (p *Parser) parseSignal(doc *Document, line string) error {
 		Type:   signalType,
 		Target: target,
 	})
+	return nil
+}
+
+func (p *Parser) parseGameplay(doc *Document, line string) error {
+	rest := strings.TrimSpace(strings.TrimPrefix(line, "gameplay"))
+
+	gp := &GameplayDecl{}
+
+	// Check for optional quoted description before "on"
+	if quoteIdx := strings.Index(rest, `"`); quoteIdx >= 0 {
+		// Extract gameplay type before the quote
+		gp.Type = strings.TrimSpace(rest[:quoteIdx])
+
+		// Extract quoted text
+		secondQuote := strings.Index(rest[quoteIdx+1:], `"`)
+		if secondQuote < 0 {
+			return fmt.Errorf("gameplay missing closing quote: %q", line)
+		}
+		gp.Text = rest[quoteIdx+1 : quoteIdx+1+secondQuote]
+
+		// Find "on" keyword after the closing quote
+		afterQuote := rest[quoteIdx+1+secondQuote+1:]
+		onIdx := strings.Index(strings.ToLower(afterQuote), " on ")
+		if onIdx < 0 {
+			return fmt.Errorf("gameplay missing 'on' keyword: %q", line)
+		}
+		gp.Target = strings.TrimSpace(afterQuote[onIdx+4:])
+	} else {
+		// No quoted text: "gameplay type on NodeName"
+		onIdx := strings.Index(strings.ToLower(rest), " on ")
+		if onIdx < 0 {
+			return fmt.Errorf("gameplay missing 'on' keyword: %q", line)
+		}
+		gp.Type = strings.TrimSpace(rest[:onIdx])
+		gp.Target = strings.TrimSpace(rest[onIdx+4:])
+	}
+
+	doc.Gameplays = append(doc.Gameplays, gp)
 	return nil
 }
