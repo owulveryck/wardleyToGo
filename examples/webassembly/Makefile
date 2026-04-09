@@ -1,6 +1,6 @@
 WASMEXEC=$(shell go env GOROOT)/misc/wasm/wasm_exec.js
 
-all: assets/wtg.wasm assets/wasm_exec.js assets/index.html assets/script.js assets/style.css
+all: assets/wtg.wasm assets/wasm_exec.js assets/index.html assets/script.js assets/style.css assets/wardley.js assets/wardley-example.html
 
 assets/wtg.wasm: wasm/*.go
 	GOOS=js GOARCH=wasm go build -o $@ $^
@@ -11,6 +11,10 @@ assets/wasm_exec.js: $(WASMEXEC)
 assets/style.css: server/assets/style.css
 	cp $^ $@
 assets/script.js: server/assets/script.js
+	cp $^ $@
+assets/wardley.js: wardley.js
+	cp $^ $@
+assets/wardley-example.html: wardley-example.html
 	cp $^ $@
 assets/index.html: server/assets/index.html
 	cp $^ $@

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wardley Map Auto-Render Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    h2 { margin-top: 40px; }
+    p code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 90%; }
+  </style>
+</head>
+<body>
+
+<h1>Wardley Map Auto-Render Demo</h1>
+<p>
+  This page demonstrates <code>wardley.js</code>: a drop-in script that automatically
+  renders <code>&lt;pre&gt;&lt;code class="language-wtg2"&gt;</code> blocks into SVG Wardley Maps.
+  Just include the script and write your maps in fenced code blocks.
+</p>
+
+<h2>Tea Shop</h2>
+<p>A classic Wardley Map example:</p>
+<pre><code class="language-wtg2">title: Tea Shop
+
+business - cup of tea
+public - cup of tea
+cup of tea - cup
+cup of tea - tea
+cup of tea - hot water
+hot water - water
+hot water - kettle
+kettle - power
+
+business: |...|.....|...x.|..........|
+public: |...|.....|.....|..x.......|
+cup of tea: |...|.....|..x..|..........|
+cup: |...|.....|.....|.....x....|
+tea: |...|.....|.....|.....x....|
+hot water: |...|.....|.....|....x.....|
+water: |...|.....|.....|.........x|
+kettle: |...|.....|.....|...x......|
+power: |...|.....|.....|........x.|
+</code></pre>
+
+<h2>Custom Size (800x500)</h2>
+<p>Use <code>data-width</code> and <code>data-height</code> attributes on the <code>&lt;pre&gt;</code> element:</p>
+<pre data-width="800" data-height="500"><code class="language-wtg2">title: Simple Example
+
+user - need
+need - capability
+
+user: |...|...x..|.....|..........|
+need: |...|.....|..x..|..........|
+capability: |...|.....|.....|.....x....|
+</code></pre>
+
+<h2>Error Handling</h2>
+<p>Invalid syntax shows an inline error with the source code:</p>
+<pre><code class="language-wtg2">this is not valid wtg2 syntax !!!
+</code></pre>
+
+<script src="wardley.js"></script>
+</body>
+</html>

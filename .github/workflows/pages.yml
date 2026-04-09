@@ -44,6 +44,12 @@ jobs:
       - name: Copy index.html
         run: cp exp/samplewtg2/index.html site/
 
+      - name: Build wardley.js WASM
+        run: GOOS=js GOARCH=wasm go build -o site/wtg.wasm ./examples/webassembly/wasm/
+
+      - name: Copy wardley.js
+        run: cp examples/webassembly/wardley.js site/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
