@@ -212,6 +212,86 @@ func TestBuildMap_SignalsAnnotationsGameplays(t *testing.T) {
 	}
 }
 
+func TestBuildMap_LegendItems(t *testing.T) {
+	doc := &Document{
+		Title:  "Legend Test",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Legend: true,
+		Nodes: []*NodeDecl{
+			{Name: "User", Kind: KindAnchor, Visibility: -1},
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+			{Name: "DB", Kind: KindComponent, Evolution: "IV.3", Type: "buy", Visibility: -1},
+			{Name: "Engine", Kind: KindComponent, Evolution: "II.7", EvolvedTo: "III.5", Inertia: 2, Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "User", To: "App"},
+		},
+		Groups: []*GroupDecl{
+			{Name: "Team", Members: []string{"App"}},
+		},
+		Signals: []*SignalDecl{
+			{Type: "accelerating", Target: "App"},
+		},
+		Gameplays: []*GameplayDecl{
+			{Type: "ILC", Target: "App"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !result.Legend {
+		t.Error("expected Legend=true")
+	}
+	if len(result.LegendItems) == 0 {
+		t.Fatal("expected LegendItems to be populated")
+	}
+
+	// Check expected categories are present
+	categories := make(map[string]bool)
+	types := make(map[string]bool)
+	for _, item := range result.LegendItems {
+		categories[item.Category] = true
+		types[item.Type] = true
+	}
+
+	for _, want := range []string{"Components", "Edges", "Signals", "Gameplays", "Other"} {
+		if !categories[want] {
+			t.Errorf("missing category %q", want)
+		}
+	}
+	for _, want := range []string{"component", "buy", "evolved", "edge", "evolved_edge", "inertia", "group", "signal", "gameplay"} {
+		if !types[want] {
+			t.Errorf("missing legend type %q", want)
+		}
+	}
+}
+
+func TestBuildMap_LegendDisabled(t *testing.T) {
+	doc := &Document{
+		Title:  "No Legend",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Legend: false,
+		Nodes: []*NodeDecl{
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result.Legend {
+		t.Error("expected Legend=false")
+	}
+	if len(result.LegendItems) != 0 {
+		t.Errorf("expected no LegendItems, got %d", len(result.LegendItems))
+	}
+}
+
 func TestBuildMap_ExampleFile(t *testing.T) {
 	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {

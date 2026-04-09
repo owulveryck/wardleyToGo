@@ -140,7 +140,7 @@ A WTG2 document follows this canonical order:
 
 ```
 1. Metadata       (title, date, author, scope, question, doctrine)
-2. Configuration   (stages)
+2. Configuration   (stages, legend)
 3. Nodes           (anchors, components, submaps, pipelines)
 4. Value chain     (edges / dependencies)
 5. Groups          (visual organization)
@@ -187,6 +187,16 @@ stages: Genesis, Custom, Product, Commodity
 ```
 
 Exactly four labels, comma-separated.
+
+### Legend
+
+Display an auto-generated legend panel to the right of the map. The legend shows only the element types actually present in the map (component types, edges, signals, gameplays, groups, etc.).
+
+```
+legend
+```
+
+The keyword is standalone — no configuration needed. The SVG viewBox is automatically widened to accommodate the legend without distorting the map.
 
 ### Nodes
 
@@ -422,7 +432,7 @@ Identifiers (component names, group names, etc.):
 - Spaces are allowed inside identifiers (e.g., `Application Mobile`)
 - Cannot be a reserved keyword used alone
 
-**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`
+**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `legend`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`
 
 ---
 
@@ -450,6 +460,7 @@ question: "Where to invest to differentiate against Google Maps?"
 doctrine: context
 
 stages: Genesis, Custom, Product, Commodity
+legend
 
 // Anchors
 anchor Driver
@@ -588,7 +599,7 @@ When generating a WTG2 map:
 
 9. **Keep identifiers readable.** Use natural language names with spaces, not camelCase or snake_case.
 
-10. **Follow the canonical section order:** metadata, stages, nodes, edges, groups, annotations.
+10. **Follow the canonical section order:** metadata, stages/legend, nodes, edges, groups, annotations.
 
 11. **Annotate gameplays** when the map represents a competitive strategy. Ask: "What maneuver is being applied to which component?" Use `gameplay` to make strategic intent explicit.
 

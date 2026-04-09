@@ -62,6 +62,8 @@ func (p *Parser) Parse() (*Document, error) {
 			err = p.parseSignal(doc, tok.Text)
 		case TokenGameplay:
 			err = p.parseGameplay(doc, tok.Text)
+		case TokenLegend:
+			doc.Legend = true
 		}
 		if err != nil {
 			return nil, fmt.Errorf("line %d: %w", tok.Line, err)

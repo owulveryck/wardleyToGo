@@ -67,7 +67,13 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 	}
 
 	output := new(bytes.Buffer)
-	imgSize := image.Rect(0, 0, width, height)
+
+	legendWidth := 0
+	if result.Legend && len(result.LegendItems) > 0 {
+		legendWidth = svgmap.LegendWidth
+	}
+
+	imgSize := image.Rect(0, 0, width+legendWidth, height)
 	mapSize := image.Rect(30, 50, width-30, height-50)
 
 	e, err := svgmap.NewEncoder(output, imgSize, mapSize)
@@ -79,6 +85,9 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 	indicators := []svgmap.Annotator{}
 	if withAnnotations {
 		indicators = svgmap.AllEvolutionIndications()
+	}
+	if result.Legend && len(result.LegendItems) > 0 {
+		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})
 	}
 	style := svgmap.NewOctoStyle(result.Stages, indicators...)
 	style.WithControls = true

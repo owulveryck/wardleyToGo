@@ -17,6 +17,8 @@ type Document struct {
 	Annotations []*AnnotationDecl
 	Signals     []*SignalDecl
 	Gameplays   []*GameplayDecl
+
+	Legend bool // Whether to render a legend panel
 }
 
 // NodeKind distinguishes anchors, components, and submaps.

@@ -34,8 +34,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	legendWidth := 0
+	if result.Legend && len(result.LegendItems) > 0 {
+		legendWidth = svgmap.LegendWidth
+	}
+
 	e, err := svgmap.NewEncoder(os.Stdout,
-		image.Rect(0, 0, 1100, 900),
+		image.Rect(0, 0, 1100+legendWidth, 900),
 		image.Rect(30, 50, 1070, 850))
 	if err != nil {
 		log.Fatal(err)
@@ -46,7 +51,11 @@ func main() {
 		e.Themes = nil
 	}
 
-	style := svgmap.NewOctoStyle(result.Stages)
+	var indicators []svgmap.Annotator
+	if result.Legend && len(result.LegendItems) > 0 {
+		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})
+	}
+	style := svgmap.NewOctoStyle(result.Stages, indicators...)
 	style.WithSpace = true
 	e.Init(style)
 

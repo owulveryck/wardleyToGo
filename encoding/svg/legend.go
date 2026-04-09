@@ -1,0 +1,297 @@
+package svgmap
+
+import (
+	"encoding/xml"
+	"image"
+	"image/color"
+
+	"github.com/owulveryck/wardleyToGo/internal/svg"
+)
+
+// LegendItem describes a single entry in the legend.
+type LegendItem struct {
+	Category string // "Components", "Edges", "Signals", "Gameplays", "Other"
+	Label    string // Human-readable label
+	Type     string // Internal type key for rendering the correct icon
+}
+
+// Legend implements Annotator and renders a legend panel next to the map.
+type Legend struct {
+	Items []LegendItem
+}
+
+const (
+	legendFontFamily = "Century Gothic,CenturyGothic,AppleGothic,sans-serif"
+	legendFontSize   = "11px"
+	legendLineHeight = 22
+	legendIconOffset = 15 // X offset for icon center from left edge
+	legendTextOffset = 32 // X offset for label text from left edge
+	legendPadding    = 15
+)
+
+// LegendWidth is the width added to the viewBox when the legend is active.
+const LegendWidth = 220
+
+var legendTextColor = svg.Color{Color: color.RGBA{19, 36, 84, 255}}
+
+func (l *Legend) MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
+	if len(l.Items) == 0 {
+		return
+	}
+
+	// Legend area: right of canvas, within box
+	x0 := canvas.Max.X + 20
+	y0 := canvas.Min.Y
+	areaWidth := box.Max.X - x0 - 10
+
+	// Background rectangle
+	_ = enc.Encode(svg.Rectangle{
+		R:           image.Rect(x0, y0, x0+areaWidth, box.Max.Y-50),
+		Rx:          6,
+		Ry:          6,
+		Fill:        svg.Color{Color: color.RGBA{250, 250, 252, 255}},
+		Stroke:      svg.Color{Color: color.RGBA{200, 200, 210, 255}},
+		StrokeWidth: "1",
+	})
+
+	// Title
+	y := y0 + legendPadding + 14
+	_ = enc.Encode(svg.Transform{
+		Translate: image.Point{x0 + areaWidth/2, y},
+		Components: []any{
+			svg.Text{
+				P:          image.Point{0, 0},
+				Text:       []byte("Legend"),
+				FontWeight: "bold",
+				FontSize:   "13px",
+				FontFamily: legendFontFamily,
+				Fill:       legendTextColor,
+				TextAnchor: svg.TextAnchorMiddle,
+			},
+		},
+	})
+
+	// Separator line under title
+	y += 8
+	_ = enc.Encode(svg.Line{
+		F:           image.Point{x0 + 10, y},
+		T:           image.Point{x0 + areaWidth - 10, y},
+		Stroke:      svg.Color{Color: color.RGBA{200, 200, 210, 255}},
+		StrokeWidth: "1",
+	})
+
+	y += legendLineHeight / 2
+
+	// Group items by category
+	categories := []string{"Components", "Edges", "Signals", "Gameplays", "Other"}
+	grouped := make(map[string][]LegendItem)
+	for _, item := range l.Items {
+		grouped[item.Category] = append(grouped[item.Category], item)
+	}
+
+	for _, cat := range categories {
+		items, ok := grouped[cat]
+		if !ok || len(items) == 0 {
+			continue
+		}
+
+		// Category header
+		y += legendLineHeight
+		_ = enc.Encode(svg.Transform{
+			Translate: image.Point{x0 + legendPadding, y},
+			Components: []any{
+				svg.Text{
+					P:          image.Point{0, 0},
+					Text:       []byte(cat),
+					FontWeight: "bold",
+					FontSize:   legendFontSize,
+					FontFamily: legendFontFamily,
+					Fill:       legendTextColor,
+					TextAnchor: svg.TextAnchorStart,
+				},
+			},
+		})
+
+		// Items
+		for _, item := range items {
+			y += legendLineHeight
+			marshalLegendIcon(enc, item.Type, image.Point{x0 + legendIconOffset, y})
+			_ = enc.Encode(svg.Transform{
+				Translate: image.Point{x0 + legendTextOffset, y + 4},
+				Components: []any{
+					svg.Text{
+						P:          image.Point{0, 0},
+						Text:       []byte(item.Label),
+						FontSize:   legendFontSize,
+						FontFamily: legendFontFamily,
+						Fill:       legendTextColor,
+						TextAnchor: svg.TextAnchorStart,
+					},
+				},
+			})
+		}
+	}
+}
+
+func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
+	switch iconType {
+	case "component":
+		// Simple circle (regular component)
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           5,
+			Fill:        svg.White,
+			Stroke:      svg.Black,
+			StrokeWidth: "1",
+		})
+	case "build":
+		// Double circle: outer gray, inner white
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           8,
+			Fill:        svg.Gray(196),
+			Stroke:      svg.Gray(196),
+			StrokeWidth: "1",
+		})
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           4,
+			Fill:        svg.White,
+			Stroke:      svg.Black,
+			StrokeWidth: "1",
+		})
+	case "buy":
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           8,
+			Fill:        svg.Color{Color: color.RGBA{170, 165, 169, 255}},
+			Stroke:      svg.Color{Color: color.RGBA{170, 165, 169, 255}},
+			StrokeWidth: "1",
+		})
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           4,
+			Fill:        svg.White,
+			Stroke:      svg.Black,
+			StrokeWidth: "1",
+		})
+	case "outsource":
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           8,
+			Fill:        svg.Color{Color: color.RGBA{68, 68, 68, 255}},
+			Stroke:      svg.Color{Color: color.RGBA{68, 68, 68, 255}},
+			StrokeWidth: "1",
+		})
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           4,
+			Fill:        svg.White,
+			Stroke:      svg.Black,
+			StrokeWidth: "1",
+		})
+	case "evolved":
+		// Red circle for evolved component
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           5,
+			Fill:        svg.White,
+			Stroke:      svg.Red,
+			StrokeWidth: "1.5",
+		})
+	case "pipeline":
+		// Small rectangle
+		_ = enc.Encode(svg.Rectangle{
+			R:           image.Rect(p.X-10, p.Y-4, p.X+10, p.Y+4),
+			Fill:        svg.Transparent,
+			Stroke:      svg.Black,
+			StrokeWidth: "1",
+		})
+	case "edge":
+		// Gray line
+		_ = enc.Encode(svg.Line{
+			F:           image.Point{p.X - 10, p.Y},
+			T:           image.Point{p.X + 10, p.Y},
+			Stroke:      svg.Gray(128),
+			StrokeWidth: "1",
+		})
+	case "evolved_edge":
+		// Red dashed line
+		_ = enc.Encode(svg.Line{
+			F:               image.Point{p.X - 10, p.Y},
+			T:               image.Point{p.X + 10, p.Y},
+			Stroke:          svg.Red,
+			StrokeWidth:     "1",
+			StrokeDashArray: []int{3, 3},
+		})
+	case "inertia":
+		// Black bar
+		_ = enc.Encode(svg.Rectangle{
+			R:    image.Rect(p.X-2, p.Y-6, p.X+2, p.Y+6),
+			Fill: svg.Black,
+		})
+	case "group":
+		// Small colored ellipse outline
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           7,
+			Fill:        svg.Color{Color: color.RGBA{52, 152, 219, 40}},
+			Stroke:      svg.Color{Color: color.RGBA{52, 152, 219, 255}},
+			StrokeWidth: "1.5",
+		})
+	case "signal":
+		// Small diamond
+		marshalDiamond(enc, p, svg.Color{Color: color.RGBA{230, 126, 34, 255}})
+	case "gameplay":
+		// Small rounded badge
+		_ = enc.Encode(svg.Rectangle{
+			R:           image.Rect(p.X-8, p.Y-5, p.X+8, p.Y+5),
+			Rx:          3,
+			Ry:          3,
+			Fill:        svg.Color{Color: color.RGBA{155, 89, 182, 255}},
+			Stroke:      svg.Color{Color: color.RGBA{155, 89, 182, 255}},
+			StrokeWidth: "1",
+		})
+	case "annotation":
+		// Small circle with number
+		_ = enc.Encode(svg.Circle{
+			P:           p,
+			R:           6,
+			Fill:        svg.White,
+			Stroke:      svg.Gray(128),
+			StrokeWidth: "1",
+		})
+	}
+}
+
+func marshalDiamond(enc *xml.Encoder, p image.Point, fill svg.Color) {
+	_ = enc.Encode(svg.Transform{
+		Translate: p,
+		Components: []any{
+			svg.Line{
+				F:           image.Point{0, -5},
+				T:           image.Point{5, 0},
+				Stroke:      fill,
+				StrokeWidth: "1.5",
+			},
+			svg.Line{
+				F:           image.Point{5, 0},
+				T:           image.Point{0, 5},
+				Stroke:      fill,
+				StrokeWidth: "1.5",
+			},
+			svg.Line{
+				F:           image.Point{0, 5},
+				T:           image.Point{-5, 0},
+				Stroke:      fill,
+				StrokeWidth: "1.5",
+			},
+			svg.Line{
+				F:           image.Point{-5, 0},
+				T:           image.Point{0, -5},
+				Stroke:      fill,
+				StrokeWidth: "1.5",
+			},
+		},
+	})
+}

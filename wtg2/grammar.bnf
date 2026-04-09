@@ -18,6 +18,7 @@
                       | <annotation>
                       | <signal>
                       | <gameplay>
+                      | <legend-decl>
                       | <blank-line>
 
 <blank-line>        ::= <newline>
@@ -195,6 +196,14 @@
 <quoted-text>       ::= '"' <text> '"'
 
 
+(* ─── Légende ─────────────────────────────────────────────── *)
+
+<legend-decl>       ::= "legend" <newline>
+                      (* Active l'affichage d'une légende à droite de la carte.
+                         Le contenu est auto-détecté à partir des éléments
+                         présents dans la carte. *)
+
+
 (* ─── Terminaux ────────────────────────────────────────────── *)
 
 <identifier>        ::= <id-start> ( <id-char> | " " <id-char> )*
@@ -221,6 +230,7 @@
                       | "explorer" | "settler" | "town-planner"
                       | "pioneer" | "villager"
                       | "hygiene" | "context" | "excellence"
+                      | "legend"
                       | "on"
 
 <letter>            ::= "a".."z" | "A".."Z" | <unicode-letter>

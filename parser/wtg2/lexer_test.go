@@ -21,6 +21,7 @@ group Team {
 note "important" on App
 warning "risk" on Engine
 signal accelerating on App
+legend
 `
 
 	lex := NewLexer(input)
@@ -36,6 +37,7 @@ signal accelerating on App
 		TokenNote,      // note
 		TokenWarning,   // warning
 		TokenSignal,    // signal
+		TokenLegend,    // legend
 	}
 
 	for i, exp := range expected {

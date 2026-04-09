@@ -73,9 +73,14 @@ func generate(_ js.Value, args []js.Value) any {
 	marginR := 30 * scalePct / 100
 	marginB := 50 * scalePct / 100
 
+	legendWidth := 0
+	if result.Legend && len(result.LegendItems) > 0 {
+		legendWidth = svgmap.LegendWidth * scalePct / 100
+	}
+
 	output := new(bytes.Buffer)
 	e, err := svgmap.NewEncoder(output,
-		image.Rect(0, 0, boxW, boxH),
+		image.Rect(0, 0, boxW+legendWidth, boxH),
 		image.Rect(marginL, marginT, boxW-marginR, boxH-marginB))
 	if err != nil {
 		return fmt.Sprintf("error: %v", err)
@@ -86,7 +91,11 @@ func generate(_ js.Value, args []js.Value) any {
 		e.Themes = nil
 	}
 
-	style := svgmap.NewOctoStyle(result.Stages)
+	var indicators []svgmap.Annotator
+	if result.Legend && len(result.LegendItems) > 0 {
+		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})
+	}
+	style := svgmap.NewOctoStyle(result.Stages, indicators...)
 	style.WithControls = !static
 	e.Init(style)
 

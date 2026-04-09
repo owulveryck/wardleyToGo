@@ -571,6 +571,33 @@ func TestParseGroupWithTeam(t *testing.T) {
 	}
 }
 
+func TestParseLegend(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"bare keyword", "legend\n", true},
+		{"with colon", "legend: true\n", true},
+		{"absent", "title: My Map\n", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := NewParser(strings.NewReader(tt.input))
+			if err != nil {
+				t.Fatal(err)
+			}
+			doc, err := p.Parse()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if doc.Legend != tt.want {
+				t.Errorf("legend = %v, want %v", doc.Legend, tt.want)
+			}
+		})
+	}
+}
+
 func TestParseExampleFile(t *testing.T) {
 	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {

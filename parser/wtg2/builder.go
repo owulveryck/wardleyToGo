@@ -18,8 +18,10 @@ import (
 
 // BuildResult holds the map and evolution stages produced by the builder.
 type BuildResult struct {
-	Map    *wardleyToGo.Map
-	Stages []svgmap.Evolution
+	Map         *wardleyToGo.Map
+	Stages      []svgmap.Evolution
+	Legend      bool
+	LegendItems []svgmap.LegendItem
 }
 
 type nodeEntry struct {
@@ -385,10 +387,15 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	// Phase 4: Build evolution stages
 	stages := buildEvolutionStages(doc.Stages)
 
-	return &BuildResult{
+	result := &BuildResult{
 		Map:    m,
 		Stages: stages,
-	}, nil
+		Legend: doc.Legend,
+	}
+	if doc.Legend {
+		result.LegendItems = buildLegendItems(doc)
+	}
+	return result, nil
 }
 
 // resolveNodeRef looks up a node by name, handling "Pipeline:Member" syntax.
@@ -535,6 +542,96 @@ func spreadOverlappingEdges(m *wardleyToGo.Map) {
 			}
 		}
 	}
+}
+
+// buildLegendItems scans the Document AST and returns legend items for
+// element types that are actually present in the map.
+func buildLegendItems(doc *Document) []svgmap.LegendItem {
+	var items []svgmap.LegendItem
+
+	// Scan component types
+	hasRegular := false
+	hasBuild := false
+	hasBuy := false
+	hasOutsource := false
+	hasEvolved := false
+	hasInertia := false
+
+	for _, nd := range doc.Nodes {
+		if nd.Kind == KindAnchor {
+			continue
+		}
+		switch strings.ToLower(nd.Type) {
+		case "build":
+			hasBuild = true
+		case "buy":
+			hasBuy = true
+		case "outsource":
+			hasOutsource = true
+		default:
+			hasRegular = true
+		}
+		if nd.EvolvedTo != "" {
+			hasEvolved = true
+		}
+		if nd.Inertia > 0 {
+			hasInertia = true
+		}
+	}
+
+	if hasRegular {
+		items = append(items, svgmap.LegendItem{Category: "Components", Label: "Component", Type: "component"})
+	}
+	if hasBuild {
+		items = append(items, svgmap.LegendItem{Category: "Components", Label: "Build", Type: "build"})
+	}
+	if hasBuy {
+		items = append(items, svgmap.LegendItem{Category: "Components", Label: "Buy", Type: "buy"})
+	}
+	if hasOutsource {
+		items = append(items, svgmap.LegendItem{Category: "Components", Label: "Outsource", Type: "outsource"})
+	}
+	if hasEvolved {
+		items = append(items, svgmap.LegendItem{Category: "Components", Label: "Evolved", Type: "evolved"})
+	}
+
+	// Pipelines
+	if len(doc.Pipelines) > 0 {
+		items = append(items, svgmap.LegendItem{Category: "Components", Label: "Pipeline", Type: "pipeline"})
+	}
+
+	// Edges
+	if len(doc.Edges) > 0 {
+		items = append(items, svgmap.LegendItem{Category: "Edges", Label: "Dependency", Type: "edge"})
+	}
+	if hasEvolved {
+		items = append(items, svgmap.LegendItem{Category: "Edges", Label: "Evolution", Type: "evolved_edge"})
+	}
+	if hasInertia {
+		items = append(items, svgmap.LegendItem{Category: "Edges", Label: "Inertia", Type: "inertia"})
+	}
+
+	// Groups
+	if len(doc.Groups) > 0 {
+		items = append(items, svgmap.LegendItem{Category: "Other", Label: "Group", Type: "group"})
+	}
+
+	// Signals
+	if len(doc.Signals) > 0 {
+		items = append(items, svgmap.LegendItem{Category: "Signals", Label: "Signal", Type: "signal"})
+	}
+
+	// Gameplays
+	if len(doc.Gameplays) > 0 {
+		items = append(items, svgmap.LegendItem{Category: "Gameplays", Label: "Gameplay", Type: "gameplay"})
+	}
+
+	// Annotations
+	if len(doc.Annotations) > 0 {
+		items = append(items, svgmap.LegendItem{Category: "Other", Label: "Annotation", Type: "annotation"})
+	}
+
+	return items
 }
 
 // parseHexColor parses a hex color string like "#3498DB" or "#abc".
