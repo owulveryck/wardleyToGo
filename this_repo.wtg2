@@ -1,0 +1,54 @@
+  title: wardleyToGo
+
+  anchor User
+
+  Map Visualization : III.5
+
+  Discussion : II.8
+  LLM : IV.5
+  WTG2 DSL : II.5
+
+  Formal Grammar : II.7 {
+    note: "BNF — required to implement the language"
+  }
+  Parser : II.5
+
+  Layout Algorithm : II.3 {
+    note: "Deterministic placement from topology — computes what the language deliberately omits"
+  }
+
+  SVG Renderer : III.5
+  Playground : II.2 >> III.0
+  CLI : III.7
+
+  Core Library : III.3
+  Directed Graph : IV.3
+  Go : IV.8
+  WebAssembly : IV.6
+
+  group Common Language {
+    Discussion
+    LLM
+    WTG2 DSL
+  }
+
+
+
+  User -> Map Visualization
+
+  Map Visualization -> Discussion
+  Discussion -> LLM
+  Discussion -> WTG2 DSL
+
+  WTG2 DSL -> Formal Grammar
+  WTG2 DSL -> Parser
+
+  Parser -> Layout Algorithm -> Directed Graph
+  Parser -> Core Library
+
+  Map Visualization -> SVG Renderer -> Core Library
+  Map Visualization -> Playground -> WTG2 DSL
+  Map Visualization -> CLI -> WTG2 DSL
+
+  Playground -> WebAssembly
+  Core Library -> Directed Graph -> Go
