@@ -45,7 +45,9 @@ jobs:
         run: cp exp/samplewtg2/index.html site/
 
       - name: Build wardley.js WASM
-        run: GOOS=js GOARCH=wasm go build -o site/wtg.wasm ./examples/webassembly/wasm/
+        run: |
+          cd examples/webassembly
+          GOOS=js GOARCH=wasm go build -o ../../site/wtg.wasm ./wasm/
 
       - name: Copy wardley.js
         run: cp examples/webassembly/wardley.js site/
