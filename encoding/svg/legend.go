@@ -12,9 +12,10 @@ import (
 
 // LegendItem describes a single entry in the legend.
 type LegendItem struct {
-	Category string // "Components", "Edges", "Signals", "Gameplays", "Other"
-	Label    string // Human-readable label
-	Type     string // Internal type key for rendering the correct icon
+	Category string      // "Components", "Edges", "Signals", "Gameplays", "Groups"
+	Label    string      // Human-readable label
+	Type     string      // Internal type key for rendering the correct icon
+	Color    color.Color // Optional color override (used for groups)
 }
 
 // Legend implements Annotator and renders a legend panel next to the map.
@@ -85,7 +86,7 @@ func (l *Legend) MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 	y += legendLineHeight / 2
 
 	// Group items by category
-	categories := []string{"Components", "Edges", "Signals", "Gameplays", "Other"}
+	categories := []string{"Components", "Edges", "Groups", "Signals", "Gameplays", "Other"}
 	grouped := make(map[string][]LegendItem)
 	for _, item := range l.Items {
 		grouped[item.Category] = append(grouped[item.Category], item)
@@ -117,7 +118,7 @@ func (l *Legend) MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 		// Items
 		for _, item := range items {
 			y += legendLineHeight
-			marshalLegendIcon(enc, item.Type, image.Point{x0 + legendIconOffset, y})
+			marshalLegendIcon(enc, item, image.Point{x0 + legendIconOffset, y})
 			_ = enc.Encode(svg.Transform{
 				Translate: image.Point{x0 + legendTextOffset, y + 4},
 				Components: []any{
@@ -135,8 +136,8 @@ func (l *Legend) MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 	}
 }
 
-func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
-	switch iconType {
+func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
+	switch item.Type {
 	case "component":
 		// Simple circle (regular component)
 		_ = enc.Encode(svg.Circle{
@@ -233,12 +234,19 @@ func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
 			Fill: svg.Black,
 		})
 	case "group":
-		// Small colored ellipse outline
+		// Colored ellipse using the group's actual color
+		fillColor := color.RGBA{52, 152, 219, 40}
+		strokeColor := color.RGBA{52, 152, 219, 255}
+		if item.Color != nil {
+			r, g, b, _ := item.Color.RGBA()
+			fillColor = color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0x30}
+			strokeColor = color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xFF}
+		}
 		_ = enc.Encode(svg.Circle{
 			P:           p,
 			R:           7,
-			Fill:        svg.Color{Color: color.RGBA{52, 152, 219, 40}},
-			Stroke:      svg.Color{Color: color.RGBA{52, 152, 219, 255}},
+			Fill:        svg.Color{Color: fillColor},
+			Stroke:      svg.Color{Color: strokeColor},
 			StrokeWidth: "1.5",
 		})
 	case "signal":
@@ -265,7 +273,7 @@ func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
 		})
 	default:
 		// Signal subtypes: signal_accelerating, signal_declining, etc.
-		if signalType, ok := strings.CutPrefix(iconType, "signal_"); ok {
+		if signalType, ok := strings.CutPrefix(item.Type, "signal_"); ok {
 			marshalSignalIcon(enc, signalType, p)
 		}
 	}

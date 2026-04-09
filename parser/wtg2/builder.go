@@ -611,9 +611,29 @@ func buildLegendItems(doc *Document) []svgmap.LegendItem {
 		items = append(items, svgmap.LegendItem{Category: "Edges", Label: "Inertia", Type: "inertia"})
 	}
 
-	// Groups
-	if len(doc.Groups) > 0 {
-		items = append(items, svgmap.LegendItem{Category: "Other", Label: "Group", Type: "group"})
+	// Groups — one entry per group with its name and color
+	defaultGroupColors := []color.RGBA{
+		{0x34, 0x98, 0xDB, 0xFF}, // blue
+		{0x2E, 0xCC, 0x71, 0xFF}, // green
+		{0xE7, 0x4C, 0x3C, 0xFF}, // red
+		{0x9B, 0x59, 0xB6, 0xFF}, // purple
+		{0xE6, 0x7E, 0x22, 0xFF}, // orange
+		{0x1A, 0xBC, 0x9C, 0xFF}, // teal
+		{0xF3, 0x9C, 0x12, 0xFF}, // yellow
+		{0x34, 0x49, 0x5E, 0xFF}, // dark blue
+	}
+	for i, gd := range doc.Groups {
+		var groupColor color.Color
+		if gd.Color != "" {
+			c, err := parseHexColor(gd.Color)
+			if err == nil {
+				groupColor = c
+			}
+		}
+		if groupColor == nil {
+			groupColor = defaultGroupColors[i%len(defaultGroupColors)]
+		}
+		items = append(items, svgmap.LegendItem{Category: "Groups", Label: gd.Name, Type: "group", Color: groupColor})
 	}
 
 	// Signals — one entry per distinct signal type
