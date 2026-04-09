@@ -262,7 +262,7 @@ func TestBuildMap_LegendItems(t *testing.T) {
 			t.Errorf("missing category %q", want)
 		}
 	}
-	for _, want := range []string{"component", "buy", "evolved", "edge", "evolved_edge", "inertia", "group", "signal", "gameplay"} {
+	for _, want := range []string{"component", "buy", "evolved", "edge", "evolved_edge", "inertia", "group", "signal_accelerating", "gameplay"} {
 		if !types[want] {
 			t.Errorf("missing legend type %q", want)
 		}

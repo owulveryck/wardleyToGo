@@ -616,9 +616,13 @@ func buildLegendItems(doc *Document) []svgmap.LegendItem {
 		items = append(items, svgmap.LegendItem{Category: "Other", Label: "Group", Type: "group"})
 	}
 
-	// Signals
-	if len(doc.Signals) > 0 {
-		items = append(items, svgmap.LegendItem{Category: "Signals", Label: "Signal", Type: "signal"})
+	// Signals — one entry per distinct signal type
+	seenSignals := make(map[string]bool)
+	for _, s := range doc.Signals {
+		if !seenSignals[s.Type] {
+			seenSignals[s.Type] = true
+			items = append(items, svgmap.LegendItem{Category: "Signals", Label: signalLabel(s.Type), Type: "signal_" + s.Type})
+		}
 	}
 
 	// Gameplays
@@ -632,6 +636,33 @@ func buildLegendItems(doc *Document) []svgmap.LegendItem {
 	}
 
 	return items
+}
+
+// signalLabel returns a human-readable label for a signal type.
+func signalLabel(signalType string) string {
+	switch signalType {
+	case "accelerating":
+		return "Accelerating"
+	case "declining":
+		return "Declining"
+	case "stagnating":
+		return "Stagnating"
+	case "co-evolution":
+		return "Co-evolution"
+	case "red-queen":
+		return "Red Queen"
+	case "commoditization":
+		return "Commoditization"
+	case "network-effects":
+		return "Network effects"
+	case "economies-of-scale":
+		return "Economies of scale"
+	default:
+		if len(signalType) == 0 {
+			return signalType
+		}
+		return strings.ToUpper(signalType[:1]) + signalType[1:]
+	}
 }
 
 // parseHexColor parses a hex color string like "#3498DB" or "#abc".

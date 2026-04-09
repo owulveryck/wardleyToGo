@@ -2,8 +2,10 @@ package svgmap
 
 import (
 	"encoding/xml"
+	"fmt"
 	"image"
 	"image/color"
+	"strings"
 
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 )
@@ -240,8 +242,13 @@ func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
 			StrokeWidth: "1.5",
 		})
 	case "signal":
-		// Small diamond
+		// Generic signal: small diamond
 		marshalDiamond(enc, p, svg.Color{Color: color.RGBA{230, 126, 34, 255}})
+	default:
+		// Signal subtypes: signal_accelerating, signal_declining, etc.
+		if strings.HasPrefix(iconType, "signal_") {
+			marshalSignalIcon(enc, strings.TrimPrefix(iconType, "signal_"), p)
+		}
 	case "gameplay":
 		// Small rounded badge
 		_ = enc.Encode(svg.Rectangle{
@@ -261,6 +268,71 @@ func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
 			Stroke:      svg.Gray(128),
 			StrokeWidth: "1",
 		})
+	}
+}
+
+// marshalSignalIcon renders the same signal icon used on components, centered at p.
+func marshalSignalIcon(enc *xml.Encoder, signalType string, p image.Point) {
+	ox, oy := p.X-5, p.Y-5
+	switch signalType {
+	case "accelerating":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 5,-5 l -5,-5 M %d,%d l 5,-5 l -5,-5", ox, oy+5, ox+6, oy+5),
+			Stroke:      svg.Color{Color: color.RGBA{0x27, 0xAE, 0x60, 0xFF}},
+			StrokeWidth: "2",
+		})
+	case "declining":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 0,10 l -4,-4 M %d,%d l 0,10 l 4,-4", ox, oy, ox, oy),
+			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}},
+			StrokeWidth: "2",
+		})
+	case "stagnating":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d h 10 M %d,%d h 10", ox, oy-2, ox, oy+2),
+			Stroke:      svg.Color{Color: color.RGBA{0x95, 0xA5, 0xA6, 0xFF}},
+			StrokeWidth: "2",
+		})
+	case "co-evolution":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d q 3,-5 6,0 q 3,5 6,0", ox, oy),
+			Stroke:      svg.Color{Color: color.RGBA{0x8E, 0x44, 0xAD, 0xFF}},
+			StrokeWidth: "2",
+		})
+	case "red-queen":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 8,0 l -3,-3 M %d,%d l 8,0 l -3,3 M %d,%d h 4 M %d,%d h 3", ox, oy, ox, oy, ox-3, oy-3, ox-3, oy+3),
+			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}},
+			StrokeWidth: "1.5",
+		})
+	case "commoditization":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 8,6 l -4,0 M %d,%d l 8,6 l 0,-4", ox, oy, ox, oy),
+			Stroke:      svg.Color{Color: color.RGBA{0x34, 0x49, 0x5E, 0xFF}},
+			StrokeWidth: "2",
+		})
+	case "network-effects":
+		cx, cy := ox+5, oy
+		_ = enc.Encode(svg.Circle{
+			P:           image.Pt(cx, cy),
+			R:           2,
+			Fill:        svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
+			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
+			StrokeWidth: "1",
+		})
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d l 5,-3 M %d,%d l 5,3 M %d,%d l -5,-3 M %d,%d l -5,3", cx, cy, cx, cy, cx, cy, cx, cy),
+			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
+			StrokeWidth: "1",
+		})
+	case "economies-of-scale":
+		_ = enc.Encode(svg.Path{
+			D:           fmt.Sprintf("M %d,%d a 3,3 0 0,1 6,0 M %d,%d a 5,5 0 0,1 10,0", ox, oy, ox-2, oy),
+			Stroke:      svg.Color{Color: color.RGBA{0x16, 0xA0, 0x85, 0xFF}},
+			StrokeWidth: "1.5",
+		})
+	default:
+		marshalDiamond(enc, p, svg.Color{Color: color.RGBA{0xF3, 0x9C, 0x12, 0xFF}})
 	}
 }
 
