@@ -100,8 +100,6 @@ func (g *Group) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	switch len(canvasPoints) {
 	case 1:
 		pathD = ellipsePath(canvasPoints[0], padding, padding*0.7)
-	case 2:
-		pathD = capsulePath(canvasPoints[0], canvasPoints[1], padding)
 	default:
 		pathD = blobPath(canvasPoints, padding)
 	}
@@ -198,40 +196,12 @@ func ellipsePath(center fpoint, rx, ry float64) string {
 	)
 }
 
-// capsulePath generates a stadium/capsule shape between two points.
-func capsulePath(p1, p2 fpoint, radius float64) string {
-	dx := p2.X - p1.X
-	dy := p2.Y - p1.Y
-	length := math.Sqrt(dx*dx + dy*dy)
-	if length < 1 {
-		return ellipsePath(p1, radius, radius*0.7)
-	}
-	// Perpendicular unit vector
-	px := -dy / length * radius
-	py := dx / length * radius
-
-	// Four corners of the capsule rectangle
-	tlX, tlY := p1.X+px, p1.Y+py
-	trX, trY := p2.X+px, p2.Y+py
-	brX, brY := p2.X-px, p2.Y-py
-	blX, blY := p1.X-px, p1.Y-py
-
-	return fmt.Sprintf(
-		"M %.1f,%.1f L %.1f,%.1f A %.1f,%.1f 0 0,1 %.1f,%.1f L %.1f,%.1f A %.1f,%.1f 0 0,1 %.1f,%.1f Z",
-		tlX, tlY,
-		trX, trY,
-		radius, radius, brX, brY,
-		blX, blY,
-		radius, radius, tlX, tlY,
-	)
-}
-
 // blobPath generates a smooth organic blob around the given points.
 func blobPath(points []fpoint, padding float64) string {
 	// Generate padded point cloud: 8 points per member on a circle
 	padded := make([]fpoint, 0, len(points)*8)
 	for _, p := range points {
-		for j := 0; j < 8; j++ {
+		for j := range 8 {
 			angle := float64(j) * (2 * math.Pi / 8)
 			padded = append(padded, fpoint{
 				X: p.X + padding*math.Cos(angle),
@@ -256,7 +226,7 @@ func blobPath(points []fpoint, padding float64) string {
 		approach, vertex, departure fpoint
 	}
 	corners := make([]cornerPoints, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		prev := hull[(i-1+n)%n]
 		curr := hull[i]
 		next := hull[(i+1)%n]

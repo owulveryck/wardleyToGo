@@ -123,12 +123,12 @@ func TestGroupMarshalSVG_TwoPoints(t *testing.T) {
 		t.Fatal(err)
 	}
 	out := buf.String()
-	// Should contain arc commands for capsule
+	// Should contain blob path with quadratic Bézier curves
 	if !strings.Contains(out, "<path") {
 		t.Error("two-point group should render as path")
 	}
-	if !strings.Contains(out, "A ") {
-		t.Error("two-point group should contain arc commands for capsule endcaps")
+	if !strings.Contains(out, "Q ") {
+		t.Error("two-point group should contain quadratic Bézier curves for blob shape")
 	}
 }
 
