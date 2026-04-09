@@ -244,11 +244,6 @@ func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
 	case "signal":
 		// Generic signal: small diamond
 		marshalDiamond(enc, p, svg.Color{Color: color.RGBA{230, 126, 34, 255}})
-	default:
-		// Signal subtypes: signal_accelerating, signal_declining, etc.
-		if strings.HasPrefix(iconType, "signal_") {
-			marshalSignalIcon(enc, strings.TrimPrefix(iconType, "signal_"), p)
-		}
 	case "gameplay":
 		// Small rounded badge
 		_ = enc.Encode(svg.Rectangle{
@@ -268,6 +263,11 @@ func marshalLegendIcon(enc *xml.Encoder, iconType string, p image.Point) {
 			Stroke:      svg.Gray(128),
 			StrokeWidth: "1",
 		})
+	default:
+		// Signal subtypes: signal_accelerating, signal_declining, etc.
+		if signalType, ok := strings.CutPrefix(iconType, "signal_"); ok {
+			marshalSignalIcon(enc, signalType, p)
+		}
 	}
 }
 
