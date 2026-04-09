@@ -70,7 +70,7 @@ func Line(img draw.Image, x1, y1, x2, y2 int, col color.Color, dashArray [2]int)
 	// Is line a vertical ?
 	case x1 == x2:
 		if y1 > y2 {
-			y1, y2 = y2, y1
+			y1 = y2
 		}
 		for ; dy != 0; dy-- {
 			p.Set(x1, y1, col)

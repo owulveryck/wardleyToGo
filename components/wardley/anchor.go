@@ -59,7 +59,7 @@ func (a *Anchor) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	case AdjustEnd:
 		textAnchor = svg.TextAnchorEnd
 	}
-	e.Encode(svg.Transform{
+	return e.Encode(svg.Transform{
 		Translate: coords,
 		Components: []interface{}{
 			svg.Text{
@@ -71,7 +71,6 @@ func (a *Anchor) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 			},
 		},
 	})
-	return nil
 }
 
 func (a *Anchor) String() string {

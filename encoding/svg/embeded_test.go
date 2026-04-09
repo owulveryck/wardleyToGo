@@ -16,5 +16,5 @@ func Example_embededJS() {
 			},
 		},
 	}
-	jsTmpl.Execute(os.Stdout, set)
+	_ = jsTmpl.Execute(os.Stdout, set)
 }

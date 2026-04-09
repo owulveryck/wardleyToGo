@@ -65,7 +65,8 @@ func (r Rectangle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 			Value: strconv.Itoa(r.Rx),
 		})
 	}
-	e.EncodeToken(element)
-	e.EncodeToken(element.End())
-	return nil
+	if err := e.EncodeToken(element); err != nil {
+		return err
+	}
+	return e.EncodeToken(element.End())
 }

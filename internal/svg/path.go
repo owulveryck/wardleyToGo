@@ -54,7 +54,8 @@ func (p Path) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		element.Attr = append(element.Attr, must(p.Fill.MarshalXMLAttr(xml.Name{Local: "fill"})))
 	}
 
-	e.EncodeToken(element)
-	e.EncodeToken(element.End())
-	return nil
+	if err := e.EncodeToken(element); err != nil {
+		return err
+	}
+	return e.EncodeToken(element.End())
 }

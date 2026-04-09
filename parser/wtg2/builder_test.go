@@ -123,7 +123,7 @@ func TestBuildMap_ExampleFile(t *testing.T) {
 			t.Skip("example.wtg2 not found")
 		}
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	p, err := NewParser(f)
 	if err != nil {

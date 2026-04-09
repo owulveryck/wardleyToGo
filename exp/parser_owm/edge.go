@@ -48,7 +48,7 @@ func (p *Parser) createRegularEdges() error {
 		if !ok {
 			return fmt.Errorf("graph is inconsistent, %v is referencing a non-defined node", edge)
 		}
-		p.m.SetCollaboration(&wardley.Collaboration{
+		_ = p.m.SetCollaboration(&wardley.Collaboration{
 			F:     edge.F,
 			T:     edge.T,
 			Type:  wardley.RegularEdge,
@@ -65,7 +65,7 @@ func (p *Parser) createEvolvingComponentEdges() error {
 		if !ok {
 			return fmt.Errorf("bad evolution, non existent component %v", name)
 		}
-		p.m.SetCollaboration(&wardley.Collaboration{
+		_ = p.m.SetCollaboration(&wardley.Collaboration{
 			F:    node,
 			T:    nodeEvolved,
 			Type: wardley.EvolvedComponentEdge,
@@ -82,7 +82,7 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		for _, succ := range p.m.From(node.ID()) {
 			p.m.RemoveEdge(nodeEvolved.ID(), succ.ID())
-			p.m.SetCollaboration(&wardley.Collaboration{
+			_ = p.m.SetCollaboration(&wardley.Collaboration{
 				F:    nodeEvolved,
 				T:    succ,
 				Type: wardley.EvolvedEdge,
@@ -90,7 +90,7 @@ func (p *Parser) createEvolvingEdges() error {
 		}
 		for _, pred := range p.m.To(node.ID()) {
 			p.m.RemoveEdge(pred.ID(), nodeEvolved.ID())
-			p.m.SetCollaboration(&wardley.Collaboration{
+			_ = p.m.SetCollaboration(&wardley.Collaboration{
 				F:    pred,
 				T:    nodeEvolved,
 				Type: wardley.EvolvedEdge,

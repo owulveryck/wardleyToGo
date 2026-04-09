@@ -46,7 +46,8 @@ func (c Circle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 			Value: c.StrokeWidth,
 		})
 	}
-	e.EncodeToken(element)
-	e.EncodeToken(element.End())
-	return nil
+	if err := e.EncodeToken(element); err != nil {
+		return err
+	}
+	return e.EncodeToken(element.End())
 }

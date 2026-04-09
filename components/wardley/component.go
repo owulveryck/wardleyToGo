@@ -109,7 +109,7 @@ func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 
 func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
 	// Draw the rectangle
-	if c.PipelinedComponents != nil && len(c.PipelinedComponents) > 1 {
+	if len(c.PipelinedComponents) > 1 {
 		rect := getBounds(c.PipelinedComponents)
 		lowestBound := components.CalcCoords(rect.Min, canvas)
 		greaterBound := components.CalcCoords(rect.Max, canvas)

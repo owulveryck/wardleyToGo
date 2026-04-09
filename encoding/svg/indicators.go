@@ -16,7 +16,7 @@ type EvolutionIndication struct {
 
 func (e *EvolutionIndication) MarshalSVG(enc *xml.Encoder, box image.Rectangle, canvas image.Rectangle) {
 	canvasWidth := canvas.Max.X - canvas.Min.X
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Translate: image.Point{canvas.Min.X + 7, canvas.Min.Y + e.Y},
 		Rotate:    0,
 		Scale:     0,
@@ -34,7 +34,7 @@ func (e *EvolutionIndication) MarshalSVG(enc *xml.Encoder, box image.Rectangle, 
 				MaxChars:   20,
 			}},
 	})
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Translate: image.Point{position(canvasWidth, stage12) + 47, canvas.Min.Y + e.Y},
 		Rotate:    0,
 		Scale:     0,
@@ -52,7 +52,7 @@ func (e *EvolutionIndication) MarshalSVG(enc *xml.Encoder, box image.Rectangle, 
 				MaxChars:   25,
 			}},
 	})
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Translate: image.Point{position(canvasWidth, stage23) + 47, canvas.Min.Y + e.Y},
 		Rotate:    0,
 		Scale:     0,
@@ -70,7 +70,7 @@ func (e *EvolutionIndication) MarshalSVG(enc *xml.Encoder, box image.Rectangle, 
 				MaxChars:   35,
 			}},
 	})
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Translate: image.Point{position(canvasWidth, stage34) + 47, canvas.Min.Y + e.Y},
 		Rotate:    0,
 		Scale:     0,

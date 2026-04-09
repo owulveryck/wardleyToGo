@@ -14,7 +14,7 @@ func (p *Parser) parseAnchor() error {
 	if err != nil {
 		return err
 	}
-	p.m.AddComponent(a)
+	_ = p.m.AddComponent(a)
 	p.nodeDict[a.Label] = a
 	return nil
 }

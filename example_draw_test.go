@@ -32,8 +32,8 @@ type dummyCollaboration struct {
 	f, t wardleyToGo.Component
 }
 
-func (d *dummyCollaboration) From() wardleyToGo.Component  { return d.f }
-func (d *dummyCollaboration) To() wardleyToGo.Component    { return d.t }
+func (d *dummyCollaboration) From() wardleyToGo.Component   { return d.f }
+func (d *dummyCollaboration) To() wardleyToGo.Component     { return d.t }
 func (d *dummyCollaboration) GetType() wardleyToGo.EdgeType { return 0 }
 
 func (d *dummyCollaboration) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
@@ -53,18 +53,18 @@ func ExampleMap_String() {
 	c1 := &dummyComponent{id: 1, position: image.Pt(50, 50)}
 	c2 := &dummyComponent{id: 2, position: image.Pt(50, 75)}
 	c3 := &dummyComponent{id: 3, position: image.Pt(75, 75)}
-	m.AddComponent(c0)
-	m.AddComponent(c1)
-	m.AddComponent(c2)
-	m.AddComponent(c3)
+	_ = m.AddComponent(c0)
+	_ = m.AddComponent(c1)
+	_ = m.AddComponent(c2)
+	_ = m.AddComponent(c3)
 	// c0 -> c1
 	// c1 -> c2
 	// c2 -> c3
 	// c1 -> c3
-	m.SetCollaboration(newCollaboration(c0, c1))
-	m.SetCollaboration(newCollaboration(c1, c2))
-	m.SetCollaboration(newCollaboration(c2, c3))
-	m.SetCollaboration(newCollaboration(c1, c3))
+	_ = m.SetCollaboration(newCollaboration(c0, c1))
+	_ = m.SetCollaboration(newCollaboration(c1, c2))
+	_ = m.SetCollaboration(newCollaboration(c2, c3))
+	_ = m.SetCollaboration(newCollaboration(c1, c3))
 	fmt.Println(m)
 }
 
@@ -75,14 +75,14 @@ func Example_canvas() {
 	c1 := &dummyComponent{id: 1, position: image.Pt(50, 50)}
 	c2 := &dummyComponent{id: 2, position: image.Pt(50, 75)}
 	c3 := &dummyComponent{id: 3, position: image.Pt(75, 75)}
-	m.AddComponent(c0)
-	m.AddComponent(c1)
-	m.AddComponent(c2)
-	m.AddComponent(c3)
-	m.SetCollaboration(newCollaboration(c0, c1))
-	m.SetCollaboration(newCollaboration(c1, c2))
-	m.SetCollaboration(newCollaboration(c2, c3))
-	m.SetCollaboration(newCollaboration(c1, c3))
+	_ = m.AddComponent(c0)
+	_ = m.AddComponent(c1)
+	_ = m.AddComponent(c2)
+	_ = m.AddComponent(c3)
+	_ = m.SetCollaboration(newCollaboration(c0, c1))
+	_ = m.SetCollaboration(newCollaboration(c1, c2))
+	_ = m.SetCollaboration(newCollaboration(c2, c3))
+	_ = m.SetCollaboration(newCollaboration(c1, c3))
 
 	// Creates a picture representation of the map
 	const width = 80

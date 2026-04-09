@@ -33,7 +33,9 @@ func NewEncoder(w io.Writer, box image.Rectangle, canvas image.Rectangle) (*Enco
 		PreserveAspectRatio: "xMidYMid meet",
 		ViewBox:             fmt.Sprintf("%v %v %v %v", box.Min.X, box.Min.Y, box.Max.X, box.Max.Y),
 	}.StartSVG()
-	e.EncodeToken(start)
+	if err := e.EncodeToken(start); err != nil {
+		return nil, err
+	}
 	return &Encoder{
 		start:  start,
 		box:    box,
@@ -44,8 +46,8 @@ func NewEncoder(w io.Writer, box image.Rectangle, canvas image.Rectangle) (*Enco
 }
 
 func (e *Encoder) Close() {
-	e.e.EncodeToken(e.start.End())
-	e.e.Flush()
+	_ = e.e.EncodeToken(e.start.End())
+	_ = e.e.Flush()
 }
 
 func (e *Encoder) Init(s SVGStyleMarshaler) {
@@ -59,11 +61,13 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		}
 	}
 
-	e.e.Encode(svg.Text{
+	if err := e.e.Encode(svg.Text{
 		P:          image.Pt(e.box.Dx()/2, 20),
 		Text:       []byte(m.Title),
 		TextAnchor: svg.TextAnchorMiddle,
-	})
+	}); err != nil {
+		return err
+	}
 	elems := make([]SVGMarshaler, 0)
 	for _, c := range m.Collaborations() {
 		if e, ok := c.(SVGMarshaler); ok {
@@ -77,14 +81,20 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 	}
 	sort.Sort(svgMarshalers(elems))
 	currentLayer := makeGroup("layer", encoding.Background)
-	e.e.EncodeToken(currentLayer.StartElement)
+	if err := e.e.EncodeToken(currentLayer.StartElement); err != nil {
+		return err
+	}
 	for _, element := range elems {
 		if elem, ok := element.(encoding.Layer); ok {
 			layer := elem.GetLayer()
 			if layer != currentLayer.id {
 				currentLayer = makeGroup("layer", layer)
-				e.e.EncodeToken(currentLayer.End())
-				e.e.EncodeToken(currentLayer.StartElement)
+				if err := e.e.EncodeToken(currentLayer.End()); err != nil {
+					return err
+				}
+				if err := e.e.EncodeToken(currentLayer.StartElement); err != nil {
+					return err
+				}
 			}
 		}
 		var g *group
@@ -92,66 +102,70 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			g = makeGroup("element", int(elem.ID()))
 			for _, t := range e.Themes {
 				if dec, ok := t.(ComponentDecorator); ok {
-					g.StartElement.Attr = append(g.StartElement.Attr, dec.DecorateComponent(elem)...)
+					g.Attr = append(g.Attr, dec.DecorateComponent(elem)...)
 				}
 			}
 			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
 				found := false
-				for i := range g.StartElement.Attr {
-					if g.StartElement.Attr[i].Name.Local == "class" {
+				for i := range g.Attr {
+					if g.Attr[i].Name.Local == "class" {
 						found = true
-						g.StartElement.Attr[i] = xml.Attr{
+						g.Attr[i] = xml.Attr{
 							Name:  xml.Name{Local: "class"},
-							Value: fmt.Sprintf("%v %v", g.StartElement.Attr[i].Value, chainer.GetAbsoluteVisibility()),
+							Value: fmt.Sprintf("%v %v", g.Attr[i].Value, chainer.GetAbsoluteVisibility()),
 						}
 					}
 				}
 				if !found {
-					g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
+					g.Attr = append(g.Attr, xml.Attr{
 						Name:  xml.Name{Local: "class"},
 						Value: fmt.Sprintf("visibility%v", chainer.GetAbsoluteVisibility()),
 					})
 				}
 			}
-			e.e.EncodeToken(g.StartElement)
+			if err := e.e.EncodeToken(g.StartElement); err != nil {
+				return err
+			}
 		}
 		if elem, ok := element.(wardleyToGo.Collaboration); ok {
 			g = makeGroup(fmt.Sprintf("edge_%v", int(elem.From().ID())), int(elem.To().ID()))
 			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
 				found := false
-				for i := range g.StartElement.Attr {
-					if g.StartElement.Attr[i].Name.Local == "class" {
+				for i := range g.Attr {
+					if g.Attr[i].Name.Local == "class" {
 						found = true
-						g.StartElement.Attr[i] = xml.Attr{
+						g.Attr[i] = xml.Attr{
 							Name:  xml.Name{Local: "class"},
-							Value: fmt.Sprintf("%v %v", g.StartElement.Attr[i].Value, chainer.GetAbsoluteVisibility()),
+							Value: fmt.Sprintf("%v %v", g.Attr[i].Value, chainer.GetAbsoluteVisibility()),
 						}
 					}
 				}
 				if !found {
-					g.StartElement.Attr = append(g.StartElement.Attr, xml.Attr{
+					g.Attr = append(g.Attr, xml.Attr{
 						Name:  xml.Name{Local: "class"},
 						Value: fmt.Sprintf("visibility%v", chainer.GetAbsoluteVisibility()),
 					})
 				}
 			}
-			e.e.EncodeToken(g.StartElement)
+			if err := e.e.EncodeToken(g.StartElement); err != nil {
+				return err
+			}
 		}
 		err := element.MarshalSVG(e.e, e.canvas)
 		if err != nil {
 			return err
 		}
 		if g != nil {
-			e.e.EncodeToken(g.End())
+			if err := e.e.EncodeToken(g.End()); err != nil {
+				return err
+			}
 		}
 	}
-	e.e.EncodeToken(currentLayer.End())
-	return nil
+	return e.e.EncodeToken(currentLayer.End())
 }
 
 type group struct {
 	xml.StartElement
-	s  string
 	id int
 }
 

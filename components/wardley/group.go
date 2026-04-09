@@ -116,8 +116,12 @@ func (g *Group) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	fillPath.Attr = append(fillPath.Attr, must(fc.MarshalXMLAttr(xml.Name{Local: "fill"})))
 	fillPath.Attr = append(fillPath.Attr, must(fc.MarshalXMLAttr(xml.Name{Local: "fill-opacity"})))
 	fillPath.Attr = append(fillPath.Attr, xml.Attr{Name: xml.Name{Local: "stroke"}, Value: "none"})
-	e.EncodeToken(fillPath)
-	e.EncodeToken(fillPath.End())
+	if err := e.EncodeToken(fillPath); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(fillPath.End()); err != nil {
+		return err
+	}
 
 	// Render stroke path
 	strokePath := xml.StartElement{
@@ -131,10 +135,10 @@ func (g *Group) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	sc := svg.Color{Color: g.StrokeColor}
 	strokePath.Attr = append(strokePath.Attr, must(sc.MarshalXMLAttr(xml.Name{Local: "stroke"})))
 	strokePath.Attr = append(strokePath.Attr, must(sc.MarshalXMLAttr(xml.Name{Local: "stroke-opacity"})))
-	e.EncodeToken(strokePath)
-	e.EncodeToken(strokePath.End())
-
-	return nil
+	if err := e.EncodeToken(strokePath); err != nil {
+		return err
+	}
+	return e.EncodeToken(strokePath.End())
 }
 
 func must(a xml.Attr, err error) xml.Attr {

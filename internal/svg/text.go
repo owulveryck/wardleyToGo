@@ -87,12 +87,19 @@ func (t TextArea) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		},
 	}
 
-	e.EncodeToken(foreignObject)
-	e.EncodeToken(textArea)
-	e.EncodeToken(xml.CharData(t.Text))
-	e.EncodeToken(textArea.End())
-	e.EncodeToken(foreignObject.End())
-	return nil
+	if err := e.EncodeToken(foreignObject); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(textArea); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(xml.CharData(t.Text)); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(textArea.End()); err != nil {
+		return err
+	}
+	return e.EncodeToken(foreignObject.End())
 }
 
 type Text struct {
@@ -169,7 +176,9 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 			Value: "middle",
 		})
 	}
-	e.EncodeToken(element)
+	if err := e.EncodeToken(element); err != nil {
+		return err
+	}
 	words := []string{string(t.Text)}
 	if t.TextAdjust {
 		words = splitString(string(t.Text), maxChars)
@@ -208,10 +217,15 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 				//Value: "20",
 			},
 		}
-		e.EncodeToken(tspan)
-		e.EncodeToken(xml.CharData(word))
-		e.EncodeToken(tspan.End())
+		if err := e.EncodeToken(tspan); err != nil {
+			return err
+		}
+		if err := e.EncodeToken(xml.CharData(word)); err != nil {
+			return err
+		}
+		if err := e.EncodeToken(tspan.End()); err != nil {
+			return err
+		}
 	}
-	e.EncodeToken(element.End())
-	return nil
+	return e.EncodeToken(element.End())
 }

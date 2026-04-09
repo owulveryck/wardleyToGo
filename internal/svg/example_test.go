@@ -19,12 +19,12 @@ func Example() {
 	}.StartSVG()
 	enc := xml.NewEncoder(os.Stdout)
 	enc.Indent("", "    ")
-	enc.EncodeToken(s)
-	enc.Encode(svg.Rectangle{
+	_ = enc.EncodeToken(s)
+	_ = enc.Encode(svg.Rectangle{
 		R:    image.Rect(0, 0, 1050, 1050),
 		Fill: svg.Color{Color: color.Gray{Y: 128}},
 	})
-	enc.Encode(svg.Defs{
+	_ = enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
 			ID: "wardleyGradient",
 			X1: "0%", Y1: "0%", X2: "100%", Y2: "0%",
@@ -73,12 +73,12 @@ func Example() {
 			},
 		},
 	})
-	enc.Encode(svg.Rectangle{
+	_ = enc.Encode(svg.Rectangle{
 		R:     image.Rect(25, 25, 1000, 1000),
 		Style: "fill:url(#wardleyGradient)",
 	})
 
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Rotate:    270,
 		Translate: image.Point{25, 1025},
 		Components: []interface{}{
@@ -128,43 +128,43 @@ func Example() {
 			},
 		},
 	})
-	enc.Encode(svg.Line{
+	_ = enc.Encode(svg.Line{
 		F:         image.Point{25, 1025},
 		T:         image.Point{1025, 1025},
 		Stroke:    svg.Color{Color: color.Black},
 		MarkerEnd: "url(#graphArrrow)",
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{32, 40},
 		FontWeight: "bold",
 		FontSize:   "11px",
 		Text:       []byte(`Uncharted`),
 		TextAnchor: svg.TextAnchorStart,
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{1020, 40},
 		FontWeight: "bold",
 		FontSize:   "11px",
 		Text:       []byte(`Industrialised`),
 		TextAnchor: svg.TextAnchorEnd,
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:    image.Point{25, 1040},
 		Text: []byte(`Genesis`),
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:    image.Point{198, 1040},
 		Text: []byte(`Custom-Built`),
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:    image.Point{425, 1040},
 		Text: []byte(`Product (+rental)`),
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:    image.Point{725, 1040},
 		Text: []byte(`Commodity (+utility)`),
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{1025, 1040},
 		TextAnchor: svg.TextAnchorEnd,
 		FontWeight: "bold",
@@ -174,7 +174,7 @@ func Example() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	enc.Flush()
+	_ = enc.Flush()
 	//	<svg width="100%" height="100%" viewBox="0 0 1050 1050" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
 	//    <rect x="0" y="0" width="1050" height="1050" fill="rgb(128,128,128)" fill-opacity="1.0"></rect>
 	//    <defs>

@@ -71,11 +71,11 @@ func NewWardleyStyle(evolutionSteps []Evolution) *WardleyStyle {
 
 }
 func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
-	enc.Encode(svg.Rectangle{
+	_ = enc.Encode(svg.Rectangle{
 		R:    box,
 		Fill: svg.Gray(128),
 	})
-	enc.Encode(svg.Defs{
+	_ = enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
 			ID: "wardleyGradient",
 			X1: "0%", Y1: "0%", X2: "100%", Y2: "0%",
@@ -129,7 +129,7 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 			},
 		},
 	})
-	enc.Encode(svg.Rectangle{
+	_ = enc.Encode(svg.Rectangle{
 		R:     canvas,
 		Style: "fill:url(#wardleyGradient)",
 	})
@@ -169,29 +169,29 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 		TextAnchor: svg.TextAnchorMiddle,
 		FontWeight: "bold",
 	})
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Rotate:     270,
 		Translate:  image.Point{canvas.Min.X, canvas.Max.Y},
 		Components: verticals,
 	})
-	enc.Encode(svg.Line{
+	_ = enc.Encode(svg.Line{
 		F:         image.Point{canvas.Min.X, canvas.Max.Y},
 		T:         canvas.Max,
 		Stroke:    svg.Black,
 		MarkerEnd: "url(#graphArrow)",
 	})
-	enc.Encode(svg.Circle{
+	_ = enc.Encode(svg.Circle{
 		P: image.Point{canvas.Min.X + 7, canvas.Min.Y + 5},
 		R: 5,
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
 		FontWeight: "bold",
 		FontSize:   "11px",
 		Text:       []byte(`Uncharted`),
 		TextAnchor: svg.TextAnchorStart,
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Max.X - 5, canvas.Min.Y + 15},
 		FontWeight: "bold",
 		FontSize:   "11px",
@@ -200,12 +200,12 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 	})
 	for i := 0; i < len(w.evolutionSteps); i++ {
 		axis := w.evolutionSteps[i]
-		enc.Encode(svg.Text{
+		_ = enc.Encode(svg.Text{
 			P:    image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
 			Text: []byte(axis.Label),
 		})
 	}
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Max.X, canvas.Max.Y + 15},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,

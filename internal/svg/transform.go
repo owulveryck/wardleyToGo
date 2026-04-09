@@ -47,8 +47,11 @@ func (t Transform) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 			},
 		}
 	*/
-	e.EncodeToken(g)
-	e.Encode(t.Components)
-	e.EncodeToken(g.End())
-	return nil
+	if err := e.EncodeToken(g); err != nil {
+		return err
+	}
+	if err := e.Encode(t.Components); err != nil {
+		return err
+	}
+	return e.EncodeToken(g.End())
 }

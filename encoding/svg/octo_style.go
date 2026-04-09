@@ -33,7 +33,7 @@ type Annotator interface {
 }
 
 func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
-	enc.Encode(svg.Defs{
+	_ = enc.Encode(svg.Defs{
 		Gradient: svg.LinearGradient{
 			ID: "wardleyGradient",
 			X1: "0%", Y1: "0%", X2: "100%", Y2: "0%",
@@ -87,7 +87,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			},
 		},
 	})
-	enc.Encode(svg.Rectangle{
+	_ = enc.Encode(svg.Rectangle{
 		R:     canvas,
 		Style: "fill:url(#wardleyGradient)",
 	})
@@ -137,12 +137,12 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			FontWeight: "bold",
 		})
 	}
-	enc.Encode(svg.Transform{
+	_ = enc.Encode(svg.Transform{
 		Rotate:     270,
 		Translate:  image.Point{canvas.Min.X, canvas.Max.Y},
 		Components: verticals,
 	})
-	enc.Encode(svg.Line{
+	_ = enc.Encode(svg.Line{
 		F:         image.Point{canvas.Min.X, canvas.Max.Y},
 		T:         canvas.Max,
 		Stroke:    svg.Color{Color: color.RGBA{19, 36, 84, 255}},
@@ -152,7 +152,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		displayControls(enc, box, canvas)
 	}
 	if w.WithSpace {
-		enc.Encode(svg.Text{
+		_ = enc.Encode(svg.Text{
 			P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
 			FontWeight: "bold",
 			FontSize:   "11px",
@@ -161,7 +161,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
-		enc.Encode(svg.Text{
+		_ = enc.Encode(svg.Text{
 			P:          image.Point{canvas.Max.X - 5, canvas.Min.Y + 15},
 			FontWeight: "bold",
 			FontSize:   "11px",
@@ -173,14 +173,14 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 	}
 	for i := 0; i < len(w.evolutionSteps); i++ {
 		axis := w.evolutionSteps[i]
-		enc.Encode(svg.Text{
+		_ = enc.Encode(svg.Text{
 			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
 			Text:       []byte(axis.Label),
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
 	}
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Max.X, canvas.Max.Y + 15},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
@@ -195,18 +195,18 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 
 func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 	visibilityGroup := makeGroup("visibilitytoggle", 0)
-	visibilityGroup.StartElement.Attr = append(visibilityGroup.StartElement.Attr, xml.Attr{
+	visibilityGroup.Attr = append(visibilityGroup.Attr, xml.Attr{
 		Name:  xml.Name{Local: "onclick"},
 		Value: "toggleVisibility()",
 	},
 	)
-	enc.EncodeToken(visibilityGroup.StartElement)
+	_ = enc.EncodeToken(visibilityGroup.StartElement)
 
-	enc.Encode(svg.Circle{
+	_ = enc.Encode(svg.Circle{
 		P: image.Point{canvas.Min.X + 105, canvas.Max.Y + 35},
 		R: 5,
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 112, canvas.Max.Y + 39},
 		FontWeight: "bold",
 		FontSize:   "11px",
@@ -215,20 +215,20 @@ func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 	})
-	enc.EncodeToken(visibilityGroup.End())
+	_ = enc.EncodeToken(visibilityGroup.End())
 	linkGroup := makeGroup("linktoggle", 0)
-	linkGroup.StartElement.Attr = append(linkGroup.StartElement.Attr, xml.Attr{
+	linkGroup.Attr = append(linkGroup.Attr, xml.Attr{
 		Name:  xml.Name{Local: "onclick"},
 		Value: "toggleLinks()",
 	},
 	)
-	enc.EncodeToken(linkGroup.StartElement)
+	_ = enc.EncodeToken(linkGroup.StartElement)
 
-	enc.Encode(svg.Circle{
+	_ = enc.Encode(svg.Circle{
 		P: image.Point{canvas.Min.X + 5, canvas.Max.Y + 35},
 		R: 5,
 	})
-	enc.Encode(svg.Text{
+	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 12, canvas.Max.Y + 39},
 		FontWeight: "bold",
 		FontSize:   "11px",
@@ -237,6 +237,6 @@ func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 	})
-	enc.EncodeToken(linkGroup.End())
+	_ = enc.EncodeToken(linkGroup.End())
 
 }

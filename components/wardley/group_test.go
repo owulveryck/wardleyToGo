@@ -82,7 +82,9 @@ func TestGroupMarshalSVG_Empty(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	enc.Flush()
+	if err := enc.Flush(); err != nil {
+		t.Fatal(err)
+	}
 	if buf.Len() != 0 {
 		t.Errorf("empty group should produce no output, got %q", buf.String())
 	}
@@ -96,7 +98,9 @@ func TestGroupMarshalSVG_SinglePoint(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	enc.Flush()
+	if err := enc.Flush(); err != nil {
+		t.Fatal(err)
+	}
 	out := buf.String()
 	// Should contain arc commands for ellipse
 	if !strings.Contains(out, "<path") {
@@ -115,7 +119,9 @@ func TestGroupMarshalSVG_TwoPoints(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	enc.Flush()
+	if err := enc.Flush(); err != nil {
+		t.Fatal(err)
+	}
 	out := buf.String()
 	// Should contain arc commands for capsule
 	if !strings.Contains(out, "<path") {
@@ -134,7 +140,9 @@ func TestGroupMarshalSVG_MultiplePoints(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	enc.Flush()
+	if err := enc.Flush(); err != nil {
+		t.Fatal(err)
+	}
 	out := buf.String()
 	// Should contain quadratic Bezier commands for smooth corners
 	if !strings.Contains(out, "Q ") {

@@ -35,7 +35,9 @@ func Test_linearGradient(t *testing.T) {
 	}
 	var b bytes.Buffer
 	enc := xml.NewEncoder(&b)
-	enc.Encode(l)
+	if err := enc.Encode(l); err != nil {
+		t.Fatal(err)
+	}
 	if b.String() != expected {
 		t.Fatal(b.String())
 	}

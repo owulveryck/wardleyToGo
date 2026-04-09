@@ -63,7 +63,7 @@ func (p *Parser) parseStreamAligned() error {
 		return err
 	}
 	s := &tt.StreamAlignedTeam{Team: t}
-	p.m.AddComponent(s)
+	_ = p.m.AddComponent(s)
 	p.nodeDict[s.Label] = s
 	return nil
 }
@@ -74,7 +74,7 @@ func (p *Parser) parseEnabling() error {
 		return err
 	}
 	s := &tt.EnablingTeam{Team: t}
-	p.m.AddComponent(s)
+	_ = p.m.AddComponent(s)
 	p.nodeDict[s.Label] = s
 	return nil
 }
@@ -85,7 +85,7 @@ func (p *Parser) parsePlatform() error {
 		return err
 	}
 	s := &tt.PlatformTeam{Team: t}
-	p.m.AddComponent(s)
+	_ = p.m.AddComponent(s)
 	p.nodeDict[s.Label] = s
 	return nil
 }
@@ -96,7 +96,7 @@ func (p *Parser) parseComplicatedSubsystem() error {
 		return err
 	}
 	s := &tt.ComplicatedSubsystemTeam{Team: t}
-	p.m.AddComponent(s)
+	_ = p.m.AddComponent(s)
 	p.nodeDict[s.Label] = s
 	return nil
 }

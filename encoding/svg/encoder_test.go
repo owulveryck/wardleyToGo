@@ -10,7 +10,7 @@ import (
 
 func Example_style() {
 	f, _ := os.Create("/tmp/test.svg")
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	e, err := svgmap.NewEncoder(f, image.Rect(0, 0, 1100, 900), image.Rect(30, 50, 1070, 850))
 	if err != nil {
 		log.Fatal(err)

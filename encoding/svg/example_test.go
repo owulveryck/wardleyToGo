@@ -12,7 +12,7 @@ import (
 type component struct{}
 
 func (c *component) MarshalSVG(e *xml.Encoder, bounds image.Rectangle) error {
-	e.Encode(&svg.Transform{
+	_ = e.Encode(&svg.Transform{
 		Translate: image.Point{50, 100},
 		Components: []interface{}{
 			&svg.Circle{
@@ -25,5 +25,5 @@ func (c *component) MarshalSVG(e *xml.Encoder, bounds image.Rectangle) error {
 func Example_customMarshaler() {
 	c := &component{}
 	enc := xml.NewEncoder(os.Stdout)
-	c.MarshalSVG(enc, image.Rectangle{})
+	_ = c.MarshalSVG(enc, image.Rectangle{})
 }

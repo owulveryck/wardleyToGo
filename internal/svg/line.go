@@ -48,9 +48,10 @@ func (l Line) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	element.Attr = attrs
 	element.Attr = append(element.Attr, must(l.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke"})))
 	element.Attr = append(element.Attr, must(l.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke-opacity"})))
-	e.EncodeToken(element)
-	e.EncodeToken(element.End())
-	return nil
+	if err := e.EncodeToken(element); err != nil {
+		return err
+	}
+	return e.EncodeToken(element.End())
 }
 
 type attributes []xml.Attr

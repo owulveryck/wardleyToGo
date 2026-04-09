@@ -19,7 +19,7 @@ type Polygon struct {
 func (p *Polygon) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	var b strings.Builder
 	for _, p := range p.Points {
-		b.WriteString(fmt.Sprintf("%v,%v ", p.X, p.Y))
+		fmt.Fprintf(&b, "%v,%v ", p.X, p.Y)
 	}
 	attrs := newAttributes()
 	attrs = attrs.append("points", b.String())
@@ -31,7 +31,8 @@ func (p *Polygon) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start.Attr = append(start.Attr, must(p.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke-opacity"})))
 	start.Attr = append(start.Attr, must(p.Stroke.MarshalXMLAttr(xml.Name{Local: "fill"})))
 	start.Attr = append(start.Attr, must(p.Stroke.MarshalXMLAttr(xml.Name{Local: "fill-opacity"})))
-	e.EncodeToken(start)
-	e.EncodeToken(start.End())
-	return nil
+	if err := e.EncodeToken(start); err != nil {
+		return err
+	}
+	return e.EncodeToken(start.End())
 }

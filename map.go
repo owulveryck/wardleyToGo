@@ -41,17 +41,16 @@ func (m *Map) String() string {
 	b.WriteString("map {\n")
 	for _, n := range m.Components() {
 		if a, ok := n.(Area); ok {
-			b.WriteString(
-				fmt.Sprintf("\t%v '%v' [%v,%v,%v,%v];\n", a.ID(), a,
-					a.GetArea().Min.X, a.GetArea().Min.Y,
-					a.GetArea().Max.X, a.GetArea().Max.Y))
+			fmt.Fprintf(&b, "\t%v '%v' [%v,%v,%v,%v];\n", a.ID(), a,
+				a.GetArea().Min.X, a.GetArea().Min.Y,
+				a.GetArea().Max.X, a.GetArea().Max.Y)
 		} else {
-			b.WriteString(fmt.Sprintf("\t%v '%v' [%v,%v];\n", n.ID(), n, n.GetPosition().X, n.GetPosition().Y))
+			fmt.Fprintf(&b, "\t%v '%v' [%v,%v];\n", n.ID(), n, n.GetPosition().X, n.GetPosition().Y)
 		}
 	}
 	b.WriteString("\n")
 	for _, e := range m.Collaborations() {
-		b.WriteString(fmt.Sprintf("\t%v -> %v [%v];\n", e.From().ID(), e.To().ID(), e.GetType()))
+		fmt.Fprintf(&b, "\t%v -> %v [%v];\n", e.From().ID(), e.To().ID(), e.GetType())
 	}
 	b.WriteString("}\n")
 	return b.String()

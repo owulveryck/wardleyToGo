@@ -29,7 +29,7 @@ func (a *Annotation) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 		placement := utils.CalcCoords(coords, canvas)
 
 		//s.Gid(strconv.FormatInt(a.id, 10))
-		e.Encode(svg.Transform{
+		if err := e.Encode(svg.Transform{
 			Translate: placement,
 			Components: []interface{}{
 				svg.Circle{
@@ -45,7 +45,9 @@ func (a *Annotation) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 					TextAnchor: svg.TextAnchorMiddle,
 				},
 			},
-		})
+		}); err != nil {
+			return err
+		}
 	}
 	return nil
 }
