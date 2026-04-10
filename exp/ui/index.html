@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WTG2 Playground</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/monokai.min.css">
+    <style>
+/* === RESET & BASE === */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; background: #1e1e1e; color: #ccc; overflow: hidden; }
+
+/* === HEADER === */
+#toolbar { display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: #2d2d2d; border-bottom: 1px solid #444; flex-shrink: 0; flex-wrap: wrap; }
+#toolbar h1 { font-size: 14px; color: #e0e0e0; white-space: nowrap; }
+.mode-toggle { display: flex; border: 1px solid #555; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+.mode-toggle button { background: #3a3a3a; color: #aaa; border: none; padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s; }
+.mode-toggle button.active { background: #5e9ed6; color: #fff; }
+.mode-toggle button:hover:not(.active) { background: #4a4a4a; }
+.toolbar-spacer { flex: 1; }
+.toolbar-secondary { display: flex; align-items: center; gap: 10px; }
+.separator { width: 1px; height: 20px; background: #555; flex-shrink: 0; }
+.toolbar-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.toolbar-group label { font-size: 12px; white-space: nowrap; }
+.toolbar-group select, .toolbar-group button { background: #3a3a3a; color: #ccc; border: 1px solid #555; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; }
+.toolbar-group select:hover, .toolbar-group button:hover { background: #4a4a4a; border-color: #777; }
+.toolbar-group input[type="range"] { width: 70px; accent-color: #5e9ed6; }
+.toolbar-group span { min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; font-size: 12px; }
+#status { font-size: 11px; color: #888; white-space: nowrap; }
+
+/* === MOBILE TABS === */
+#mobile-tabs { display: none; background: #2d2d2d; border-bottom: 1px solid #444; }
+#mobile-tabs button { flex: 1; background: none; border: none; color: #888; padding: 10px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; }
+#mobile-tabs button.active { color: #5e9ed6; border-bottom-color: #5e9ed6; }
+
+/* === MAIN LAYOUT === */
+#main { display: flex; flex: 1; overflow: hidden; }
+#left-pane { width: 40%; display: flex; flex-direction: column; overflow: hidden; min-width: 280px; }
+#divider { width: 4px; background: #444; cursor: col-resize; flex-shrink: 0; transition: background .15s; }
+#divider:hover, #divider.dragging { background: #5e9ed6; }
+#right-pane { flex: 1; overflow: auto; background: #fff; display: flex; align-items: center; justify-content: center; }
+#output-pane { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+#right-pane svg { max-width: 100%; max-height: 100%; }
+#right-pane .error { color: #e74c3c; font-family: monospace; padding: 20px; background: #fff5f5; width: 100%; }
+
+/* === EDITOR PANE === */
+#editor-pane { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+#editor-pane .CodeMirror { flex: 1; font-size: 14px; }
+#editor-warning { display: none; background: #5e4a00; color: #ffd666; padding: 6px 12px; font-size: 12px; border-bottom: 1px solid #7a6a22; }
+
+/* === WIZARD PANE === */
+#wizard-pane { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+/* Steps indicator */
+.steps-bar { display: flex; align-items: center; padding: 10px 12px; background: #252525; border-bottom: 1px solid #444; gap: 4px; flex-shrink: 0; }
+.step-indicator { display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #888; transition: all .15s; }
+.step-indicator:hover { background: #333; }
+.step-indicator.active { color: #5e9ed6; background: #1a2a3a; }
+.step-indicator.completed { color: #6ab04c; }
+.step-indicator .step-num { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+.step-indicator.completed .step-num { background: #6ab04c; border-color: #6ab04c; color: #fff; }
+.step-indicator.active .step-num { border-color: #5e9ed6; background: #5e9ed6; color: #fff; }
+.step-chevron { color: #555; font-size: 10px; }
+
+/* Step content */
+.wizard-step { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 12px; gap: 12px; }
+.wizard-step.active { display: flex; }
+
+/* Wizard common */
+.wizard-section { background: #282828; border: 1px solid #3a3a3a; border-radius: 6px; overflow: hidden; }
+.wizard-section-header { padding: 8px 12px; background: #303030; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 500; }
+.wizard-section-header .chevron { transition: transform .2s; font-size: 10px; }
+.wizard-section.collapsed .wizard-section-body { display: none; }
+.wizard-section.collapsed .chevron { transform: rotate(-90deg); }
+.wizard-section-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+/* Form fields */
+.field { display: flex; flex-direction: column; gap: 3px; }
+.field label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: .5px; }
+.field input, .field textarea, .field select { background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 6px 8px; color: #e0e0e0; font-size: 13px; font-family: inherit; }
+.field textarea { resize: vertical; min-height: 80px; font-family: 'SF Mono', 'Fira Code', monospace; line-height: 1.5; }
+.field input:focus, .field textarea:focus { border-color: #5e9ed6; outline: none; }
+.field .hint { font-size: 11px; color: #666; margin-top: 2px; }
+
+/* Component list */
+.comp-list { display: flex; flex-direction: column; gap: 4px; }
+.comp-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #1e1e1e; border-radius: 4px; font-size: 13px; }
+.comp-item .comp-name { flex: 1; }
+.comp-item .comp-badge { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #3a3a3a; color: #aaa; text-transform: uppercase; }
+.comp-item .comp-badge.anchor { background: #1a3a2a; color: #6ab04c; }
+.comp-item .comp-remove { background: none; border: none; color: #666; cursor: pointer; font-size: 14px; padding: 0 4px; }
+.comp-item .comp-remove:hover { color: #e74c3c; }
+
+/* Evolution sliders */
+.evo-list { display: flex; flex-direction: column; gap: 8px; }
+.evo-item { background: #282828; border: 1px solid #3a3a3a; border-radius: 6px; padding: 10px 12px; }
+.evo-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.evo-item-name { font-size: 13px; font-weight: 500; }
+.evo-item-pos { font-size: 12px; color: #5e9ed6; font-family: monospace; font-weight: 600; }
+.evo-slider-track { position: relative; height: 32px; margin-bottom: 4px; }
+.evo-slider-phases { display: flex; height: 100%; border-radius: 4px; overflow: hidden; position: absolute; top: 0; left: 0; right: 0; }
+.evo-slider-phases div { flex: 1; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px; font-size: 9px; color: #666; border-right: 1px solid #444; }
+.evo-slider-phases div:last-child { border-right: none; }
+.evo-slider-phases div:nth-child(1) { background: #2a1a1a; }
+.evo-slider-phases div:nth-child(2) { background: #2a2a1a; }
+.evo-slider-phases div:nth-child(3) { background: #1a2a1a; }
+.evo-slider-phases div:nth-child(4) { background: #1a1a2a; }
+.evo-slider-track input[type="range"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; -webkit-appearance: none; appearance: none; background: transparent; z-index: 2; cursor: pointer; }
+.evo-slider-track input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 28px; background: #5e9ed6; border-radius: 3px; border: 1px solid #4a8bc2; cursor: grab; }
+.evo-slider-track input[type="range"]::-moz-range-thumb { width: 14px; height: 28px; background: #5e9ed6; border-radius: 3px; border: 1px solid #4a8bc2; cursor: grab; }
+.evo-item-options { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.evo-item-options label { font-size: 11px; color: #999; }
+.evo-item-options select { background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 2px 6px; color: #ccc; font-size: 11px; }
+.pill-group { display: flex; border: 1px solid #444; border-radius: 4px; overflow: hidden; }
+.pill-group button { background: #1e1e1e; border: none; color: #888; padding: 2px 8px; font-size: 11px; cursor: pointer; border-right: 1px solid #444; }
+.pill-group button:last-child { border-right: none; }
+.pill-group button.active { background: #5e9ed6; color: #fff; }
+
+/* Enrichment */
+.enrich-section { margin-bottom: 8px; }
+.enrich-section h4 { font-size: 12px; color: #999; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.group-card { background: #1e1e1e; border-radius: 4px; padding: 8px; margin-bottom: 6px; }
+.group-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.group-card-header input { flex: 1; background: #282828; border: 1px solid #444; border-radius: 4px; padding: 4px 8px; color: #e0e0e0; font-size: 13px; }
+.group-card-header input[type="color"] { width: 28px; height: 28px; padding: 2px; cursor: pointer; }
+.group-card-header button { background: none; border: none; color: #666; cursor: pointer; font-size: 14px; }
+.group-card-header button:hover { color: #e74c3c; }
+.group-members { display: flex; flex-wrap: wrap; gap: 4px; }
+.group-members label { font-size: 12px; display: flex; align-items: center; gap: 3px; padding: 2px 6px; background: #282828; border-radius: 3px; cursor: pointer; }
+.annotation-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.annotation-row select { background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 3px 6px; color: #ccc; font-size: 12px; min-width: 60px; }
+.annotation-row input { flex: 1; background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 4px 8px; color: #e0e0e0; font-size: 12px; }
+.annotation-row button { background: none; border: none; color: #666; cursor: pointer; font-size: 14px; }
+.annotation-row button:hover { color: #e74c3c; }
+
+/* Buttons */
+.btn { background: #3a3a3a; color: #ccc; border: 1px solid #555; border-radius: 4px; padding: 6px 14px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.btn:hover { background: #4a4a4a; border-color: #777; }
+.btn-primary { background: #5e9ed6; color: #fff; border-color: #4a8bc2; }
+.btn-primary:hover { background: #4a8bc2; }
+.btn-sm { padding: 3px 8px; font-size: 11px; }
+
+/* Step nav */
+.step-nav { display: flex; justify-content: space-between; padding: 8px 12px; background: #252525; border-top: 1px solid #444; flex-shrink: 0; }
+
+/* Template dropdown */
+.template-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #252525; border-bottom: 1px solid #383838; flex-shrink: 0; }
+.template-bar label { font-size: 12px; color: #888; }
+.template-bar select { background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 4px 8px; color: #ccc; font-size: 12px; flex: 1; }
+
+/* === RESPONSIVE === */
+@media (max-width: 1023px) {
+  #left-pane { width: 45%; }
+}
+@media (max-width: 767px) {
+  #toolbar { gap: 6px; padding: 6px 8px; }
+  #toolbar h1 { font-size: 13px; }
+  .toolbar-secondary { display: none; }
+  #mobile-tabs { display: flex; }
+  #main { flex-direction: column; }
+  #left-pane { width: 100%; flex: 1; }
+  #divider { display: none; }
+  #right-pane { display: none; flex: none; width: 100%; height: 100%; }
+  #left-pane.hidden { display: none; }
+  #right-pane.visible { display: flex; flex: 1; }
+}
+    </style>
+</head>
+<body>
+    <!-- === HEADER === -->
+    <div id="toolbar">
+        <h1>WTG2 Playground</h1>
+        <div class="mode-toggle">
+            <button id="mode-guided" class="active" onclick="setMode('guided')">Guide</button>
+            <button id="mode-editor" onclick="setMode('editor')">Editeur</button>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <div class="toolbar-secondary">
+            <div class="toolbar-group">
+                <label>Ratio</label>
+                <select id="ratio">
+                    <option value="1200,900" selected>4:3</option>
+                    <option value="1600,900">16:9</option>
+                    <option value="1440,900">16:10</option>
+                    <option value="900,900">1:1</option>
+                    <option value="1273,900">A4</option>
+                </select>
+            </div>
+            <div class="separator"></div>
+            <div class="toolbar-group">
+                <label for="resolution">Def.</label>
+                <input type="range" id="resolution" min="50" max="300" step="25" value="100">
+                <span id="res-label">100%</span>
+            </div>
+            <div class="separator"></div>
+            <div class="toolbar-group">
+                <button id="dl-svg" title="Telecharger SVG">&#11015; SVG</button>
+                <button id="dl-png" title="Telecharger PNG">&#11015; PNG</button>
+                <button id="detach" title="Ouvrir dans une fenetre separee">&#8599;</button>
+            </div>
+        </div>
+        <span id="status">Loading WASM...</span>
+    </div>
+
+    <!-- === MOBILE TABS === -->
+    <div id="mobile-tabs">
+        <button class="active" onclick="setMobileTab('edit')">Editer</button>
+        <button onclick="setMobileTab('preview')">Apercu</button>
+    </div>
+
+    <!-- === MAIN CONTENT === -->
+    <div id="main">
+        <div id="left-pane">
+            <!-- Wizard pane -->
+            <div id="wizard-pane">
+                <div class="template-bar">
+                    <label>Template :</label>
+                    <select id="template-select" onchange="loadTemplate(this.value)">
+                        <option value="">-- Choisir --</option>
+                        <option value="teashop">Tea Shop (simple)</option>
+                        <option value="navigation">Plateforme Navigation (riche)</option>
+                        <option value="blank">Vide</option>
+                    </select>
+                </div>
+                <div class="steps-bar">
+                    <div class="step-indicator active" onclick="goToStep(0)">
+                        <div class="step-num">1</div>
+                        <span>Chaine de valeur</span>
+                    </div>
+                    <span class="step-chevron">&#9654;</span>
+                    <div class="step-indicator" onclick="goToStep(1)">
+                        <div class="step-num">2</div>
+                        <span>Evolution</span>
+                    </div>
+                    <span class="step-chevron">&#9654;</span>
+                    <div class="step-indicator" onclick="goToStep(2)">
+                        <div class="step-num">3</div>
+                        <span>Enrichissement</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Value Chain -->
+                <div class="wizard-step active" id="step-0">
+                    <div class="wizard-section">
+                        <div class="wizard-section-header" onclick="toggleSection(this)">
+                            Infos carte <span class="chevron">&#9660;</span>
+                        </div>
+                        <div class="wizard-section-body">
+                            <div class="field">
+                                <label>Titre</label>
+                                <input type="text" id="meta-title" placeholder="Ma Carte Wardley" oninput="updateMeta()">
+                            </div>
+                            <div class="field">
+                                <label>Auteur</label>
+                                <input type="text" id="meta-author" placeholder="Votre nom" oninput="updateMeta()">
+                            </div>
+                            <div class="field">
+                                <label>Question strategique</label>
+                                <input type="text" id="meta-question" placeholder="Ou investir ?" oninput="updateMeta()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wizard-section">
+                        <div class="wizard-section-header" onclick="toggleSection(this)">
+                            Chaine de valeur <span class="chevron">&#9660;</span>
+                        </div>
+                        <div class="wizard-section-body">
+                            <div class="field">
+                                <label>Dependances (une chaine par ligne)</label>
+                                <textarea id="chain-input" placeholder="Client -> Application -> Base de donnees&#10;Application -> API -> Service externe" oninput="parseChains()"></textarea>
+                                <div class="hint">Tapez des chaines avec -> pour lier les composants. Les composants sans dependance entrante deviennent automatiquement des ancres.</div>
+                            </div>
+                            <div id="comp-list-container">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                                    <label style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px">Composants detectes</label>
+                                    <span id="comp-count" style="font-size:11px;color:#666">0 composants</span>
+                                </div>
+                                <div class="comp-list" id="comp-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Evolution -->
+                <div class="wizard-step" id="step-1">
+                    <div id="evo-stages-bar" style="display:flex;gap:2px;margin-bottom:4px">
+                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#2a1a1a;border-radius:3px">I - Genesis</div>
+                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#2a2a1a;border-radius:3px">II - Custom</div>
+                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#1a2a1a;border-radius:3px">III - Product</div>
+                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#1a1a2a;border-radius:3px">IV - Commodity</div>
+                    </div>
+                    <div class="evo-list" id="evo-list"></div>
+                </div>
+
+                <!-- Step 3: Enrichment -->
+                <div class="wizard-step" id="step-2">
+                    <div class="enrich-section">
+                        <h4>Groupes</h4>
+                        <div id="groups-container"></div>
+                        <button class="btn btn-sm" onclick="addGroup()">+ Ajouter un groupe</button>
+                    </div>
+                    <div class="enrich-section">
+                        <h4>Annotations</h4>
+                        <div id="annotations-container"></div>
+                        <button class="btn btn-sm" onclick="addAnnotation()">+ Ajouter une annotation</button>
+                    </div>
+                    <div class="enrich-section">
+                        <h4>Signaux</h4>
+                        <div id="signals-container"></div>
+                        <button class="btn btn-sm" onclick="addSignal()">+ Ajouter un signal</button>
+                    </div>
+                    <div class="enrich-section" style="margin-top:8px">
+                        <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
+                            <input type="checkbox" id="legend-toggle" onchange="onWizardChange()"> Afficher la legende
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Step navigation -->
+                <div class="step-nav">
+                    <button class="btn" id="btn-prev" onclick="prevStep()" style="visibility:hidden">&#9664; Precedent</button>
+                    <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Suivant &#9654;</button>
+                </div>
+            </div>
+
+            <!-- Editor pane -->
+            <div id="editor-pane">
+                <div id="editor-warning">Les modifications manuelles ne seront pas reflétées dans le mode guidé.</div>
+                <textarea id="source"></textarea>
+            </div>
+        </div>
+
+        <div id="divider"></div>
+        <div id="right-pane">
+            <div id="output-pane"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/monokai.min.js"></script>
+    <script src="wasm_exec.js"></script>
+    <script>
+// ================================================================
+// 1. CodeMirror WTG2 syntax mode
+// ================================================================
+CodeMirror.defineSimpleMode("wtg2", {
+    start: [
+        { regex: /\/\/.*/, token: "comment" },
+        { regex: /\/\*.*?\*\//, token: "comment" },
+        { regex: /^(title|date|author|scope|question|stages)\s*:/, token: "keyword" },
+        { regex: /^(anchor|submap|pipeline|group|component)\b/, token: "keyword" },
+        { regex: /^(note|warning)\b/, token: "tag" },
+        { regex: /^(signal)\s+(accelerating|stagnating|declining)\b/, token: ["tag", "variable-2"] },
+        { regex: /->|<->/, token: "operator" },
+        { regex: /-\[/, token: "operator", push: "edgeLabel" },
+        { regex: />>/, token: "operator" },
+        { regex: /!!?/, token: "variable-2" },
+        { regex: /\(buy\)|\(outsource\)|\(build\)/, token: "atom" },
+        { regex: /\{/, token: "bracket", indent: true },
+        { regex: /\}/, token: "bracket", dedent: true },
+        { regex: /"[^"]*"/, token: "string" },
+        { regex: /\b[IVX]+\.\d+\b/, token: "number" },
+        { regex: /#[0-9a-fA-F]{3,8}\b/, token: "number" },
+        { regex: /\b(type|color|note)\s*:/, token: "property" },
+    ],
+    edgeLabel: [
+        { regex: /\]->/, token: "operator", pop: true },
+        { regex: /./, token: "string" },
+    ],
+    meta: { lineComment: "//" }
+});
+
+// ================================================================
+// 2. Templates
+// ================================================================
+const TEMPLATES = {
+    teashop: {
+        meta: { title: "Tea Shop", author: "", question: "" },
+        chains: "Customer -> Cup of Tea -> Tea\nCup of Tea -> Hot Water -> Water\nHot Water -> Kettle -> Power\nCup of Tea -> Cup",
+        components: [
+            { name: "Customer", kind: "anchor", evolution: 50, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Cup of Tea", kind: "component", evolution: 62, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Tea", kind: "component", evolution: 45, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Hot Water", kind: "component", evolution: 68, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Water", kind: "component", evolution: 90, type: "", evolving: false, evolvedTo: 95, inertia: 0 },
+            { name: "Kettle", kind: "component", evolution: 62, type: "build", evolving: true, evolvedTo: 82, inertia: 0 },
+            { name: "Power", kind: "component", evolution: 92, type: "outsource", evolving: false, evolvedTo: 95, inertia: 0 },
+            { name: "Cup", kind: "component", evolution: 87, type: "", evolving: false, evolvedTo: 95, inertia: 0 },
+        ],
+        edges: [
+            { from: "Customer", to: "Cup of Tea" },
+            { from: "Cup of Tea", to: "Tea" },
+            { from: "Cup of Tea", to: "Hot Water" },
+            { from: "Hot Water", to: "Water" },
+            { from: "Hot Water", to: "Kettle" },
+            { from: "Kettle", to: "Power" },
+            { from: "Cup of Tea", to: "Cup" },
+        ],
+        groups: [],
+        annotations: [{ kind: "note", text: "Considering outsourcing", target: "Kettle" }],
+        signals: [],
+        legend: false
+    },
+    navigation: {
+        meta: { title: "Plateforme de Navigation", author: "Cellule Strategie Produit", question: "Ou investir pour se differencier ?" },
+        chains: "Automobiliste -> Application Mobile -> Itineraire Affiche -> Moteur de Calcul\nApplication Mobile -> Alertes Trafic -> Flux Temps Reel\nMoteur de Calcul -> Modele de Donnees -> Donnees OSM\nMoteur de Calcul -> Infrastructure Cloud\nApplication Mobile -> CDN -> Infrastructure Cloud\nInfrastructure Cloud -> Reseau Mobile",
+        components: [
+            { name: "Automobiliste", kind: "anchor", evolution: 50, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Application Mobile", kind: "component", evolution: 62, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Itineraire Affiche", kind: "component", evolution: 55, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Moteur de Calcul", kind: "component", evolution: 42, type: "build", evolving: true, evolvedTo: 62, inertia: 2 },
+            { name: "Alertes Trafic", kind: "component", evolution: 37, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Flux Temps Reel", kind: "component", evolution: 27, type: "build", evolving: true, evolvedTo: 42, inertia: 1 },
+            { name: "Modele de Donnees", kind: "component", evolution: 52, type: "buy", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Donnees OSM", kind: "component", evolution: 70, type: "buy", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Infrastructure Cloud", kind: "component", evolution: 82, type: "buy", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "CDN", kind: "component", evolution: 87, type: "buy", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Reseau Mobile", kind: "component", evolution: 92, type: "outsource", evolving: false, evolvedTo: 75, inertia: 0 },
+        ],
+        edges: [
+            { from: "Automobiliste", to: "Application Mobile" },
+            { from: "Application Mobile", to: "Itineraire Affiche" },
+            { from: "Itineraire Affiche", to: "Moteur de Calcul" },
+            { from: "Application Mobile", to: "Alertes Trafic" },
+            { from: "Alertes Trafic", to: "Flux Temps Reel" },
+            { from: "Moteur de Calcul", to: "Modele de Donnees" },
+            { from: "Modele de Donnees", to: "Donnees OSM" },
+            { from: "Moteur de Calcul", to: "Infrastructure Cloud" },
+            { from: "Application Mobile", to: "CDN" },
+            { from: "CDN", to: "Infrastructure Cloud" },
+            { from: "Infrastructure Cloud", to: "Reseau Mobile" },
+        ],
+        groups: [
+            { name: "Equipe Core Navigation", members: ["Moteur de Calcul", "Modele de Donnees"], color: "#3498DB" },
+            { name: "Equipe Plateforme", members: ["Infrastructure Cloud", "CDN"], color: "#E67E22" },
+        ],
+        annotations: [
+            { kind: "warning", text: "SPOF - aucun fallback", target: "Moteur de Calcul" },
+            { kind: "note", text: "Partenariat en cours", target: "Flux Temps Reel" },
+        ],
+        signals: [
+            { type: "accelerating", target: "Flux Temps Reel" },
+            { type: "declining", target: "Donnees OSM" },
+        ],
+        legend: true
+    },
+    blank: {
+        meta: { title: "Ma Carte Wardley", author: "", question: "" },
+        chains: "",
+        components: [],
+        edges: [],
+        groups: [],
+        annotations: [],
+        signals: [],
+        legend: false
+    }
+};
+
+// ================================================================
+// 3. Wizard State
+// ================================================================
+let wizardState = {
+    meta: { title: "", author: "", question: "" },
+    components: [],
+    edges: [],
+    groups: [],
+    annotations: [],
+    signals: [],
+    legend: false
+};
+
+let currentStep = 0;
+let currentMode = 'guided'; // 'guided' or 'editor'
+let editor = null;
+let renderTimer = null;
+let detachedWindow = null;
+
+// ================================================================
+// 4. Evolution helpers
+// ================================================================
+function evoToRoman(val) {
+    // val: 0-99 integer -> "I.0" to "IV.9"
+    val = Math.max(0, Math.min(99, Math.round(val)));
+    const phases = ['I', 'II', 'III', 'IV'];
+    const phaseIdx = Math.min(3, Math.floor(val / 25));
+    const sub = Math.min(9, Math.round((val - phaseIdx * 25) / 25 * 10));
+    return phases[phaseIdx] + '.' + sub;
+}
+
+function romanToEvo(roman) {
+    // "III.5" -> 62
+    const match = roman.match(/^(I{1,3}|IV)\s*\.\s*(\d)$/);
+    if (!match) return 50;
+    const phases = { 'I': 0, 'II': 1, 'III': 2, 'IV': 3 };
+    const phaseIdx = phases[match[1]];
+    if (phaseIdx === undefined) return 50;
+    const sub = parseInt(match[2]);
+    return phaseIdx * 25 + Math.round(sub / 10 * 25);
+}
+
+// ================================================================
+// 5. Chain parser
+// ================================================================
+function parseChains() {
+    const text = document.getElementById('chain-input').value;
+    const componentMap = new Map();
+    const edges = [];
+    const inbound = new Set();
+
+    for (const rawLine of text.split('\n')) {
+        const line = rawLine.trim();
+        if (!line || line.startsWith('//')) continue;
+
+        const parts = line.split(/\s*->\s*/).map(s => s.trim()).filter(Boolean);
+        if (parts.length === 0) continue;
+
+        for (const name of parts) {
+            if (!componentMap.has(name)) {
+                componentMap.set(name, { order: componentMap.size });
+            }
+        }
+        for (let i = 0; i < parts.length - 1; i++) {
+            edges.push({ from: parts[i], to: parts[i + 1] });
+            inbound.add(parts[i + 1]);
+        }
+    }
+
+    // Preserve existing component evolution positions when possible
+    const existingMap = new Map();
+    for (const c of wizardState.components) {
+        existingMap.set(c.name, c);
+    }
+
+    const total = componentMap.size;
+    const components = [];
+    for (const [name, data] of componentMap) {
+        const existing = existingMap.get(name);
+        const isAnchor = !inbound.has(name);
+        if (existing) {
+            existing.kind = isAnchor ? 'anchor' : existing.kind;
+            components.push(existing);
+        } else {
+            // Assign default evolution spread
+            const fraction = total > 1 ? data.order / (total - 1) : 0.5;
+            const evo = Math.round(20 + fraction * 70); // Spread from 20 to 90
+            components.push({
+                name,
+                kind: isAnchor ? 'anchor' : 'component',
+                evolution: evo,
+                type: '',
+                evolving: false,
+                evolvedTo: Math.min(99, evo + 15),
+                inertia: 0
+            });
+        }
+    }
+
+    wizardState.components = components;
+    wizardState.edges = deduplicateEdges(edges);
+
+    // Clean up groups/annotations/signals referencing removed components
+    const names = new Set(components.map(c => c.name));
+    wizardState.groups = wizardState.groups.map(g => ({
+        ...g,
+        members: g.members.filter(m => names.has(m))
+    }));
+    wizardState.annotations = wizardState.annotations.filter(a => names.has(a.target));
+    wizardState.signals = wizardState.signals.filter(s => names.has(s.target));
+
+    renderCompList();
+    onWizardChange();
+}
+
+function deduplicateEdges(edges) {
+    const seen = new Set();
+    return edges.filter(e => {
+        const key = e.from + '|' + e.to;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+// ================================================================
+// 6. WTG2 Code Generator
+// ================================================================
+function generateWTG2(state) {
+    const lines = [];
+
+    // Metadata
+    if (state.meta.title) lines.push('title: ' + state.meta.title);
+    if (state.meta.author) lines.push('author: ' + state.meta.author);
+    if (state.meta.question) lines.push('question: "' + state.meta.question + '"');
+    if (lines.length > 0) lines.push('');
+
+    // Anchors
+    const anchors = state.components.filter(c => c.kind === 'anchor');
+    for (const a of anchors) lines.push('anchor ' + a.name);
+    if (anchors.length) lines.push('');
+
+    // Components
+    const comps = state.components.filter(c => c.kind !== 'anchor');
+    for (const c of comps) {
+        let line = c.name + ' : ' + evoToRoman(c.evolution);
+        if (c.inertia > 0) line += ' ' + '!'.repeat(c.inertia);
+        if (c.evolving && c.evolvedTo !== undefined) line += ' >> ' + evoToRoman(c.evolvedTo);
+        if (c.type) line += ' (' + c.type + ')';
+        lines.push(line);
+    }
+    if (comps.length) lines.push('');
+
+    // Edges
+    for (const e of state.edges) {
+        lines.push(e.from + ' -> ' + e.to);
+    }
+    if (state.edges.length) lines.push('');
+
+    // Groups
+    for (const g of state.groups) {
+        lines.push('group ' + g.name + ' {');
+        for (const m of g.members) lines.push('  ' + m);
+        if (g.color) lines.push('  color: ' + g.color);
+        lines.push('}');
+        lines.push('');
+    }
+
+    // Annotations
+    for (const a of state.annotations) {
+        if (a.text && a.target) {
+            lines.push(a.kind + ' "' + a.text + '" on ' + a.target);
+        }
+    }
+
+    // Signals
+    for (const s of state.signals) {
+        if (s.type && s.target) {
+            lines.push('signal ' + s.type + ' on ' + s.target);
+        }
+    }
+
+    // Legend
+    if (state.legend) {
+        lines.push('');
+        lines.push('legend');
+    }
+
+    return lines.join('\n');
+}
+
+// ================================================================
+// 7. UI Renderers
+// ================================================================
+
+function renderCompList() {
+    const container = document.getElementById('comp-list');
+    const count = document.getElementById('comp-count');
+    count.textContent = wizardState.components.length + ' composant' + (wizardState.components.length !== 1 ? 's' : '');
+
+    container.innerHTML = wizardState.components.map((c, i) => `
+        <div class="comp-item">
+            <span class="comp-name">${escapeHtml(c.name)}</span>
+            <span class="comp-badge ${c.kind === 'anchor' ? 'anchor' : ''}">${c.kind === 'anchor' ? 'ancre' : 'composant'}</span>
+            <button class="comp-remove" onclick="removeComponent(${i})" title="Supprimer">&times;</button>
+        </div>
+    `).join('');
+}
+
+function renderEvoList() {
+    const container = document.getElementById('evo-list');
+    container.innerHTML = wizardState.components.filter(c => c.kind !== 'anchor').map((c, idx) => {
+        const compIdx = wizardState.components.indexOf(c);
+        return `
+        <div class="evo-item">
+            <div class="evo-item-header">
+                <span class="evo-item-name">${escapeHtml(c.name)}</span>
+                <span class="evo-item-pos" id="evo-pos-${compIdx}">${evoToRoman(c.evolution)}</span>
+            </div>
+            <div class="evo-slider-track">
+                <div class="evo-slider-phases">
+                    <div>I</div><div>II</div><div>III</div><div>IV</div>
+                </div>
+                <input type="range" min="0" max="99" value="${c.evolution}"
+                    oninput="updateEvolution(${compIdx}, this.value)"
+                    onchange="onWizardChange()">
+            </div>
+            <div class="evo-item-options">
+                <label>Type:</label>
+                <div class="pill-group">
+                    <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
+                    <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
+                    <button class="${c.type === 'buy' ? 'active' : ''}" onclick="setType(${compIdx},'buy')">buy</button>
+                    <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
+                </div>
+                <label style="margin-left:8px">
+                    <input type="checkbox" ${c.evolving ? 'checked' : ''} onchange="toggleEvolving(${compIdx}, this.checked)"> Evolution
+                </label>
+                ${c.evolving ? `
+                <span style="font-size:11px;color:#888">vers</span>
+                <input type="range" min="0" max="99" value="${c.evolvedTo}" style="width:60px;accent-color:#6ab04c"
+                    oninput="updateEvolvedTo(${compIdx}, this.value)"
+                    onchange="onWizardChange()">
+                <span style="font-size:11px;color:#6ab04c;font-family:monospace" id="evo-to-${compIdx}">${evoToRoman(c.evolvedTo)}</span>
+                <select onchange="setInertia(${compIdx}, this.value)" style="margin-left:4px">
+                    <option value="0" ${c.inertia === 0 ? 'selected' : ''}>Pas d'inertie</option>
+                    <option value="1" ${c.inertia === 1 ? 'selected' : ''}>! Moderee</option>
+                    <option value="2" ${c.inertia === 2 ? 'selected' : ''}>!! Forte</option>
+                    <option value="3" ${c.inertia === 3 ? 'selected' : ''}>!!! Bloquante</option>
+                </select>
+                ` : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderGroups() {
+    const container = document.getElementById('groups-container');
+    const compNames = wizardState.components.filter(c => c.kind !== 'anchor').map(c => c.name);
+
+    container.innerHTML = wizardState.groups.map((g, gi) => `
+        <div class="group-card">
+            <div class="group-card-header">
+                <input type="text" value="${escapeHtml(g.name)}" placeholder="Nom du groupe"
+                    oninput="wizardState.groups[${gi}].name=this.value;onWizardChange()">
+                <input type="color" value="${g.color || '#5e9ed6'}"
+                    oninput="wizardState.groups[${gi}].color=this.value;onWizardChange()">
+                <button onclick="removeGroup(${gi})" title="Supprimer">&times;</button>
+            </div>
+            <div class="group-members">
+                ${compNames.map(n => `
+                    <label>
+                        <input type="checkbox" ${g.members.includes(n) ? 'checked' : ''}
+                            onchange="toggleGroupMember(${gi},'${escapeAttr(n)}',this.checked)">
+                        ${escapeHtml(n)}
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAnnotations() {
+    const container = document.getElementById('annotations-container');
+    const compNames = wizardState.components.map(c => c.name);
+
+    container.innerHTML = wizardState.annotations.map((a, ai) => `
+        <div class="annotation-row">
+            <select onchange="wizardState.annotations[${ai}].kind=this.value;onWizardChange()">
+                <option value="note" ${a.kind === 'note' ? 'selected' : ''}>Note</option>
+                <option value="warning" ${a.kind === 'warning' ? 'selected' : ''}>Warning</option>
+            </select>
+            <input type="text" value="${escapeHtml(a.text)}" placeholder="Texte..."
+                oninput="wizardState.annotations[${ai}].text=this.value;onWizardChange()">
+            <select onchange="wizardState.annotations[${ai}].target=this.value;onWizardChange()">
+                <option value="">-- Composant --</option>
+                ${compNames.map(n => `<option value="${escapeAttr(n)}" ${a.target === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}
+            </select>
+            <button onclick="removeAnnotation(${ai})">&times;</button>
+        </div>
+    `).join('');
+}
+
+function renderSignals() {
+    const container = document.getElementById('signals-container');
+    const compNames = wizardState.components.map(c => c.name);
+
+    container.innerHTML = wizardState.signals.map((s, si) => `
+        <div class="annotation-row">
+            <select onchange="wizardState.signals[${si}].type=this.value;onWizardChange()">
+                <option value="accelerating" ${s.type === 'accelerating' ? 'selected' : ''}>accelerating</option>
+                <option value="stagnating" ${s.type === 'stagnating' ? 'selected' : ''}>stagnating</option>
+                <option value="declining" ${s.type === 'declining' ? 'selected' : ''}>declining</option>
+            </select>
+            <select onchange="wizardState.signals[${si}].target=this.value;onWizardChange()" style="flex:1">
+                <option value="">-- Composant --</option>
+                ${compNames.map(n => `<option value="${escapeAttr(n)}" ${s.target === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}
+            </select>
+            <button onclick="removeSignal(${si})">&times;</button>
+        </div>
+    `).join('');
+}
+
+// ================================================================
+// 8. Wizard Actions
+// ================================================================
+
+function removeComponent(idx) {
+    const name = wizardState.components[idx].name;
+    wizardState.components.splice(idx, 1);
+    wizardState.edges = wizardState.edges.filter(e => e.from !== name && e.to !== name);
+    wizardState.groups = wizardState.groups.map(g => ({ ...g, members: g.members.filter(m => m !== name) }));
+    wizardState.annotations = wizardState.annotations.filter(a => a.target !== name);
+    wizardState.signals = wizardState.signals.filter(s => s.target !== name);
+    // Update chain input to reflect removal
+    updateChainInputFromState();
+    renderCompList();
+    onWizardChange();
+}
+
+function updateChainInputFromState() {
+    // Reconstruct chain text from current edges
+    const lines = wizardState.edges.map(e => e.from + ' -> ' + e.to);
+    document.getElementById('chain-input').value = lines.join('\n');
+}
+
+function updateMeta() {
+    wizardState.meta.title = document.getElementById('meta-title').value;
+    wizardState.meta.author = document.getElementById('meta-author').value;
+    wizardState.meta.question = document.getElementById('meta-question').value;
+    onWizardChange();
+}
+
+function updateEvolution(idx, val) {
+    wizardState.components[idx].evolution = parseInt(val);
+    const posEl = document.getElementById('evo-pos-' + idx);
+    if (posEl) posEl.textContent = evoToRoman(parseInt(val));
+    scheduleRender();
+}
+
+function updateEvolvedTo(idx, val) {
+    wizardState.components[idx].evolvedTo = parseInt(val);
+    const el = document.getElementById('evo-to-' + idx);
+    if (el) el.textContent = evoToRoman(parseInt(val));
+    scheduleRender();
+}
+
+function setType(idx, type) {
+    wizardState.components[idx].type = type;
+    renderEvoList();
+    onWizardChange();
+}
+
+function toggleEvolving(idx, checked) {
+    wizardState.components[idx].evolving = checked;
+    if (checked && wizardState.components[idx].evolvedTo <= wizardState.components[idx].evolution) {
+        wizardState.components[idx].evolvedTo = Math.min(99, wizardState.components[idx].evolution + 15);
+    }
+    renderEvoList();
+    onWizardChange();
+}
+
+function setInertia(idx, val) {
+    wizardState.components[idx].inertia = parseInt(val);
+    onWizardChange();
+}
+
+function addGroup() {
+    wizardState.groups.push({ name: 'Nouveau groupe', members: [], color: '#5e9ed6' });
+    renderGroups();
+}
+
+function removeGroup(idx) {
+    wizardState.groups.splice(idx, 1);
+    renderGroups();
+    onWizardChange();
+}
+
+function toggleGroupMember(gi, name, checked) {
+    const g = wizardState.groups[gi];
+    if (checked && !g.members.includes(name)) {
+        g.members.push(name);
+    } else if (!checked) {
+        g.members = g.members.filter(m => m !== name);
+    }
+    onWizardChange();
+}
+
+function addAnnotation() {
+    wizardState.annotations.push({ kind: 'note', text: '', target: '' });
+    renderAnnotations();
+}
+
+function removeAnnotation(idx) {
+    wizardState.annotations.splice(idx, 1);
+    renderAnnotations();
+    onWizardChange();
+}
+
+function addSignal() {
+    wizardState.signals.push({ type: 'accelerating', target: '' });
+    renderSignals();
+}
+
+function removeSignal(idx) {
+    wizardState.signals.splice(idx, 1);
+    renderSignals();
+    onWizardChange();
+}
+
+// ================================================================
+// 9. Steps Navigation
+// ================================================================
+
+function goToStep(step) {
+    currentStep = step;
+    document.querySelectorAll('.wizard-step').forEach((el, i) => {
+        el.classList.toggle('active', i === step);
+    });
+    document.querySelectorAll('.step-indicator').forEach((el, i) => {
+        el.classList.toggle('active', i === step);
+        // Mark previous steps as completed if they have content
+        if (i < step && wizardState.components.length > 0) {
+            el.classList.add('completed');
+        }
+    });
+
+    // Nav buttons
+    document.getElementById('btn-prev').style.visibility = step === 0 ? 'hidden' : 'visible';
+    const nextBtn = document.getElementById('btn-next');
+    nextBtn.textContent = step === 2 ? 'Terminer' : 'Suivant \u25B6';
+
+    // Render step-specific content
+    if (step === 1) renderEvoList();
+    if (step === 2) {
+        renderGroups();
+        renderAnnotations();
+        renderSignals();
+    }
+}
+
+function nextStep() {
+    if (currentStep < 2) goToStep(currentStep + 1);
+}
+
+function prevStep() {
+    if (currentStep > 0) goToStep(currentStep - 1);
+}
+
+// ================================================================
+// 10. Mode Switching
+// ================================================================
+
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('mode-guided').classList.toggle('active', mode === 'guided');
+    document.getElementById('mode-editor').classList.toggle('active', mode === 'editor');
+    document.getElementById('wizard-pane').style.display = mode === 'guided' ? 'flex' : 'none';
+    document.getElementById('editor-pane').style.display = mode === 'editor' ? 'flex' : 'none';
+
+    if (mode === 'editor') {
+        document.getElementById('editor-warning').style.display = 'block';
+        if (!editor) initEditor();
+        // Load generated WTG2 into editor
+        const wtg2 = generateWTG2(wizardState);
+        editor.setValue(wtg2);
+        setTimeout(() => editor.refresh(), 10);
+    }
+
+    render();
+}
+
+// ================================================================
+// 11. Template Loading
+// ================================================================
+
+function loadTemplate(key) {
+    if (!key || !TEMPLATES[key]) return;
+    const tpl = TEMPLATES[key];
+
+    wizardState.meta = { ...tpl.meta };
+    wizardState.components = tpl.components.map(c => ({ ...c }));
+    wizardState.edges = tpl.edges.map(e => ({ ...e }));
+    wizardState.groups = tpl.groups.map(g => ({ ...g, members: [...g.members] }));
+    wizardState.annotations = tpl.annotations.map(a => ({ ...a }));
+    wizardState.signals = tpl.signals.map(s => ({ ...s }));
+    wizardState.legend = tpl.legend;
+
+    // Update UI
+    document.getElementById('meta-title').value = wizardState.meta.title;
+    document.getElementById('meta-author').value = wizardState.meta.author;
+    document.getElementById('meta-question').value = wizardState.meta.question;
+    document.getElementById('chain-input').value = tpl.chains;
+    document.getElementById('legend-toggle').checked = wizardState.legend;
+
+    renderCompList();
+    goToStep(0);
+    onWizardChange();
+
+    // Reset template selector
+    document.getElementById('template-select').value = '';
+}
+
+// ================================================================
+// 12. Section Toggle
+// ================================================================
+
+function toggleSection(header) {
+    header.parentElement.classList.toggle('collapsed');
+}
+
+// ================================================================
+// 13. Render Pipeline
+// ================================================================
+
+function onWizardChange() {
+    saveState();
+    scheduleRender();
+}
+
+function scheduleRender() {
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(render, 400);
+}
+
+function render() {
+    let text;
+    if (currentMode === 'guided') {
+        text = generateWTG2(wizardState);
+    } else if (editor) {
+        text = editor.getValue();
+    } else {
+        return;
+    }
+
+    if (!text.trim()) {
+        document.getElementById('output-pane').innerHTML = '<div style="color:#888;padding:40px;text-align:center">Commencez a definir votre chaine de valeur pour voir l\'apercu</div>';
+        return;
+    }
+
+    if (typeof generateSVG !== 'function') {
+        document.getElementById('status').textContent = 'WASM not loaded yet';
+        return;
+    }
+
+    const isStatic = false;
+    const [baseW, baseH] = getBaseDimensions();
+    const result = generateSVG(text, isStatic, getResolution(), baseW, baseH);
+    const output = document.getElementById('output-pane');
+
+    if (result.startsWith('error:')) {
+        output.innerHTML = '<div class="error">' + escapeHtml(result) + '</div>';
+    } else {
+        output.innerHTML = result;
+    }
+    document.getElementById('status').textContent = 'OK';
+    updateDetached();
+}
+
+function getResolution() {
+    return parseInt(document.getElementById('resolution').value, 10);
+}
+
+function getBaseDimensions() {
+    const parts = document.getElementById('ratio').value.split(',');
+    return [parseInt(parts[0], 10), parseInt(parts[1], 10)];
+}
+
+// ================================================================
+// 14. Editor Init
+// ================================================================
+
+function initEditor() {
+    editor = CodeMirror.fromTextArea(document.getElementById('source'), {
+        mode: 'wtg2',
+        theme: 'monokai',
+        lineNumbers: true,
+        tabSize: 2,
+    });
+    editor.on('change', () => {
+        localStorage.setItem('wtg2-source', editor.getValue());
+        scheduleRender();
+    });
+}
+
+// ================================================================
+// 15. Export Functions
+// ================================================================
+
+function getExportSVG() {
+    let text;
+    if (currentMode === 'guided') {
+        text = generateWTG2(wizardState);
+    } else if (editor) {
+        text = editor.getValue();
+    } else {
+        return null;
+    }
+    if (!text.trim() || typeof generateSVG !== 'function') return null;
+    const [baseW, baseH] = getBaseDimensions();
+    const result = generateSVG(text, true, getResolution(), baseW, baseH);
+    if (result.startsWith('error:')) return null;
+    return result;
+}
+
+function getMapTitle() {
+    const title = wizardState.meta.title || 'wardley-map';
+    return title.replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '_');
+}
+
+function downloadSVG() {
+    const svgStr = getExportSVG();
+    if (!svgStr) return;
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = getMapTitle() + '.svg';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function downloadPNG() {
+    const svgStr = getExportSVG();
+    if (!svgStr) return;
+    const resPct = getResolution();
+    const [baseW, baseH] = getBaseDimensions();
+    const w = Math.round(baseW * resPct / 100);
+    const h = Math.round(baseH * resPct / 100);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+
+    const img = new Image();
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(pngBlob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(pngBlob);
+            a.download = getMapTitle() + '_' + resPct + 'pct.png';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }, 'image/png');
+    };
+    img.src = url;
+}
+
+function detachMap() {
+    if (detachedWindow && !detachedWindow.closed) {
+        detachedWindow.focus();
+        updateDetached();
+        return;
+    }
+    detachedWindow = window.open('', 'WardleyMap', 'width=1100,height=900,resizable=yes');
+    if (!detachedWindow) return;
+    detachedWindow.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Wardley Map</title><style>*{margin:0;padding:0}body{width:100vw;height:100vh;background:#fff;overflow:hidden}#map{width:100%;height:100%;display:flex;align-items:center;justify-content:center}#map svg{width:100%;height:100%}</style></head><body><div id="map"></div></body></html>');
+    detachedWindow.document.close();
+    updateDetached();
+}
+
+function updateDetached() {
+    if (!detachedWindow || detachedWindow.closed) { detachedWindow = null; return; }
+    const svgStr = getExportSVG();
+    if (!svgStr) return;
+    const container = detachedWindow.document.getElementById('map');
+    if (container) container.innerHTML = svgStr;
+}
+
+// ================================================================
+// 16. Persistence
+// ================================================================
+
+function saveState() {
+    try {
+        localStorage.setItem('wtg2-guided-state', JSON.stringify(wizardState));
+    } catch (e) { /* quota exceeded */ }
+}
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem('wtg2-guided-state');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            wizardState = {
+                meta: parsed.meta || { title: '', author: '', question: '' },
+                components: parsed.components || [],
+                edges: parsed.edges || [],
+                groups: parsed.groups || [],
+                annotations: parsed.annotations || [],
+                signals: parsed.signals || [],
+                legend: parsed.legend || false
+            };
+            return true;
+        }
+    } catch (e) { /* parse error */ }
+    return false;
+}
+
+function restoreUI() {
+    document.getElementById('meta-title').value = wizardState.meta.title || '';
+    document.getElementById('meta-author').value = wizardState.meta.author || '';
+    document.getElementById('meta-question').value = wizardState.meta.question || '';
+    document.getElementById('legend-toggle').checked = wizardState.legend;
+
+    // Reconstruct chain input
+    updateChainInputFromState();
+    renderCompList();
+}
+
+// ================================================================
+// 17. Responsive: Mobile Tabs
+// ================================================================
+
+function setMobileTab(tab) {
+    const btns = document.querySelectorAll('#mobile-tabs button');
+    btns[0].classList.toggle('active', tab === 'edit');
+    btns[1].classList.toggle('active', tab === 'preview');
+
+    document.getElementById('left-pane').classList.toggle('hidden', tab !== 'edit');
+    document.getElementById('right-pane').classList.toggle('visible', tab === 'preview');
+
+    if (tab === 'preview') render();
+    if (tab === 'edit' && editor) setTimeout(() => editor.refresh(), 10);
+}
+
+// ================================================================
+// 18. Split Pane Divider
+// ================================================================
+
+(function initDivider() {
+    const divider = document.getElementById('divider');
+    const leftPane = document.getElementById('left-pane');
+    const main = document.getElementById('main');
+    let isDragging = false;
+
+    function startDrag(e) {
+        isDragging = true;
+        divider.classList.add('dragging');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+    }
+
+    function doDrag(e) {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const rect = main.getBoundingClientRect();
+        const pct = ((clientX - rect.left) / rect.width) * 100;
+        const clamped = Math.max(20, Math.min(70, pct));
+        leftPane.style.width = clamped + '%';
+        if (editor) editor.refresh();
+    }
+
+    function stopDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        divider.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+    }
+
+    divider.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', doDrag);
+    document.addEventListener('mouseup', stopDrag);
+    divider.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', doDrag, { passive: false });
+    document.addEventListener('touchend', stopDrag);
+})();
+
+// ================================================================
+// 19. Toolbar Events
+// ================================================================
+
+document.getElementById('ratio').addEventListener('change', render);
+const resSlider = document.getElementById('resolution');
+const resLabel = document.getElementById('res-label');
+resSlider.addEventListener('input', () => {
+    resLabel.textContent = resSlider.value + '%';
+    scheduleRender();
+});
+document.getElementById('dl-svg').addEventListener('click', downloadSVG);
+document.getElementById('dl-png').addEventListener('click', downloadPNG);
+document.getElementById('detach').addEventListener('click', detachMap);
+
+// ================================================================
+// 20. Utilities
+// ================================================================
+
+function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+function escapeAttr(s) {
+    return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ================================================================
+// 21. WASM Init & Startup
+// ================================================================
+
+const go = new Go();
+WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(result => {
+    go.run(result.instance);
+    document.getElementById('status').textContent = 'Ready';
+
+    // Load saved state or default template
+    if (loadState() && wizardState.components.length > 0) {
+        restoreUI();
+    } else {
+        loadTemplate('teashop');
+    }
+
+    render();
+}).catch(err => {
+    document.getElementById('status').textContent = 'WASM: ' + err;
+    // Still allow UI interaction
+    if (loadState() && wizardState.components.length > 0) {
+        restoreUI();
+    } else {
+        loadTemplate('teashop');
+    }
+});
+    </script>
+</body>
+</html>
