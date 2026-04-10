@@ -799,7 +799,7 @@ focus Recommendation Engine
 | Evolution | `Name : Pos >> Pos` | `API : II.7 >> III.5` |
 | Inertia | `! !! !!!` | `API : II.7 !! >> III.5` |
 | Qualified inertia | `!!(types)` | `API : II.7 !!(tech,human) >> III.5` |
-| Visibility | `@decimal` | `API : III.5 @0.8` |
+| Visibility | `@0.0-1.0` | `API : III.5 @0.8` |
 | Pipeline | `pipeline Name { ... }` | see above |
 | Edge | `A -> B` | `Customer -> App` |
 | Annotated edge | `A -[text]-> B` | `A -[data feed]-> B` |

@@ -742,7 +742,7 @@ focus Moteur de Calcul d'Itineraire
 | Evolution | `Nom : Pos >> Pos` | `API : II.7 >> III.5` |
 | Inertie | `! !! !!!` | `API : II.7 !! >> III.5` |
 | Inertie qualifiee | `!!(types)` | `API : II.7 !!(tech,human) >> III.5` |
-| Visibilite | `@decimal` | `API : III.5 @0.8` |
+| Visibilite | `@0.0-1.0` | `API : III.5 @0.8` |
 | Pipeline | `pipeline Nom { ... }` | voir ci-dessus |
 | Edge | `A -> B` | `Client -> App` |
 | Edge annote | `A -[texte]-> B` | `A -[flux critique]-> B` |
