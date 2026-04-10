@@ -4,7 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/xml"
-	"fmt"
+	"strconv"
 	"text/template"
 
 	"github.com/owulveryck/wardleyToGo"
@@ -49,32 +49,50 @@ func generateJsData(w *wardleyToGo.Map) jsData {
 	allCollabs := w.Collaborations()
 	allLinks := make([]string, len(allCollabs))
 	for i, c := range allCollabs {
-		allLinks[i] = fmt.Sprintf("edge_%v_%v", c.From().ID(), c.To().ID())
+		allLinks[i] = "edge_" + strconv.FormatInt(c.From().ID(), 10) + "_" + strconv.FormatInt(c.To().ID(), 10)
 	}
 
-	paths := make(map[string][]string)
-	for _, n := range w.Components() {
-		successors := w.From(n.ID())
-		if len(successors) == 0 {
+	// Build adjacency list once to avoid repeated w.From() calls
+	// (each call allocates and sorts).
+	components := w.Components()
+	adj := make(map[int64][]int64, len(components))
+	for _, n := range components {
+		succs := w.From(n.ID())
+		if len(succs) > 0 {
+			ids := make([]int64, len(succs))
+			for i, s := range succs {
+				ids[i] = s.ID()
+			}
+			adj[n.ID()] = ids
+		}
+	}
+
+	// Memoized DFS: compute reachable edges per node in O(V+E) total.
+	memo := make(map[int64][]string, len(adj))
+	var dfs func(id int64) []string
+	dfs = func(id int64) []string {
+		if cached, ok := memo[id]; ok {
+			return cached
+		}
+		succs := adj[id]
+		edges := make([]string, 0, len(succs))
+		for _, succID := range succs {
+			edges = append(edges, "edge_"+strconv.FormatInt(id, 10)+"_"+strconv.FormatInt(succID, 10))
+			edges = append(edges, dfs(succID)...)
+		}
+		memo[id] = edges
+		return edges
+	}
+
+	paths := make(map[string][]string, len(adj))
+	for _, n := range components {
+		if len(adj[n.ID()]) == 0 {
 			continue
 		}
-		element := fmt.Sprintf("element_%v", n.ID())
-		paths[element] = make([]string, 0)
-		// DFS to collect all edges reachable from this node
-		visited := make(map[int64]bool)
-		var dfs func(id int64)
-		dfs = func(id int64) {
-			if visited[id] {
-				return
-			}
-			visited[id] = true
-			for _, succ := range w.From(id) {
-				paths[element] = append(paths[element], fmt.Sprintf("edge_%v_%v", id, succ.ID()))
-				dfs(succ.ID())
-			}
-		}
-		dfs(n.ID())
+		element := "element_" + strconv.FormatInt(n.ID(), 10)
+		paths[element] = dfs(n.ID())
 	}
+
 	return jsData{
 		AllLinks: allLinks,
 		G:        paths,

@@ -71,8 +71,33 @@ func forceSpread(
 	// Compute ideal layer height for edge attraction
 	layerHeight := (maxY - minY) / math.Max(float64(maxRank), 1)
 
+	// Build index for O(1) lookup instead of map[string]float64 per iteration.
+	nameIndex := make(map[string]int, len(names))
+	for i, n := range names {
+		nameIndex[n] = i
+	}
+	allNameIndex := make(map[string]int, len(allNames))
+	for i, n := range allNames {
+		allNameIndex[n] = i
+	}
+	displacements := make([]float64, len(names))
+
+	// Pre-sort names by rank for enforceRankOrder (rank is stable across iterations).
+	sortedByRank := make([]string, len(allNames))
+	copy(sortedByRank, allNames)
+	sort.Slice(sortedByRank, func(i, j int) bool {
+		ri, rj := ranks[sortedByRank[i]], ranks[sortedByRank[j]]
+		if ri != rj {
+			return ri < rj
+		}
+		return sortedByRank[i] < sortedByRank[j]
+	})
+
 	for iter := 0; iter < opts.ForceIterations; iter++ {
-		displacements := make(map[string]float64, len(names))
+		// Reset displacements without re-allocating.
+		for i := range displacements {
+			displacements[i] = 0
+		}
 
 		// Pairwise repulsion between all active nodes (including pinned for repulsion source).
 		// Same-rank nodes get a weaker repulsion (30%) to separate them
@@ -103,10 +128,14 @@ func forceSpread(
 					}
 					// Only apply displacement to non-pinned nodes
 					if !pinned[a] {
-						displacements[a] -= force * sign
+						if idx, ok := nameIndex[a]; ok {
+							displacements[idx] -= force * sign
+						}
 					}
 					if !pinned[b] {
-						displacements[b] += force * sign
+						if idx, ok := nameIndex[b]; ok {
+							displacements[idx] += force * sign
+						}
 					}
 				}
 			}
@@ -130,10 +159,14 @@ func forceSpread(
 			actualDy := positions[to] - positions[from]
 			delta := (actualDy - idealDy) * 0.1
 			if !pinned[from] {
-				displacements[from] += delta
+				if idx, ok := nameIndex[from]; ok {
+					displacements[idx] += delta
+				}
 			}
 			if !pinned[to] {
-				displacements[to] -= delta
+				if idx, ok := nameIndex[to]; ok {
+					displacements[idx] -= delta
+				}
 			}
 		}
 
@@ -144,8 +177,8 @@ func forceSpread(
 		// enforceRankOrder then uses the outlier's position as the floor
 		// for subsequent ranks, cascading all deeper nodes to maxY.
 		maxDisp := minSpacing
-		for _, name := range names {
-			d := displacements[name] * damping
+		for i, name := range names {
+			d := displacements[i] * damping
 			if d > maxDisp {
 				d = maxDisp
 			}
@@ -161,8 +194,16 @@ func forceSpread(
 			}
 		}
 
-		// Enforce rank ordering: nodes with higher ranks must have higher Y
-		enforceRankOrder(positions, allNames, ranks, minY, maxY, minSpacing)
+		// Enforce rank ordering: nodes with higher ranks must have higher Y.
+		// Re-sort the pre-sorted slice by position within same rank groups.
+		sort.SliceStable(sortedByRank, func(i, j int) bool {
+			ri, rj := ranks[sortedByRank[i]], ranks[sortedByRank[j]]
+			if ri != rj {
+				return ri < rj
+			}
+			return positions[sortedByRank[i]] < positions[sortedByRank[j]]
+		})
+		enforceRankOrder(positions, sortedByRank, ranks, minY, maxY, minSpacing)
 
 		damping *= 0.98
 	}
@@ -182,18 +223,8 @@ func forceSpread(
 //
 // Anchor nodes (rank 0) are left untouched because they are already
 // pinned at the top of the map.
-func enforceRankOrder(positions map[string]float64, names []string, ranks map[string]int, minY, _, minSpacing float64) {
-	// Sort names by rank, then by position within same rank
-	sorted := make([]string, len(names))
-	copy(sorted, names)
-	sort.Slice(sorted, func(i, j int) bool {
-		ri, rj := ranks[sorted[i]], ranks[sorted[j]]
-		if ri != rj {
-			return ri < rj
-		}
-		return positions[sorted[i]] < positions[sorted[j]]
-	})
-
+func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[string]int, minY, _, minSpacing float64) {
+	// sorted is expected to be pre-sorted by rank then by position.
 	// Sweep forward per rank group: enforce minSpacing only between
 	// different rank groups, not between siblings at the same rank.
 	prevRank := -1

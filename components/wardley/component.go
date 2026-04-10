@@ -163,7 +163,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 	if r != 0 || g != 0 || b != 0 || a != 65535 {
 		fillColor = svg.Color{Color: col}
 	}
-	components := make([]interface{}, 0)
+	components := make([]interface{}, 0, 8)
 	components = append(components, svg.Rectangle{
 		R: image.Rectangle{
 			Min: image.Point{-5, -15},
@@ -217,7 +217,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		Stroke:      col,
 		Fill:        fillColor,
 	}
-	components := make([]interface{}, 0)
+	components := make([]interface{}, 0, 8)
 	switch c.Type {
 	case BuildComponent:
 		components = append(components, svg.Circle{

@@ -153,7 +153,12 @@ func (m *Map) Components() []Component {
 
 // Collaborations returns all collaborations in the map.
 func (m *Map) Collaborations() []Collaboration {
-	var result []Collaboration
+	// Estimate capacity: sum of inner map sizes.
+	n := 0
+	for _, targets := range m.collabs {
+		n += len(targets)
+	}
+	result := make([]Collaboration, 0, n)
 	for _, targets := range m.collabs {
 		for _, c := range targets {
 			result = append(result, c)

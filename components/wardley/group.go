@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"math"
 	"sort"
+	"strings"
 
 	"github.com/owulveryck/wardleyToGo/components"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
@@ -245,23 +246,24 @@ func blobPath(points []fpoint, padding float64) string {
 	}
 
 	// Build SVG path: start at departure of vertex 0
-	d := fmt.Sprintf("M %.1f,%.1f", corners[0].departure.X, corners[0].departure.Y)
+	var b strings.Builder
+	fmt.Fprintf(&b, "M %.1f,%.1f", corners[0].departure.X, corners[0].departure.Y)
 	for i := 1; i < n; i++ {
 		// Line to approach of vertex i
-		d += fmt.Sprintf(" L %.1f,%.1f", corners[i].approach.X, corners[i].approach.Y)
+		fmt.Fprintf(&b, " L %.1f,%.1f", corners[i].approach.X, corners[i].approach.Y)
 		// Quadratic Bezier around vertex i
-		d += fmt.Sprintf(" Q %.1f,%.1f %.1f,%.1f",
+		fmt.Fprintf(&b, " Q %.1f,%.1f %.1f,%.1f",
 			corners[i].vertex.X, corners[i].vertex.Y,
 			corners[i].departure.X, corners[i].departure.Y)
 	}
 	// Close: line to approach of vertex 0, curve around vertex 0
-	d += fmt.Sprintf(" L %.1f,%.1f", corners[0].approach.X, corners[0].approach.Y)
-	d += fmt.Sprintf(" Q %.1f,%.1f %.1f,%.1f",
+	fmt.Fprintf(&b, " L %.1f,%.1f", corners[0].approach.X, corners[0].approach.Y)
+	fmt.Fprintf(&b, " Q %.1f,%.1f %.1f,%.1f",
 		corners[0].vertex.X, corners[0].vertex.Y,
 		corners[0].departure.X, corners[0].departure.Y)
-	d += " Z"
+	b.WriteString(" Z")
 
-	return d
+	return b.String()
 }
 
 // convexHull computes the convex hull of a set of points using Andrew's

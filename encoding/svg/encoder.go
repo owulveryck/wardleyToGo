@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"io"
 	"sort"
+	"strconv"
 
 	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/encoding"
@@ -72,13 +73,15 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 	}); err != nil {
 		return err
 	}
-	elems := make([]SVGMarshaler, 0)
-	for _, c := range m.Collaborations() {
+	collabs := m.Collaborations()
+	comps := m.Components()
+	elems := make([]SVGMarshaler, 0, len(collabs)+len(comps))
+	for _, c := range collabs {
 		if e, ok := c.(SVGMarshaler); ok {
 			elems = append(elems, e)
 		}
 	}
-	for _, n := range m.Components() {
+	for _, n := range comps {
 		if n, ok := n.(SVGMarshaler); ok {
 			elems = append(elems, n)
 		}
@@ -132,7 +135,7 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			}
 		}
 		if elem, ok := element.(wardleyToGo.Collaboration); ok {
-			g = makeGroup(fmt.Sprintf("edge_%v", int(elem.From().ID())), int(elem.To().ID()))
+			g = makeGroup("edge_"+strconv.Itoa(int(elem.From().ID())), int(elem.To().ID()))
 			for _, t := range e.Themes {
 				if dec, ok := t.(CollaborationDecorator); ok {
 					g.Attr = append(g.Attr, dec.DecorateCollaboration(elem)...)
@@ -185,7 +188,7 @@ func makeGroup(s string, id int) *group {
 			Attr: []xml.Attr{
 				{
 					Name:  xml.Name{Local: "id"},
-					Value: fmt.Sprintf("%v_%v", s, id),
+					Value: s + "_" + strconv.Itoa(id),
 				},
 			},
 		},

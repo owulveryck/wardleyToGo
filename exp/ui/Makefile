@@ -5,7 +5,7 @@ GOROOT := $(shell go env GOROOT)
 WASMEXEC := $(shell test -f "$(GOROOT)/misc/wasm/wasm_exec.js" && echo "$(GOROOT)/misc/wasm/wasm_exec.js" || echo "$(GOROOT)/lib/wasm/wasm_exec.js")
 
 main.wasm: wasm/main.go
-	GOOS=js GOARCH=wasm go build -o $@ ./wasm/
+	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o $@ ./wasm/
 
 wasm_exec.js:
 	cp "$(WASMEXEC)" .

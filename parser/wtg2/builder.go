@@ -210,10 +210,11 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 		evolved *wardley.EvolvedComponent
 		anchor  *wardley.Anchor
 	}
+	allComponents := m.Components()
 	labelTargets := make(map[string]labelTarget)
-	labelComps := make([]labels.Component, 0)
+	labelComps := make([]labels.Component, 0, len(allComponents))
 
-	for _, n := range m.Components() {
+	for _, n := range allComponents {
 		switch c := n.(type) {
 		case *wardley.Anchor:
 			if c.LabelPlacement.X != components.UndefinedCoord {
