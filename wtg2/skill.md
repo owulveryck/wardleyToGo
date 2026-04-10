@@ -1,3 +1,9 @@
+---
+name: wtg2
+description: Generate Wardley Maps in the WTG2 domain-specific language. Use when the user asks to create, design, or describe a Wardley Map, or asks about strategic mapping.
+argument-hint: [description of the map to generate]
+---
+
 # WTG2 — Wardley Map Language
 
 You are generating Wardley Maps in the **WTG2** domain-specific language. Your output must be a valid `.wtg2` file that can be parsed and rendered to SVG.
@@ -144,7 +150,7 @@ A WTG2 document follows this canonical order:
 3. Nodes           (anchors, components, submaps, pipelines)
 4. Value chain     (edges / dependencies)
 5. Groups          (visual organization)
-6. Annotations     (notes, warnings, signals, gameplays)
+6. Annotations     (notes, warnings, signals, gameplays, focus)
 ```
 
 All sections are optional. Comments can appear anywhere.
@@ -220,11 +226,15 @@ Examples:
 
 ```
 anchor User
+anchor User : III.5
+anchor User : II.3 >> III.5
 Application : III.5
 Database : III.8 (buy)
 Infrastructure : IV.3 (buy) @0.2
 submap Payment System : III.6
 ```
+
+Anchors can optionally have an evolution position and even movement (`>>`), but they are always rendered at the top of the map.
 
 #### Block declaration (multi-line)
 
@@ -242,7 +252,8 @@ Block config fields:
 |--------------|-------------------------------------|
 | `type`       | `build`, `buy`, `outsource`         |
 | `asset`      | `tech`, `financial`, `human`, `relational`, `social` |
-| `color`      | `#RRGGBB`, `#RGB`, or CSS color name |
+| `evolution`  | Evolution expression (e.g., `II.7 !! >> III.5`) |
+| `color`      | `#RRGGBB` or `#RGB`                  |
 | `visibility` | `0.0` (bottom) to `1.0` (top)      |
 | `cost`       | Free-text cost annotation           |
 | `note`       | Quoted text description             |
@@ -324,6 +335,8 @@ A -[label text]-> B             // annotated dependency
 A <-[label text]-> B            // annotated bidirectional
 ```
 
+All four forms are supported. Annotated bidirectional edges combine `<->` with `[label]`.
+
 Edges can be chained:
 
 ```
@@ -382,7 +395,7 @@ Group directives:
 
 | Directive | Values |
 |-----------|--------|
-| `color:`  | `#RRGGBB`, `#RGB`, or CSS color name |
+| `color:`  | `#RRGGBB` or `#RGB`                  |
 | `team:`   | `explorer`, `settler`, `town-planner`, `pioneer`, `villager` |
 
 ### Annotations
@@ -422,6 +435,23 @@ Gameplay types: `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat
 
 The quoted description is optional and provides strategic context.
 
+### Focus
+
+The `focus` keyword highlights a component and all its descendants in the value chain. Elements outside the focus are rendered with reduced opacity.
+
+```
+focus Recommendation Engine
+```
+
+Multiple focus declarations can be combined — their subtrees are merged:
+
+```
+focus Recommendation Engine
+focus Real-Time Personalisation
+```
+
+Focus is useful for presenting a specific part of the map during a discussion or presentation.
+
 ---
 
 ## Identifier Rules
@@ -432,7 +462,7 @@ Identifiers (component names, group names, etc.):
 - Spaces are allowed inside identifiers (e.g., `Application Mobile`)
 - Cannot be a reserved keyword used alone
 
-**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `legend`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`
+**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `legend`, `focus`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`, `hygiene`, `context`, `excellence`
 
 ---
 
@@ -569,6 +599,9 @@ signal red-queen on Application
 gameplay strangler-fig "Replace Classic Dijkstra with Predictive AI" on Route Calculation Engine
 gameplay open-source "Commoditize mapping data to reduce dependency" on OSM Data
 gameplay ILC on B2G Partner API
+
+// Focus
+focus Route Calculation Engine
 ```
 
 ---
