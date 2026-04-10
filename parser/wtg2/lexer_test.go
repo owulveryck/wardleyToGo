@@ -22,6 +22,7 @@ note "important" on App
 warning "risk" on Engine
 signal accelerating on App
 legend
+focus App
 `
 
 	lex := NewLexer(input)
@@ -38,6 +39,7 @@ legend
 		TokenWarning,   // warning
 		TokenSignal,    // signal
 		TokenLegend,    // legend
+		TokenFocus,     // focus
 	}
 
 	for i, exp := range expected {

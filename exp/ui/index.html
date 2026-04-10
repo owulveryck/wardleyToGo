@@ -339,6 +339,12 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
                             <input type="checkbox" id="legend-toggle" onchange="wizardState.legend=this.checked;onWizardChange()"> Afficher la legende
                         </label>
                     </div>
+                    <div class="enrich-section" style="margin-top:8px">
+                        <h4>Focus</h4>
+                        <select id="focus-select" onchange="wizardState.focus=this.value;onWizardChange()" style="width:100%;background:#2d2d2d;color:#ccc;border:1px solid #555;border-radius:3px;padding:4px;font-size:12px">
+                            <option value="">— Aucun —</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Step navigation -->
@@ -496,7 +502,8 @@ let wizardState = {
     groups: [],
     annotations: [],
     signals: [],
-    legend: false
+    legend: false,
+    focus: ""
 };
 
 let currentStep = 0;
@@ -687,6 +694,12 @@ function generateWTG2(state) {
         lines.push('legend');
     }
 
+    // Focus
+    if (state.focus) {
+        lines.push('');
+        lines.push('focus ' + state.focus);
+    }
+
     return lines.join('\n');
 }
 
@@ -824,6 +837,14 @@ function renderSignals() {
     `).join('');
 }
 
+function renderFocusDropdown() {
+    const sel = document.getElementById('focus-select');
+    const compNames = wizardState.components.map(c => c.name);
+    const current = wizardState.focus;
+    sel.innerHTML = '<option value="">— Aucun —</option>' +
+        compNames.map(n => `<option value="${escapeAttr(n)}" ${current === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('');
+}
+
 // ================================================================
 // 8. Wizard Actions
 // ================================================================
@@ -835,6 +856,7 @@ function removeComponent(idx) {
     wizardState.groups = wizardState.groups.map(g => ({ ...g, members: g.members.filter(m => m !== name) }));
     wizardState.annotations = wizardState.annotations.filter(a => a.target !== name);
     wizardState.signals = wizardState.signals.filter(s => s.target !== name);
+    if (wizardState.focus === name) wizardState.focus = "";
     // Update chain input to reflect removal
     updateChainInputFromState();
     renderCompList();
@@ -959,6 +981,7 @@ function goToStep(step) {
         renderGroups();
         renderAnnotations();
         renderSignals();
+        renderFocusDropdown();
     }
 }
 
@@ -1009,6 +1032,7 @@ function loadTemplate(key) {
     wizardState.annotations = tpl.annotations.map(a => ({ ...a }));
     wizardState.signals = tpl.signals.map(s => ({ ...s }));
     wizardState.legend = tpl.legend;
+    wizardState.focus = "";
 
     // Update UI
     document.getElementById('meta-title').value = wizardState.meta.title;
@@ -1333,7 +1357,8 @@ function loadState() {
                 groups: parsed.groups || [],
                 annotations: parsed.annotations || [],
                 signals: parsed.signals || [],
-                legend: parsed.legend || false
+                legend: parsed.legend || false,
+                focus: parsed.focus || ""
             };
             return true;
         }
@@ -1353,6 +1378,7 @@ function restoreUI() {
     // Reconstruct chain input
     updateChainInputFromState();
     renderCompList();
+    renderFocusDropdown();
 }
 
 // ================================================================

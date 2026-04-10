@@ -64,6 +64,8 @@ func (p *Parser) Parse() (*Document, error) {
 			err = p.parseGameplay(doc, tok.Text)
 		case TokenLegend:
 			doc.Legend = true
+		case TokenFocus:
+			err = p.parseFocus(doc, tok.Text)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("line %d: %w", tok.Line, err)
@@ -563,5 +565,14 @@ func (p *Parser) parseGameplay(doc *Document, line string) error {
 	}
 
 	doc.Gameplays = append(doc.Gameplays, gp)
+	return nil
+}
+
+func (p *Parser) parseFocus(doc *Document, line string) error {
+	target := strings.TrimSpace(strings.TrimPrefix(line, "focus"))
+	if target == "" {
+		return fmt.Errorf("focus: missing component name")
+	}
+	doc.Focuses = append(doc.Focuses, &FocusDecl{Target: target})
 	return nil
 }

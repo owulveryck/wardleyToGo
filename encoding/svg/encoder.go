@@ -133,6 +133,11 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 		}
 		if elem, ok := element.(wardleyToGo.Collaboration); ok {
 			g = makeGroup(fmt.Sprintf("edge_%v", int(elem.From().ID())), int(elem.To().ID()))
+			for _, t := range e.Themes {
+				if dec, ok := t.(CollaborationDecorator); ok {
+					g.Attr = append(g.Attr, dec.DecorateCollaboration(elem)...)
+				}
+			}
 			if chainer, ok := elem.(wardleyToGo.Chainer); ok {
 				found := false
 				for i := range g.Attr {

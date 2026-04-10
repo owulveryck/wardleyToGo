@@ -17,6 +17,7 @@ type Document struct {
 	Annotations []*AnnotationDecl
 	Signals     []*SignalDecl
 	Gameplays   []*GameplayDecl
+	Focuses     []*FocusDecl
 
 	Legend bool // Whether to render a legend panel
 }
@@ -92,4 +93,9 @@ type GameplayDecl struct {
 	Type   string // "ILC", "open-source", "land-grab", "embrace-extend", "tower-moat", "FUD", "strangler-fig", "signal-distortion"
 	Text   string // Optional description
 	Target string // Node name
+}
+
+// FocusDecl represents a focus directive that highlights a component and its descendants.
+type FocusDecl struct {
+	Target string // Component name to focus on
 }

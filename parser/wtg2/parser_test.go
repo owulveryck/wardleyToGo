@@ -697,6 +697,51 @@ func TestParseExampleFile(t *testing.T) {
 	}
 }
 
+func TestParseFocus(t *testing.T) {
+	tests := []struct {
+		name       string
+		input      string
+		wantCount  int
+		wantTarget string
+	}{
+		{
+			name:       "simple name",
+			input:      "focus App",
+			wantCount:  1,
+			wantTarget: "App",
+		},
+		{
+			name:       "multi-word name",
+			input:      "focus Moteur de Calcul d'Itinéraire",
+			wantCount:  1,
+			wantTarget: "Moteur de Calcul d'Itinéraire",
+		},
+		{
+			name:      "multiple focuses",
+			input:     "focus App\nfocus DB",
+			wantCount: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := NewParser(strings.NewReader(tt.input))
+			if err != nil {
+				t.Fatal(err)
+			}
+			doc, err := p.Parse()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(doc.Focuses) != tt.wantCount {
+				t.Fatalf("got %d focuses, want %d", len(doc.Focuses), tt.wantCount)
+			}
+			if tt.wantTarget != "" && doc.Focuses[0].Target != tt.wantTarget {
+				t.Errorf("target = %q, want %q", doc.Focuses[0].Target, tt.wantTarget)
+			}
+		})
+	}
+}
+
 func TestParseAnchorWithEvolution(t *testing.T) {
 	tests := []struct {
 		name          string

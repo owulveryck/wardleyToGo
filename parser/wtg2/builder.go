@@ -22,6 +22,14 @@ type BuildResult struct {
 	Stages      []svgmap.Evolution
 	Legend      bool
 	LegendItems []svgmap.LegendItem
+	Focus       *FocusSet // nil if no focus directive is present
+}
+
+// FocusSet identifies which elements should remain at full opacity when focus is active.
+type FocusSet struct {
+	ComponentIDs map[int64]bool    // Focused component IDs
+	EdgeKeys     map[[2]int64]bool // Focused edges as (fromID, toID) pairs
+	GroupIDs     map[int64]bool    // Groups containing focused components
 }
 
 type nodeEntry struct {
@@ -43,6 +51,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	}
 
 	nodeDict := make(map[string]*nodeEntry)
+	evolvedMap := make(map[int64]int64) // original component ID → evolved component ID
 
 	// Compute Y positions from dependency graph
 	lg := documentToLayoutGraph(doc)
@@ -141,6 +150,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 				if err := m.AddComponent(evolved); err != nil {
 					return nil, fmt.Errorf("evolved component %q: %w", nd.Name, err)
 				}
+				evolvedMap[comp.ID()] = evolved.ID()
 
 				// Create evolution edge
 				inertiaX := 0
@@ -395,6 +405,91 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	if doc.Legend {
 		result.LegendItems = buildLegendItems(doc)
 	}
+
+	// Phase 5: Compute focus set
+	if len(doc.Focuses) > 0 {
+		fs := &FocusSet{
+			ComponentIDs: make(map[int64]bool),
+			EdgeKeys:     make(map[[2]int64]bool),
+			GroupIDs:     make(map[int64]bool),
+		}
+
+		// Collect focus root IDs
+		var roots []int64
+		for _, fd := range doc.Focuses {
+			entry, ok := nodeDict[fd.Target]
+			if !ok {
+				continue
+			}
+			roots = append(roots, entry.node.ID())
+
+			// If root is a pipeline parent, include members
+			if comp, ok := entry.node.(*wardley.Component); ok {
+				for _, member := range comp.PipelinedComponents {
+					roots = append(roots, member.ID())
+				}
+				// If root is a pipeline member, include parent
+				if comp.PipelineReference != nil {
+					roots = append(roots, comp.PipelineReference.ID())
+					for _, sibling := range comp.PipelineReference.PipelinedComponents {
+						roots = append(roots, sibling.ID())
+					}
+				}
+			}
+		}
+
+		// DFS from each root to collect descendants
+		var dfs func(id int64)
+		dfs = func(id int64) {
+			if fs.ComponentIDs[id] {
+				return
+			}
+			fs.ComponentIDs[id] = true
+
+			// Include evolved counterpart if present
+			if evolvedID, ok := evolvedMap[id]; ok {
+				fs.ComponentIDs[evolvedID] = true
+				fs.EdgeKeys[[2]int64{id, evolvedID}] = true
+			}
+
+			for _, succ := range m.From(id) {
+				fs.EdgeKeys[[2]int64{id, succ.ID()}] = true
+				dfs(succ.ID())
+			}
+		}
+		for _, rootID := range roots {
+			dfs(rootID)
+		}
+
+		// Identify groups containing focused components
+		for _, gd := range doc.Groups {
+			groupFocused := false
+			for _, memberName := range gd.Members {
+				entry, ok := nodeDict[memberName]
+				if !ok {
+					continue
+				}
+				if fs.ComponentIDs[entry.node.ID()] {
+					groupFocused = true
+					break
+				}
+			}
+			if groupFocused {
+				// Find the Group component by label
+				for _, c := range m.Components() {
+					if g, ok := c.(*wardley.Group); ok && g.Label == gd.Name {
+						fs.GroupIDs[g.ID()] = true
+						break
+					}
+				}
+			}
+		}
+
+		if len(fs.ComponentIDs) > 0 {
+			result.Focus = fs
+		}
+	}
+
 	return result, nil
 }
 

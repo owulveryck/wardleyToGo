@@ -51,6 +51,19 @@ func main() {
 		e.Themes = nil
 	}
 
+	if result.Focus != nil {
+		focusTheme := &svgmap.FocusTheme{
+			ComponentIDs: result.Focus.ComponentIDs,
+			EdgeKeys:     result.Focus.EdgeKeys,
+			GroupIDs:     result.Focus.GroupIDs,
+		}
+		if e.Themes == nil {
+			e.Themes = []svgmap.Theme{focusTheme}
+		} else {
+			e.Themes = append(e.Themes, focusTheme)
+		}
+	}
+
 	var indicators []svgmap.Annotator
 	if result.Legend && len(result.LegendItems) > 0 {
 		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})

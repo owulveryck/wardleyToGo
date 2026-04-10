@@ -295,6 +295,126 @@ func TestBuildMap_LegendDisabled(t *testing.T) {
 	}
 }
 
+func TestBuildMap_WithFocus(t *testing.T) {
+	doc := &Document{
+		Title:  "Focus Test",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Nodes: []*NodeDecl{
+			{Name: "User", Kind: KindAnchor, Visibility: -1},
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+			{Name: "API", Kind: KindComponent, Evolution: "II.5", Visibility: -1},
+			{Name: "DB", Kind: KindComponent, Evolution: "IV.2", Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "User", To: "App"},
+			{From: "App", To: "API"},
+			{From: "API", To: "DB"},
+		},
+		Focuses: []*FocusDecl{
+			{Target: "App"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result.Focus == nil {
+		t.Fatal("expected Focus to be set")
+	}
+
+	// App, API, DB should be focused (App + descendants)
+	// User should NOT be focused
+	focusedLabels := make(map[string]bool)
+	for _, c := range result.Map.Components() {
+		if result.Focus.ComponentIDs[c.ID()] {
+			if comp, ok := c.(*wardley.Component); ok {
+				focusedLabels[comp.Label] = true
+			}
+			if anchor, ok := c.(*wardley.Anchor); ok {
+				focusedLabels[anchor.Label] = true
+			}
+		}
+	}
+
+	if !focusedLabels["App"] {
+		t.Error("App should be focused")
+	}
+	if !focusedLabels["API"] {
+		t.Error("API should be focused (descendant of App)")
+	}
+	if !focusedLabels["DB"] {
+		t.Error("DB should be focused (descendant of App via API)")
+	}
+	if focusedLabels["User"] {
+		t.Error("User should NOT be focused")
+	}
+
+	// Edges App->API and API->DB should be focused, User->App should NOT
+	if len(result.Focus.EdgeKeys) != 2 {
+		t.Errorf("focused edge count = %d, want 2", len(result.Focus.EdgeKeys))
+	}
+}
+
+func TestBuildMap_WithFocusUnknownTarget(t *testing.T) {
+	doc := &Document{
+		Title:  "Focus Unknown",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Nodes: []*NodeDecl{
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+		},
+		Focuses: []*FocusDecl{
+			{Target: "DoesNotExist"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result.Focus != nil {
+		t.Error("expected Focus to be nil for unknown target")
+	}
+}
+
+func TestBuildMap_WithFocusGroup(t *testing.T) {
+	doc := &Document{
+		Title:  "Focus Group Test",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Nodes: []*NodeDecl{
+			{Name: "User", Kind: KindAnchor, Visibility: -1},
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+			{Name: "DB", Kind: KindComponent, Evolution: "IV.2", Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "User", To: "App"},
+			{From: "App", To: "DB"},
+		},
+		Groups: []*GroupDecl{
+			{Name: "Backend", Members: []string{"App", "DB"}},
+		},
+		Focuses: []*FocusDecl{
+			{Target: "App"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result.Focus == nil {
+		t.Fatal("expected Focus to be set")
+	}
+
+	// Group "Backend" contains App which is focused
+	if len(result.Focus.GroupIDs) != 1 {
+		t.Errorf("focused group count = %d, want 1", len(result.Focus.GroupIDs))
+	}
+}
+
 func TestBuildMap_ExampleFile(t *testing.T) {
 	f, err := os.Open("testdata/example.wtg2")
 	if err != nil {

@@ -19,6 +19,7 @@
                       | <signal>
                       | <gameplay>
                       | <legend-decl>
+                      | <focus-decl>
                       | <blank-line>
 
 <blank-line>        ::= <newline>
@@ -205,6 +206,16 @@
                          présents dans la carte. *)
 
 
+(* ─── Focus ──────────────────────────────────────────────────── *)
+
+<focus-decl>        ::= "focus" <identifier> <newline>
+                      (* Met en valeur le composant désigné et tous ses
+                         descendants dans la chaîne de valeur.
+                         Les éléments hors focus passent en opacité réduite.
+                         Plusieurs focus peuvent être déclarés — leurs
+                         sous-arbres sont réunis. *)
+
+
 (* ─── Terminaux ────────────────────────────────────────────── *)
 
 <identifier>        ::= <id-start> ( <id-char> | " " <id-char> )*
@@ -216,7 +227,7 @@
 
 <reserved>          ::= "anchor" | "component" | "submap"
                       | "pipeline" | "group"
-                      | "note" | "warning" | "signal" | "gameplay"
+                      | "note" | "warning" | "signal" | "gameplay" | "focus"
                       | "title" | "date" | "author" | "scope" | "question"
                       | "stages" | "doctrine"
                       | "evolution" | "type" | "asset" | "color" | "visibility"

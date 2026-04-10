@@ -27,3 +27,9 @@ type Theme interface {
 type ComponentDecorator interface {
 	DecorateComponent(c wardleyToGo.Component) []xml.Attr
 }
+
+// CollaborationDecorator is optionally implemented by themes that need to modify
+// collaboration (edge) group attributes (e.g., adding focus classes).
+type CollaborationDecorator interface {
+	DecorateCollaboration(c wardleyToGo.Collaboration) []xml.Attr
+}

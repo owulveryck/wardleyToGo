@@ -90,6 +90,15 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 	if result.Legend && len(result.LegendItems) > 0 {
 		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})
 	}
+	if result.Focus != nil {
+		focusTheme := &svgmap.FocusTheme{
+			ComponentIDs: result.Focus.ComponentIDs,
+			EdgeKeys:     result.Focus.EdgeKeys,
+			GroupIDs:     result.Focus.GroupIDs,
+		}
+		e.Themes = append(e.Themes, focusTheme)
+	}
+
 	style := svgmap.NewOctoStyle(result.Stages, indicators...)
 	e.Init(style)
 	err = e.Encode(result.Map)

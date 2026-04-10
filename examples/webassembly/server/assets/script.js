@@ -18,7 +18,8 @@ var gvar = this;
 			shareEl = document.querySelector("#share"),
 			applyEl = document.querySelector("#apply"),
 			shareURLEl = document.querySelector("#shareurl"),
-			errorEl = document.querySelector("#error");
+			errorEl = document.querySelector("#error"),
+			focusSelect = document.getElementById("focusSelect");
 
 		function show_status(text, hide) {
 			hide = hide || 0;
@@ -113,11 +114,66 @@ var gvar = this;
 			return result;
 		};
 
+		function extractComponentNames(text) {
+			var names = [];
+			var lines = text.split('\n');
+			for (var i = 0; i < lines.length; i++) {
+				var line = lines[i].trim();
+				if (line.startsWith('//') || line.startsWith('/*') || line === '') continue;
+				var m;
+				if ((m = line.match(/^(?:component|anchor|submap)\s+(.+?)\s*(?::|{|\s*$)/i))) {
+					names.push(m[1].trim());
+				} else if ((m = line.match(/^(.+?)\s*:\s*\|/))) {
+					// shorthand with evolution bar: "Name : |...|"
+					var name = m[1].trim();
+					if (!name.match(/^(title|date|author|scope|question|stages|doctrine)/i)) {
+						names.push(name);
+					}
+				}
+			}
+			// deduplicate
+			return names.filter(function(v, i, a) { return a.indexOf(v) === i; });
+		}
+
+		function populateFocusDropdown(text) {
+			var names = extractComponentNames(text);
+			var currentValue = focusSelect.value;
+			// clear all options except the first one
+			while (focusSelect.options.length > 1) {
+				focusSelect.remove(1);
+			}
+			for (var i = 0; i < names.length; i++) {
+				var opt = document.createElement('option');
+				opt.value = names[i];
+				opt.textContent = names[i];
+				focusSelect.appendChild(opt);
+			}
+			// restore selection if still valid
+			if (currentValue && names.indexOf(currentValue) >= 0) {
+				focusSelect.value = currentValue;
+			} else {
+				focusSelect.value = '';
+			}
+		}
+
+		function syncFocusFromEditor(text) {
+			var match = text.match(/^focus\s+(.+)$/m);
+			if (match) {
+				focusSelect.value = match[1].trim();
+			} else {
+				focusSelect.value = '';
+			}
+		}
+
 		function renderGraph() {
+			var text = editor.getSession().getDocument().getValue();
 			var w = parseInt(document.getElementById("width").value);
 			var h = parseInt(document.getElementById("height").value);
 
-			svg = generateSVG(editor.getSession().getDocument().getValue(),w,h, document.getElementById("annotations").checked);
+			populateFocusDropdown(text);
+			syncFocusFromEditor(text);
+
+			svg = generateSVG(text, w, h, document.getElementById("annotations").checked);
 			updateOutput(svg);
 			// include script from the SVG
 			gvar.eval(document.getElementById('SVGScript').textContent);
@@ -209,6 +265,20 @@ var gvar = this;
 		annotations.addEventListener('click', function(){
 			console.log("rendering")
 			renderGraph()
+		})
+
+		focusSelect.addEventListener('change', function(){
+			var text = editor.getSession().getDocument().getValue();
+			var selected = focusSelect.value;
+			// Remove existing focus line(s)
+			text = text.replace(/^focus\s+.+\n?/gm, '');
+			text = text.replace(/\n+$/, '\n');
+			if (selected) {
+				text = text + 'focus ' + selected + '\n';
+			}
+			editor.getSession().setValue(text);
+			renderGraph();
+			window.localStorage.setItem("wtg", editor.getSession().getDocument().getValue());
 		})
 
 		// Since apparently HTMLCollection does not implement the oh so convenient array functions
