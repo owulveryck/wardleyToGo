@@ -30,7 +30,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build WASM
-        run: GOOS=js GOARCH=wasm go build -o site/main.wasm ./exp/samplewtg2/wasm/
+        run: GOOS=js GOARCH=wasm go build -o site/main.wasm ./exp/ui/wasm/
 
       - name: Copy wasm_exec.js
         run: |
@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Copy index.html
-        run: cp exp/samplewtg2/index.html site/
+        run: cp exp/ui/index.html site/
 
       - name: Build wardley.js WASM
         run: |
