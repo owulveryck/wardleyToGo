@@ -150,6 +150,26 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .pill-group button.active { background: #0E2356; color: #00D2DD; }
 .pill-group button:hover:not(.active) { background: rgba(14, 35, 86, 0.06); }
 
+/* Pipeline multi-handle track */
+.evo-slider-track--secondary { opacity: 0.4; height: 24px; margin-bottom: 2px; }
+.evo-slider-track--secondary input[type="range"]::-webkit-slider-thumb { height: 20px; width: 10px; background: #586586; border-color: rgba(0,210,221,0.4); }
+.evo-slider-track--secondary input[type="range"]::-moz-range-thumb { height: 20px; width: 10px; background: #586586; border-color: rgba(0,210,221,0.4); }
+.pipeline-track { position: relative; height: 52px; margin-bottom: 4px; border-radius: 6px; overflow: visible; }
+.pipeline-track .evo-slider-phases { height: 100%; }
+.pipeline-span { position: absolute; top: 50%; transform: translateY(-50%); height: 6px; background: rgba(0,210,221,0.25); border-radius: 3px; z-index: 1; pointer-events: none; }
+.pipeline-handle { position: absolute; top: 0; height: 100%; width: 0; z-index: 3; cursor: grab; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateX(-50%); }
+.pipeline-handle.dragging { cursor: grabbing; z-index: 10; }
+.pipeline-handle-grip { width: 12px; height: 20px; background: #0E2356; border: 2px solid #00D2DD; border-radius: 3px; box-shadow: 0 1px 4px rgba(14,35,86,0.3); flex-shrink: 0; pointer-events: auto; }
+.pipeline-handle-grip:hover { box-shadow: 0 1px 6px rgba(0,210,221,0.4); }
+.pipeline-handle-label { position: absolute; bottom: calc(50% + 14px); font-size: 10px; color: #0E2356; white-space: nowrap; max-width: 80px; overflow: hidden; text-overflow: ellipsis; cursor: text; background: rgba(255,255,255,0.85); padding: 1px 5px; border-radius: 3px; pointer-events: auto; font-weight: 500; }
+.pipeline-handle--below .pipeline-handle-label { bottom: auto; top: calc(50% + 14px); }
+.pipeline-handle-evo { position: absolute; top: calc(50% + 12px); font-size: 9px; color: #00D2DD; font-family: 'SF Mono', monospace; font-weight: 600; pointer-events: none; }
+.pipeline-handle--below .pipeline-handle-evo { top: auto; bottom: calc(50% + 12px); }
+.pipeline-handle-remove { display: none; position: absolute; top: 2px; right: -8px; background: rgba(231,76,60,0.85); color: #fff; border: none; border-radius: 50%; width: 14px; height: 14px; font-size: 10px; line-height: 14px; text-align: center; cursor: pointer; z-index: 5; pointer-events: auto; }
+.pipeline-handle:hover .pipeline-handle-remove { display: block; }
+.pipeline-add-btn { position: absolute; right: -24px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border-radius: 50%; background: rgba(0,210,221,0.15); border: 1px solid rgba(0,210,221,0.4); color: #0E2356; font-size: 14px; line-height: 18px; text-align: center; cursor: pointer; z-index: 4; transition: all .15s ease; }
+.pipeline-add-btn:hover { background: rgba(0,210,221,0.3); border-color: #00D2DD; box-shadow: 0 1px 4px rgba(0,210,221,0.2); }
+
 /* Enrichment */
 .enrich-section { margin-bottom: 10px; }
 .enrich-section h4 { font-size: 12px; color: #6E7B9A; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
@@ -485,7 +505,7 @@ const TEMPLATES = {
             { name: "Automobiliste", kind: "anchor", evolution: 50, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
             { name: "Application Mobile", kind: "component", evolution: 62, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
             { name: "Itineraire Affiche", kind: "component", evolution: 55, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
-            { name: "Moteur de Calcul", kind: "component", evolution: 42, type: "build", evolving: true, evolvedTo: 62, inertia: 2 },
+            { name: "Moteur de Calcul", kind: "component", evolution: 42, type: "build", evolving: false, evolvedTo: 62, inertia: 0, isPipeline: true, pipelineMembers: [{ name: "Algo Dijkstra", evolution: 82 }, { name: "Algo Predictif IA", evolution: 37 }, { name: "Algo Quantique", evolution: 5 }] },
             { name: "Alertes Trafic", kind: "component", evolution: 37, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
             { name: "Flux Temps Reel", kind: "component", evolution: 27, type: "build", evolving: true, evolvedTo: 42, inertia: 1 },
             { name: "Modele de Donnees", kind: "component", evolution: 52, type: "buy", evolving: false, evolvedTo: 75, inertia: 0 },
@@ -597,6 +617,9 @@ const translations = {
         'enrich.signals': 'Signaux',
         'enrich.addSignal': '+ Ajouter un signal',
         'enrich.showLegend': 'Afficher la legende',
+        'evo.pipeline': 'Pipeline',
+        'pipeline.addMember': '+ Membre',
+        'pipeline.newMember': 'Nouveau membre',
         'group.defaultName': 'Nouveau groupe',
         'group.namePlaceholder': 'Nom du groupe',
         'annotation.note': 'Note',
@@ -673,6 +696,9 @@ const translations = {
         'enrich.signals': 'Signals',
         'enrich.addSignal': '+ Add signal',
         'enrich.showLegend': 'Show legend',
+        'evo.pipeline': 'Pipeline',
+        'pipeline.addMember': '+ Member',
+        'pipeline.newMember': 'New member',
         'group.defaultName': 'New group',
         'group.namePlaceholder': 'Group name',
         'annotation.note': 'Note',
@@ -809,7 +835,9 @@ function parseChains() {
                 type: '',
                 evolving: false,
                 evolvedTo: Math.min(99, evo + 15),
-                inertia: 0
+                inertia: 0,
+                isPipeline: false,
+                pipelineMembers: []
             });
         }
     }
@@ -881,6 +909,17 @@ function generateWTG2(state) {
     }
     if (comps.length) lines.push('');
 
+    // Pipelines
+    const pipelineComps = state.components.filter(c => c.isPipeline && c.pipelineMembers && c.pipelineMembers.length > 0);
+    for (const pc of pipelineComps) {
+        const valid = pc.pipelineMembers.filter(m => m.name && m.name.trim());
+        if (!valid.length) continue;
+        lines.push('pipeline ' + pc.name + ' {');
+        for (const m of valid) lines.push('  ' + m.name + ' : ' + evoToRoman(m.evolution));
+        lines.push('}');
+        lines.push('');
+    }
+
     // Edges
     for (const e of state.edges) {
         lines.push(e.from + ' -> ' + e.to);
@@ -950,6 +989,7 @@ function renderEvoList() {
     const container = document.getElementById('evo-list');
     container.innerHTML = wizardState.components.map((c, compIdx) => {
         const isAnchor = c.kind === 'anchor';
+        if (!isAnchor && c.isPipeline) return renderPipelineItem(c, compIdx);
         return `
         <div class="evo-item">
             <div class="evo-item-header">
@@ -990,9 +1030,70 @@ function renderEvoList() {
                     <option value="3" ${c.inertia === 3 ? 'selected' : ''}>${t('evo.inertia3')}</option>
                 </select>
                 ` : ''}
+                <label style="margin-left:8px">
+                    <input type="checkbox" onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
+                </label>
             </div>`}
         </div>`;
     }).join('');
+    initPipelineDrag();
+    initPipelineLabelClicks();
+}
+
+function renderPipelineItem(c, compIdx) {
+    const members = (c.pipelineMembers || []).slice().sort((a, b) => a.evolution - b.evolution);
+    const minEvo = members.length ? members[0].evolution : 0;
+    const maxEvo = members.length ? members[members.length - 1].evolution : 99;
+    const spanLeft = (minEvo / 99 * 100).toFixed(2);
+    const spanWidth = ((maxEvo - minEvo) / 99 * 100).toFixed(2);
+
+    const handles = members.map((m, sortedIdx) => {
+        const origIdx = c.pipelineMembers.indexOf(m);
+        const leftPct = (m.evolution / 99 * 100).toFixed(2);
+        const belowClass = sortedIdx % 2 !== 0 ? ' pipeline-handle--below' : '';
+        return `<div class="pipeline-handle${belowClass}" data-member-idx="${origIdx}" style="left:${leftPct}%">
+            <div class="pipeline-handle-grip" data-comp-idx="${compIdx}" data-member-idx="${origIdx}"></div>
+            <span class="pipeline-handle-label" data-comp-idx="${compIdx}" data-member-idx="${origIdx}">${escapeHtml(m.name)}</span>
+            <span class="pipeline-handle-evo">${evoToRoman(m.evolution)}</span>
+            <button class="pipeline-handle-remove" onclick="removePipelineMember(${compIdx},${origIdx})">&times;</button>
+        </div>`;
+    }).join('');
+
+    return `
+    <div class="evo-item evo-item--pipeline">
+        <div class="evo-item-header">
+            <span class="evo-item-name">${escapeHtml(c.name)}</span>
+            <span class="evo-item-pos" id="evo-pos-${compIdx}">${evoToRoman(c.evolution)}</span>
+        </div>
+        <div class="evo-slider-track evo-slider-track--secondary">
+            <div class="evo-slider-phases">
+                <div>I</div><div>II</div><div>III</div><div>IV</div>
+            </div>
+            <input type="range" min="0" max="99" value="${c.evolution}"
+                oninput="updateEvolution(${compIdx}, this.value)"
+                onchange="onWizardChange()">
+        </div>
+        <div class="pipeline-track" data-comp-idx="${compIdx}">
+            <div class="evo-slider-phases">
+                <div>I</div><div>II</div><div>III</div><div>IV</div>
+            </div>
+            ${members.length > 1 ? `<div class="pipeline-span" style="left:${spanLeft}%;width:${spanWidth}%"></div>` : ''}
+            ${handles}
+            <button class="pipeline-add-btn" onclick="addPipelineMember(${compIdx})" title="${t('pipeline.addMember')}">+</button>
+        </div>
+        <div class="evo-item-options">
+            <label>${t('evo.type')}</label>
+            <div class="pill-group">
+                <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
+                <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
+                <button class="${c.type === 'buy' ? 'active' : ''}" onclick="setType(${compIdx},'buy')">buy</button>
+                <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
+            </div>
+            <label style="margin-left:8px">
+                <input type="checkbox" checked onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
+            </label>
+        </div>
+    </div>`;
 }
 
 function renderGroups() {
@@ -1143,6 +1244,144 @@ function toggleEvolving(idx, checked) {
 function setInertia(idx, val) {
     wizardState.components[idx].inertia = parseInt(val);
     onWizardChange();
+}
+
+// ================================================================
+// 8b. Pipeline Actions
+// ================================================================
+
+function togglePipeline(compIdx, checked) {
+    const c = wizardState.components[compIdx];
+    c.isPipeline = checked;
+    if (checked && (!c.pipelineMembers || c.pipelineMembers.length === 0)) {
+        c.pipelineMembers = [
+            { name: c.name + ' (v1)', evolution: Math.max(0, c.evolution - 15) },
+            { name: c.name + ' (v2)', evolution: Math.min(99, c.evolution + 15) }
+        ];
+    }
+    if (!checked) c.pipelineMembers = [];
+    renderEvoList();
+    onWizardChange();
+}
+
+function addPipelineMember(compIdx) {
+    const c = wizardState.components[compIdx];
+    const members = c.pipelineMembers || [];
+    let midEvo = c.evolution;
+    if (members.length >= 2) {
+        const evos = members.map(m => m.evolution);
+        midEvo = Math.round((Math.min(...evos) + Math.max(...evos)) / 2);
+    }
+    c.pipelineMembers.push({ name: t('pipeline.newMember'), evolution: midEvo });
+    renderEvoList();
+    onWizardChange();
+}
+
+function removePipelineMember(compIdx, memberIdx) {
+    const c = wizardState.components[compIdx];
+    c.pipelineMembers.splice(memberIdx, 1);
+    if (c.pipelineMembers.length === 0) c.isPipeline = false;
+    renderEvoList();
+    onWizardChange();
+}
+
+// ================================================================
+// 8c. Pipeline Drag Handler (global listeners, grip listeners re-attached)
+// ================================================================
+
+let _pipelineDragState = { handle: null, compIdx: -1, memberIdx: -1, trackRect: null };
+
+function initPipelineDrag() {
+    // Only re-attach per-grip listeners; document-level listeners are set once below
+    document.querySelectorAll('.pipeline-handle-grip').forEach(grip => {
+        grip.addEventListener('mousedown', _pipelineDragStart);
+        grip.addEventListener('touchstart', _pipelineDragStart, { passive: false });
+    });
+}
+
+function _pipelineDragStart(e) {
+    const grip = e.target.closest('.pipeline-handle-grip');
+    if (!grip) return;
+    e.preventDefault();
+    const s = _pipelineDragState;
+    s.handle = grip.closest('.pipeline-handle');
+    s.compIdx = parseInt(grip.dataset.compIdx);
+    s.memberIdx = parseInt(grip.dataset.memberIdx);
+    s.trackRect = grip.closest('.pipeline-track').getBoundingClientRect();
+    s.handle.classList.add('dragging');
+    document.body.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none';
+}
+
+(function() {
+    function onMove(e) {
+        const s = _pipelineDragState;
+        if (!s.handle) return;
+        e.preventDefault();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let pct = (clientX - s.trackRect.left) / s.trackRect.width;
+        pct = Math.max(0, Math.min(1, pct));
+        const evo = Math.round(pct * 99);
+        s.handle.style.left = (pct * 100) + '%';
+        const evoLabel = s.handle.querySelector('.pipeline-handle-evo');
+        if (evoLabel) evoLabel.textContent = evoToRoman(evo);
+        wizardState.components[s.compIdx].pipelineMembers[s.memberIdx].evolution = evo;
+        const track = s.handle.closest('.pipeline-track');
+        const span = track ? track.querySelector('.pipeline-span') : null;
+        if (span) {
+            const evos = wizardState.components[s.compIdx].pipelineMembers.map(m => m.evolution);
+            const minE = Math.min(...evos), maxE = Math.max(...evos);
+            span.style.left = (minE / 99 * 100) + '%';
+            span.style.width = ((maxE - minE) / 99 * 100) + '%';
+        }
+        scheduleRender();
+    }
+    function onEnd() {
+        const s = _pipelineDragState;
+        if (!s.handle) return;
+        s.handle.classList.remove('dragging');
+        s.handle = null;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        onWizardChange();
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+})();
+
+// ================================================================
+// 8d. Pipeline Label Inline Editing
+// ================================================================
+
+function initPipelineLabelClicks() {
+    document.querySelectorAll('.pipeline-handle-label').forEach(label => {
+        label.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const compIdx = parseInt(this.dataset.compIdx);
+            const memberIdx = parseInt(this.dataset.memberIdx);
+            const currentName = wizardState.components[compIdx].pipelineMembers[memberIdx].name;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentName;
+            input.style.cssText = 'font-size:10px;width:80px;padding:1px 4px;border:1px solid #00D2DD;border-radius:3px;outline:none;background:#fff;color:#0E2356;font-family:inherit;';
+            this.replaceWith(input);
+            input.focus();
+            input.select();
+            function commit() {
+                const val = input.value.trim().replace(/:/g, '');
+                if (val) wizardState.components[compIdx].pipelineMembers[memberIdx].name = val;
+                renderEvoList();
+                onWizardChange();
+            }
+            input.addEventListener('blur', commit);
+            input.addEventListener('keydown', function(ev) {
+                if (ev.key === 'Enter') { ev.preventDefault(); commit(); }
+                if (ev.key === 'Escape') { ev.preventDefault(); renderEvoList(); }
+            });
+        });
+    });
 }
 
 function addGroup() {
@@ -1586,7 +1825,11 @@ function loadState() {
             wizardState = {
                 meta: parsed.meta || { title: '', author: '', question: '' },
                 stages: parsed.stages || ['', '', '', ''],
-                components: parsed.components || [],
+                components: (parsed.components || []).map(c => ({
+                    ...c,
+                    isPipeline: c.isPipeline || false,
+                    pipelineMembers: c.pipelineMembers || []
+                })),
                 edges: parsed.edges || [],
                 groups: parsed.groups || [],
                 annotations: parsed.annotations || [],
