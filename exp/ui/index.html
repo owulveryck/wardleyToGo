@@ -118,6 +118,11 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .comp-item .comp-focus.active { color: #00D2DD; }
 .comp-item .comp-remove { background: none; border: none; color: #B7BDCC; cursor: pointer; font-size: 14px; padding: 0 4px; transition: color .15s; }
 .comp-item .comp-remove:hover { color: #e74c3c; }
+.comp-item .comp-type-toggle { border: 1px solid rgba(14, 35, 86, 0.12); border-radius: 6px; padding: 2px 8px; font-size: 10px; font-weight: 500; cursor: pointer; text-transform: uppercase; transition: all .2s ease; background: rgba(255, 255, 255, 0.5); color: #B7BDCC; min-width: 28px; text-align: center; }
+.comp-item .comp-type-toggle:hover { border-color: rgba(14, 35, 86, 0.25); }
+.comp-item .comp-type-toggle.build { background: #d6d6d6; color: #333; border-color: #bbb; }
+.comp-item .comp-type-toggle.buy { background: #AAA5A9; color: #fff; border-color: #918c90; }
+.comp-item .comp-type-toggle.outsource { background: #444; color: #fff; border-color: #333; }
 
 /* Evolution sliders */
 .evo-list { display: flex; flex-direction: column; gap: 8px; }
@@ -577,6 +582,7 @@ const translations = {
         'comp.component': 'composant',
         'comp.delete': 'Supprimer',
         'comp.focus': 'Focus',
+        'comp.typeToggle': 'Changer le type (build / buy / outsource)',
         'evo.type': 'Type:',
         'evo.evolution': 'Evolution',
         'evo.towards': 'vers',
@@ -652,6 +658,7 @@ const translations = {
         'comp.component': 'component',
         'comp.delete': 'Delete',
         'comp.focus': 'Focus',
+        'comp.typeToggle': 'Change type (build / buy / outsource)',
         'evo.type': 'Type:',
         'evo.evolution': 'Evolution',
         'evo.towards': 'to',
@@ -932,6 +939,7 @@ function renderCompList() {
         <div class="comp-item">
             <span class="comp-name">${escapeHtml(c.name)}</span>
             <span class="comp-badge ${c.kind === 'anchor' ? 'anchor' : ''}">${c.kind === 'anchor' ? t('comp.anchor') : t('comp.component')}</span>
+            ${c.kind !== 'anchor' ? `<button class="comp-type-toggle ${c.type || ''}" onclick="cycleType(${i})" title="${t('comp.typeToggle')}">${c.type || '\u2014'}</button>` : ''}
             <button class="comp-focus ${wizardState.focus === c.name ? 'active' : ''}" onclick="toggleFocus(${i})" title="${t('comp.focus')}">&#9678;</button>
             <button class="comp-remove" onclick="removeComponent(${i})" title="${t('comp.delete')}">&times;</button>
         </div>
@@ -1108,6 +1116,17 @@ function updateEvolvedTo(idx, val) {
 
 function setType(idx, type) {
     wizardState.components[idx].type = type;
+    renderCompList();
+    renderEvoList();
+    onWizardChange();
+}
+
+function cycleType(idx) {
+    const order = ['', 'build', 'buy', 'outsource'];
+    const current = wizardState.components[idx].type || '';
+    const next = order[(order.indexOf(current) + 1) % order.length];
+    wizardState.components[idx].type = next;
+    renderCompList();
     renderEvoList();
     onWizardChange();
 }
