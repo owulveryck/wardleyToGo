@@ -51,6 +51,10 @@ func wtgWrapper() js.Func {
 	return wtgFunc
 }
 
+// svgBuf is reused across calls to avoid repeated allocation and GC pressure.
+// WASM is single-threaded, so no synchronization is needed.
+var svgBuf bytes.Buffer
+
 func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, error) {
 	p, err := wtg2.NewParser(bytes.NewBufferString(s))
 	if err != nil {
@@ -66,7 +70,8 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 		return "", err
 	}
 
-	output := new(bytes.Buffer)
+	svgBuf.Reset()
+	output := &svgBuf
 
 	legendWidth := 0
 	if result.Legend && len(result.LegendItems) > 0 {

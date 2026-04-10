@@ -2,7 +2,6 @@ package svgmap
 
 import (
 	"encoding/xml"
-	"fmt"
 	"image"
 	"image/color"
 	"io"
@@ -33,7 +32,7 @@ func NewEncoder(w io.Writer, box image.Rectangle, canvas image.Rectangle) (*Enco
 		Width:               "100%",
 		Height:              "100%",
 		PreserveAspectRatio: "xMidYMid meet",
-		ViewBox:             fmt.Sprintf("%v %v %v %v", box.Min.X, box.Min.Y, box.Max.X, box.Max.Y),
+		ViewBox:             strconv.Itoa(box.Min.X) + " " + strconv.Itoa(box.Min.Y) + " " + strconv.Itoa(box.Max.X) + " " + strconv.Itoa(box.Max.Y),
 	}.StartSVG()
 	if err := e.EncodeToken(start); err != nil {
 		return nil, err
@@ -43,7 +42,10 @@ func NewEncoder(w io.Writer, box image.Rectangle, canvas image.Rectangle) (*Enco
 		box:    box,
 		canvas: canvas,
 		e:      e,
-		Themes: []Theme{&CSSTheme{}, &JSTheme{}},
+		Themes: func() []Theme {
+			css := &CSSTheme{}
+			return []Theme{css, &JSTheme{CSS: css}}
+		}(),
 	}, nil
 }
 
@@ -119,14 +121,14 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 						found = true
 						g.Attr[i] = xml.Attr{
 							Name:  xml.Name{Local: "class"},
-							Value: fmt.Sprintf("%v %v", g.Attr[i].Value, chainer.GetAbsoluteVisibility()),
+							Value: g.Attr[i].Value + " " + strconv.Itoa(chainer.GetAbsoluteVisibility()),
 						}
 					}
 				}
 				if !found {
 					g.Attr = append(g.Attr, xml.Attr{
 						Name:  xml.Name{Local: "class"},
-						Value: fmt.Sprintf("visibility%v", chainer.GetAbsoluteVisibility()),
+						Value: "visibility" + strconv.Itoa(chainer.GetAbsoluteVisibility()),
 					})
 				}
 			}
@@ -148,14 +150,14 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 						found = true
 						g.Attr[i] = xml.Attr{
 							Name:  xml.Name{Local: "class"},
-							Value: fmt.Sprintf("%v %v", g.Attr[i].Value, chainer.GetAbsoluteVisibility()),
+							Value: g.Attr[i].Value + " " + strconv.Itoa(chainer.GetAbsoluteVisibility()),
 						}
 					}
 				}
 				if !found {
 					g.Attr = append(g.Attr, xml.Attr{
 						Name:  xml.Name{Local: "class"},
-						Value: fmt.Sprintf("visibility%v", chainer.GetAbsoluteVisibility()),
+						Value: "visibility" + strconv.Itoa(chainer.GetAbsoluteVisibility()),
 					})
 				}
 			}

@@ -6,6 +6,7 @@ WASMEXEC := $(shell test -f "$(GOROOT)/misc/wasm/wasm_exec.js" && echo "$(GOROOT
 
 main.wasm: wasm/main.go
 	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o $@ ./wasm/
+	@command -v wasm-opt >/dev/null 2>&1 && { echo "Optimizing WASM with wasm-opt..."; wasm-opt -Oz -o $@ $@; } || true
 
 wasm_exec.js:
 	cp "$(WASMEXEC)" .

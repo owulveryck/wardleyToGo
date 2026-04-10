@@ -87,6 +87,17 @@ type componentPos struct {
 // candidateBBox converts a candidate's SVG pixel offset to 100-unit space
 // and computes the label bounding box.
 func candidateBBox(c candidate, comp Component, opts Options) Rect {
+	maxChars := comp.MaxChars
+	if maxChars == 0 {
+		maxChars = opts.MaxCharsPerLine
+	}
+	m := computeLabelMetrics(comp.Label, maxChars)
+	return candidateBBoxWithMetrics(c, comp, m, opts)
+}
+
+// candidateBBoxWithMetrics uses pre-computed label metrics to avoid repeated
+// splitString calls when evaluating multiple candidates for the same component.
+func candidateBBoxWithMetrics(c candidate, comp Component, m labelMetrics, opts Options) Rect {
 	pxPerUnitX := float64(opts.CanvasWidth) / float64(opts.MapSize)
 	pxPerUnitY := float64(opts.CanvasHeight) / float64(opts.MapSize)
 
@@ -96,12 +107,7 @@ func candidateBBox(c candidate, comp Component, opts Options) Rect {
 	cx := float64(comp.Position.X) + unitDX
 	cy := float64(comp.Position.Y) + unitDY
 
-	maxChars := comp.MaxChars
-	if maxChars == 0 {
-		maxChars = opts.MaxCharsPerLine
-	}
-
-	return estimateBBox(comp.Label, maxChars, cx, cy, c.anchor, opts)
+	return bboxFromMetrics(m, cx, cy, c.anchor, opts)
 }
 
 // componentCircle returns a bounding Rect for a component's circle in

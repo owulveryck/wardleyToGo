@@ -18,24 +18,41 @@ func intersectionArea(a, b Rect) float64 {
 	return overlapX * overlapY
 }
 
-// estimateBBox computes the bounding box of a label in 100-unit map space.
-// cx, cy is the label anchor point (component position + offset in unit space).
-// anchor is the text-anchor value (AnchorStart, AnchorMiddle, AnchorEnd).
-func estimateBBox(label string, maxChars int, cx, cy float64, anchor int, opts Options) Rect {
+// labelMetrics holds pre-computed text dimensions for a label, avoiding
+// repeated splitString calls across candidate evaluations.
+type labelMetrics struct {
+	nLines     int
+	maxLineLen int
+}
+
+// computeLabelMetrics splits the label once and returns its dimensions.
+func computeLabelMetrics(label string, maxChars int) labelMetrics {
 	if maxChars == 0 {
 		maxChars = 8
 	}
 	lines := splitString(label, maxChars)
-
-	maxLineLen := 0
+	maxLen := 0
 	for _, line := range lines {
-		if len(line) > maxLineLen {
-			maxLineLen = len(line)
+		if len(line) > maxLen {
+			maxLen = len(line)
 		}
 	}
+	return labelMetrics{nLines: len(lines), maxLineLen: maxLen}
+}
 
-	width := float64(maxLineLen)*opts.CharWidth + opts.Padding*2
-	height := float64(len(lines))*opts.LineHeight + opts.Padding*2
+// estimateBBox computes the bounding box of a label in 100-unit map space.
+// cx, cy is the label anchor point (component position + offset in unit space).
+// anchor is the text-anchor value (AnchorStart, AnchorMiddle, AnchorEnd).
+func estimateBBox(label string, maxChars int, cx, cy float64, anchor int, opts Options) Rect {
+	m := computeLabelMetrics(label, maxChars)
+	return bboxFromMetrics(m, cx, cy, anchor, opts)
+}
+
+// bboxFromMetrics computes the bounding box using pre-computed label metrics,
+// avoiding repeated splitString calls.
+func bboxFromMetrics(m labelMetrics, cx, cy float64, anchor int, opts Options) Rect {
+	width := float64(m.maxLineLen)*opts.CharWidth + opts.Padding*2
+	height := float64(m.nLines)*opts.LineHeight + opts.Padding*2
 
 	var left float64
 	switch anchor {

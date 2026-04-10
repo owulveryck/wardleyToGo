@@ -78,8 +78,8 @@ func generate(_ js.Value, args []js.Value) any {
 		legendWidth = svgmap.LegendWidth * scalePct / 100
 	}
 
-	output := new(bytes.Buffer)
-	e, err := svgmap.NewEncoder(output,
+	svgBuf.Reset()
+	e, err := svgmap.NewEncoder(&svgBuf,
 		image.Rect(0, 0, boxW+legendWidth, boxH),
 		image.Rect(marginL, marginT, boxW-marginR, boxH-marginB))
 	if err != nil {
@@ -116,5 +116,9 @@ func generate(_ js.Value, args []js.Value) any {
 		return fmt.Sprintf("error: %v", err)
 	}
 	e.Close()
-	return output.String()
+	return svgBuf.String()
 }
+
+// svgBuf is reused across calls to avoid repeated allocation and GC pressure.
+// WASM is single-threaded, so no synchronization is needed.
+var svgBuf bytes.Buffer

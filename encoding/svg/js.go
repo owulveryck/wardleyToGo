@@ -17,12 +17,19 @@ var jsTmpl = template.Must(template.New("JS").Parse(embededJS))
 
 // JSTheme embeds JavaScript for interactive toggling of links and visibility.
 // It also implements ComponentDecorator to add onclick handlers to components.
-type JSTheme struct{}
+// CSS holds a pointer to the CSSTheme so that visibility data is computed only once.
+type JSTheme struct {
+	CSS *CSSTheme
+}
 
 func (t *JSTheme) Embed(enc *xml.Encoder, m *wardleyToGo.Map) error {
 	var buf bytes.Buffer
 	data := generateJsData(m)
-	data.Visibility = generateCSSData(m)
+	if t.CSS != nil && t.CSS.CachedData != nil {
+		data.Visibility = t.CSS.CachedData
+	} else {
+		data.Visibility = generateCSSData(m)
+	}
 	if err := jsTmpl.Execute(&buf, data); err != nil {
 		return err
 	}

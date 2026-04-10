@@ -126,15 +126,27 @@ func PlaceLabels(comps []Component, opts Options) map[string]Result {
 		return comps[indexed[a].index].Position.Y < comps[indexed[b].index].Position.Y
 	})
 
+	// Pre-compute label metrics once per component to avoid repeated
+	// splitString calls across the 14 candidate evaluations.
+	metrics := make([]labelMetrics, len(comps))
+	for i, c := range comps {
+		maxChars := c.MaxChars
+		if maxChars == 0 {
+			maxChars = opts.MaxCharsPerLine
+		}
+		metrics[i] = computeLabelMetrics(c.Label, maxChars)
+	}
+
 	placed := make([]Rect, 0, len(comps))
 
 	for _, ic := range indexed {
 		comp := comps[ic.index]
+		m := metrics[ic.index]
 		bestScore := math.Inf(-1)
 		bestIdx := 0
 
 		for ci, cand := range defaultCandidates {
-			bbox := candidateBBox(cand, comp, opts)
+			bbox := candidateBBoxWithMetrics(cand, comp, m, opts)
 			preferRight := cand.name == "right"
 			score := scoreCandidate(bbox, placed, circles, preferRight)
 
@@ -151,7 +163,7 @@ func PlaceLabels(comps []Component, opts Options) map[string]Result {
 		}
 
 		// Record the chosen bbox so subsequent labels avoid it.
-		placed = append(placed, candidateBBox(best, comp, opts))
+		placed = append(placed, candidateBBoxWithMetrics(best, comp, m, opts))
 	}
 
 	return results

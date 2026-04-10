@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/owulveryck/wardleyToGo"
@@ -220,7 +221,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 			if c.LabelPlacement.X != components.UndefinedCoord {
 				continue
 			}
-			key := fmt.Sprintf("anchor:%s@%d,%d", c.Label, c.Placement.X, c.Placement.Y)
+			key := "anchor:" + c.Label + "@" + strconv.Itoa(c.Placement.X) + "," + strconv.Itoa(c.Placement.Y)
 			labelTargets[key] = labelTarget{anchor: c}
 			labelComps = append(labelComps, labels.Component{
 				Name:     key,
@@ -231,7 +232,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 			if c.LabelPlacement.X != components.UndefinedCoord {
 				continue
 			}
-			key := fmt.Sprintf("%s@%d,%d", c.Label, c.Placement.X, c.Placement.Y)
+			key := c.Label + "@" + strconv.Itoa(c.Placement.X) + "," + strconv.Itoa(c.Placement.Y)
 			labelTargets[key] = labelTarget{comp: c}
 			labelComps = append(labelComps, labels.Component{
 				Name:       key,
@@ -243,7 +244,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 			if c.LabelPlacement.X != components.UndefinedCoord {
 				continue
 			}
-			key := fmt.Sprintf("%s@%d,%d", c.Label, c.Placement.X, c.Placement.Y)
+			key := c.Label + "@" + strconv.Itoa(c.Placement.X) + "," + strconv.Itoa(c.Placement.Y)
 			labelTargets[key] = labelTarget{evolved: c}
 			labelComps = append(labelComps, labels.Component{
 				Name:     key,

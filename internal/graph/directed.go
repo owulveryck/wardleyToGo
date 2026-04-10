@@ -15,6 +15,10 @@ type DirectedGraph struct {
 	from   map[int64]map[int64]Edge // from[uid][vid] = edge
 	to     map[int64]map[int64]Edge // to[vid][uid] = edge
 	nextID int64
+
+	// cachedNodes holds the sorted node list. It is invalidated (set to nil)
+	// whenever nodes are added or removed.
+	cachedNodes []Node
 }
 
 // NewDirectedGraph returns an empty directed graph.
@@ -47,6 +51,7 @@ func (g *DirectedGraph) AddNode(n Node) {
 		panic("graph: node already exists")
 	}
 	g.nodes[id] = n
+	g.cachedNodes = nil // invalidate cache
 	if g.from[id] == nil {
 		g.from[id] = make(map[int64]Edge)
 	}
@@ -65,17 +70,22 @@ func (g *DirectedGraph) Node(id int64) Node {
 }
 
 // Nodes returns an iterator over all nodes, sorted by ID for determinism.
+// The result is cached and reused until the graph is mutated.
 func (g *DirectedGraph) Nodes() *Nodes {
-	ids := make([]int64, 0, len(g.nodes))
-	for id := range g.nodes {
-		ids = append(ids, id)
+	if g.cachedNodes == nil {
+		ids := make([]int64, 0, len(g.nodes))
+		for id := range g.nodes {
+			ids = append(ids, id)
+		}
+		sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+		nodes := make([]Node, len(ids))
+		for i, id := range ids {
+			nodes[i] = g.nodes[id]
+		}
+		g.cachedNodes = nodes
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
-	nodes := make([]Node, len(ids))
-	for i, id := range ids {
-		nodes[i] = g.nodes[id]
-	}
-	return NewNodes(nodes)
+	// Return a fresh iterator over the shared slice (iterator state is per-call).
+	return NewNodes(g.cachedNodes)
 }
 
 // SetEdge adds or replaces an edge. Both endpoints must already exist.

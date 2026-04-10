@@ -4,6 +4,7 @@ all: assets/wtg.wasm assets/wasm_exec.js assets/index.html assets/script.js asse
 
 assets/wtg.wasm: wasm/*.go
 	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o $@ $^
+	@command -v wasm-opt >/dev/null 2>&1 && { echo "Optimizing WASM with wasm-opt..."; wasm-opt -Oz -o $@ $@; } || true
 
 assets/wasm_exec.js: $(WASMEXEC)
 	cp $^ $@

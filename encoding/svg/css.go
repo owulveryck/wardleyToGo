@@ -4,7 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/xml"
-	"fmt"
+	"strconv"
 	"text/template"
 
 	"github.com/owulveryck/wardleyToGo"
@@ -16,13 +16,16 @@ var embededCSS string
 var cssTmpl = template.Must(template.New("CSS").Parse(embededCSS))
 
 // CSSTheme embeds CSS styling for evolution animations, visibility opacity,
-// and component text styling.
-type CSSTheme struct{}
+// and component text styling. After Embed is called, CachedData holds the
+// computed visibility data so that JSTheme can reuse it without recomputation.
+type CSSTheme struct {
+	CachedData []cssVisibility
+}
 
 func (t *CSSTheme) Embed(enc *xml.Encoder, m *wardleyToGo.Map) error {
 	var buf bytes.Buffer
-	cssData := generateCSSData(m)
-	if err := cssTmpl.Execute(&buf, cssData); err != nil {
+	t.CachedData = generateCSSData(m)
+	if err := cssTmpl.Execute(&buf, t.CachedData); err != nil {
 		return err
 	}
 	return enc.Encode(style{Data: buf.String()})
@@ -41,8 +44,8 @@ func generateCSSData(w *wardleyToGo.Map) []cssVisibility {
 	output := make([]cssVisibility, maxVisibility+1)
 	for i := 0; i <= maxVisibility; i++ {
 		output[i] = cssVisibility{
-			Visibility: fmt.Sprintf("visibility%v", i),
-			Opacity:    fmt.Sprintf("%0.2f", 1-float64(i)*step),
+			Visibility: "visibility" + strconv.Itoa(i),
+			Opacity:    strconv.FormatFloat(1-float64(i)*step, 'f', 2, 64),
 		}
 	}
 	return output
