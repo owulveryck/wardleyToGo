@@ -1,7 +1,7 @@
 # WardleyToGo
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/owulveryck/wardleyToGo.svg)](https://pkg.go.dev/github.com/owulveryck/wardleyToGo)
-[![codecov](https://codecov.io/gh/owulveryck/wardleyToGo/branch/main/graph/badge.svg?token=9BQW1KMGJS)](https://codecov.io/gh/owulveryck/wardleyToGo)
+[![Try it online](https://img.shields.io/badge/Try%20it-online-blue?logo=github)](https://owulveryck.github.io/wardleyToGo)
 
 A Go library and tools for creating and rendering [Wardley Maps](https://en.wikipedia.org/wiki/Wardley_map).
 
