@@ -214,6 +214,14 @@ func (l *defaultLayouter) Layout(g *Graph) map[string]int {
 		}
 	}
 
+	// Collect pipeline parents for force-directed spacing: pipeline
+	// parents need extra vertical clearance because they render as
+	// rectangles taller than regular component circles.
+	pipelineParents := make(map[string]bool)
+	for _, pl := range g.Pipelines {
+		pipelineParents[pl.Parent] = true
+	}
+
 	// Compute effectiveMaxRank: highest rank among non-pipeline-member
 	// nodes. Disconnected pipeline members get inflated ranks from
 	// topoRanks, but they inherit their parent's Y later, so their
@@ -241,7 +249,16 @@ func (l *defaultLayouter) Layout(g *Graph) map[string]int {
 		}
 	}
 
-	positions = forceSpread(positions, g.Edges, pipelineMembers, ranks, effectiveMaxRank, l.opts)
+	positions = forceSpread(positions, g.Edges, pipelineMembers, pipelineParents, ranks, effectiveMaxRank, l.opts)
+
+	// Phase 2.5: separate pipeline parents that are too close.
+	// Pipeline parents render as rectangles taller than regular component
+	// circles, so they need extra clearance. Sort all non-pipeline-member
+	// nodes by Y, then push apart consecutive nodes where either is a
+	// pipeline parent.
+	if len(pipelineParents) > 1 {
+		spreadPipelineParents(positions, pipelineMembers, pipelineParents, float64(l.opts.MinSpacing), maxY)
+	}
 
 	// Phase 3: round to int, apply pipeline inheritance, clamp
 	result := make(map[string]int, len(positions))

@@ -661,6 +661,65 @@ func TestLayout_PipelineMemberOutgoingEdge(t *testing.T) {
 	}
 }
 
+func TestLayout_MultiplePipelinesSpacing(t *testing.T) {
+	// 4 pipeline parents (3 at the same rank) must not overlap visually.
+	// This reproduces the bug where multiple pipelines were crammed together.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Anchor", Kind: KindAnchor},
+			{Name: "Mid"},
+			{Name: "P1"}, // pipeline parent
+			{Name: "P2"}, // pipeline parent, same rank as P1
+			{Name: "P3"}, // pipeline parent, same rank as P1
+			{Name: "P4"}, // pipeline parent, one rank deeper
+			{Name: "Leaf"},
+		},
+		Edges: []Edge{
+			{From: "Anchor", To: "Mid"},
+			{From: "Mid", To: "P1"},
+			{From: "Mid", To: "P2"},
+			{From: "Mid", To: "P3"},
+			{From: "P1", To: "P4"},
+			{From: "P4", To: "Leaf"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "P1", Members: []string{"P1M1", "P1M2"}},
+			{Parent: "P2", Members: []string{"P2M1", "P2M2"}},
+			{Parent: "P3", Members: []string{"P3M1", "P3M2"}},
+			{Parent: "P4", Members: []string{"P4M1", "P4M2"}},
+		},
+	}
+
+	l := New(DefaultOptions())
+	pos := l.Layout(g)
+
+	opts := DefaultOptions()
+
+	// Pipeline parents at the same rank should be spaced at least
+	// MinSpacing * 2 apart (conservative check for 3× repulsion).
+	minGap := opts.MinSpacing * 2
+	for _, pair := range [][2]string{{"P1", "P2"}, {"P2", "P3"}, {"P1", "P3"}} {
+		diff := pos[pair[0]] - pos[pair[1]]
+		if diff < 0 {
+			diff = -diff
+		}
+		if diff < minGap {
+			t.Errorf("%s.Y=%d and %s.Y=%d are only %d apart, want >= %d",
+				pair[0], pos[pair[0]], pair[1], pos[pair[1]], diff, minGap)
+		}
+	}
+
+	// All nodes in range
+	for _, name := range []string{"Anchor", "Mid", "P1", "P2", "P3", "P4", "Leaf"} {
+		assertInRange(t, pos, name)
+	}
+
+	// Pipeline members inherit parent Y
+	if pos["P1M1"] != pos["P1"] {
+		t.Errorf("P1M1.Y=%d should equal P1.Y=%d", pos["P1M1"], pos["P1"])
+	}
+}
+
 func assertInRange(t *testing.T, pos map[string]int, name string) {
 	t.Helper()
 	opts := DefaultOptions()

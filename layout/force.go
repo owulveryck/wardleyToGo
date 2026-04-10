@@ -35,6 +35,7 @@ func forceSpread(
 	positions map[string]float64,
 	edges []Edge,
 	pipelineMembers map[string]bool,
+	pipelineParents map[string]bool,
 	ranks map[string]int,
 	maxRank int,
 	opts Options,
@@ -102,13 +103,20 @@ func forceSpread(
 		// Pairwise repulsion between all active nodes (including pinned for repulsion source).
 		// Same-rank nodes get a weaker repulsion (30%) to separate them
 		// without compressing the overall layout.
+		// Pipeline parents use 3× MinSpacing because their visual footprint
+		// (the pipeline rectangle) is much taller than a regular component circle.
 		for i := 0; i < len(allNames); i++ {
 			for j := i + 1; j < len(allNames); j++ {
 				a, b := allNames[i], allNames[j]
 				dy := positions[b] - positions[a]
 				absDy := math.Abs(dy)
 
-				if absDy < minSpacing {
+				effectiveSpacing := minSpacing
+				if pipelineParents[a] || pipelineParents[b] {
+					effectiveSpacing = minSpacing * 3
+				}
+
+				if absDy < effectiveSpacing {
 					if absDy < 0.1 {
 						absDy = 0.1
 						if dy >= 0 {
@@ -118,7 +126,7 @@ func forceSpread(
 						}
 					}
 					strength := opts.RepulsionStrength
-					if ranks[a] == ranks[b] {
+					if ranks[a] == ranks[b] && !pipelineParents[a] && !pipelineParents[b] {
 						strength *= 0.3
 					}
 					force := strength / (absDy * absDy)
@@ -203,7 +211,7 @@ func forceSpread(
 			}
 			return positions[sortedByRank[i]] < positions[sortedByRank[j]]
 		})
-		enforceRankOrder(positions, sortedByRank, ranks, minY, maxY, minSpacing)
+		enforceRankOrder(positions, sortedByRank, ranks, minY, maxY, minSpacing, pipelineParents)
 
 		damping *= 0.98
 	}
@@ -223,12 +231,52 @@ func forceSpread(
 //
 // Anchor nodes (rank 0) are left untouched because they are already
 // pinned at the top of the map.
-func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[string]int, minY, _, minSpacing float64) {
+
+// spreadPipelineParents is a post-processing pass that ensures pipeline
+// parents have sufficient vertical separation. It sorts all non-pipeline-member
+// nodes by Y position, then sweeps forward: when two consecutive nodes include
+// at least one pipeline parent, they must be at least pipelineSpacing apart.
+// Pushed nodes are clamped to maxY.
+func spreadPipelineParents(positions map[string]float64, pipelineMembers, pipelineParents map[string]bool, minSpacing, maxY float64) {
+	pipelineSpacing := minSpacing * 3
+
+	// Collect non-pipeline-member nodes sorted by Y position.
+	sorted := make([]string, 0, len(positions))
+	for name := range positions {
+		if !pipelineMembers[name] {
+			sorted = append(sorted, name)
+		}
+	}
+	sort.Slice(sorted, func(i, j int) bool {
+		return positions[sorted[i]] < positions[sorted[j]]
+	})
+
+	// Sweep forward: push nodes down when a pipeline parent pair is too close.
+	for i := 1; i < len(sorted); i++ {
+		prev := sorted[i-1]
+		cur := sorted[i]
+		if !pipelineParents[prev] && !pipelineParents[cur] {
+			continue
+		}
+		gap := positions[cur] - positions[prev]
+		if gap < pipelineSpacing {
+			positions[cur] = positions[prev] + pipelineSpacing
+			if positions[cur] > maxY {
+				positions[cur] = maxY
+			}
+		}
+	}
+}
+
+func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[string]int, minY, _ float64, minSpacing float64, pipelineParents map[string]bool) {
 	// sorted is expected to be pre-sorted by rank then by position.
 	// Sweep forward per rank group: enforce minSpacing only between
 	// different rank groups, not between siblings at the same rank.
+	// Pipeline parents use 3× minSpacing because their visual rectangle
+	// is taller than a regular component.
 	prevRank := -1
 	prevRankMaxY := minY - minSpacing
+	prevRankMaxName := ""
 	currentRankMinAllowed := minY
 
 	for _, name := range sorted {
@@ -236,7 +284,11 @@ func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[s
 		if r != prevRank {
 			// Entering a new rank group — compute minimum allowed Y
 			// based on the previous group's maximum.
-			currentRankMinAllowed = prevRankMaxY + minSpacing
+			spacing := minSpacing
+			if pipelineParents[prevRankMaxName] || pipelineParents[name] {
+				spacing = minSpacing * 3
+			}
+			currentRankMinAllowed = prevRankMaxY + spacing
 			prevRank = r
 		}
 		if r > 0 && positions[name] < currentRankMinAllowed {
@@ -246,6 +298,7 @@ func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[s
 		// transition to the next rank, this becomes prevRankMaxY.
 		if positions[name] > prevRankMaxY {
 			prevRankMaxY = positions[name]
+			prevRankMaxName = name
 		}
 	}
 }
