@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WTG2 Playground</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/monokai.min.css">
     <style>
@@ -36,7 +39,7 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
 
 /* === MAIN LAYOUT === */
 #main { display: flex; flex: 1; overflow: hidden; }
-#left-pane { width: 40%; display: flex; flex-direction: column; overflow: hidden; min-width: 280px; }
+#left-pane { width: 22%; display: flex; flex-direction: column; overflow: hidden; min-width: 280px; }
 #divider { width: 4px; background: #444; cursor: col-resize; flex-shrink: 0; transition: background .15s; }
 #divider:hover, #divider.dragging { background: #5e9ed6; }
 #right-pane { flex: 1; overflow: auto; background: #fff; display: flex; align-items: center; justify-content: center; }
@@ -89,6 +92,9 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
 .comp-item .comp-name { flex: 1; }
 .comp-item .comp-badge { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: #3a3a3a; color: #aaa; text-transform: uppercase; }
 .comp-item .comp-badge.anchor { background: #1a3a2a; color: #6ab04c; }
+.comp-item .comp-focus { background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 0 4px; }
+.comp-item .comp-focus:hover { color: #5e9ed6; }
+.comp-item .comp-focus.active { color: #f0c040; }
 .comp-item .comp-remove { background: none; border: none; color: #666; cursor: pointer; font-size: 14px; padding: 0 4px; }
 .comp-item .comp-remove:hover { color: #e74c3c; }
 
@@ -174,15 +180,15 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
 <body>
     <!-- === HEADER === -->
     <div id="toolbar">
-        <h1>WTG2 Playground</h1>
+        <h1 data-i18n="toolbar.title">WTG2 Playground</h1>
         <div class="mode-toggle">
-            <button id="mode-guided" class="active" onclick="setMode('guided')">Guide</button>
-            <button id="mode-editor" onclick="setMode('editor')">Editeur</button>
+            <button id="mode-guided" class="active" onclick="setMode('guided')" data-i18n="mode.guided">Guide</button>
+            <button id="mode-editor" onclick="setMode('editor')" data-i18n="mode.editor">Editeur</button>
         </div>
         <div class="toolbar-spacer"></div>
         <div class="toolbar-secondary">
             <div class="toolbar-group">
-                <label>Ratio</label>
+                <label data-i18n="toolbar.ratio">Ratio</label>
                 <select id="ratio">
                     <option value="1200,900" selected>4:3</option>
                     <option value="1600,900">16:9</option>
@@ -193,32 +199,38 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
             </div>
             <div class="separator"></div>
             <div class="toolbar-group">
-                <label for="resolution">Def.</label>
+                <label for="resolution" data-i18n="toolbar.resolution">Def.</label>
                 <input type="range" id="resolution" min="50" max="300" step="25" value="100">
                 <span id="res-label">100%</span>
             </div>
             <div class="separator"></div>
             <div class="toolbar-group">
-                <button id="dl-svg" title="Telecharger SVG">&#11015; SVG</button>
-                <button id="dl-png" title="Telecharger PNG">&#11015; PNG</button>
-                <button id="detach" title="Ouvrir dans une fenetre separee">&#8599;</button>
+                <button id="dl-svg" data-i18n-title="toolbar.dlSvg" title="Telecharger SVG">&#11015; SVG</button>
+                <button id="dl-png" data-i18n-title="toolbar.dlPng" title="Telecharger PNG">&#11015; PNG</button>
+                <button id="detach" data-i18n-title="toolbar.detach" title="Ouvrir dans une fenetre separee">&#8599;</button>
             </div>
             <div class="separator"></div>
             <div class="toolbar-group">
-                <button id="dl-wtg2" title="Exporter le source WTG2">&#11015; WTG2</button>
-                <button id="import-wtg2" title="Importer un fichier WTG2">&#11014; WTG2</button>
+                <button id="dl-wtg2" data-i18n-title="toolbar.dlWtg2" title="Exporter le source WTG2">&#11015; WTG2</button>
+                <button id="import-wtg2" data-i18n-title="toolbar.importWtg2" title="Importer un fichier WTG2">&#11014; WTG2</button>
                 <input type="file" id="import-file-input" accept=".wtg2,.wtg,.txt" style="display:none">
-                <button id="share-url" title="Copier le lien de partage">&#128279; Partager</button>
+                <button id="share-url" data-i18n-title="toolbar.share" title="Copier le lien de partage">&#128279; <span data-i18n="toolbar.shareLabel">Partager</span></button>
             </div>
         </div>
-        <span id="status">Loading WASM...</span>
+        <span id="status" data-i18n="status.loading">Chargement WASM...</span>
+        <div class="toolbar-group">
+            <select id="lang-select" style="min-width:auto">
+                <option value="fr">&#127467;&#127479; FR</option>
+                <option value="en">&#127468;&#127463; EN</option>
+            </select>
+        </div>
     </div>
     <div id="share-toast"></div>
 
     <!-- === MOBILE TABS === -->
     <div id="mobile-tabs">
-        <button class="active" onclick="setMobileTab('edit')">Editer</button>
-        <button onclick="setMobileTab('preview')">Apercu</button>
+        <button class="active" onclick="setMobileTab('edit')" data-i18n="mobile.edit">Editer</button>
+        <button onclick="setMobileTab('preview')" data-i18n="mobile.preview">Apercu</button>
     </div>
 
     <!-- === MAIN CONTENT === -->
@@ -227,28 +239,28 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
             <!-- Wizard pane -->
             <div id="wizard-pane">
                 <div class="template-bar">
-                    <label>Template :</label>
+                    <label data-i18n="template.label">Template :</label>
                     <select id="template-select" onchange="loadTemplate(this.value)">
-                        <option value="">-- Choisir --</option>
-                        <option value="teashop">Tea Shop (simple)</option>
-                        <option value="navigation">Plateforme Navigation (riche)</option>
-                        <option value="blank">Vide</option>
+                        <option value="" data-i18n="template.choose">-- Choisir --</option>
+                        <option value="teashop" data-i18n="template.teashop">Tea Shop (simple)</option>
+                        <option value="navigation" data-i18n="template.navigation">Plateforme Navigation (riche)</option>
+                        <option value="blank" data-i18n="template.blank">Vide</option>
                     </select>
                 </div>
                 <div class="steps-bar">
                     <div class="step-indicator active" onclick="goToStep(0)">
                         <div class="step-num">1</div>
-                        <span>Chaine de valeur</span>
+                        <span data-i18n="step.valueChain">Chaine de valeur</span>
                     </div>
                     <span class="step-chevron">&#9654;</span>
                     <div class="step-indicator" onclick="goToStep(1)">
                         <div class="step-num">2</div>
-                        <span>Evolution</span>
+                        <span data-i18n="step.evolution">Evolution</span>
                     </div>
                     <span class="step-chevron">&#9654;</span>
                     <div class="step-indicator" onclick="goToStep(2)">
                         <div class="step-num">3</div>
-                        <span>Enrichissement</span>
+                        <span data-i18n="step.enrichment">Enrichissement</span>
                     </div>
                 </div>
 
@@ -256,36 +268,36 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
                 <div class="wizard-step active" id="step-0">
                     <div class="wizard-section">
                         <div class="wizard-section-header" onclick="toggleSection(this)">
-                            Infos carte <span class="chevron">&#9660;</span>
+                            <span data-i18n="section.mapInfo">Infos carte</span> <span class="chevron">&#9660;</span>
                         </div>
                         <div class="wizard-section-body">
                             <div class="field">
-                                <label>Titre</label>
-                                <input type="text" id="meta-title" placeholder="Ma Carte Wardley" oninput="updateMeta()">
+                                <label data-i18n="field.title">Titre</label>
+                                <input type="text" id="meta-title" data-i18n-placeholder="field.titlePlaceholder" placeholder="Ma Carte Wardley" oninput="updateMeta()">
                             </div>
                             <div class="field">
-                                <label>Auteur</label>
-                                <input type="text" id="meta-author" placeholder="Votre nom" oninput="updateMeta()">
+                                <label data-i18n="field.author">Auteur</label>
+                                <input type="text" id="meta-author" data-i18n-placeholder="field.authorPlaceholder" placeholder="Votre nom" oninput="updateMeta()">
                             </div>
                             <div class="field">
-                                <label>Question strategique</label>
-                                <input type="text" id="meta-question" placeholder="Ou investir ?" oninput="updateMeta()">
+                                <label data-i18n="field.question">Question strategique</label>
+                                <input type="text" id="meta-question" data-i18n-placeholder="field.questionPlaceholder" placeholder="Ou investir ?" oninput="updateMeta()">
                             </div>
                         </div>
                     </div>
                     <div class="wizard-section">
                         <div class="wizard-section-header" onclick="toggleSection(this)">
-                            Chaine de valeur <span class="chevron">&#9660;</span>
+                            <span data-i18n="section.valueChain">Chaine de valeur</span> <span class="chevron">&#9660;</span>
                         </div>
                         <div class="wizard-section-body">
                             <div class="field">
-                                <label>Dependances (une chaine par ligne)</label>
-                                <textarea id="chain-input" placeholder="Client -> Application -> Base de donnees&#10;Application -> API -> Service externe" oninput="parseChains()"></textarea>
-                                <div class="hint">Tapez des chaines avec -> pour lier les composants. Les composants sans dependance entrante deviennent automatiquement des ancres.</div>
+                                <label data-i18n="field.dependencies">Dependances (une chaine par ligne)</label>
+                                <textarea id="chain-input" data-i18n-placeholder="field.dependenciesPlaceholder" placeholder="Client -> Application -> Base de donnees&#10;Application -> API -> Service externe" oninput="parseChains()"></textarea>
+                                <div class="hint" data-i18n="field.dependenciesHint">Tapez des chaines avec -> pour lier les composants. Les composants sans dependance entrante deviennent automatiquement des ancres.</div>
                             </div>
                             <div id="comp-list-container">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                                    <label style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px">Composants detectes</label>
+                                    <label style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px" data-i18n="comp.detected">Composants detectes</label>
                                     <span id="comp-count" style="font-size:11px;color:#666">0 composants</span>
                                 </div>
                                 <div class="comp-list" id="comp-list"></div>
@@ -320,43 +332,37 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
                 <!-- Step 3: Enrichment -->
                 <div class="wizard-step" id="step-2">
                     <div class="enrich-section">
-                        <h4>Groupes</h4>
+                        <h4 data-i18n="enrich.groups">Groupes</h4>
                         <div id="groups-container"></div>
-                        <button class="btn btn-sm" onclick="addGroup()">+ Ajouter un groupe</button>
+                        <button class="btn btn-sm" onclick="addGroup()" data-i18n="enrich.addGroup">+ Ajouter un groupe</button>
                     </div>
                     <div class="enrich-section">
-                        <h4>Annotations</h4>
+                        <h4 data-i18n="enrich.annotations">Annotations</h4>
                         <div id="annotations-container"></div>
-                        <button class="btn btn-sm" onclick="addAnnotation()">+ Ajouter une annotation</button>
+                        <button class="btn btn-sm" onclick="addAnnotation()" data-i18n="enrich.addAnnotation">+ Ajouter une annotation</button>
                     </div>
                     <div class="enrich-section">
-                        <h4>Signaux</h4>
+                        <h4 data-i18n="enrich.signals">Signaux</h4>
                         <div id="signals-container"></div>
-                        <button class="btn btn-sm" onclick="addSignal()">+ Ajouter un signal</button>
+                        <button class="btn btn-sm" onclick="addSignal()" data-i18n="enrich.addSignal">+ Ajouter un signal</button>
                     </div>
                     <div class="enrich-section" style="margin-top:8px">
                         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
-                            <input type="checkbox" id="legend-toggle" onchange="wizardState.legend=this.checked;onWizardChange()"> Afficher la legende
+                            <input type="checkbox" id="legend-toggle" onchange="wizardState.legend=this.checked;onWizardChange()"> <span data-i18n="enrich.showLegend">Afficher la legende</span>
                         </label>
-                    </div>
-                    <div class="enrich-section" style="margin-top:8px">
-                        <h4>Focus</h4>
-                        <select id="focus-select" onchange="wizardState.focus=this.value;onWizardChange()" style="width:100%;background:#2d2d2d;color:#ccc;border:1px solid #555;border-radius:3px;padding:4px;font-size:12px">
-                            <option value="">— Aucun —</option>
-                        </select>
                     </div>
                 </div>
 
                 <!-- Step navigation -->
                 <div class="step-nav">
-                    <button class="btn" id="btn-prev" onclick="prevStep()" style="visibility:hidden">&#9664; Precedent</button>
-                    <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Suivant &#9654;</button>
+                    <button class="btn" id="btn-prev" onclick="prevStep()" style="visibility:hidden">&#9664; <span data-i18n="nav.prev">Precedent</span></button>
+                    <button class="btn btn-primary" id="btn-next" onclick="nextStep()"><span data-i18n="nav.next">Suivant</span> &#9654;</button>
                 </div>
             </div>
 
             <!-- Editor pane -->
             <div id="editor-pane">
-                <div id="editor-warning">Les modifications manuelles ne seront pas reflétées dans le mode guidé.</div>
+                <div id="editor-warning" data-i18n="editor.warning">Les modifications manuelles ne seront pas reflétées dans le mode guidé.</div>
                 <textarea id="source"></textarea>
             </div>
         </div>
@@ -490,6 +496,183 @@ const TEMPLATES = {
         legend: false
     }
 };
+
+// ================================================================
+// 2b. Internationalization (i18n)
+// ================================================================
+const translations = {
+    fr: {
+        'toolbar.title': 'WTG2 Playground',
+        'mode.guided': 'Guide',
+        'mode.editor': 'Editeur',
+        'toolbar.ratio': 'Ratio',
+        'toolbar.resolution': 'Def.',
+        'toolbar.dlSvg': 'Telecharger SVG',
+        'toolbar.dlPng': 'Telecharger PNG',
+        'toolbar.detach': 'Ouvrir dans une fenetre separee',
+        'toolbar.dlWtg2': 'Exporter le source WTG2',
+        'toolbar.importWtg2': 'Importer un fichier WTG2',
+        'toolbar.share': 'Copier le lien de partage',
+        'toolbar.shareLabel': 'Partager',
+        'status.loading': 'Chargement WASM...',
+        'status.ready': 'Pret',
+        'status.ok': 'OK',
+        'status.wasmNotLoaded': 'WASM pas encore charge',
+        'mobile.edit': 'Editer',
+        'mobile.preview': 'Apercu',
+        'template.label': 'Template :',
+        'template.choose': '-- Choisir --',
+        'template.teashop': 'Tea Shop (simple)',
+        'template.navigation': 'Plateforme Navigation (riche)',
+        'template.blank': 'Vide',
+        'step.valueChain': 'Chaine de valeur',
+        'step.evolution': 'Evolution',
+        'step.enrichment': 'Enrichissement',
+        'section.mapInfo': 'Infos carte',
+        'field.title': 'Titre',
+        'field.titlePlaceholder': 'Ma Carte Wardley',
+        'field.author': 'Auteur',
+        'field.authorPlaceholder': 'Votre nom',
+        'field.question': 'Question strategique',
+        'field.questionPlaceholder': 'Ou investir ?',
+        'section.valueChain': 'Chaine de valeur',
+        'field.dependencies': 'Dependances (une chaine par ligne)',
+        'field.dependenciesPlaceholder': 'Client -> Application -> Base de donnees\nApplication -> API -> Service externe',
+        'field.dependenciesHint': 'Tapez des chaines avec -> pour lier les composants. Les composants sans dependance entrante deviennent automatiquement des ancres.',
+        'comp.detected': 'Composants detectes',
+        'comp.count': '{count} composant{s}',
+        'comp.anchor': 'ancre',
+        'comp.component': 'composant',
+        'comp.delete': 'Supprimer',
+        'comp.focus': 'Focus',
+        'evo.type': 'Type:',
+        'evo.evolution': 'Evolution',
+        'evo.towards': 'vers',
+        'evo.inertia0': "Pas d'inertie",
+        'evo.inertia1': '! Moderee',
+        'evo.inertia2': '!! Forte',
+        'evo.inertia3': '!!! Bloquante',
+        'enrich.groups': 'Groupes',
+        'enrich.addGroup': '+ Ajouter un groupe',
+        'enrich.annotations': 'Annotations',
+        'enrich.addAnnotation': '+ Ajouter une annotation',
+        'enrich.signals': 'Signaux',
+        'enrich.addSignal': '+ Ajouter un signal',
+        'enrich.showLegend': 'Afficher la legende',
+        'group.defaultName': 'Nouveau groupe',
+        'group.namePlaceholder': 'Nom du groupe',
+        'annotation.note': 'Note',
+        'annotation.warning': 'Warning',
+        'annotation.textPlaceholder': 'Texte...',
+        'annotation.selectComp': '-- Composant --',
+        'nav.prev': 'Precedent',
+        'nav.next': 'Suivant',
+        'nav.finish': 'Terminer',
+        'editor.warning': 'Les modifications manuelles ne seront pas reflétées dans le mode guidé.',
+        'empty.message': 'Commencez a definir votre chaine de valeur pour voir l\'apercu',
+        'share.tooLong': 'Attention : lien tres long ({length} car.). Certains navigateurs pourraient le tronquer.',
+        'share.copied': 'Lien copie dans le presse-papier !',
+        'share.manual': "Lien mis a jour dans la barre d'adresse (copie manuelle)",
+        'share.error': 'Erreur : {message}',
+        'status.urlError': 'Erreur URL: {message}',
+    },
+    en: {
+        'toolbar.title': 'WTG2 Playground',
+        'mode.guided': 'Guided',
+        'mode.editor': 'Editor',
+        'toolbar.ratio': 'Ratio',
+        'toolbar.resolution': 'Res.',
+        'toolbar.dlSvg': 'Download SVG',
+        'toolbar.dlPng': 'Download PNG',
+        'toolbar.detach': 'Open in separate window',
+        'toolbar.dlWtg2': 'Export WTG2 source',
+        'toolbar.importWtg2': 'Import WTG2 file',
+        'toolbar.share': 'Copy share link',
+        'toolbar.shareLabel': 'Share',
+        'status.loading': 'Loading WASM...',
+        'status.ready': 'Ready',
+        'status.ok': 'OK',
+        'status.wasmNotLoaded': 'WASM not loaded yet',
+        'mobile.edit': 'Edit',
+        'mobile.preview': 'Preview',
+        'template.label': 'Template:',
+        'template.choose': '-- Choose --',
+        'template.teashop': 'Tea Shop (simple)',
+        'template.navigation': 'Navigation Platform (rich)',
+        'template.blank': 'Blank',
+        'step.valueChain': 'Value Chain',
+        'step.evolution': 'Evolution',
+        'step.enrichment': 'Enrichment',
+        'section.mapInfo': 'Map Info',
+        'field.title': 'Title',
+        'field.titlePlaceholder': 'My Wardley Map',
+        'field.author': 'Author',
+        'field.authorPlaceholder': 'Your name',
+        'field.question': 'Strategic question',
+        'field.questionPlaceholder': 'Where to invest?',
+        'section.valueChain': 'Value Chain',
+        'field.dependencies': 'Dependencies (one chain per line)',
+        'field.dependenciesPlaceholder': 'Customer -> Application -> Database\nApplication -> API -> External Service',
+        'field.dependenciesHint': 'Type chains with -> to link components. Components with no inbound dependency become anchors automatically.',
+        'comp.detected': 'Detected components',
+        'comp.count': '{count} component{s}',
+        'comp.anchor': 'anchor',
+        'comp.component': 'component',
+        'comp.delete': 'Delete',
+        'comp.focus': 'Focus',
+        'evo.type': 'Type:',
+        'evo.evolution': 'Evolution',
+        'evo.towards': 'to',
+        'evo.inertia0': 'No inertia',
+        'evo.inertia1': '! Moderate',
+        'evo.inertia2': '!! Strong',
+        'evo.inertia3': '!!! Blocking',
+        'enrich.groups': 'Groups',
+        'enrich.addGroup': '+ Add group',
+        'enrich.annotations': 'Annotations',
+        'enrich.addAnnotation': '+ Add annotation',
+        'enrich.signals': 'Signals',
+        'enrich.addSignal': '+ Add signal',
+        'enrich.showLegend': 'Show legend',
+        'group.defaultName': 'New group',
+        'group.namePlaceholder': 'Group name',
+        'annotation.note': 'Note',
+        'annotation.warning': 'Warning',
+        'annotation.textPlaceholder': 'Text...',
+        'annotation.selectComp': '-- Component --',
+        'nav.prev': 'Previous',
+        'nav.next': 'Next',
+        'nav.finish': 'Finish',
+        'editor.warning': 'Manual changes will not be reflected in guided mode.',
+        'empty.message': 'Start defining your value chain to see the preview',
+        'share.tooLong': 'Warning: very long link ({length} chars). Some browsers may truncate it.',
+        'share.copied': 'Link copied to clipboard!',
+        'share.manual': 'Link updated in address bar (manual copy)',
+        'share.error': 'Error: {message}',
+        'status.urlError': 'URL Error: {message}',
+    }
+};
+
+let currentLang = localStorage.getItem('wtg2-lang') || 'fr';
+
+function t(key, params) {
+    const str = (translations[currentLang] && translations[currentLang][key])
+             || translations['fr'][key] || key;
+    if (!params) return str;
+    return str.replace(/\{(\w+)\}/g, (_, k) => params[k] !== undefined ? params[k] : '{' + k + '}');
+}
+
+function applyStaticTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = t(el.dataset.i18nTitle);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+    });
+}
 
 // ================================================================
 // 3. Wizard State
@@ -710,13 +893,15 @@ function generateWTG2(state) {
 function renderCompList() {
     const container = document.getElementById('comp-list');
     const count = document.getElementById('comp-count');
-    count.textContent = wizardState.components.length + ' composant' + (wizardState.components.length !== 1 ? 's' : '');
+    const n = wizardState.components.length;
+    count.textContent = t('comp.count', { count: n, s: n !== 1 ? 's' : '' });
 
     container.innerHTML = wizardState.components.map((c, i) => `
         <div class="comp-item">
             <span class="comp-name">${escapeHtml(c.name)}</span>
-            <span class="comp-badge ${c.kind === 'anchor' ? 'anchor' : ''}">${c.kind === 'anchor' ? 'ancre' : 'composant'}</span>
-            <button class="comp-remove" onclick="removeComponent(${i})" title="Supprimer">&times;</button>
+            <span class="comp-badge ${c.kind === 'anchor' ? 'anchor' : ''}">${c.kind === 'anchor' ? t('comp.anchor') : t('comp.component')}</span>
+            <button class="comp-focus ${wizardState.focus === c.name ? 'active' : ''}" onclick="toggleFocus(${i})" title="${t('comp.focus')}">&#9678;</button>
+            <button class="comp-remove" onclick="removeComponent(${i})" title="${t('comp.delete')}">&times;</button>
         </div>
     `).join('');
 }
@@ -729,7 +914,7 @@ function renderEvoList() {
         <div class="evo-item">
             <div class="evo-item-header">
                 <span class="evo-item-name">${escapeHtml(c.name)}</span>
-                ${isAnchor ? '<span class="comp-badge anchor">ancre</span>' : ''}
+                ${isAnchor ? '<span class="comp-badge anchor">' + t('comp.anchor') + '</span>' : ''}
                 <span class="evo-item-pos" id="evo-pos-${compIdx}">${evoToRoman(c.evolution)}</span>
             </div>
             <div class="evo-slider-track">
@@ -742,7 +927,7 @@ function renderEvoList() {
             </div>
             ${isAnchor ? '' : `
             <div class="evo-item-options">
-                <label>Type:</label>
+                <label>${t('evo.type')}</label>
                 <div class="pill-group">
                     <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
                     <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
@@ -750,19 +935,19 @@ function renderEvoList() {
                     <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
                 </div>
                 <label style="margin-left:8px">
-                    <input type="checkbox" ${c.evolving ? 'checked' : ''} onchange="toggleEvolving(${compIdx}, this.checked)"> Evolution
+                    <input type="checkbox" ${c.evolving ? 'checked' : ''} onchange="toggleEvolving(${compIdx}, this.checked)"> ${t('evo.evolution')}
                 </label>
                 ${c.evolving ? `
-                <span style="font-size:11px;color:#888">vers</span>
+                <span style="font-size:11px;color:#888">${t('evo.towards')}</span>
                 <input type="range" min="0" max="99" value="${c.evolvedTo}" style="width:60px;accent-color:#6ab04c"
                     oninput="updateEvolvedTo(${compIdx}, this.value)"
                     onchange="onWizardChange()">
                 <span style="font-size:11px;color:#6ab04c;font-family:monospace" id="evo-to-${compIdx}">${evoToRoman(c.evolvedTo)}</span>
                 <select onchange="setInertia(${compIdx}, this.value)" style="margin-left:4px">
-                    <option value="0" ${c.inertia === 0 ? 'selected' : ''}>Pas d'inertie</option>
-                    <option value="1" ${c.inertia === 1 ? 'selected' : ''}>! Moderee</option>
-                    <option value="2" ${c.inertia === 2 ? 'selected' : ''}>!! Forte</option>
-                    <option value="3" ${c.inertia === 3 ? 'selected' : ''}>!!! Bloquante</option>
+                    <option value="0" ${c.inertia === 0 ? 'selected' : ''}>${t('evo.inertia0')}</option>
+                    <option value="1" ${c.inertia === 1 ? 'selected' : ''}>${t('evo.inertia1')}</option>
+                    <option value="2" ${c.inertia === 2 ? 'selected' : ''}>${t('evo.inertia2')}</option>
+                    <option value="3" ${c.inertia === 3 ? 'selected' : ''}>${t('evo.inertia3')}</option>
                 </select>
                 ` : ''}
             </div>`}
@@ -777,11 +962,11 @@ function renderGroups() {
     container.innerHTML = wizardState.groups.map((g, gi) => `
         <div class="group-card">
             <div class="group-card-header">
-                <input type="text" value="${escapeHtml(g.name)}" placeholder="Nom du groupe"
+                <input type="text" value="${escapeHtml(g.name)}" placeholder="${t('group.namePlaceholder')}"
                     oninput="wizardState.groups[${gi}].name=this.value;onWizardChange()">
                 <input type="color" value="${g.color || '#5e9ed6'}"
                     oninput="wizardState.groups[${gi}].color=this.value;onWizardChange()">
-                <button onclick="removeGroup(${gi})" title="Supprimer">&times;</button>
+                <button onclick="removeGroup(${gi})" title="${t('comp.delete')}">&times;</button>
             </div>
             <div class="group-members">
                 ${compNames.map(n => `
@@ -803,13 +988,13 @@ function renderAnnotations() {
     container.innerHTML = wizardState.annotations.map((a, ai) => `
         <div class="annotation-row">
             <select onchange="wizardState.annotations[${ai}].kind=this.value;onWizardChange()">
-                <option value="note" ${a.kind === 'note' ? 'selected' : ''}>Note</option>
-                <option value="warning" ${a.kind === 'warning' ? 'selected' : ''}>Warning</option>
+                <option value="note" ${a.kind === 'note' ? 'selected' : ''}>${t('annotation.note')}</option>
+                <option value="warning" ${a.kind === 'warning' ? 'selected' : ''}>${t('annotation.warning')}</option>
             </select>
-            <input type="text" value="${escapeHtml(a.text)}" placeholder="Texte..."
+            <input type="text" value="${escapeHtml(a.text)}" placeholder="${t('annotation.textPlaceholder')}"
                 oninput="wizardState.annotations[${ai}].text=this.value;onWizardChange()">
             <select onchange="wizardState.annotations[${ai}].target=this.value;onWizardChange()">
-                <option value="">-- Composant --</option>
+                <option value="">${t('annotation.selectComp')}</option>
                 ${compNames.map(n => `<option value="${escapeAttr(n)}" ${a.target === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}
             </select>
             <button onclick="removeAnnotation(${ai})">&times;</button>
@@ -829,20 +1014,12 @@ function renderSignals() {
                 <option value="declining" ${s.type === 'declining' ? 'selected' : ''}>declining</option>
             </select>
             <select onchange="wizardState.signals[${si}].target=this.value;onWizardChange()" style="flex:1">
-                <option value="">-- Composant --</option>
+                <option value="">${t('annotation.selectComp')}</option>
                 ${compNames.map(n => `<option value="${escapeAttr(n)}" ${s.target === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('')}
             </select>
             <button onclick="removeSignal(${si})">&times;</button>
         </div>
     `).join('');
-}
-
-function renderFocusDropdown() {
-    const sel = document.getElementById('focus-select');
-    const compNames = wizardState.components.map(c => c.name);
-    const current = wizardState.focus;
-    sel.innerHTML = '<option value="">— Aucun —</option>' +
-        compNames.map(n => `<option value="${escapeAttr(n)}" ${current === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('');
 }
 
 // ================================================================
@@ -859,6 +1036,13 @@ function removeComponent(idx) {
     if (wizardState.focus === name) wizardState.focus = "";
     // Update chain input to reflect removal
     updateChainInputFromState();
+    renderCompList();
+    onWizardChange();
+}
+
+function toggleFocus(idx) {
+    const name = wizardState.components[idx].name;
+    wizardState.focus = (wizardState.focus === name) ? "" : name;
     renderCompList();
     onWizardChange();
 }
@@ -911,7 +1095,7 @@ function setInertia(idx, val) {
 }
 
 function addGroup() {
-    wizardState.groups.push({ name: 'Nouveau groupe', members: [], color: '#5e9ed6' });
+    wizardState.groups.push({ name: t('group.defaultName'), members: [], color: '#5e9ed6' });
     renderGroups();
 }
 
@@ -973,7 +1157,7 @@ function goToStep(step) {
     // Nav buttons
     document.getElementById('btn-prev').style.visibility = step === 0 ? 'hidden' : 'visible';
     const nextBtn = document.getElementById('btn-next');
-    nextBtn.textContent = step === 2 ? 'Terminer' : 'Suivant \u25B6';
+    nextBtn.innerHTML = step === 2 ? t('nav.finish') : t('nav.next') + ' \u25B6';
 
     // Render step-specific content
     if (step === 1) renderEvoList();
@@ -981,7 +1165,6 @@ function goToStep(step) {
         renderGroups();
         renderAnnotations();
         renderSignals();
-        renderFocusDropdown();
     }
 }
 
@@ -1085,12 +1268,12 @@ function render() {
     }
 
     if (!text.trim()) {
-        document.getElementById('output-pane').innerHTML = '<div style="color:#888;padding:40px;text-align:center">Commencez a definir votre chaine de valeur pour voir l\'apercu</div>';
+        document.getElementById('output-pane').innerHTML = '<div style="color:#888;padding:40px;text-align:center">' + escapeHtml(t('empty.message')) + '</div>';
         return;
     }
 
     if (typeof generateSVG !== 'function') {
-        document.getElementById('status').textContent = 'WASM not loaded yet';
+        document.getElementById('status').textContent = t('status.wasmNotLoaded');
         return;
     }
 
@@ -1104,7 +1287,7 @@ function render() {
     } else {
         output.innerHTML = result;
     }
-    document.getElementById('status').textContent = 'OK';
+    document.getElementById('status').textContent = t('status.ok');
     updateDetached();
 }
 
@@ -1312,17 +1495,17 @@ async function shareURL() {
         const encoded = arrayBufferToUrlSafeBase64(compressed);
         const url = location.origin + location.pathname + '?wtg2=' + encoded;
         if (url.length > 8000) {
-            showToast('Attention : lien tres long (' + url.length + ' car.). Certains navigateurs pourraient le tronquer.');
+            showToast(t('share.tooLong', { length: url.length }));
         }
         window.history.replaceState({}, '', '?wtg2=' + encoded);
         try {
             await navigator.clipboard.writeText(url);
-            showToast('Lien copie dans le presse-papier !');
+            showToast(t('share.copied'));
         } catch (e) {
-            showToast('Lien mis a jour dans la barre d\'adresse (copie manuelle)');
+            showToast(t('share.manual'));
         }
     } catch (e) {
-        showToast('Erreur : ' + e.message);
+        showToast(t('share.error', { message: e.message }));
     }
 }
 
@@ -1378,7 +1561,6 @@ function restoreUI() {
     // Reconstruct chain input
     updateChainInputFromState();
     renderCompList();
-    renderFocusDropdown();
 }
 
 // ================================================================
@@ -1460,6 +1642,27 @@ document.getElementById('import-wtg2').addEventListener('click', importWTG2);
 document.getElementById('import-file-input').addEventListener('change', handleImportFile);
 document.getElementById('share-url').addEventListener('click', shareURL);
 
+// Language selector
+document.getElementById('lang-select').addEventListener('change', function() {
+    currentLang = this.value;
+    localStorage.setItem('wtg2-lang', currentLang);
+    document.documentElement.lang = currentLang;
+    applyStaticTranslations();
+    renderCompList();
+    if (currentStep === 1) renderEvoList();
+    if (currentStep === 2) { renderGroups(); renderAnnotations(); renderSignals(); }
+    goToStep(currentStep);
+});
+
+// Restore saved language on load
+(function initLang() {
+    const savedLang = localStorage.getItem('wtg2-lang');
+    if (savedLang && translations[savedLang]) currentLang = savedLang;
+    document.documentElement.lang = currentLang;
+    document.getElementById('lang-select').value = currentLang;
+    applyStaticTranslations();
+})();
+
 // ================================================================
 // 20. Utilities
 // ================================================================
@@ -1481,7 +1684,7 @@ function escapeAttr(s) {
 const go = new Go();
 WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async result => {
     go.run(result.instance);
-    document.getElementById('status').textContent = 'Ready';
+    document.getElementById('status').textContent = t('status.ready');
 
     // Check for shared map in URL
     const params = new URLSearchParams(window.location.search);
@@ -1492,7 +1695,7 @@ WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async
             loadWTG2IntoEditor(text);
             return;
         } catch (e) {
-            document.getElementById('status').textContent = 'Erreur URL: ' + e.message;
+            document.getElementById('status').textContent = t('status.urlError', { message: e.message });
         }
     }
 

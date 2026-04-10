@@ -44,6 +44,9 @@ jobs:
       - name: Copy index.html
         run: cp exp/ui/index.html site/
 
+      - name: Copy favicon files
+        run: cp exp/ui/favicon.ico exp/ui/favicon-16.png exp/ui/favicon-32.png site/
+
       - name: Build wardley.js WASM
         run: |
           cd examples/webassembly
