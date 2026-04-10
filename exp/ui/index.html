@@ -149,6 +149,10 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
 .template-bar label { font-size: 12px; color: #888; }
 .template-bar select { background: #1e1e1e; border: 1px solid #444; border-radius: 4px; padding: 4px 8px; color: #ccc; font-size: 12px; flex: 1; }
 
+/* === TOAST === */
+#share-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13px; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity .3s; }
+#share-toast.visible { opacity: 1; }
+
 /* === RESPONSIVE === */
 @media (max-width: 1023px) {
   #left-pane { width: 45%; }
@@ -199,9 +203,17 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
                 <button id="dl-png" title="Telecharger PNG">&#11015; PNG</button>
                 <button id="detach" title="Ouvrir dans une fenetre separee">&#8599;</button>
             </div>
+            <div class="separator"></div>
+            <div class="toolbar-group">
+                <button id="dl-wtg2" title="Exporter le source WTG2">&#11015; WTG2</button>
+                <button id="import-wtg2" title="Importer un fichier WTG2">&#11014; WTG2</button>
+                <input type="file" id="import-file-input" accept=".wtg2,.wtg,.txt" style="display:none">
+                <button id="share-url" title="Copier le lien de partage">&#128279; Partager</button>
+            </div>
         </div>
         <span id="status">Loading WASM...</span>
     </div>
+    <div id="share-toast"></div>
 
     <!-- === MOBILE TABS === -->
     <div id="mobile-tabs">
@@ -312,7 +324,7 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
                     </div>
                     <div class="enrich-section" style="margin-top:8px">
                         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
-                            <input type="checkbox" id="legend-toggle" onchange="onWizardChange()"> Afficher la legende
+                            <input type="checkbox" id="legend-toggle" onchange="wizardState.legend=this.checked;onWizardChange()"> Afficher la legende
                         </label>
                     </div>
                 </div>
@@ -1064,18 +1076,17 @@ function initEditor() {
 }
 
 // ================================================================
-// 15. Export Functions
+// 15. Export / Import / Share Functions
 // ================================================================
 
+function getCurrentWTG2() {
+    if (currentMode === 'guided') return generateWTG2(wizardState);
+    if (editor) return editor.getValue();
+    return '';
+}
+
 function getExportSVG() {
-    let text;
-    if (currentMode === 'guided') {
-        text = generateWTG2(wizardState);
-    } else if (editor) {
-        text = editor.getValue();
-    } else {
-        return null;
-    }
+    const text = getCurrentWTG2();
     if (!text.trim() || typeof generateSVG !== 'function') return null;
     const [baseW, baseH] = getBaseDimensions();
     const result = generateSVG(text, true, getResolution(), baseW, baseH);
@@ -1150,6 +1161,118 @@ function updateDetached() {
     if (!svgStr) return;
     const container = detachedWindow.document.getElementById('map');
     if (container) container.innerHTML = svgStr;
+}
+
+// ================================================================
+// 15b. WTG2 Export / Import
+// ================================================================
+
+function downloadWTG2() {
+    const text = getCurrentWTG2();
+    if (!text.trim()) return;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = getMapTitle() + '.wtg2';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function importWTG2() {
+    document.getElementById('import-file-input').value = '';
+    document.getElementById('import-file-input').click();
+}
+
+function handleImportFile(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        loadWTG2IntoEditor(e.target.result);
+    };
+    reader.readAsText(file);
+}
+
+function loadWTG2IntoEditor(text) {
+    setMode('editor');
+    if (editor) {
+        editor.setValue(text);
+        editor.setCursor(0, 0);
+    }
+    render();
+}
+
+// ================================================================
+// 15c. Compression & URL Sharing
+// ================================================================
+
+function compressText(text) {
+    const byteArray = new TextEncoder().encode(text);
+    const cs = new CompressionStream('gzip');
+    const writer = cs.writable.getWriter();
+    writer.write(byteArray);
+    writer.close();
+    return new Response(cs.readable).arrayBuffer();
+}
+
+function decompressBuffer(buffer) {
+    const cs = new DecompressionStream('gzip');
+    const writer = cs.writable.getWriter();
+    writer.write(buffer);
+    writer.close();
+    return new Response(cs.readable).arrayBuffer().then(function(arrayBuffer) {
+        return new TextDecoder().decode(arrayBuffer);
+    });
+}
+
+function arrayBufferToUrlSafeBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function urlSafeBase64ToArrayBuffer(base64) {
+    let std = base64.replace(/-/g, '+').replace(/_/g, '/');
+    while (std.length % 4) std += '=';
+    const binary = window.atob(std);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+async function shareURL() {
+    const text = getCurrentWTG2();
+    if (!text.trim()) return;
+    try {
+        const compressed = await compressText(text);
+        const encoded = arrayBufferToUrlSafeBase64(compressed);
+        const url = location.origin + location.pathname + '?wtg2=' + encoded;
+        if (url.length > 8000) {
+            showToast('Attention : lien tres long (' + url.length + ' car.). Certains navigateurs pourraient le tronquer.');
+        }
+        window.history.replaceState({}, '', '?wtg2=' + encoded);
+        try {
+            await navigator.clipboard.writeText(url);
+            showToast('Lien copie dans le presse-papier !');
+        } catch (e) {
+            showToast('Lien mis a jour dans la barre d\'adresse (copie manuelle)');
+        }
+    } catch (e) {
+        showToast('Erreur : ' + e.message);
+    }
+}
+
+function showToast(message) {
+    const toast = document.getElementById('share-toast');
+    toast.textContent = message;
+    toast.classList.add('visible');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() { toast.classList.remove('visible'); }, 3000);
 }
 
 // ================================================================
@@ -1267,6 +1390,10 @@ resSlider.addEventListener('input', () => {
 document.getElementById('dl-svg').addEventListener('click', downloadSVG);
 document.getElementById('dl-png').addEventListener('click', downloadPNG);
 document.getElementById('detach').addEventListener('click', detachMap);
+document.getElementById('dl-wtg2').addEventListener('click', downloadWTG2);
+document.getElementById('import-wtg2').addEventListener('click', importWTG2);
+document.getElementById('import-file-input').addEventListener('change', handleImportFile);
+document.getElementById('share-url').addEventListener('click', shareURL);
 
 // ================================================================
 // 20. Utilities
@@ -1287,9 +1414,22 @@ function escapeAttr(s) {
 // ================================================================
 
 const go = new Go();
-WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(result => {
+WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async result => {
     go.run(result.instance);
     document.getElementById('status').textContent = 'Ready';
+
+    // Check for shared map in URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('wtg2')) {
+        try {
+            const buffer = urlSafeBase64ToArrayBuffer(params.get('wtg2'));
+            const text = await decompressBuffer(buffer);
+            loadWTG2IntoEditor(text);
+            return;
+        } catch (e) {
+            document.getElementById('status').textContent = 'Erreur URL: ' + e.message;
+        }
+    }
 
     // Load saved state or default template
     if (loadState() && wizardState.components.length > 0) {
