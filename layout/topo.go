@@ -38,6 +38,8 @@ func topoRanks(g *Graph) (map[string]int, int) {
 	for _, pl := range g.Pipelines {
 		for _, m := range pl.Members {
 			nodeSet[m] = true
+			children[pl.Parent] = append(children[pl.Parent], m)
+			hasParent[m] = true
 		}
 	}
 

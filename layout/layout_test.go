@@ -600,6 +600,67 @@ func TestLayout_GPSNavigationMap(t *testing.T) {
 	}
 }
 
+func TestLayout_PipelineMemberOutgoingEdge(t *testing.T) {
+	// Regression test: when pipeline members have outgoing edges to
+	// non-pipeline nodes, those downstream nodes must get proper ranks
+	// via BFS (not inflated disconnected ranks). Before the fix,
+	// pipeline members were unreachable from anchors, so downstream
+	// nodes like C and D were pushed to the very bottom.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Anchor", Kind: KindAnchor},
+			{Name: "Mid"},
+			{Name: "Parent"}, // pipeline parent
+			{Name: "C"},      // depends on pipeline member M1
+			{Name: "D"},      // depends on C
+		},
+		Edges: []Edge{
+			{From: "Anchor", To: "Mid"},
+			{From: "Mid", To: "Parent"},
+			{From: "Parent:M1", To: "C"},
+			{From: "C", To: "D"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "Parent", Members: []string{"M1", "M2"}},
+		},
+	}
+
+	l := New(DefaultOptions())
+	pos := l.Layout(g)
+
+	opts := DefaultOptions()
+
+	// Pipeline members inherit parent Y
+	if pos["M1"] != pos["Parent"] {
+		t.Errorf("M1.Y=%d should equal Parent.Y=%d", pos["M1"], pos["Parent"])
+	}
+	if pos["M2"] != pos["Parent"] {
+		t.Errorf("M2.Y=%d should equal Parent.Y=%d", pos["M2"], pos["Parent"])
+	}
+
+	// C must be below Parent (it depends on a member of Parent)
+	if pos["C"] <= pos["Parent"] {
+		t.Errorf("C.Y=%d should be > Parent.Y=%d", pos["C"], pos["Parent"])
+	}
+
+	// D must be below C
+	if pos["D"] <= pos["C"] {
+		t.Errorf("D.Y=%d should be > C.Y=%d", pos["D"], pos["C"])
+	}
+
+	// Key assertion: C should NOT be pushed to the very bottom.
+	// With 5 effective ranks (0-4), C at rank 3 should be well below
+	// midpoint but not crammed at maxY.
+	midY := (opts.MinY + opts.MaxY) / 2
+	if pos["C"] > midY+30 {
+		t.Errorf("C.Y=%d is too far below midpoint %d — rank inflation bug", pos["C"], midY)
+	}
+
+	for _, name := range []string{"Anchor", "Mid", "Parent", "C", "D"} {
+		assertInRange(t, pos, name)
+	}
+}
+
 func assertInRange(t *testing.T, pos map[string]int, name string) {
 	t.Helper()
 	opts := DefaultOptions()
