@@ -9,7 +9,7 @@ linkTitle = "wardleyToGo"
 	<a class="btn btn-lg btn-primary mr-3 mb-4" href="https://github.com/owulveryck/wardleyToGo">
 		GitHub Repo <i class="fab fa-github ml-2 "></i>
 	</a>
-	<a class="btn btn-lg btn-secondary mr-3 mb-4" href="{{< baseurl >}}/demo">
+	<a class="btn btn-lg btn-secondary mr-3 mb-4" href="https://owulveryck.github.io/wardleyToGo/">
 		wtg online playground (demo) <i class="fas fa-arrow-alt-circle-right ml-2"></i>
 	</a>
 		<a class="btn btn-lg btn-primary mr-3 mb-4" href="{{< relref "/about" >}}">
