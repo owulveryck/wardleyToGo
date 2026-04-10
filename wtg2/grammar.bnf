@@ -45,7 +45,8 @@
 
 
 (* ─── Labels d'axes (phases d'évolution) ──────────────────── *)
-(*  Optionnel. Défaut : "I", "II", "III", "IV"                 *)
+(*  Optionnel. Défaut : "" (vide) — seuls les indicateurs I–IV  *)
+(*  sont affichés aux frontières de zones.                     *)
 
 <stage-decl>        ::= "stages" ":" <stage-label> "," <stage-label> ","
                          <stage-label> "," <stage-label> <newline>

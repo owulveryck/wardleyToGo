@@ -36,6 +36,23 @@ question: "Where to invest?"
 	}
 }
 
+func TestParseDefaultStages(t *testing.T) {
+	input := `title: Test`
+	p, err := NewParser(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := [4]string{"", "", "", ""}
+	if doc.Stages != want {
+		t.Errorf("default stages = %v, want %v", doc.Stages, want)
+	}
+}
+
 func TestParseStages(t *testing.T) {
 	input := `stages: Genèse, Sur-mesure, Produit, Commodité`
 	p, err := NewParser(strings.NewReader(input))

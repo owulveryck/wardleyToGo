@@ -41,7 +41,7 @@ func main() {
 
 	e, err := svgmap.NewEncoder(os.Stdout,
 		image.Rect(0, 0, 1100+legendWidth, 900),
-		image.Rect(30, 50, 1070, 850))
+		image.Rect(30, 50, 1070, 835))
 	if err != nil {
 		log.Fatal(err)
 	}

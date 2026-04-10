@@ -47,8 +47,11 @@ func TestBuildMap_SimpleChain(t *testing.T) {
 	if len(result.Stages) != 4 {
 		t.Fatalf("stages count = %d, want 4", len(result.Stages))
 	}
-	if result.Stages[0].Label != "Genesis" {
-		t.Errorf("stage[0] = %q, want %q", result.Stages[0].Label, "Genesis")
+	if result.Stages[0].Label != "I" {
+		t.Errorf("stage[0].Label = %q, want %q", result.Stages[0].Label, "I")
+	}
+	if result.Stages[0].ZoneLabel != "Genesis" {
+		t.Errorf("stage[0].ZoneLabel = %q, want %q", result.Stages[0].ZoneLabel, "Genesis")
 	}
 }
 

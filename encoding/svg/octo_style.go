@@ -171,17 +171,52 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
 	}
+	// Phase indicators (I, II, III, IV) at zone boundaries
 	for i := 0; i < len(w.evolutionSteps); i++ {
 		axis := w.evolutionSteps[i]
+		anchor := svg.TextAnchorMiddle
+		if i == 0 {
+			anchor = svg.TextAnchorStart
+		}
 		_ = enc.Encode(svg.Text{
-			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
+			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 20},
 			Text:       []byte(axis.Label),
+			TextAnchor: anchor,
+			FontWeight: "bold",
+			FontSize:   "14px",
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
 		})
 	}
+	// Zone labels centered within each zone
+	for i := 0; i < len(w.evolutionSteps); i++ {
+		if w.evolutionSteps[i].ZoneLabel == "" {
+			continue
+		}
+		leftPos := w.evolutionSteps[i].Position
+		rightPos := 1.0
+		if i+1 < len(w.evolutionSteps) {
+			rightPos = w.evolutionSteps[i+1].Position
+		}
+		centerX := int(float64(canvas.Dx())*(leftPos+rightPos)/2) + canvas.Min.X
+		zoneWidth := rightPos - leftPos
+		maxChars := int(zoneWidth * 40)
+		if maxChars < 8 {
+			maxChars = 8
+		}
+		_ = enc.Encode(svg.Text{
+			P:          image.Point{centerX, canvas.Max.Y + 20},
+			Text:       []byte(w.evolutionSteps[i].ZoneLabel),
+			TextAnchor: svg.TextAnchorMiddle,
+			FontSize:   "12px",
+			TextAdjust: true,
+			MaxChars:   maxChars,
+			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 180}},
+			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+		})
+	}
 	_ = enc.Encode(svg.Text{
-		P:          image.Point{canvas.Max.X, canvas.Max.Y + 15},
+		P:          image.Point{canvas.Max.X, canvas.Max.Y + 20},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
 		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},

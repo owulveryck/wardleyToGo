@@ -8,7 +8,7 @@ type Document struct {
 	Scope    string
 	Question string
 	Doctrine string    // Organizational maturity: "hygiene", "context", "excellence", "evolution"
-	Stages   [4]string // Custom stage labels; default: "I", "II", "III", "IV"
+	Stages   [4]string // Custom zone labels; default: "" (empty — only Roman numerals I–IV shown)
 
 	Nodes       []*NodeDecl
 	Pipelines   []*PipelineDecl

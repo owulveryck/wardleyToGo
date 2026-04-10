@@ -416,11 +416,12 @@ func resolveNodeRef(ref string, nodeDict map[string]*nodeEntry) wardleyToGo.Comp
 }
 
 func buildEvolutionStages(stages [4]string) []svgmap.Evolution {
+	roman := [4]string{"I", "II", "III", "IV"}
 	return []svgmap.Evolution{
-		{Position: 0.0, Label: stages[0]},
-		{Position: 0.25, Label: stages[1]},
-		{Position: 0.50, Label: stages[2]},
-		{Position: 0.75, Label: stages[3]},
+		{Position: 0.0, Label: roman[0], ZoneLabel: stages[0]},
+		{Position: 0.25, Label: roman[1], ZoneLabel: stages[1]},
+		{Position: 0.50, Label: roman[2], ZoneLabel: stages[2]},
+		{Position: 0.75, Label: roman[3], ZoneLabel: stages[3]},
 	}
 }
 

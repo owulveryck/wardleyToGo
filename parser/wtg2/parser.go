@@ -27,7 +27,7 @@ func NewParser(r io.Reader) (*Parser, error) {
 // Parse reads the entire WTG2 input and produces a Document.
 func (p *Parser) Parse() (*Document, error) {
 	doc := &Document{
-		Stages: [4]string{"I", "II", "III", "IV"},
+		Stages: [4]string{"", "", "", ""},
 	}
 
 	for {

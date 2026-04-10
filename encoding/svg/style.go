@@ -13,8 +13,9 @@ type WardleyStyle struct {
 }
 
 type Evolution struct {
-	Position float64
-	Label    string
+	Position  float64
+	Label     string // Phase indicator (I, II, III, IV) displayed at zone boundary
+	ZoneLabel string // Descriptive label displayed centered within the zone
 }
 
 const (
@@ -28,39 +29,47 @@ const (
 // https://learnwardleymapping.com/2020/01/22/visualizing-the-interaction-of-evolution-and-data-measurement/
 var DataEvolution = []Evolution{
 	{
-		Position: 0,
-		Label:    "Unmodeled",
+		Position:  0,
+		Label:     "I",
+		ZoneLabel: "Unmodeled",
 	},
 	{
-		Position: stage12,
-		Label:    "Divergent",
+		Position:  stage12,
+		Label:     "II",
+		ZoneLabel: "Divergent",
 	},
 	{
-		Position: stage23,
-		Label:    "Convergent",
+		Position:  stage23,
+		Label:     "III",
+		ZoneLabel: "Convergent",
 	},
 	{
-		Position: stage34,
-		Label:    "Modeled",
+		Position:  stage34,
+		Label:     "IV",
+		ZoneLabel: "Modeled",
 	},
 }
 
 var DefaultEvolution = []Evolution{
 	{
-		Position: 0,
-		Label:    "🧪 Genesis",
+		Position:  0,
+		Label:     "I",
+		ZoneLabel: "🧪 Genesis",
 	},
 	{
-		Position: stage12,
-		Label:    "⚒️  Custom-Built",
+		Position:  stage12,
+		Label:     "II",
+		ZoneLabel: "⚒️  Custom-Built",
 	},
 	{
-		Position: stage23,
-		Label:    "🛒 Product\n(+rental)",
+		Position:  stage23,
+		Label:     "III",
+		ZoneLabel: "🛒 Product\n(+rental)",
 	},
 	{
-		Position: stage34,
-		Label:    "⛽ Commodity\n(+utility)",
+		Position:  stage34,
+		Label:     "IV",
+		ZoneLabel: "⛽ Commodity\n(+utility)",
 	},
 }
 
@@ -198,15 +207,48 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 		Text:       []byte(`Industrialised`),
 		TextAnchor: svg.TextAnchorEnd,
 	})
+	// Phase indicators (I, II, III, IV) at zone boundaries
 	for i := 0; i < len(w.evolutionSteps); i++ {
 		axis := w.evolutionSteps[i]
+		anchor := svg.TextAnchorMiddle
+		if i == 0 {
+			anchor = svg.TextAnchorStart
+		}
 		_ = enc.Encode(svg.Text{
-			P:    image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 15},
-			Text: []byte(axis.Label),
+			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 20},
+			Text:       []byte(axis.Label),
+			TextAnchor: anchor,
+			FontWeight: "bold",
+			FontSize:   "14px",
+		})
+	}
+	// Zone labels centered within each zone
+	for i := 0; i < len(w.evolutionSteps); i++ {
+		if w.evolutionSteps[i].ZoneLabel == "" {
+			continue
+		}
+		leftPos := w.evolutionSteps[i].Position
+		rightPos := 1.0
+		if i+1 < len(w.evolutionSteps) {
+			rightPos = w.evolutionSteps[i+1].Position
+		}
+		centerX := int(float64(canvas.Dx())*(leftPos+rightPos)/2) + canvas.Min.X
+		zoneWidth := rightPos - leftPos
+		maxChars := int(zoneWidth * 40)
+		if maxChars < 8 {
+			maxChars = 8
+		}
+		_ = enc.Encode(svg.Text{
+			P:          image.Point{centerX, canvas.Max.Y + 20},
+			Text:       []byte(w.evolutionSteps[i].ZoneLabel),
+			TextAnchor: svg.TextAnchorMiddle,
+			FontSize:   "12px",
+			TextAdjust: true,
+			MaxChars:   maxChars,
 		})
 	}
 	_ = enc.Encode(svg.Text{
-		P:          image.Point{canvas.Max.X, canvas.Max.Y + 15},
+		P:          image.Point{canvas.Max.X, canvas.Max.Y + 20},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
 		FontWeight: "bold",

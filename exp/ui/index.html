@@ -297,10 +297,22 @@ body { font-family: system-ui, -apple-system, sans-serif; height: 100vh; display
                 <!-- Step 2: Evolution -->
                 <div class="wizard-step" id="step-1">
                     <div id="evo-stages-bar" style="display:flex;gap:2px;margin-bottom:4px">
-                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#2a1a1a;border-radius:3px">I - Genesis</div>
-                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#2a2a1a;border-radius:3px">II - Custom</div>
-                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#1a2a1a;border-radius:3px">III - Product</div>
-                        <div style="flex:1;text-align:center;font-size:10px;color:#666;padding:4px;background:#1a1a2a;border-radius:3px">IV - Commodity</div>
+                        <div style="flex:1;text-align:center;font-size:10px;padding:4px;background:#2a1a1a;border-radius:3px">
+                            <span style="color:#888;font-weight:bold">I</span><br>
+                            <input type="text" id="stage-0" placeholder="Genesis" style="width:90%;background:transparent;border:1px solid #444;border-radius:2px;color:#ccc;font-size:9px;padding:1px 2px;text-align:center;margin-top:2px" oninput="wizardState.stages[0]=this.value;onWizardChange()">
+                        </div>
+                        <div style="flex:1;text-align:center;font-size:10px;padding:4px;background:#2a2a1a;border-radius:3px">
+                            <span style="color:#888;font-weight:bold">II</span><br>
+                            <input type="text" id="stage-1" placeholder="Custom-Built" style="width:90%;background:transparent;border:1px solid #444;border-radius:2px;color:#ccc;font-size:9px;padding:1px 2px;text-align:center;margin-top:2px" oninput="wizardState.stages[1]=this.value;onWizardChange()">
+                        </div>
+                        <div style="flex:1;text-align:center;font-size:10px;padding:4px;background:#1a2a1a;border-radius:3px">
+                            <span style="color:#888;font-weight:bold">III</span><br>
+                            <input type="text" id="stage-2" placeholder="Product" style="width:90%;background:transparent;border:1px solid #444;border-radius:2px;color:#ccc;font-size:9px;padding:1px 2px;text-align:center;margin-top:2px" oninput="wizardState.stages[2]=this.value;onWizardChange()">
+                        </div>
+                        <div style="flex:1;text-align:center;font-size:10px;padding:4px;background:#1a1a2a;border-radius:3px">
+                            <span style="color:#888;font-weight:bold">IV</span><br>
+                            <input type="text" id="stage-3" placeholder="Commodity" style="width:90%;background:transparent;border:1px solid #444;border-radius:2px;color:#ccc;font-size:9px;padding:1px 2px;text-align:center;margin-top:2px" oninput="wizardState.stages[3]=this.value;onWizardChange()">
+                        </div>
                     </div>
                     <div class="evo-list" id="evo-list"></div>
                 </div>
@@ -390,6 +402,7 @@ CodeMirror.defineSimpleMode("wtg2", {
 const TEMPLATES = {
     teashop: {
         meta: { title: "Tea Shop", author: "", question: "" },
+        stages: ["Genesis", "Custom-Built", "Product", "Commodity"],
         chains: "Customer -> Cup of Tea -> Tea\nCup of Tea -> Hot Water -> Water\nHot Water -> Kettle -> Power\nCup of Tea -> Cup",
         components: [
             { name: "Customer", kind: "anchor", evolution: 50, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
@@ -417,6 +430,7 @@ const TEMPLATES = {
     },
     navigation: {
         meta: { title: "Plateforme de Navigation", author: "Cellule Strategie Produit", question: "Ou investir pour se differencier ?" },
+        stages: ["Genese", "Sur-mesure", "Produit", "Commodite"],
         chains: "Automobiliste -> Application Mobile -> Itineraire Affiche -> Moteur de Calcul\nApplication Mobile -> Alertes Trafic -> Flux Temps Reel\nMoteur de Calcul -> Modele de Donnees -> Donnees OSM\nMoteur de Calcul -> Infrastructure Cloud\nApplication Mobile -> CDN -> Infrastructure Cloud\nInfrastructure Cloud -> Reseau Mobile",
         components: [
             { name: "Automobiliste", kind: "anchor", evolution: 50, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
@@ -460,6 +474,7 @@ const TEMPLATES = {
     },
     blank: {
         meta: { title: "Ma Carte Wardley", author: "", question: "" },
+        stages: ["", "", "", ""],
         chains: "",
         components: [],
         edges: [],
@@ -475,6 +490,7 @@ const TEMPLATES = {
 // ================================================================
 let wizardState = {
     meta: { title: "", author: "", question: "" },
+    stages: ["", "", "", ""],
     components: [],
     edges: [],
     groups: [],
@@ -606,6 +622,13 @@ function generateWTG2(state) {
     if (state.meta.author) lines.push('author: ' + state.meta.author);
     if (state.meta.question) lines.push('question: "' + state.meta.question + '"');
     if (lines.length > 0) lines.push('');
+
+    // Stages (evolution zone labels)
+    const hasStages = state.stages && state.stages.some(s => s.trim() !== '');
+    if (hasStages) {
+        lines.push('stages: ' + state.stages.join(', '));
+        lines.push('');
+    }
 
     // Anchors
     const anchors = state.components.filter(c => c.kind === 'anchor');
@@ -979,6 +1002,7 @@ function loadTemplate(key) {
     const tpl = TEMPLATES[key];
 
     wizardState.meta = { ...tpl.meta };
+    wizardState.stages = tpl.stages ? [...tpl.stages] : ["", "", "", ""];
     wizardState.components = tpl.components.map(c => ({ ...c }));
     wizardState.edges = tpl.edges.map(e => ({ ...e }));
     wizardState.groups = tpl.groups.map(g => ({ ...g, members: [...g.members] }));
@@ -992,6 +1016,9 @@ function loadTemplate(key) {
     document.getElementById('meta-question').value = wizardState.meta.question;
     document.getElementById('chain-input').value = tpl.chains;
     document.getElementById('legend-toggle').checked = wizardState.legend;
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('stage-' + i).value = wizardState.stages[i];
+    }
 
     renderCompList();
     goToStep(0);
@@ -1300,6 +1327,7 @@ function loadState() {
             const parsed = JSON.parse(saved);
             wizardState = {
                 meta: parsed.meta || { title: '', author: '', question: '' },
+                stages: parsed.stages || ['', '', '', ''],
                 components: parsed.components || [],
                 edges: parsed.edges || [],
                 groups: parsed.groups || [],
@@ -1318,6 +1346,9 @@ function restoreUI() {
     document.getElementById('meta-author').value = wizardState.meta.author || '';
     document.getElementById('meta-question').value = wizardState.meta.question || '';
     document.getElementById('legend-toggle').checked = wizardState.legend;
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('stage-' + i).value = (wizardState.stages && wizardState.stages[i]) || '';
+    }
 
     // Reconstruct chain input
     updateChainInputFromState();

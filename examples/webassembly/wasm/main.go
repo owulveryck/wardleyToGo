@@ -91,7 +91,6 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})
 	}
 	style := svgmap.NewOctoStyle(result.Stages, indicators...)
-	style.WithControls = true
 	e.Init(style)
 	err = e.Encode(result.Map)
 	if err != nil {

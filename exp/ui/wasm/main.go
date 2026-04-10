@@ -71,7 +71,7 @@ func generate(_ js.Value, args []js.Value) any {
 	marginL := 30 * scalePct / 100
 	marginT := 50 * scalePct / 100
 	marginR := 30 * scalePct / 100
-	marginB := 50 * scalePct / 100
+	marginB := 65 * scalePct / 100
 
 	legendWidth := 0
 	if result.Legend && len(result.LegendItems) > 0 {
@@ -97,7 +97,6 @@ func generate(_ js.Value, args []js.Value) any {
 		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})
 	}
 	style := svgmap.NewOctoStyle(result.Stages, indicators...)
-	style.WithControls = !static
 	e.Init(style)
 
 	if err := e.Encode(result.Map); err != nil {
