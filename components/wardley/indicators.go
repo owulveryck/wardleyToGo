@@ -18,74 +18,74 @@ func signalIndicator(signalType string, offsetX, offsetY int) []interface{} {
 	case "accelerating":
 		// Double right chevron ">>"
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 5,-5 l -5,-5 M %d,%d l 5,-5 l -5,-5", offsetX, offsetY+5, offsetX+6, offsetY+5),
+			D:           fmt.Sprintf("M %d,%d l 10,-10 l -10,-10 M %d,%d l 10,-10 l -10,-10", offsetX, offsetY+10, offsetX+12, offsetY+10),
 			Stroke:      svg.Color{Color: color.RGBA{0x27, 0xAE, 0x60, 0xFF}}, // green
-			StrokeWidth: "2",
+			StrokeWidth: "3",
 		})
 	case "declining":
 		// Downward arrow
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 0,10 l -4,-4 M %d,%d l 0,10 l 4,-4", offsetX, offsetY, offsetX, offsetY),
+			D:           fmt.Sprintf("M %d,%d l 0,20 l -8,-8 M %d,%d l 0,20 l 8,-8", offsetX, offsetY, offsetX, offsetY),
 			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}}, // red
-			StrokeWidth: "2",
+			StrokeWidth: "3",
 		})
 	case "stagnating":
 		// Horizontal double bar "="
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d h 10 M %d,%d h 10", offsetX, offsetY-2, offsetX, offsetY+2),
+			D:           fmt.Sprintf("M %d,%d h 20 M %d,%d h 20", offsetX, offsetY-4, offsetX, offsetY+4),
 			Stroke:      svg.Color{Color: color.RGBA{0x95, 0xA5, 0xA6, 0xFF}}, // gray
-			StrokeWidth: "2",
+			StrokeWidth: "3",
 		})
 	case "co-evolution":
 		// Intertwined arrows (double helix simplified)
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d q 3,-5 6,0 q 3,5 6,0", offsetX, offsetY),
+			D:           fmt.Sprintf("M %d,%d q 6,-10 12,0 q 6,10 12,0", offsetX, offsetY),
 			Stroke:      svg.Color{Color: color.RGBA{0x8E, 0x44, 0xAD, 0xFF}}, // purple
-			StrokeWidth: "2",
+			StrokeWidth: "3",
 		})
 	case "red-queen":
 		// Running arrow (right arrow with speed lines)
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 8,0 l -3,-3 M %d,%d l 8,0 l -3,3 M %d,%d h 4 M %d,%d h 3", offsetX, offsetY, offsetX, offsetY, offsetX-3, offsetY-3, offsetX-3, offsetY+3),
+			D:           fmt.Sprintf("M %d,%d l 16,0 l -6,-6 M %d,%d l 16,0 l -6,6 M %d,%d h 8 M %d,%d h 6", offsetX, offsetY, offsetX, offsetY, offsetX-6, offsetY-6, offsetX-6, offsetY+6),
 			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}}, // red
-			StrokeWidth: "1.5",
+			StrokeWidth: "2.5",
 		})
 	case "commoditization":
 		// Downward-right gravity arrow
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 8,6 l -4,0 M %d,%d l 8,6 l 0,-4", offsetX, offsetY, offsetX, offsetY),
+			D:           fmt.Sprintf("M %d,%d l 16,12 l -8,0 M %d,%d l 16,12 l 0,-8", offsetX, offsetY, offsetX, offsetY),
 			Stroke:      svg.Color{Color: color.RGBA{0x34, 0x49, 0x5E, 0xFF}}, // dark blue
-			StrokeWidth: "2",
+			StrokeWidth: "3",
 		})
 	case "network-effects":
 		// Small network/star pattern
-		cx, cy := offsetX+5, offsetY
+		cx, cy := offsetX+10, offsetY
 		elements = append(elements, svg.Circle{
 			P:           image.Pt(cx, cy),
-			R:           2,
+			R:           4,
 			Fill:        svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
 			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "1",
+			StrokeWidth: "2",
 		})
 		// Lines radiating out
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 5,-3 M %d,%d l 5,3 M %d,%d l -5,-3 M %d,%d l -5,3", cx, cy, cx, cy, cx, cy, cx, cy),
+			D:           fmt.Sprintf("M %d,%d l 10,-6 M %d,%d l 10,6 M %d,%d l -10,-6 M %d,%d l -10,6", cx, cy, cx, cy, cx, cy, cx, cy),
 			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "1",
+			StrokeWidth: "2",
 		})
 	case "economies-of-scale":
 		// Expanding concentric arcs
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d a 3,3 0 0,1 6,0 M %d,%d a 5,5 0 0,1 10,0", offsetX, offsetY, offsetX-2, offsetY),
+			D:           fmt.Sprintf("M %d,%d a 6,6 0 0,1 12,0 M %d,%d a 10,10 0 0,1 20,0", offsetX, offsetY, offsetX-4, offsetY),
 			Stroke:      svg.Color{Color: color.RGBA{0x16, 0xA0, 0x85, 0xFF}}, // teal
-			StrokeWidth: "1.5",
+			StrokeWidth: "2.5",
 		})
 	default:
 		// Generic signal: small diamond
 		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 4,-4 l 4,4 l -4,4 Z", offsetX, offsetY),
+			D:           fmt.Sprintf("M %d,%d l 8,-8 l 8,8 l -8,8 Z", offsetX, offsetY),
 			Stroke:      svg.Color{Color: color.RGBA{0xF3, 0x9C, 0x12, 0xFF}}, // amber
-			StrokeWidth: "1.5",
+			StrokeWidth: "2.5",
 		})
 	}
 
@@ -98,14 +98,14 @@ func warningIndicator(offsetX, offsetY int, text string) []interface{} {
 	elements := []interface{}{
 		// Warning triangle
 		svg.Path{
-			D:    fmt.Sprintf("M %d,%d l 5,-10 l 5,10 Z", offsetX-5, offsetY+5),
+			D:    fmt.Sprintf("M %d,%d l 10,-20 l 10,20 Z", offsetX-10, offsetY+10),
 			Fill: triColor,
 		},
 		// Exclamation mark inside triangle
 		svg.Text{
-			P:          image.Pt(offsetX, offsetY+3),
+			P:          image.Pt(offsetX, offsetY+6),
 			Text:       []byte("!"),
-			FontSize:   "8px",
+			FontSize:   "14px",
 			FontWeight: "bold",
 			TextAnchor: svg.TextAnchorMiddle,
 			Fill:       svg.White,

@@ -26,9 +26,9 @@ type Legend struct {
 const (
 	legendFontFamily = "Century Gothic,CenturyGothic,AppleGothic,sans-serif"
 	legendFontSize   = "11px"
-	legendLineHeight = 22
+	legendLineHeight = 24
 	legendIconOffset = 15 // X offset for icon center from left edge
-	legendTextOffset = 32 // X offset for label text from left edge
+	legendTextOffset = 35 // X offset for label text from left edge
 	legendPadding    = 15
 )
 
@@ -107,7 +107,7 @@ func (l *Legend) MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 					P:          image.Point{0, 0},
 					Text:       []byte(cat),
 					FontWeight: "bold",
-					FontSize:   legendFontSize,
+					FontSize:   "13px",
 					FontFamily: legendFontFamily,
 					Fill:       legendTextColor,
 					TextAnchor: svg.TextAnchorStart,
@@ -120,7 +120,7 @@ func (l *Legend) MarshalSVG(enc *xml.Encoder, box, canvas image.Rectangle) {
 			y += legendLineHeight
 			marshalLegendIcon(enc, item, image.Point{x0 + legendIconOffset, y})
 			_ = enc.Encode(svg.Transform{
-				Translate: image.Point{x0 + legendTextOffset, y + 4},
+				Translate: image.Point{x0 + legendTextOffset, y - 2},
 				Components: []any{
 					svg.Text{
 						P:          image.Point{0, 0},
@@ -281,63 +281,63 @@ func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
 
 // marshalSignalIcon renders the same signal icon used on components, centered at p.
 func marshalSignalIcon(enc *xml.Encoder, signalType string, p image.Point) {
-	ox, oy := p.X-5, p.Y-5
+	ox, oy := p.X-7, p.Y-7
 	switch signalType {
 	case "accelerating":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 5,-5 l -5,-5 M %d,%d l 5,-5 l -5,-5", ox, oy+5, ox+6, oy+5),
+			D:           fmt.Sprintf("M %d,%d l 7,-7 l -7,-7 M %d,%d l 7,-7 l -7,-7", ox, oy+7, ox+8, oy+7),
 			Stroke:      svg.Color{Color: color.RGBA{0x27, 0xAE, 0x60, 0xFF}},
 			StrokeWidth: "2",
 		})
 	case "declining":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 0,10 l -4,-4 M %d,%d l 0,10 l 4,-4", ox, oy, ox, oy),
+			D:           fmt.Sprintf("M %d,%d l 0,14 l -5,-5 M %d,%d l 0,14 l 5,-5", ox, oy, ox, oy),
 			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}},
 			StrokeWidth: "2",
 		})
 	case "stagnating":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d h 10 M %d,%d h 10", ox, oy-2, ox, oy+2),
+			D:           fmt.Sprintf("M %d,%d h 14 M %d,%d h 14", ox, oy-3, ox, oy+3),
 			Stroke:      svg.Color{Color: color.RGBA{0x95, 0xA5, 0xA6, 0xFF}},
 			StrokeWidth: "2",
 		})
 	case "co-evolution":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d q 3,-5 6,0 q 3,5 6,0", ox, oy),
+			D:           fmt.Sprintf("M %d,%d q 4,-7 8,0 q 4,7 8,0", ox, oy),
 			Stroke:      svg.Color{Color: color.RGBA{0x8E, 0x44, 0xAD, 0xFF}},
 			StrokeWidth: "2",
 		})
 	case "red-queen":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 8,0 l -3,-3 M %d,%d l 8,0 l -3,3 M %d,%d h 4 M %d,%d h 3", ox, oy, ox, oy, ox-3, oy-3, ox-3, oy+3),
+			D:           fmt.Sprintf("M %d,%d l 11,0 l -4,-4 M %d,%d l 11,0 l -4,4 M %d,%d h 5 M %d,%d h 4", ox, oy, ox, oy, ox-4, oy-4, ox-4, oy+4),
 			Stroke:      svg.Color{Color: color.RGBA{0xE7, 0x4C, 0x3C, 0xFF}},
 			StrokeWidth: "1.5",
 		})
 	case "commoditization":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 8,6 l -4,0 M %d,%d l 8,6 l 0,-4", ox, oy, ox, oy),
+			D:           fmt.Sprintf("M %d,%d l 11,8 l -5,0 M %d,%d l 11,8 l 0,-5", ox, oy, ox, oy),
 			Stroke:      svg.Color{Color: color.RGBA{0x34, 0x49, 0x5E, 0xFF}},
 			StrokeWidth: "2",
 		})
 	case "network-effects":
-		cx, cy := ox+5, oy
+		cx, cy := ox+7, oy
 		_ = enc.Encode(svg.Circle{
 			P:           image.Pt(cx, cy),
-			R:           2,
+			R:           3,
 			Fill:        svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
 			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "1",
+			StrokeWidth: "1.5",
 		})
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 5,-3 M %d,%d l 5,3 M %d,%d l -5,-3 M %d,%d l -5,3", cx, cy, cx, cy, cx, cy, cx, cy),
+			D:           fmt.Sprintf("M %d,%d l 7,-4 M %d,%d l 7,4 M %d,%d l -7,-4 M %d,%d l -7,4", cx, cy, cx, cy, cx, cy, cx, cy),
 			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "1",
+			StrokeWidth: "1.5",
 		})
 	case "economies-of-scale":
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d a 3,3 0 0,1 6,0 M %d,%d a 5,5 0 0,1 10,0", ox, oy, ox-2, oy),
+			D:           fmt.Sprintf("M %d,%d a 4,4 0 0,1 8,0 M %d,%d a 7,7 0 0,1 14,0", ox, oy, ox-3, oy),
 			Stroke:      svg.Color{Color: color.RGBA{0x16, 0xA0, 0x85, 0xFF}},
-			StrokeWidth: "1.5",
+			StrokeWidth: "2",
 		})
 	default:
 		marshalDiamond(enc, p, svg.Color{Color: color.RGBA{0xF3, 0x9C, 0x12, 0xFF}})
@@ -349,28 +349,28 @@ func marshalDiamond(enc *xml.Encoder, p image.Point, fill svg.Color) {
 		Translate: p,
 		Components: []any{
 			svg.Line{
-				F:           image.Point{0, -5},
-				T:           image.Point{5, 0},
+				F:           image.Point{0, -7},
+				T:           image.Point{7, 0},
 				Stroke:      fill,
-				StrokeWidth: "1.5",
+				StrokeWidth: "2",
 			},
 			svg.Line{
-				F:           image.Point{5, 0},
-				T:           image.Point{0, 5},
+				F:           image.Point{7, 0},
+				T:           image.Point{0, 7},
 				Stroke:      fill,
-				StrokeWidth: "1.5",
+				StrokeWidth: "2",
 			},
 			svg.Line{
-				F:           image.Point{0, 5},
-				T:           image.Point{-5, 0},
+				F:           image.Point{0, 7},
+				T:           image.Point{-7, 0},
 				Stroke:      fill,
-				StrokeWidth: "1.5",
+				StrokeWidth: "2",
 			},
 			svg.Line{
-				F:           image.Point{-5, 0},
-				T:           image.Point{0, -5},
+				F:           image.Point{-7, 0},
+				T:           image.Point{0, -7},
 				Stroke:      fill,
-				StrokeWidth: "1.5",
+				StrokeWidth: "2",
 			},
 		},
 	})

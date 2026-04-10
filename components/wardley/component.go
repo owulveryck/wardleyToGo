@@ -274,14 +274,14 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 
 	// Render signals as small indicators above-right of the component
 	for i, sig := range c.Signals {
-		offsetY := -15 - i*14
-		components = append(components, signalIndicator(sig.Type, 15, offsetY)...)
+		offsetY := -20 - i*28
+		components = append(components, signalIndicator(sig.Type, 20, offsetY)...)
 	}
 
-	// Render warnings as small orange triangles
+	// Render warnings as orange triangles
 	for i, ann := range c.Annotations {
 		if ann.Kind == "warning" {
-			offsetX := -20 - i*16
+			offsetX := -30 - i*28
 			components = append(components, warningIndicator(offsetX, 0, ann.Text)...)
 		}
 	}
