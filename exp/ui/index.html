@@ -609,7 +609,13 @@ function generateWTG2(state) {
 
     // Anchors
     const anchors = state.components.filter(c => c.kind === 'anchor');
-    for (const a of anchors) lines.push('anchor ' + a.name);
+    for (const a of anchors) {
+        if (a.evolution !== undefined && a.evolution !== 50) {
+            lines.push('anchor ' + a.name + ' : ' + evoToRoman(a.evolution));
+        } else {
+            lines.push('anchor ' + a.name);
+        }
+    }
     if (anchors.length) lines.push('');
 
     // Components
@@ -681,12 +687,13 @@ function renderCompList() {
 
 function renderEvoList() {
     const container = document.getElementById('evo-list');
-    container.innerHTML = wizardState.components.filter(c => c.kind !== 'anchor').map((c, idx) => {
-        const compIdx = wizardState.components.indexOf(c);
+    container.innerHTML = wizardState.components.map((c, compIdx) => {
+        const isAnchor = c.kind === 'anchor';
         return `
         <div class="evo-item">
             <div class="evo-item-header">
                 <span class="evo-item-name">${escapeHtml(c.name)}</span>
+                ${isAnchor ? '<span class="comp-badge anchor">ancre</span>' : ''}
                 <span class="evo-item-pos" id="evo-pos-${compIdx}">${evoToRoman(c.evolution)}</span>
             </div>
             <div class="evo-slider-track">
@@ -697,6 +704,7 @@ function renderEvoList() {
                     oninput="updateEvolution(${compIdx}, this.value)"
                     onchange="onWizardChange()">
             </div>
+            ${isAnchor ? '' : `
             <div class="evo-item-options">
                 <label>Type:</label>
                 <div class="pill-group">
@@ -721,7 +729,7 @@ function renderEvoList() {
                     <option value="3" ${c.inertia === 3 ? 'selected' : ''}>!!! Bloquante</option>
                 </select>
                 ` : ''}
-            </div>
+            </div>`}
         </div>`;
     }).join('');
 }

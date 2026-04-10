@@ -645,6 +645,20 @@ func TestParseExampleFile(t *testing.T) {
 		t.Errorf("component count = %d, want >= 10", compCount)
 	}
 
+	// First anchor should have evolution
+	for _, n := range doc.Nodes {
+		if n.Kind == KindAnchor && n.Name == "Automobiliste" {
+			if n.Evolution != "III.5" {
+				t.Errorf("anchor Automobiliste evolution = %q, want %q", n.Evolution, "III.5")
+			}
+		}
+		if n.Kind == KindAnchor && n.Name == "Collectivité Locale" {
+			if n.Evolution != "" {
+				t.Errorf("anchor Collectivité Locale evolution = %q, want empty", n.Evolution)
+			}
+		}
+	}
+
 	// Should have edges
 	if len(doc.Edges) < 10 {
 		t.Errorf("edge count = %d, want >= 10", len(doc.Edges))
@@ -663,5 +677,69 @@ func TestParseExampleFile(t *testing.T) {
 	// Should have signals
 	if len(doc.Signals) != 4 {
 		t.Errorf("signal count = %d, want 4", len(doc.Signals))
+	}
+}
+
+func TestParseAnchorWithEvolution(t *testing.T) {
+	tests := []struct {
+		name          string
+		input         string
+		wantName      string
+		wantEvolution string
+		wantEvolvedTo string
+	}{
+		{
+			name:          "anchor without evolution",
+			input:         "anchor Customer",
+			wantName:      "Customer",
+			wantEvolution: "",
+		},
+		{
+			name:          "anchor with evolution",
+			input:         "anchor Customer : III.5",
+			wantName:      "Customer",
+			wantEvolution: "III.5",
+		},
+		{
+			name:          "anchor with multi-word name and evolution",
+			input:         "anchor Collectivité Locale : II.3",
+			wantName:      "Collectivité Locale",
+			wantEvolution: "II.3",
+		},
+		{
+			name:          "anchor with evolution and evolvedTo",
+			input:         "anchor User : II.3 >> III.5",
+			wantName:      "User",
+			wantEvolution: "II.3",
+			wantEvolvedTo: "III.5",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p, err := NewParser(strings.NewReader(tt.input))
+			if err != nil {
+				t.Fatal(err)
+			}
+			doc, err := p.Parse()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(doc.Nodes) != 1 {
+				t.Fatalf("got %d nodes, want 1", len(doc.Nodes))
+			}
+			n := doc.Nodes[0]
+			if n.Kind != KindAnchor {
+				t.Errorf("kind = %v, want KindAnchor", n.Kind)
+			}
+			if n.Name != tt.wantName {
+				t.Errorf("name = %q, want %q", n.Name, tt.wantName)
+			}
+			if n.Evolution != tt.wantEvolution {
+				t.Errorf("evolution = %q, want %q", n.Evolution, tt.wantEvolution)
+			}
+			if n.EvolvedTo != tt.wantEvolvedTo {
+				t.Errorf("evolvedTo = %q, want %q", n.EvolvedTo, tt.wantEvolvedTo)
+			}
+		})
 	}
 }

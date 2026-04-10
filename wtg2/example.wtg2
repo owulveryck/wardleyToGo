@@ -16,7 +16,7 @@ stages: Genèse, Sur-mesure, Produit, Commodité
 
 // ─── 3. Ancres ───────────────────────────────
 
-anchor Automobiliste
+anchor Automobiliste : III.5
 anchor Collectivité Locale
 
 // ─── 4. Composants ───────────────────────────

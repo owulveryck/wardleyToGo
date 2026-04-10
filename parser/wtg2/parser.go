@@ -43,7 +43,7 @@ func (p *Parser) Parse() (*Document, error) {
 		case TokenStages:
 			err = p.parseStages(doc, tok.Text)
 		case TokenAnchor:
-			err = p.parseAnchor(doc, tok.Text)
+			err = p.parseAnchor(doc, tok.Text, tok.Block)
 		case TokenComponent:
 			err = p.parseComponent(doc, tok.Text, tok.Block)
 		case TokenSubmap:
@@ -115,16 +115,35 @@ func (p *Parser) parseStages(doc *Document, line string) error {
 	return nil
 }
 
-func (p *Parser) parseAnchor(doc *Document, line string) error {
+func (p *Parser) parseAnchor(doc *Document, line string, block []string) error {
 	name := strings.TrimSpace(strings.TrimPrefix(line, "anchor"))
-	if name == "" {
-		return fmt.Errorf("anchor missing name")
-	}
-	doc.Nodes = append(doc.Nodes, &NodeDecl{
-		Name:       name,
+
+	node := &NodeDecl{
 		Kind:       KindAnchor,
 		Visibility: -1,
-	})
+	}
+
+	if idx := strings.Index(name, " : "); idx >= 0 {
+		node.Name = strings.TrimSpace(name[:idx])
+		rest := strings.TrimSpace(name[idx+3:])
+		if err := parseShorthand(node, rest); err != nil {
+			return err
+		}
+	} else {
+		node.Name = name
+	}
+
+	if node.Name == "" {
+		return fmt.Errorf("anchor missing name")
+	}
+
+	if len(block) > 0 {
+		if err := parseBlockConfig(node, block); err != nil {
+			return err
+		}
+	}
+
+	doc.Nodes = append(doc.Nodes, node)
 	return nil
 }
 
