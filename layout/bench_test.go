@@ -5,26 +5,6 @@ import (
 	"testing"
 )
 
-// buildChainGraph creates a linear dependency chain: anchor -> n1 -> n2 -> ... -> nN.
-func buildChainGraph(n int) *Graph {
-	g := &Graph{
-		Nodes: make([]Node, 0, n+1),
-		Edges: make([]Edge, 0, n),
-	}
-	g.Nodes = append(g.Nodes, Node{Name: "anchor", Kind: KindAnchor})
-	for i := 1; i <= n; i++ {
-		g.Nodes = append(g.Nodes, Node{Name: fmt.Sprintf("n%d", i), Kind: KindRegular})
-	}
-	g.Edges = append(g.Edges, Edge{From: "anchor", To: "n1"})
-	for i := 1; i < n; i++ {
-		g.Edges = append(g.Edges, Edge{
-			From: fmt.Sprintf("n%d", i),
-			To:   fmt.Sprintf("n%d", i+1),
-		})
-	}
-	return g
-}
-
 // buildDenseGraph creates a graph with n nodes where each node connects to its
 // next 3 nodes, producing O(3n) edges with multiple paths.
 func buildDenseGraph(n int) *Graph {
