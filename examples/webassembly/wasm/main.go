@@ -80,7 +80,8 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 	if err != nil {
 		return "", err
 	}
-	defer e.Close()
+	// Close() is called explicitly before reading the buffer below,
+	// not via defer, because defer runs after the return value is captured.
 
 	indicators := []svgmap.Annotator{}
 	if withAnnotations {
@@ -96,5 +97,6 @@ func wtg2SVG(s string, width int, height int, withAnnotations bool) (string, err
 	if err != nil {
 		return "", err
 	}
+	e.Close()
 	return output.String(), nil
 }

@@ -85,7 +85,8 @@ func generate(_ js.Value, args []js.Value) any {
 	if err != nil {
 		return fmt.Sprintf("error: %v", err)
 	}
-	defer e.Close()
+	// Close() is called explicitly before reading the buffer below,
+	// not via defer, because defer runs after the return value is captured.
 
 	if static {
 		e.Themes = nil
@@ -102,5 +103,6 @@ func generate(_ js.Value, args []js.Value) any {
 	if err := e.Encode(result.Map); err != nil {
 		return fmt.Sprintf("error: %v", err)
 	}
+	e.Close()
 	return output.String()
 }
