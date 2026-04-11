@@ -23,6 +23,7 @@ func main() {
 	width := flag.Int("width", 1100, "SVG viewBox width (impacts rendering definition)")
 	height := flag.Int("height", 900, "SVG viewBox height (impacts rendering definition)")
 	auto := flag.Bool("auto", false, "automatically compute viewBox dimensions based on component count and density")
+	legend := flag.Bool("legend", false, "force legend display even if not declared in the WTG2 source")
 	flag.Parse()
 
 	p, err := wtg2.NewParser(os.Stdin)
@@ -57,6 +58,10 @@ func main() {
 		if !heightSet {
 			*height = autoH
 		}
+	}
+
+	if *legend {
+		result.Legend = true
 	}
 
 	legendWidth := 0

@@ -400,12 +400,10 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	stages := buildEvolutionStages(doc.Stages)
 
 	result := &BuildResult{
-		Map:    m,
-		Stages: stages,
-		Legend: doc.Legend,
-	}
-	if doc.Legend {
-		result.LegendItems = buildLegendItems(doc)
+		Map:         m,
+		Stages:      stages,
+		Legend:      doc.Legend,
+		LegendItems: buildLegendItems(doc),
 	}
 
 	// Phase 5: Compute focus set

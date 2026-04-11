@@ -290,8 +290,10 @@ func TestBuildMap_LegendDisabled(t *testing.T) {
 	if result.Legend {
 		t.Error("expected Legend=false")
 	}
-	if len(result.LegendItems) != 0 {
-		t.Errorf("expected no LegendItems, got %d", len(result.LegendItems))
+	// LegendItems are always pre-computed (so callers can enable legend
+	// via CLI flags), but Legend=false means they should not be displayed.
+	if len(result.LegendItems) == 0 {
+		t.Error("expected LegendItems to be pre-computed even when Legend=false")
 	}
 }
 
