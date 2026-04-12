@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WTG2 Collaboration Server</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Pro Display', system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #E7E9EE 0%, #FFFFFF 50%, #EBFAFB 100%); color: #0E2356; min-height: 100vh; padding: 24px; }
+
+        .container { max-width: 960px; margin: 0 auto; }
+
+        h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.02em; }
+        .subtitle { font-size: 13px; color: #586586; margin-bottom: 24px; }
+
+        .actions { margin-bottom: 20px; display: flex; gap: 12px; align-items: center; }
+
+        .btn { background: rgba(255,255,255,0.65); color: #0E2356; border: 1px solid rgba(14,35,86,0.12); border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { background: rgba(255,255,255,0.85); border-color: rgba(14,35,86,0.18); box-shadow: 0 2px 6px rgba(14,35,86,0.08); }
+        .btn-primary { background: #0E2356; color: #fff; border-color: #0E2356; }
+        .btn-primary:hover { background: #263967; box-shadow: 0 2px 8px rgba(14,35,86,0.25); }
+        .btn-danger { color: #e74c3c; border-color: rgba(231,76,60,0.3); }
+        .btn-danger:hover { background: rgba(231,76,60,0.08); border-color: #e74c3c; }
+        .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; background: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border-radius: 12px; border: 1px solid rgba(14,35,86,0.08); overflow: hidden; box-shadow: 0 1px 3px rgba(14,35,86,0.06); }
+        th { background: rgba(14,35,86,0.04); text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #586586; font-weight: 600; border-bottom: 1px solid rgba(14,35,86,0.08); }
+        td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid rgba(14,35,86,0.04); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+
+        .session-id { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: #3E4F78; }
+        .client-count { display: flex; gap: 8px; }
+        .client-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+        .client-badge.rw { background: rgba(0,210,221,0.12); color: #0E2356; }
+        .client-badge.ro { background: rgba(14,35,86,0.06); color: #6E7B9A; }
+        .time-ago { font-size: 12px; color: #8691AB; }
+
+        .url-group { display: flex; flex-direction: column; gap: 4px; }
+        .url-row { display: flex; align-items: center; gap: 6px; }
+        .url-label { font-size: 10px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; min-width: 28px; }
+        .url-label.rw { color: #00838A; }
+        .url-label.ro { color: #8691AB; }
+        .url-input { font-family: 'SF Mono', monospace; font-size: 11px; padding: 4px 8px; background: rgba(14,35,86,0.04); border: 1px solid rgba(14,35,86,0.08); border-radius: 4px; color: #3E4F78; width: 260px; cursor: text; }
+        .copy-btn { background: none; border: 1px solid rgba(14,35,86,0.12); border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer; color: #586586; transition: all .15s; }
+        .copy-btn:hover { background: rgba(0,210,221,0.08); border-color: rgba(0,210,221,0.3); color: #0E2356; }
+        .copy-btn.copied { background: rgba(46,204,113,0.12); color: #27ae60; border-color: rgba(46,204,113,0.3); }
+
+        .empty-state { text-align: center; padding: 40px; color: #8691AB; font-size: 14px; }
+
+        .delete-form { display: inline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WTG2 Collaboration Server</h1>
+        <p class="subtitle">Manage collaborative Wardley Mapping sessions</p>
+
+        <div class="actions">
+            <form method="POST" action="/session{{if .AdminToken}}?token={{.AdminToken}}{{end}}">
+                <button type="submit" class="btn btn-primary">+ New Session</button>
+            </form>
+            {{if .Sessions}}
+            <span style="font-size:12px;color:#8691AB">{{len .Sessions}} active session{{if gt (len .Sessions) 1}}s{{end}}</span>
+            {{end}}
+        </div>
+
+        {{if .Sessions}}
+        <table>
+            <thead>
+                <tr>
+                    <th>Session</th>
+                    <th>Clients</th>
+                    <th>Created</th>
+                    <th>URLs</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Sessions}}
+                <tr>
+                    <td><span class="session-id">{{truncate .ID 12}}</span></td>
+                    <td>
+                        <div class="client-count">
+                            <span class="client-badge rw">{{.RWCount}} rw</span>
+                            <span class="client-badge ro">{{.ROCount}} ro</span>
+                        </div>
+                    </td>
+                    <td><span class="time-ago">{{timeAgo .Created}}</span></td>
+                    <td>
+                        <div class="url-group">
+                            <div class="url-row">
+                                <span class="url-label rw">RW</span>
+                                <input class="url-input" readonly value="*****" data-url="{{.WriteURL}}" id="rw-{{.ID}}">
+                                <button class="copy-btn" onclick="revealAndCopy('rw-{{.ID}}', this)">Reveal &amp; Copy</button>
+                            </div>
+                            <div class="url-row">
+                                <span class="url-label ro">RO</span>
+                                <input class="url-input" readonly value="*****" data-url="{{.ReadURL}}" id="ro-{{.ID}}">
+                                <button class="copy-btn" onclick="revealAndCopy('ro-{{.ID}}', this)">Reveal &amp; Copy</button>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <form method="POST" action="/session/{{.ID}}/delete{{if $.AdminToken}}?token={{$.AdminToken}}{{end}}" class="delete-form">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this session?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <div class="empty-state">
+            No active sessions. Click "New Session" to create one.
+        </div>
+        {{end}}
+    </div>
+
+    <script>
+    function revealAndCopy(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const url = input.getAttribute('data-url');
+        // Build the full WebSocket URL from the current page origin
+        const origin = window.location.origin.replace(/^http/, 'ws');
+        const fullURL = origin + url;
+        // Reveal the URL in the input
+        input.value = fullURL;
+        navigator.clipboard.writeText(fullURL).then(function() {
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = 'Reveal & Copy';
+                btn.classList.remove('copied');
+                input.value = '*****';
+            }, 3000);
+        });
+    }
+    </script>
+</body>
+</html>

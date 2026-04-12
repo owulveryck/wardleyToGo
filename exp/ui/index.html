@@ -206,6 +206,28 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 #share-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(14, 35, 86, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: #FFFFFF; padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity .3s ease; box-shadow: 0 4px 16px rgba(14, 35, 86, 0.3); }
 #share-toast.visible { opacity: 1; }
 
+/* === COLLABORATION === */
+.collab-overlay { position: fixed; inset: 0; background: rgba(14,35,86,0.4); backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.collab-dialog { background: rgba(255,255,255,0.92); backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(14,35,86,0.12); border-radius: 16px; padding: 28px; width: 440px; max-width: 90vw; box-shadow: 0 8px 32px rgba(14,35,86,0.15); }
+.collab-dialog h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0E2356; }
+.collab-dialog .field { margin-bottom: 14px; }
+.collab-dialog .field label { display: block; font-size: 11px; color: #3E4F78; text-transform: uppercase; letter-spacing: .5px; font-weight: 500; margin-bottom: 4px; }
+.collab-dialog .field input { width: 100%; background: rgba(255,255,255,0.7); border: 1px solid rgba(14,35,86,0.10); border-radius: 8px; padding: 10px 12px; color: #0E2356; font-size: 13px; font-family: inherit; }
+.collab-dialog .field input:focus { border-color: #00D2DD; outline: none; box-shadow: 0 0 0 3px rgba(0,210,221,0.15); }
+.collab-dialog .field .hint { font-size: 11px; color: #8691AB; margin-top: 4px; }
+.collab-dialog .field .error-hint { font-size: 11px; color: #e74c3c; margin-top: 4px; display: none; }
+.collab-dialog .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.collab-bar { display: none; align-items: center; gap: 10px; padding: 6px 16px; background: rgba(0,210,221,0.08); border-bottom: 1px solid rgba(0,210,221,0.15); font-size: 12px; color: #0E2356; flex-shrink: 0; }
+.collab-bar.active { display: flex; }
+.collab-bar .collab-status { font-weight: 600; }
+.collab-bar .collab-users { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+.collab-bar .collab-user { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #3E4F78; }
+.collab-bar .collab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.collab-bar .spectator-badge { background: rgba(14,35,86,0.08); color: #586586; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; text-transform: uppercase; }
+.collab-bar .collab-disconnect { margin-left: auto; }
+.remote-cursor { position: absolute; border-left: 2px solid; z-index: 10; pointer-events: none; }
+.remote-cursor-label { position: absolute; top: -18px; left: -1px; font-size: 9px; padding: 1px 4px; border-radius: 3px; color: #fff; white-space: nowrap; pointer-events: none; }
+
 /* === INLINE STYLE OVERRIDES === */
 #evo-stages-bar > div:nth-child(1) { background: rgba(0, 210, 221, 0.08) !important; }
 #evo-stages-bar > div:nth-child(2) { background: rgba(0, 210, 221, 0.14) !important; }
@@ -273,6 +295,10 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                 <input type="file" id="import-file-input" accept=".wtg2,.wtg,.txt" style="display:none">
                 <button id="share-url" data-i18n-title="toolbar.share" title="Copier le lien de partage">&#128279; <span data-i18n="toolbar.shareLabel">Partager</span></button>
             </div>
+            <div class="separator"></div>
+            <div class="toolbar-group">
+                <button id="collab-btn" onclick="openCollabDialog()" data-i18n-title="toolbar.collab" title="Rejoindre une session collaborative">&#9881; <span data-i18n="toolbar.collabLabel">Collaborer</span></button>
+            </div>
         </div>
         <span id="status" data-i18n="status.loading">Chargement WASM...</span>
         <div class="toolbar-group">
@@ -283,6 +309,13 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
         </div>
     </div>
     <div id="share-toast"></div>
+
+    <!-- === COLLABORATION BAR === -->
+    <div id="collab-bar" class="collab-bar">
+        <span class="collab-status" id="collab-status"></span>
+        <div class="collab-users" id="collab-users"></div>
+        <button class="btn btn-sm collab-disconnect" onclick="disconnectSession()" data-i18n="collab.disconnect">Quitter</button>
+    </div>
 
     <!-- === MOBILE TABS === -->
     <div id="mobile-tabs">
@@ -636,6 +669,22 @@ const translations = {
         'share.manual': "Lien mis a jour dans la barre d'adresse (copie manuelle)",
         'share.error': 'Erreur : {message}',
         'status.urlError': 'Erreur URL: {message}',
+        'toolbar.collab': 'Rejoindre une session collaborative',
+        'toolbar.collabLabel': 'Collaborer',
+        'collab.title': 'Session collaborative',
+        'collab.urlLabel': 'URL de la session',
+        'collab.urlPlaceholder': 'ws://serveur:8081/s/session-id/access-id',
+        'collab.urlHint': 'Collez l\'URL fournie par le serveur de collaboration',
+        'collab.nameLabel': 'Votre nom',
+        'collab.namePlaceholder': 'Alice',
+        'collab.connect': 'Se connecter',
+        'collab.cancel': 'Annuler',
+        'collab.disconnect': 'Quitter',
+        'collab.connected': 'Session collaborative',
+        'collab.spectator': 'Spectateur',
+        'collab.invalidUrl': 'URL invalide (doit commencer par ws:// ou wss://)',
+        'collab.connectionError': 'Erreur de connexion : {message}',
+        'collab.reconnecting': 'Reconnexion...',
     },
     en: {
         'toolbar.title': 'WTG2 Playground',
@@ -715,6 +764,22 @@ const translations = {
         'share.manual': 'Link updated in address bar (manual copy)',
         'share.error': 'Error: {message}',
         'status.urlError': 'URL Error: {message}',
+        'toolbar.collab': 'Join a collaborative session',
+        'toolbar.collabLabel': 'Collaborate',
+        'collab.title': 'Collaborative session',
+        'collab.urlLabel': 'Session URL',
+        'collab.urlPlaceholder': 'ws://server:8081/s/session-id/access-id',
+        'collab.urlHint': 'Paste the URL provided by the collaboration server',
+        'collab.nameLabel': 'Your name',
+        'collab.namePlaceholder': 'Alice',
+        'collab.connect': 'Connect',
+        'collab.cancel': 'Cancel',
+        'collab.disconnect': 'Leave',
+        'collab.connected': 'Collaborative session',
+        'collab.spectator': 'Spectator',
+        'collab.invalidUrl': 'Invalid URL (must start with ws:// or wss://)',
+        'collab.connectionError': 'Connection error: {message}',
+        'collab.reconnecting': 'Reconnecting...',
     }
 };
 
@@ -2010,6 +2075,376 @@ WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async
         loadTemplate('teashop');
     }
 });
+
+// ================================================================
+// 22. COLLABORATION
+// ================================================================
+
+var collabWS = null;
+var collabClientId = null;
+var collabMode = null;
+var collabUsers = {};
+var collabVersion = 0;
+var collabRemoteUpdate = false;
+var collabReconnectTimer = null;
+var collabReconnectDelay = 1000;
+var collabLastUrl = null;
+var collabLastName = null;
+var collabRemoteCursors = {};
+
+function openCollabDialog() {
+    if (collabWS) {
+        // Already connected — show disconnect option
+        disconnectSession();
+        return;
+    }
+
+    var savedName = localStorage.getItem('wtg2-collab-name') || '';
+    var overlay = document.createElement('div');
+    overlay.className = 'collab-overlay';
+    overlay.id = 'collab-overlay';
+    overlay.innerHTML =
+        '<div class="collab-dialog">' +
+        '  <h2>' + t('collab.title') + '</h2>' +
+        '  <div class="field">' +
+        '    <label>' + t('collab.urlLabel') + '</label>' +
+        '    <input type="text" id="collab-url-input" placeholder="' + t('collab.urlPlaceholder') + '">' +
+        '    <div class="hint">' + t('collab.urlHint') + '</div>' +
+        '    <div class="error-hint" id="collab-url-error"></div>' +
+        '  </div>' +
+        '  <div class="field">' +
+        '    <label>' + t('collab.nameLabel') + '</label>' +
+        '    <input type="text" id="collab-name-input" placeholder="' + t('collab.namePlaceholder') + '" value="' + savedName.replace(/"/g, '&quot;') + '">' +
+        '  </div>' +
+        '  <div class="btn-row">' +
+        '    <button class="btn" onclick="closeCollabDialog()">' + t('collab.cancel') + '</button>' +
+        '    <button class="btn btn-primary" onclick="doConnect()">' + t('collab.connect') + '</button>' +
+        '  </div>' +
+        '</div>';
+    document.body.appendChild(overlay);
+
+    // Focus URL input
+    setTimeout(function() { document.getElementById('collab-url-input').focus(); }, 50);
+
+    // Allow Enter to connect
+    overlay.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doConnect();
+        if (e.key === 'Escape') closeCollabDialog();
+    });
+}
+
+function closeCollabDialog() {
+    var overlay = document.getElementById('collab-overlay');
+    if (overlay) overlay.remove();
+}
+
+function doConnect() {
+    var urlInput = document.getElementById('collab-url-input');
+    var nameInput = document.getElementById('collab-name-input');
+    var errorEl = document.getElementById('collab-url-error');
+    var wsUrl = urlInput.value.trim();
+    var userName = nameInput.value.trim() || 'Anonymous';
+
+    if (!wsUrl.match(/^wss?:\/\//)) {
+        errorEl.textContent = t('collab.invalidUrl');
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    localStorage.setItem('wtg2-collab-name', userName);
+    closeCollabDialog();
+    connectToSession(wsUrl, userName);
+}
+
+function connectToSession(wsUrl, userName) {
+    collabLastUrl = wsUrl;
+    collabLastName = userName;
+
+    // If in guided mode, switch to editor with current WTG2
+    if (currentMode === 'guided') {
+        setMode('editor');
+    }
+
+    var separator = wsUrl.indexOf('?') >= 0 ? '&' : '?';
+    var fullUrl = wsUrl + separator + 'name=' + encodeURIComponent(userName);
+
+    var ws = new WebSocket(fullUrl);
+    collabWS = ws;
+
+    ws.onopen = function() {
+        collabReconnectDelay = 1000;
+        // Send hello
+        ws.send(JSON.stringify({ type: 'hello', payload: { name: userName } }));
+    };
+
+    ws.onmessage = function(evt) {
+        var msg = JSON.parse(evt.data);
+        switch (msg.type) {
+            case 'welcome': onWelcome(msg.payload); break;
+            case 'op': onRemoteOp(msg.payload); break;
+            case 'ack': onAck(msg.payload); break;
+            case 'user_joined': onUserJoined(msg.payload); break;
+            case 'user_left': onUserLeft(msg.payload); break;
+            case 'cursor': onRemoteCursor(msg.payload); break;
+            case 'full_sync': onFullSync(msg.payload); break;
+            case 'error': console.error('collab error:', msg.payload.message); break;
+        }
+    };
+
+    ws.onclose = function() {
+        if (collabWS === ws) {
+            // Unexpected close — try to reconnect
+            updateCollabBar();
+            document.getElementById('collab-status').textContent = t('collab.reconnecting');
+            collabReconnectTimer = setTimeout(function() {
+                if (collabWS === ws) {
+                    connectToSession(collabLastUrl, collabLastName);
+                }
+            }, collabReconnectDelay);
+            collabReconnectDelay = Math.min(collabReconnectDelay * 2, 30000);
+        }
+    };
+
+    ws.onerror = function() {
+        // onclose will handle reconnection
+    };
+}
+
+function disconnectSession() {
+    if (collabReconnectTimer) {
+        clearTimeout(collabReconnectTimer);
+        collabReconnectTimer = null;
+    }
+    var ws = collabWS;
+    collabWS = null;
+    collabClientId = null;
+    collabMode = null;
+    collabUsers = {};
+    collabVersion = 0;
+    if (ws) ws.close();
+
+    // Remove remote cursors
+    for (var id in collabRemoteCursors) {
+        if (collabRemoteCursors[id].bookmark) collabRemoteCursors[id].bookmark.clear();
+    }
+    collabRemoteCursors = {};
+
+    // Restore editor
+    if (editor) editor.setOption('readOnly', false);
+
+    // Update UI
+    document.getElementById('collab-bar').classList.remove('active');
+    document.getElementById('collab-btn').innerHTML = '&#9881; <span data-i18n="toolbar.collabLabel">' + t('toolbar.collabLabel') + '</span>';
+}
+
+function onWelcome(payload) {
+    collabClientId = payload.clientId;
+    collabMode = payload.mode;
+    collabVersion = payload.version;
+    collabUsers = {};
+    (payload.users || []).forEach(function(u) {
+        collabUsers[u.id] = u;
+    });
+
+    // Load document into editor
+    if (!editor) initEditor();
+    collabRemoteUpdate = true;
+    editor.setValue(payload.document.join('\n'));
+    collabRemoteUpdate = false;
+
+    // Set read-only for spectators
+    if (collabMode === 'ro') {
+        editor.setOption('readOnly', true);
+    } else {
+        editor.setOption('readOnly', false);
+    }
+
+    updateCollabBar();
+    render();
+}
+
+function onRemoteOp(payload) {
+    if (!editor) return;
+    collabVersion = payload.version;
+
+    collabRemoteUpdate = true;
+    switch (payload.type) {
+        case 'insert': {
+            var pos = { line: payload.lineStart, ch: 0 };
+            var text = payload.lines.join('\n') + '\n';
+            editor.replaceRange(text, pos, pos);
+            break;
+        }
+        case 'delete': {
+            var from = { line: payload.lineStart, ch: 0 };
+            var to = { line: payload.lineStart + payload.lineCount, ch: 0 };
+            editor.replaceRange('', from, to);
+            break;
+        }
+        case 'replace': {
+            var from = { line: payload.lineStart, ch: 0 };
+            var to = { line: payload.lineStart + payload.lineCount, ch: 0 };
+            var text = payload.lines.join('\n') + '\n';
+            editor.replaceRange(text, from, to);
+            break;
+        }
+    }
+    collabRemoteUpdate = false;
+    scheduleRender();
+}
+
+function onAck(payload) {
+    collabVersion = payload.version;
+}
+
+function onFullSync(payload) {
+    collabVersion = payload.version;
+    if (!editor) return;
+    collabRemoteUpdate = true;
+    editor.setValue(payload.document.join('\n'));
+    collabRemoteUpdate = false;
+    scheduleRender();
+}
+
+function onUserJoined(payload) {
+    collabUsers[payload.id] = payload;
+    updateCollabBar();
+    showToast(payload.name + ' joined');
+}
+
+function onUserLeft(payload) {
+    var user = collabUsers[payload.id];
+    delete collabUsers[payload.id];
+    // Remove cursor
+    if (collabRemoteCursors[payload.id]) {
+        if (collabRemoteCursors[payload.id].bookmark) collabRemoteCursors[payload.id].bookmark.clear();
+        delete collabRemoteCursors[payload.id];
+    }
+    updateCollabBar();
+    if (user) showToast(user.name + ' left');
+}
+
+function onRemoteCursor(payload) {
+    if (!editor) return;
+    var prev = collabRemoteCursors[payload.clientId];
+    if (prev && prev.bookmark) prev.bookmark.clear();
+
+    var user = collabUsers[payload.clientId];
+    if (!user) return;
+
+    var el = document.createElement('div');
+    el.className = 'remote-cursor';
+    el.style.borderLeftColor = user.color;
+    el.style.height = '18px';
+    var label = document.createElement('div');
+    label.className = 'remote-cursor-label';
+    label.style.background = user.color;
+    label.textContent = user.name;
+    el.appendChild(label);
+
+    var bookmark = editor.setBookmark({ line: payload.line, ch: payload.ch }, { widget: el, insertLeft: true });
+    collabRemoteCursors[payload.clientId] = { bookmark: bookmark };
+}
+
+function updateCollabBar() {
+    var bar = document.getElementById('collab-bar');
+    var statusEl = document.getElementById('collab-status');
+    var usersEl = document.getElementById('collab-users');
+
+    if (!collabWS || !collabClientId) {
+        bar.classList.remove('active');
+        return;
+    }
+
+    bar.classList.add('active');
+    var userCount = Object.keys(collabUsers).length + 1;
+    statusEl.textContent = t('collab.connected') + ' (' + userCount + ')';
+
+    var html = '';
+    if (collabMode === 'ro') {
+        html += '<span class="spectator-badge">' + t('collab.spectator') + '</span>';
+    }
+    for (var id in collabUsers) {
+        var u = collabUsers[id];
+        html += '<span class="collab-user"><span class="collab-dot" style="background:' + u.color + '"></span>' + escapeHtml(u.name) + '</span>';
+    }
+    usersEl.innerHTML = html;
+
+    // Update button text
+    document.getElementById('collab-btn').innerHTML = '&#9881; ' + userCount;
+}
+
+function localChangeToOp(change) {
+    // CodeMirror change: { from: {line, ch}, to: {line, ch}, text: [...], removed: [...] }
+    var fromLine = change.from.line;
+    var toLine = change.to.line;
+    var removedCount = change.removed.length;
+    var addedLines = change.text;
+
+    // Determine if lines were added/removed/replaced
+    if (removedCount <= 1 && addedLines.length <= 1) {
+        // Single-line edit — send as replace of that line
+        // Get the full content of the affected line after the edit
+        var lineContent = editor.getLine(fromLine);
+        if (lineContent === undefined) return null;
+        return { type: 'replace', lineStart: fromLine, lineCount: 1, lines: [lineContent], version: collabVersion };
+    }
+
+    // Multi-line change: deleted lines replaced by new lines
+    if (removedCount > 1 && addedLines.length >= 1) {
+        // It's a replace
+        var lines = [];
+        for (var i = fromLine; i < fromLine + addedLines.length; i++) {
+            var l = editor.getLine(i);
+            if (l !== undefined) lines.push(l);
+        }
+        return { type: 'replace', lineStart: fromLine, lineCount: removedCount, lines: lines, version: collabVersion };
+    }
+
+    if (addedLines.length > 1) {
+        // Lines were inserted (pressing Enter or pasting multi-line)
+        var lines = [];
+        for (var i = fromLine + 1; i < fromLine + addedLines.length; i++) {
+            var l = editor.getLine(i);
+            if (l !== undefined) lines.push(l);
+        }
+        if (lines.length > 0) {
+            // Also need to update the current line if it was split
+            var currentLine = editor.getLine(fromLine);
+            return { type: 'replace', lineStart: fromLine, lineCount: 1, lines: [currentLine].concat(lines), version: collabVersion };
+        }
+    }
+
+    if (removedCount > 1) {
+        // Lines were deleted
+        var currentLine = editor.getLine(fromLine);
+        return { type: 'replace', lineStart: fromLine, lineCount: removedCount, lines: [currentLine], version: collabVersion };
+    }
+
+    return null;
+}
+
+// Hook into CodeMirror changes for collaboration
+var origInitEditor = initEditor;
+initEditor = function() {
+    origInitEditor();
+    editor.on('change', function(cm, change) {
+        if (collabRemoteUpdate) return;
+        if (!collabWS || collabMode !== 'rw') return;
+
+        var op = localChangeToOp(change);
+        if (op) {
+            collabWS.send(JSON.stringify({ type: 'op', payload: op }));
+        }
+    });
+
+    // Send cursor position
+    editor.on('cursorActivity', function(cm) {
+        if (!collabWS) return;
+        var cursor = cm.getCursor();
+        collabWS.send(JSON.stringify({ type: 'cursor', payload: { line: cursor.line, ch: cursor.ch } }));
+    });
+};
     </script>
 </body>
 </html>
