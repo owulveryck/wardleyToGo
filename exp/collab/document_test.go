@@ -150,14 +150,18 @@ func TestApplyUnknownType(t *testing.T) {
 
 func TestEmptyDocument(t *testing.T) {
 	d := NewDocument()
-	if len(d.Lines()) != 0 {
-		t.Errorf("expected empty document, got %d lines", len(d.Lines()))
+	// An empty document has 1 empty line (matches CodeMirror model)
+	if len(d.Lines()) != 1 {
+		t.Errorf("expected 1 line, got %d lines", len(d.Lines()))
+	}
+	if d.Lines()[0] != "" {
+		t.Errorf("expected empty first line, got %q", d.Lines()[0])
 	}
 	if d.Text() != "" {
 		t.Errorf("expected empty text, got %q", d.Text())
 	}
-	// Insert into empty document
-	err := d.Apply(&OpPayload{Type: "insert", LineStart: 0, Lines: []string{"first"}})
+	// Replace the empty line (simulates typing in an empty editor)
+	err := d.Apply(&OpPayload{Type: "replace", LineStart: 0, LineCount: 1, Lines: []string{"first"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,8 +183,24 @@ func TestNewDocumentFromText(t *testing.T) {
 
 func TestNewDocumentFromTextEmpty(t *testing.T) {
 	d := NewDocumentFromText("")
-	if len(d.Lines()) != 0 {
-		t.Errorf("expected 0 lines for empty text, got %d", len(d.Lines()))
+	// An empty text still has 1 empty line (matches editor model)
+	if len(d.Lines()) != 1 {
+		t.Errorf("expected 1 line for empty text, got %d", len(d.Lines()))
+	}
+	if d.Lines()[0] != "" {
+		t.Errorf("expected empty first line, got %q", d.Lines()[0])
+	}
+}
+
+func TestEmptyDocumentReplace(t *testing.T) {
+	// Simulates the exact scenario: client connects to fresh session, types text
+	d := NewDocument()
+	err := d.Apply(&OpPayload{Type: "replace", LineStart: 0, LineCount: 1, Lines: []string{"typed text"}})
+	if err != nil {
+		t.Fatalf("replace on fresh document failed: %v", err)
+	}
+	if d.Text() != "typed text" {
+		t.Errorf("got %q, want %q", d.Text(), "typed text")
 	}
 }
 

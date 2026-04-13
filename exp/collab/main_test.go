@@ -229,11 +229,15 @@ func TestFullCollaborationScenario(t *testing.T) {
 	}
 
 	// Verify document state
+	// Document starts with [""] (1 empty line), insert at 0 adds 2 lines before it
 	lines := s.doc.Lines()
-	if len(lines) != 2 {
-		t.Fatalf("doc lines = %d, want 2: %v", len(lines), lines)
+	if len(lines) != 3 {
+		t.Fatalf("doc lines = %d, want 3: %v", len(lines), lines)
 	}
 	if lines[0] != "anchor Customer" {
 		t.Errorf("line[0] = %q, want %q", lines[0], "anchor Customer")
+	}
+	if lines[1] != "component App : III.5" {
+		t.Errorf("line[1] = %q, want %q", lines[1], "component App : III.5")
 	}
 }

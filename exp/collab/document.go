@@ -15,15 +15,17 @@ type Document struct {
 }
 
 // NewDocument creates an empty document.
+// Initializes with one empty line to match editor models (e.g. CodeMirror)
+// which always have at least one line even when empty.
 func NewDocument() *Document {
-	return &Document{lines: []string{}}
+	return &Document{lines: []string{""}}
 }
 
 // NewDocumentFromText creates a document from source text.
 func NewDocumentFromText(text string) *Document {
 	var lines []string
 	if text == "" {
-		lines = []string{}
+		lines = []string{""}
 	} else {
 		lines = strings.Split(text, "\n")
 	}

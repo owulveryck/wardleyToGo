@@ -225,7 +225,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .collab-bar .collab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .collab-bar .spectator-badge { background: rgba(14,35,86,0.08); color: #586586; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; text-transform: uppercase; }
 .collab-bar .collab-disconnect { margin-left: auto; }
-.remote-cursor { position: absolute; border-left: 2px solid; z-index: 10; pointer-events: none; }
+.remote-cursor { display: inline-block; width: 0; position: relative; border-left: 2px solid; z-index: 10; pointer-events: none; vertical-align: text-top; height: 1.2em; }
 .remote-cursor-label { position: absolute; top: -18px; left: -1px; font-size: 9px; padding: 1px 4px; border-radius: 3px; color: #fff; white-space: nowrap; pointer-events: none; }
 
 /* === INLINE STYLE OVERRIDES === */
@@ -2268,24 +2268,49 @@ function onRemoteOp(payload) {
     collabVersion = payload.version;
 
     collabRemoteUpdate = true;
+    var lastLine = editor.lastLine();
     switch (payload.type) {
         case 'insert': {
-            var pos = { line: payload.lineStart, ch: 0 };
-            var text = payload.lines.join('\n') + '\n';
-            editor.replaceRange(text, pos, pos);
+            if (payload.lineStart > lastLine) {
+                // Inserting past the last line — append with preceding newline
+                var text = '\n' + payload.lines.join('\n');
+                var endPos = { line: lastLine, ch: editor.getLine(lastLine).length };
+                editor.replaceRange(text, endPos, endPos);
+            } else {
+                var pos = { line: payload.lineStart, ch: 0 };
+                var text = payload.lines.join('\n') + '\n';
+                editor.replaceRange(text, pos, pos);
+            }
             break;
         }
         case 'delete': {
             var from = { line: payload.lineStart, ch: 0 };
-            var to = { line: payload.lineStart + payload.lineCount, ch: 0 };
-            editor.replaceRange('', from, to);
+            var endLine = payload.lineStart + payload.lineCount;
+            if (endLine > lastLine) {
+                var to = { line: lastLine, ch: editor.getLine(lastLine).length };
+                if (payload.lineStart > 0) {
+                    from = { line: payload.lineStart - 1, ch: editor.getLine(payload.lineStart - 1).length };
+                }
+                editor.replaceRange('', from, to);
+            } else {
+                var to = { line: endLine, ch: 0 };
+                editor.replaceRange('', from, to);
+            }
             break;
         }
         case 'replace': {
             var from = { line: payload.lineStart, ch: 0 };
-            var to = { line: payload.lineStart + payload.lineCount, ch: 0 };
-            var text = payload.lines.join('\n') + '\n';
-            editor.replaceRange(text, from, to);
+            var endLine = payload.lineStart + payload.lineCount;
+            if (endLine > lastLine) {
+                // Range reaches past last line — don't add trailing \n
+                var to = { line: lastLine, ch: editor.getLine(lastLine).length };
+                var text = payload.lines.join('\n');
+                editor.replaceRange(text, from, to);
+            } else {
+                var to = { line: endLine, ch: 0 };
+                var text = payload.lines.join('\n') + '\n';
+                editor.replaceRange(text, from, to);
+            }
             break;
         }
     }
@@ -2332,11 +2357,10 @@ function onRemoteCursor(payload) {
     var user = collabUsers[payload.clientId];
     if (!user) return;
 
-    var el = document.createElement('div');
+    var el = document.createElement('span');
     el.className = 'remote-cursor';
     el.style.borderLeftColor = user.color;
-    el.style.height = '18px';
-    var label = document.createElement('div');
+    var label = document.createElement('span');
     label.className = 'remote-cursor-label';
     label.style.background = user.color;
     label.textContent = user.name;
