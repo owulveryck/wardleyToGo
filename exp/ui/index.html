@@ -70,7 +70,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 #editor-pane .cm-property { color: #6E7B9A; }
 #editor-pane .cm-bracket { color: #586586; }
 #editor-pane .cm-variable-2 { color: #00838A; }
-#editor-warning { display: none; background: rgba(0, 210, 221, 0.10); color: #0E2356; padding: 8px 14px; font-size: 12px; border-bottom: 1px solid rgba(0, 210, 221, 0.2); }
+
 
 /* === WIZARD PANE === */
 #wizard-pane { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
@@ -452,7 +452,6 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
             <!-- Editor pane -->
             <div id="editor-pane">
-                <div id="editor-warning" data-i18n="editor.warning">Les modifications manuelles ne seront pas reflétées dans le mode guidé.</div>
                 <textarea id="source"></textarea>
             </div>
         </div>
@@ -662,7 +661,6 @@ const translations = {
         'nav.prev': 'Precedent',
         'nav.next': 'Suivant',
         'nav.finish': 'Terminer',
-        'editor.warning': 'Les modifications manuelles ne seront pas reflétées dans le mode guidé.',
         'empty.message': 'Commencez a definir votre chaine de valeur pour voir l\'apercu',
         'share.tooLong': 'Attention : lien tres long ({length} car.). Certains navigateurs pourraient le tronquer.',
         'share.copied': 'Lien copie dans le presse-papier !',
@@ -757,7 +755,6 @@ const translations = {
         'nav.prev': 'Previous',
         'nav.next': 'Next',
         'nav.finish': 'Finish',
-        'editor.warning': 'Manual changes will not be reflected in guided mode.',
         'empty.message': 'Start defining your value chain to see the preview',
         'share.tooLong': 'Warning: very long link ({length} chars). Some browsers may truncate it.',
         'share.copied': 'Link copied to clipboard!',
@@ -1536,6 +1533,35 @@ function prevStep() {
 // ================================================================
 
 function setMode(mode) {
+    // When switching from editor to guided, sync editor text back to wizardState.
+    if (mode === 'guided' && currentMode === 'editor' && editor) {
+        const text = editor.getValue();
+        if (text.trim() && typeof parseWTG2ToState === 'function') {
+            const result = parseWTG2ToState(text);
+            if (result.startsWith('error:')) {
+                // Parse failed — stay in editor mode and show the error.
+                document.getElementById('status').textContent = result;
+                return;
+            }
+            try {
+                const parsed = JSON.parse(result);
+                wizardState.meta = parsed.meta || { title: "", author: "", question: "" };
+                wizardState.stages = parsed.stages || ["", "", "", ""];
+                wizardState.components = parsed.components || [];
+                wizardState.edges = parsed.edges || [];
+                wizardState.groups = parsed.groups || [];
+                wizardState.annotations = parsed.annotations || [];
+                wizardState.signals = parsed.signals || [];
+                wizardState.legend = parsed.legend || false;
+                wizardState.focus = parsed.focus || "";
+                syncWizardUI();
+            } catch (e) {
+                document.getElementById('status').textContent = 'error: ' + e.message;
+                return;
+            }
+        }
+    }
+
     currentMode = mode;
     document.getElementById('mode-guided').classList.toggle('active', mode === 'guided');
     document.getElementById('mode-editor').classList.toggle('active', mode === 'editor');
@@ -1543,7 +1569,6 @@ function setMode(mode) {
     document.getElementById('editor-pane').style.display = mode === 'editor' ? 'flex' : 'none';
 
     if (mode === 'editor') {
-        document.getElementById('editor-warning').style.display = 'block';
         if (!editor) initEditor();
         // Load generated WTG2 into editor
         const wtg2 = generateWTG2(wizardState);
@@ -1552,6 +1577,25 @@ function setMode(mode) {
     }
 
     render();
+}
+
+// Rebuild wizard UI elements from the current wizardState.
+function syncWizardUI() {
+    document.getElementById('meta-title').value = wizardState.meta.title;
+    document.getElementById('meta-author').value = wizardState.meta.author;
+    document.getElementById('meta-question').value = wizardState.meta.question;
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('stage-' + i).value = wizardState.stages[i];
+    }
+    document.getElementById('legend-toggle').checked = wizardState.legend;
+
+    // Reconstruct chain-input from edges
+    const lines = wizardState.edges.map(e => e.from + ' -> ' + e.to);
+    document.getElementById('chain-input').value = lines.join('\n');
+
+    renderCompList();
+    goToStep(currentStep);
+    saveState();
 }
 
 // ================================================================

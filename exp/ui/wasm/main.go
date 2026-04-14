@@ -4,6 +4,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"image"
 	"syscall/js"
@@ -14,6 +15,7 @@ import (
 
 func main() {
 	js.Global().Set("generateSVG", js.FuncOf(generate))
+	js.Global().Set("parseWTG2ToState", js.FuncOf(parseToState))
 	<-make(chan bool)
 }
 
@@ -122,3 +124,220 @@ func generate(_ js.Value, args []js.Value) any {
 // svgBuf is reused across calls to avoid repeated allocation and GC pressure.
 // WASM is single-threaded, so no synchronization is needed.
 var svgBuf bytes.Buffer
+
+// parseToState parses WTG2 text and returns a JSON object matching the
+// JavaScript wizardState structure, enabling editor -> guided mode sync.
+func parseToState(_ js.Value, args []js.Value) any {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered:", r)
+		}
+	}()
+	if len(args) < 1 {
+		return "error: no input provided"
+	}
+
+	input := args[0].String()
+
+	p, err := wtg2.NewParser(bytes.NewBufferString(input))
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+
+	state := docToState(doc)
+
+	data, err := json.Marshal(state)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	return string(data)
+}
+
+type jsState struct {
+	Meta        jsMeta          `json:"meta"`
+	Stages      [4]string       `json:"stages"`
+	Components  []jsComponent   `json:"components"`
+	Edges       []jsEdge        `json:"edges"`
+	Groups      []jsGroup       `json:"groups"`
+	Annotations []jsAnnotation  `json:"annotations"`
+	Signals     []jsSignal      `json:"signals"`
+	Legend      bool            `json:"legend"`
+	Focus       string          `json:"focus"`
+}
+
+type jsMeta struct {
+	Title    string `json:"title"`
+	Author   string `json:"author"`
+	Question string `json:"question"`
+}
+
+type jsComponent struct {
+	Name            string             `json:"name"`
+	Kind            string             `json:"kind"`
+	Evolution       int                `json:"evolution"`
+	Type            string             `json:"type"`
+	Evolving        bool               `json:"evolving"`
+	EvolvedTo       int                `json:"evolvedTo"`
+	Inertia         int                `json:"inertia"`
+	IsPipeline      bool               `json:"isPipeline"`
+	PipelineMembers []jsPipelineMember `json:"pipelineMembers"`
+}
+
+type jsPipelineMember struct {
+	Name      string `json:"name"`
+	Evolution int    `json:"evolution"`
+}
+
+type jsEdge struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+type jsGroup struct {
+	Name    string   `json:"name"`
+	Color   string   `json:"color"`
+	Members []string `json:"members"`
+}
+
+type jsAnnotation struct {
+	Kind   string `json:"kind"`
+	Text   string `json:"text"`
+	Target string `json:"target"`
+}
+
+type jsSignal struct {
+	Type   string `json:"type"`
+	Target string `json:"target"`
+}
+
+func docToState(doc *wtg2.Document) jsState {
+	state := jsState{
+		Meta: jsMeta{
+			Title:    doc.Title,
+			Author:   doc.Author,
+			Question: doc.Question,
+		},
+		Stages: doc.Stages,
+		Legend: doc.Legend,
+	}
+
+	// Build a set of pipeline names and their members for later lookup.
+	pipelineMap := make(map[string][]*wtg2.PipelineMemberDecl)
+	for _, pl := range doc.Pipelines {
+		pipelineMap[pl.Name] = pl.Members
+	}
+
+	// Components
+	for _, n := range doc.Nodes {
+		kind := "component"
+		if n.Kind == wtg2.KindAnchor {
+			kind = "anchor"
+		}
+
+		evo := 50 // default for anchors without explicit position
+		if n.Evolution != "" {
+			if v, err := wtg2.ParsePosition(n.Evolution); err == nil {
+				evo = v
+			}
+		}
+
+		evolvedTo := 0
+		evolving := n.EvolvedTo != ""
+		if evolving {
+			if v, err := wtg2.ParsePosition(n.EvolvedTo); err == nil {
+				evolvedTo = v
+			}
+		}
+		if !evolving {
+			evolvedTo = min(99, evo+15)
+		}
+
+		comp := jsComponent{
+			Name:      n.Name,
+			Kind:      kind,
+			Evolution: evo,
+			Type:      n.Type,
+			Evolving:  evolving,
+			EvolvedTo: evolvedTo,
+			Inertia:   n.Inertia,
+		}
+
+		// Check if this component is a pipeline parent.
+		if members, ok := pipelineMap[n.Name]; ok {
+			comp.IsPipeline = true
+			for _, m := range members {
+				mEvo := evo
+				if m.Position != "" {
+					if v, err := wtg2.ParsePosition(m.Position); err == nil {
+						mEvo = v
+					}
+				}
+				comp.PipelineMembers = append(comp.PipelineMembers, jsPipelineMember{
+					Name:      m.Name,
+					Evolution: mEvo,
+				})
+			}
+		}
+
+		state.Components = append(state.Components, comp)
+	}
+
+	// Edges
+	for _, e := range doc.Edges {
+		state.Edges = append(state.Edges, jsEdge{From: e.From, To: e.To})
+	}
+
+	// Groups
+	for _, g := range doc.Groups {
+		state.Groups = append(state.Groups, jsGroup{
+			Name:    g.Name,
+			Color:   g.Color,
+			Members: g.Members,
+		})
+	}
+
+	// Annotations
+	for _, a := range doc.Annotations {
+		state.Annotations = append(state.Annotations, jsAnnotation{
+			Kind:   a.Kind,
+			Text:   a.Text,
+			Target: a.Target,
+		})
+	}
+
+	// Signals
+	for _, s := range doc.Signals {
+		state.Signals = append(state.Signals, jsSignal{
+			Type:   s.Type,
+			Target: s.Target,
+		})
+	}
+
+	// Focus (wizard supports a single focus target)
+	if len(doc.Focuses) > 0 {
+		state.Focus = doc.Focuses[0].Target
+	}
+
+	// Ensure nil slices become empty arrays in JSON.
+	if state.Components == nil {
+		state.Components = []jsComponent{}
+	}
+	if state.Edges == nil {
+		state.Edges = []jsEdge{}
+	}
+	if state.Groups == nil {
+		state.Groups = []jsGroup{}
+	}
+	if state.Annotations == nil {
+		state.Annotations = []jsAnnotation{}
+	}
+	if state.Signals == nil {
+		state.Signals = []jsSignal{}
+	}
+
+	return state
+}
