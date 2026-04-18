@@ -720,6 +720,83 @@ func TestLayout_MultiplePipelinesSpacing(t *testing.T) {
 	}
 }
 
+func TestLayout_Deterministic(t *testing.T) {
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Automobiliste", Kind: KindAnchor},
+			{Name: "Collectivite", Kind: KindAnchor},
+			{Name: "AppMobile"},
+			{Name: "API"},
+			{Name: "Itineraire"},
+			{Name: "Alertes"},
+			{Name: "CDN"},
+			{Name: "Paiement"},
+			{Name: "Moteur"},
+			{Name: "FluxTrafic"},
+			{Name: "Donnees"},
+			{Name: "Cloud"},
+			{Name: "OSM"},
+			{Name: "Hebergement"},
+		},
+		Edges: []Edge{
+			{From: "Automobiliste", To: "AppMobile"},
+			{From: "Collectivite", To: "API"},
+			{From: "Collectivite", To: "Alertes"},
+			{From: "AppMobile", To: "Itineraire"},
+			{From: "AppMobile", To: "Alertes"},
+			{From: "AppMobile", To: "CDN"},
+			{From: "AppMobile", To: "Paiement"},
+			{From: "Itineraire", To: "Moteur"},
+			{From: "Alertes", To: "FluxTrafic"},
+			{From: "Alertes", To: "Moteur:AlgoPredictif"},
+			{From: "API", To: "Donnees"},
+			{From: "Moteur", To: "Donnees"},
+			{From: "Moteur", To: "Cloud"},
+			{From: "FluxTrafic", To: "Cloud"},
+			{From: "CDN", To: "Cloud"},
+			{From: "Donnees", To: "OSM"},
+			{From: "Cloud", To: "Hebergement"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "Moteur", Members: []string{"AlgoClassique", "AlgoPredictif", "AlgoQuantique"}},
+		},
+	}
+
+	l := New(DefaultOptions())
+	reference := l.Layout(g)
+
+	for run := 0; run < 50; run++ {
+		pos := l.Layout(g)
+		for name, y := range reference {
+			if pos[name] != y {
+				t.Fatalf("run %d: %s.Y=%d, want %d (non-deterministic layout)",
+					run, name, pos[name], y)
+			}
+		}
+	}
+}
+
+func TestLayout_DeterministicDisconnected(t *testing.T) {
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "A"}, {Name: "B"}, {Name: "C"}, {Name: "D"}, {Name: "E"},
+		},
+	}
+
+	l := New(DefaultOptions())
+	reference := l.Layout(g)
+
+	for run := 0; run < 50; run++ {
+		pos := l.Layout(g)
+		for name, y := range reference {
+			if pos[name] != y {
+				t.Fatalf("run %d: %s.Y=%d, want %d (non-deterministic layout)",
+					run, name, pos[name], y)
+			}
+		}
+	}
+}
+
 func assertInRange(t *testing.T, pos map[string]int, name string) {
 	t.Helper()
 	opts := DefaultOptions()

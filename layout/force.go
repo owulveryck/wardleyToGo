@@ -59,6 +59,8 @@ func forceSpread(
 			names = append(names, name)
 		}
 	}
+	sort.Strings(names)
+	sort.Strings(allNames)
 
 	if len(names) == 0 {
 		return positions
@@ -247,7 +249,8 @@ func spreadPipelineParents(positions map[string]float64, pipelineMembers, pipeli
 			sorted = append(sorted, name)
 		}
 	}
-	sort.Slice(sorted, func(i, j int) bool {
+	sort.Strings(sorted)
+	sort.SliceStable(sorted, func(i, j int) bool {
 		return positions[sorted[i]] < positions[sorted[j]]
 	})
 

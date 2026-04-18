@@ -193,9 +193,7 @@ type defaultLayouter struct {
 // New returns the default [Layouter] that combines topological sort
 // with force-directed spacing.
 //
-// The algorithm is deterministic for a given graph and options, though
-// Go map iteration order may cause minor variations in Y positions for
-// nodes at the same topological rank.
+// The algorithm is deterministic for a given graph and options.
 func New(opts Options) Layouter {
 	return &defaultLayouter{opts: opts}
 }

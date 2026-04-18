@@ -1,5 +1,7 @@
 package layout
 
+import "sort"
+
 // topoRanks computes a longest-path rank assignment for every node in g
 // using a breadth-first search (BFS).
 //
@@ -65,6 +67,7 @@ func topoRanks(g *Graph) (map[string]int, int) {
 				roots = append(roots, name)
 			}
 		}
+		sort.Strings(roots)
 	}
 
 	// BFS longest-path rank assignment
@@ -97,11 +100,16 @@ func topoRanks(g *Graph) (map[string]int, int) {
 			maxRank = r
 		}
 	}
+	var unvisited []string
 	for name, r := range rank {
 		if r < 0 {
-			maxRank++
-			rank[name] = maxRank
+			unvisited = append(unvisited, name)
 		}
+	}
+	sort.Strings(unvisited)
+	for _, name := range unvisited {
+		maxRank++
+		rank[name] = maxRank
 	}
 	// Recalculate maxRank
 	for _, r := range rank {
