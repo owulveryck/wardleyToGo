@@ -275,6 +275,15 @@ func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
 		// Signal subtypes: signal_accelerating, signal_declining, etc.
 		if signalType, ok := strings.CutPrefix(item.Type, "signal_"); ok {
 			marshalSignalIcon(enc, signalType, p)
+		} else if _, ok := strings.CutPrefix(item.Type, "inertia_"); ok {
+			fillColor := svg.Color{Color: color.RGBA{0, 0, 0, 255}}
+			if item.Color != nil {
+				fillColor = svg.Color{Color: item.Color}
+			}
+			_ = enc.Encode(svg.Rectangle{
+				R:    image.Rect(p.X-2, p.Y-6, p.X+2, p.Y+6),
+				Fill: fillColor,
+			})
 		}
 	}
 }

@@ -1,9 +1,12 @@
 package wtg2
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"testing"
 
+	wardleyToGo "github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/components/wardley"
 )
 
@@ -272,6 +275,85 @@ func TestBuildMap_LegendItems(t *testing.T) {
 	}
 }
 
+func TestBuildMap_LegendQualifiedInertia(t *testing.T) {
+	doc := &Document{
+		Title:  "Qualified Inertia Legend",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Legend: true,
+		Nodes: []*NodeDecl{
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+			{Name: "Engine", Kind: KindComponent, Evolution: "II.7", EvolvedTo: "III.5", Inertia: 2, InertiaKinds: []string{"tech", "human"}, Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "App", To: "Engine"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	types := make(map[string]bool)
+	var techColor, humanColor bool
+	for _, item := range result.LegendItems {
+		types[item.Type] = true
+		if item.Type == "inertia_tech" && item.Color != nil {
+			techColor = true
+		}
+		if item.Type == "inertia_human" && item.Color != nil {
+			humanColor = true
+		}
+	}
+
+	if types["inertia"] {
+		t.Error("unqualified 'inertia' should not appear when only qualified kinds are used")
+	}
+	for _, want := range []string{"inertia_tech", "inertia_human"} {
+		if !types[want] {
+			t.Errorf("missing legend type %q", want)
+		}
+	}
+	if !techColor {
+		t.Error("inertia_tech should have a non-nil Color")
+	}
+	if !humanColor {
+		t.Error("inertia_human should have a non-nil Color")
+	}
+}
+
+func TestBuildMap_LegendMixedInertia(t *testing.T) {
+	doc := &Document{
+		Title:  "Mixed Inertia Legend",
+		Stages: [4]string{"I", "II", "III", "IV"},
+		Legend: true,
+		Nodes: []*NodeDecl{
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Inertia: 1, Visibility: -1},
+			{Name: "Engine", Kind: KindComponent, Evolution: "II.7", EvolvedTo: "III.5", Inertia: 2, InertiaKinds: []string{"financial"}, Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "App", To: "Engine"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	types := make(map[string]bool)
+	for _, item := range result.LegendItems {
+		types[item.Type] = true
+	}
+
+	if !types["inertia"] {
+		t.Error("unqualified 'inertia' should appear for App")
+	}
+	if !types["inertia_financial"] {
+		t.Error("'inertia_financial' should appear for Engine")
+	}
+}
+
 func TestBuildMap_LegendDisabled(t *testing.T) {
 	doc := &Document{
 		Title:  "No Legend",
@@ -414,6 +496,182 @@ func TestBuildMap_WithFocusGroup(t *testing.T) {
 	// Group "Backend" contains App which is focused
 	if len(result.Focus.GroupIDs) != 1 {
 		t.Errorf("focused group count = %d, want 1", len(result.Focus.GroupIDs))
+	}
+}
+
+func TestBuildMap_FocusDoesNotChangePositions(t *testing.T) {
+	makeDoc := func(withFocus bool) *Document {
+		doc := &Document{
+			Title:  "Focus Position Test",
+			Stages: [4]string{"Genesis", "Custom", "Product", "Commodity"},
+			Nodes: []*NodeDecl{
+				{Name: "Automobiliste", Kind: KindAnchor, Visibility: -1},
+				{Name: "Collectivite", Kind: KindAnchor, Visibility: -1},
+				{Name: "AppMobile", Kind: KindComponent, Evolution: "III.7", Visibility: -1},
+				{Name: "API", Kind: KindComponent, Evolution: "II.5", Visibility: -1},
+				{Name: "Itineraire", Kind: KindComponent, Evolution: "II.8", Visibility: -1},
+				{Name: "Alertes", Kind: KindComponent, Evolution: "III.2", Visibility: -1},
+				{Name: "CDN", Kind: KindComponent, Evolution: "IV.5", Visibility: -1},
+				{Name: "Moteur", Kind: KindComponent, Evolution: "II.3", Visibility: -1},
+				{Name: "FluxTrafic", Kind: KindComponent, Evolution: "II.5", Visibility: -1},
+				{Name: "Donnees", Kind: KindComponent, Evolution: "III.0", Visibility: -1},
+				{Name: "Cloud", Kind: KindComponent, Evolution: "IV.3", Visibility: -1},
+				{Name: "OSM", Kind: KindComponent, Evolution: "IV.0", Visibility: -1},
+			},
+			Edges: []*EdgeDecl{
+				{From: "Automobiliste", To: "AppMobile"},
+				{From: "Collectivite", To: "API"},
+				{From: "Collectivite", To: "Alertes"},
+				{From: "AppMobile", To: "Itineraire"},
+				{From: "AppMobile", To: "Alertes"},
+				{From: "AppMobile", To: "CDN"},
+				{From: "Itineraire", To: "Moteur"},
+				{From: "Alertes", To: "FluxTrafic"},
+				{From: "API", To: "Donnees"},
+				{From: "Moteur", To: "Donnees"},
+				{From: "Moteur", To: "Cloud"},
+				{From: "FluxTrafic", To: "Cloud"},
+				{From: "CDN", To: "Cloud"},
+				{From: "Donnees", To: "OSM"},
+			},
+			Pipelines: []*PipelineDecl{
+				{
+					Name: "Moteur",
+					Members: []*PipelineMemberDecl{
+						{Name: "AlgoClassique", Position: "I.5"},
+						{Name: "AlgoPredictif", Position: "II.5"},
+					},
+				},
+			},
+		}
+		if withFocus {
+			doc.Focuses = []*FocusDecl{{Target: "AppMobile"}}
+		}
+		return doc
+	}
+
+	resultNoFocus, err := BuildMap(makeDoc(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resultWithFocus, err := BuildMap(makeDoc(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Build label -> position maps for comparison
+	posNoFocus := make(map[string][2]int)
+	for _, c := range resultNoFocus.Map.Components() {
+		posNoFocus[componentLabel(c)] = [2]int{c.GetPosition().X, c.GetPosition().Y}
+	}
+	posWithFocus := make(map[string][2]int)
+	for _, c := range resultWithFocus.Map.Components() {
+		posWithFocus[componentLabel(c)] = [2]int{c.GetPosition().X, c.GetPosition().Y}
+	}
+
+	for label, pos := range posNoFocus {
+		focusPos, ok := posWithFocus[label]
+		if !ok {
+			t.Errorf("component %q missing in focus result", label)
+			continue
+		}
+		if pos != focusPos {
+			t.Errorf("component %q: position without focus (%d,%d) != with focus (%d,%d)",
+				label, pos[0], pos[1], focusPos[0], focusPos[1])
+		}
+	}
+}
+
+func TestBuildMap_FocusDoesNotChangePositions_FullParse(t *testing.T) {
+	base := `title Wardley Map
+stages Genesis, Custom, Product, Commodity
+anchor Automobiliste
+anchor Collectivite
+component AppMobile III.7
+component API II.5
+component Itineraire II.8
+component Alertes III.2
+component CDN IV.5
+component Moteur II.3
+component FluxTrafic II.5
+component Donnees III.0
+component Cloud IV.3
+component OSM IV.0
+pipeline Moteur {
+  AlgoClassique I.5
+  AlgoPredictif II.5
+}
+Automobiliste -> AppMobile
+Collectivite -> API
+Collectivite -> Alertes
+AppMobile -> Itineraire
+AppMobile -> Alertes
+AppMobile -> CDN
+Itineraire -> Moteur
+Alertes -> FluxTrafic
+API -> Donnees
+Moteur -> Donnees
+Moteur -> Cloud
+FluxTrafic -> Cloud
+CDN -> Cloud
+Donnees -> OSM
+`
+	withFocus := base + "focus AppMobile\n"
+
+	parseAndBuild := func(input string) *BuildResult {
+		t.Helper()
+		p, err := NewParser(bytes.NewBufferString(input))
+		if err != nil {
+			t.Fatal(err)
+		}
+		doc, err := p.Parse()
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := BuildMap(doc)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return result
+	}
+
+	resultNoFocus := parseAndBuild(base)
+	resultWithFocus := parseAndBuild(withFocus)
+
+	posNoFocus := make(map[string][2]int)
+	for _, c := range resultNoFocus.Map.Components() {
+		posNoFocus[componentLabel(c)] = [2]int{c.GetPosition().X, c.GetPosition().Y}
+	}
+	posWithFocus := make(map[string][2]int)
+	for _, c := range resultWithFocus.Map.Components() {
+		posWithFocus[componentLabel(c)] = [2]int{c.GetPosition().X, c.GetPosition().Y}
+	}
+
+	for label, pos := range posNoFocus {
+		focusPos, ok := posWithFocus[label]
+		if !ok {
+			t.Errorf("component %q missing in focus result", label)
+			continue
+		}
+		if pos != focusPos {
+			t.Errorf("component %q: position without focus (%d,%d) != with focus (%d,%d)",
+				label, pos[0], pos[1], focusPos[0], focusPos[1])
+		}
+	}
+}
+
+func componentLabel(c wardleyToGo.Component) string {
+	switch v := c.(type) {
+	case *wardley.Component:
+		return v.Label
+	case *wardley.Anchor:
+		return "anchor:" + v.Label
+	case *wardley.EvolvedComponent:
+		return "evolved:" + v.Label
+	case *wardley.Group:
+		return "group:" + v.Label
+	default:
+		return fmt.Sprintf("unknown:%d", c.ID())
 	}
 }
 

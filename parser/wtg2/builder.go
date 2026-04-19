@@ -651,7 +651,8 @@ func buildLegendItems(doc *Document) []svgmap.LegendItem {
 	hasBuy := false
 	hasOutsource := false
 	hasEvolved := false
-	hasInertia := false
+	hasUnqualifiedInertia := false
+	seenInertiaKinds := make(map[string]bool)
 
 	for _, nd := range doc.Nodes {
 		if nd.Kind == KindAnchor {
@@ -671,7 +672,13 @@ func buildLegendItems(doc *Document) []svgmap.LegendItem {
 			hasEvolved = true
 		}
 		if nd.Inertia > 0 {
-			hasInertia = true
+			if len(nd.InertiaKinds) > 0 {
+				for _, kind := range nd.InertiaKinds {
+					seenInertiaKinds[kind] = true
+				}
+			} else {
+				hasUnqualifiedInertia = true
+			}
 		}
 	}
 
@@ -703,8 +710,18 @@ func buildLegendItems(doc *Document) []svgmap.LegendItem {
 	if hasEvolved {
 		items = append(items, svgmap.LegendItem{Category: "Edges", Label: "Evolution", Type: "evolved_edge"})
 	}
-	if hasInertia {
+	if hasUnqualifiedInertia {
 		items = append(items, svgmap.LegendItem{Category: "Edges", Label: "Inertia", Type: "inertia"})
+	}
+	for _, kind := range []string{"tech", "financial", "human", "relational", "social"} {
+		if seenInertiaKinds[kind] {
+			items = append(items, svgmap.LegendItem{
+				Category: "Edges",
+				Label:    "Inertia (" + inertiaKindLabel(kind) + ")",
+				Type:     "inertia_" + kind,
+				Color:    inertiaKindColorForLegend(kind),
+			})
+		}
 	}
 
 	// Groups — one entry per group with its name and color
@@ -778,6 +795,43 @@ func signalLabel(signalType string) string {
 			return signalType
 		}
 		return strings.ToUpper(signalType[:1]) + signalType[1:]
+	}
+}
+
+func inertiaKindLabel(kind string) string {
+	switch kind {
+	case "tech":
+		return "Tech"
+	case "financial":
+		return "Financial"
+	case "human":
+		return "Human"
+	case "relational":
+		return "Relational"
+	case "social":
+		return "Social"
+	default:
+		if len(kind) == 0 {
+			return kind
+		}
+		return strings.ToUpper(kind[:1]) + kind[1:]
+	}
+}
+
+func inertiaKindColorForLegend(kind string) color.RGBA {
+	switch kind {
+	case "tech":
+		return color.RGBA{0x29, 0x80, 0xB9, 0xFF}
+	case "financial":
+		return color.RGBA{0x27, 0xAE, 0x60, 0xFF}
+	case "human":
+		return color.RGBA{0xE6, 0x7E, 0x22, 0xFF}
+	case "relational":
+		return color.RGBA{0x8E, 0x44, 0xAD, 0xFF}
+	case "social":
+		return color.RGBA{0x16, 0xA0, 0x85, 0xFF}
+	default:
+		return color.RGBA{0x00, 0x00, 0x00, 0xFF}
 	}
 }
 

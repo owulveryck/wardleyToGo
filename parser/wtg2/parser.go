@@ -226,17 +226,20 @@ func parseShorthand(node *NodeDecl, s string) error {
 		}
 	}
 
-	// Extract (type) if present — but not inertia qualifiers like !(tech)
-	if openParen := strings.Index(s, "("); openParen >= 0 {
-		// Skip if preceded by '!' (inertia qualifier)
-		isInertiaQualifier := openParen > 0 && s[openParen-1] == '!'
-		if !isInertiaQualifier {
-			closeParen := strings.Index(s, ")")
-			if closeParen > openParen {
-				node.Type = strings.TrimSpace(s[openParen+1 : closeParen])
-				s = strings.TrimSpace(s[:openParen]) + " " + strings.TrimSpace(s[closeParen+1:])
-				s = strings.TrimSpace(s)
-			}
+	// Extract (type) if present — skip inertia qualifiers like !(tech)
+	openParen := -1
+	for i := 0; i < len(s); i++ {
+		if s[i] == '(' && (i == 0 || s[i-1] != '!') {
+			openParen = i
+			break
+		}
+	}
+	if openParen >= 0 {
+		closeParen := strings.Index(s[openParen:], ")")
+		if closeParen > 0 {
+			node.Type = strings.TrimSpace(s[openParen+1 : openParen+closeParen])
+			s = strings.TrimSpace(s[:openParen]) + " " + strings.TrimSpace(s[openParen+closeParen+1:])
+			s = strings.TrimSpace(s)
 		}
 	}
 

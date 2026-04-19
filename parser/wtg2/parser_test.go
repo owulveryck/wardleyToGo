@@ -402,6 +402,7 @@ func TestParseQualifiedInertia(t *testing.T) {
 		wantKinds     []string
 		wantEvolution string
 		wantEvolvedTo string
+		wantType      string
 	}{
 		{
 			name:          "unqualified inertia",
@@ -434,6 +435,15 @@ func TestParseQualifiedInertia(t *testing.T) {
 			wantKinds:     []string{"tech", "financial", "social"},
 			wantEvolution: "II.7",
 			wantEvolvedTo: "III.5",
+		},
+		{
+			name:          "qualified inertia with type",
+			input:         `Comp : II.7 !!(tech,human) >> III.5 (buy)`,
+			wantInertia:   2,
+			wantKinds:     []string{"tech", "human"},
+			wantEvolution: "II.7",
+			wantEvolvedTo: "III.5",
+			wantType:      "buy",
 		},
 	}
 
@@ -468,6 +478,9 @@ func TestParseQualifiedInertia(t *testing.T) {
 				if k != tt.wantKinds[i] {
 					t.Errorf("inertiaKinds[%d] = %q, want %q", i, k, tt.wantKinds[i])
 				}
+			}
+			if n.Type != tt.wantType {
+				t.Errorf("type = %q, want %q", n.Type, tt.wantType)
 			}
 		})
 	}

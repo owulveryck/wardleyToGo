@@ -36,6 +36,9 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .toolbar-group input[type="range"] { width: 70px; accent-color: #00D2DD; }
 .toolbar-group span { min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; font-size: 12px; color: #3E4F78; }
 #status { font-size: 11px; color: #6E7B9A; white-space: nowrap; }
+.llm-hint { font-size: 11px; color: #8691AB; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+.llm-hint a { color: #00D2DD; text-decoration: none; border: 1px solid rgba(0, 210, 221, 0.25); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 500; transition: all .2s ease; background: rgba(0, 210, 221, 0.06); }
+.llm-hint a:hover { background: rgba(0, 210, 221, 0.15); border-color: rgba(0, 210, 221, 0.5); box-shadow: 0 1px 4px rgba(0, 210, 221, 0.15); }
 
 /* === MOBILE TABS === */
 #mobile-tabs { display: none; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(14, 35, 86, 0.08); }
@@ -301,6 +304,10 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
             </div>
         </div>
         <span id="status" data-i18n="status.loading">Chargement WASM...</span>
+        <span class="llm-hint">
+            <span data-i18n="toolbar.llmHint">Syntaxe WTG2 :</span>
+            <a href="https://github.com/owulveryck/wardleyToGo/blob/main/wtg2/skill.md" target="_blank" rel="noopener noreferrer" data-i18n-title="toolbar.llmHintTitle" title="Fichier skill utilisable avec ChatGPT, Claude, etc."><span data-i18n="toolbar.llmHintLink">&#129302; Skill LLM</span></a>
+        </span>
         <div class="toolbar-group">
             <select id="lang-select" style="min-width:auto">
                 <option value="fr">&#127467;&#127479; FR</option>
@@ -642,6 +649,12 @@ const translations = {
         'evo.inertia1': '! Moderee',
         'evo.inertia2': '!! Forte',
         'evo.inertia3': '!!! Bloquante',
+        'evo.inertiaKinds': 'Types :',
+        'evo.inertia.tech': 'Tech',
+        'evo.inertia.financial': 'Financier',
+        'evo.inertia.human': 'Humain',
+        'evo.inertia.relational': 'Relationnel',
+        'evo.inertia.social': 'Social',
         'enrich.groups': 'Groupes',
         'enrich.addGroup': '+ Ajouter un groupe',
         'enrich.annotations': 'Annotations',
@@ -669,6 +682,9 @@ const translations = {
         'status.urlError': 'Erreur URL: {message}',
         'toolbar.collab': 'Rejoindre une session collaborative',
         'toolbar.collabLabel': 'Collaborer',
+        'toolbar.llmHint': 'Syntaxe WTG2 :',
+        'toolbar.llmHintTitle': 'Fichier skill utilisable avec ChatGPT, Claude, etc.',
+        'toolbar.llmHintLink': '\uD83E\uDD16 Skill LLM',
         'collab.title': 'Session collaborative',
         'collab.urlLabel': 'URL de la session',
         'collab.urlPlaceholder': 'ws://serveur:8081/s/session-id/access-id',
@@ -736,6 +752,12 @@ const translations = {
         'evo.inertia1': '! Moderate',
         'evo.inertia2': '!! Strong',
         'evo.inertia3': '!!! Blocking',
+        'evo.inertiaKinds': 'Types:',
+        'evo.inertia.tech': 'Tech',
+        'evo.inertia.financial': 'Financial',
+        'evo.inertia.human': 'Human',
+        'evo.inertia.relational': 'Relational',
+        'evo.inertia.social': 'Social',
         'enrich.groups': 'Groups',
         'enrich.addGroup': '+ Add group',
         'enrich.annotations': 'Annotations',
@@ -763,6 +785,9 @@ const translations = {
         'status.urlError': 'URL Error: {message}',
         'toolbar.collab': 'Join a collaborative session',
         'toolbar.collabLabel': 'Collaborate',
+        'toolbar.llmHint': 'WTG2 syntax:',
+        'toolbar.llmHintTitle': 'Skill file usable with ChatGPT, Claude, etc.',
+        'toolbar.llmHintLink': '\uD83E\uDD16 LLM Skill',
         'collab.title': 'Collaborative session',
         'collab.urlLabel': 'Session URL',
         'collab.urlPlaceholder': 'ws://server:8081/s/session-id/access-id',
@@ -964,7 +989,10 @@ function generateWTG2(state) {
     const comps = state.components.filter(c => c.kind !== 'anchor');
     for (const c of comps) {
         let line = c.name + ' : ' + evoToRoman(c.evolution);
-        if (c.inertia > 0) line += ' ' + '!'.repeat(c.inertia);
+        if (c.inertia > 0) {
+            line += ' ' + '!'.repeat(c.inertia);
+            if (c.inertiaKinds && c.inertiaKinds.length > 0) line += '(' + c.inertiaKinds.join(',') + ')';
+        }
         if (c.evolving && c.evolvedTo !== undefined) line += ' >> ' + evoToRoman(c.evolvedTo);
         if (c.type) line += ' (' + c.type + ')';
         lines.push(line);
@@ -1091,6 +1119,16 @@ function renderEvoList() {
                     <option value="2" ${c.inertia === 2 ? 'selected' : ''}>${t('evo.inertia2')}</option>
                     <option value="3" ${c.inertia === 3 ? 'selected' : ''}>${t('evo.inertia3')}</option>
                 </select>
+                ${c.inertia > 0 ? `
+                <span style="font-size:11px;color:#888;margin-left:6px">${t('evo.inertiaKinds')}</span>
+                ${['tech','financial','human','relational','social'].map(k =>
+                    `<label style="font-size:11px;margin-left:4px;white-space:nowrap">
+                        <input type="checkbox" ${(c.inertiaKinds || []).includes(k) ? 'checked' : ''}
+                            onchange="toggleInertiaKind(${compIdx}, '${k}', this.checked)">
+                        ${t('evo.inertia.' + k)}
+                    </label>`
+                ).join('')}
+                ` : ''}
                 ` : ''}
                 <label style="margin-left:8px">
                     <input type="checkbox" onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
@@ -1305,6 +1343,21 @@ function toggleEvolving(idx, checked) {
 
 function setInertia(idx, val) {
     wizardState.components[idx].inertia = parseInt(val);
+    if (parseInt(val) === 0) {
+        wizardState.components[idx].inertiaKinds = [];
+    }
+    renderEvoList();
+    onWizardChange();
+}
+
+function toggleInertiaKind(idx, kind, checked) {
+    const c = wizardState.components[idx];
+    if (!c.inertiaKinds) c.inertiaKinds = [];
+    if (checked) {
+        if (!c.inertiaKinds.includes(kind)) c.inertiaKinds.push(kind);
+    } else {
+        c.inertiaKinds = c.inertiaKinds.filter(k => k !== kind);
+    }
     onWizardChange();
 }
 

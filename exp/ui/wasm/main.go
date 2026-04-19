@@ -183,6 +183,7 @@ type jsComponent struct {
 	Evolving        bool               `json:"evolving"`
 	EvolvedTo       int                `json:"evolvedTo"`
 	Inertia         int                `json:"inertia"`
+	InertiaKinds    []string           `json:"inertiaKinds"`
 	IsPipeline      bool               `json:"isPipeline"`
 	PipelineMembers []jsPipelineMember `json:"pipelineMembers"`
 }
@@ -256,14 +257,19 @@ func docToState(doc *wtg2.Document) jsState {
 			evolvedTo = min(99, evo+15)
 		}
 
+		inertiaKinds := n.InertiaKinds
+		if inertiaKinds == nil {
+			inertiaKinds = []string{}
+		}
 		comp := jsComponent{
-			Name:      n.Name,
-			Kind:      kind,
-			Evolution: evo,
-			Type:      n.Type,
-			Evolving:  evolving,
-			EvolvedTo: evolvedTo,
-			Inertia:   n.Inertia,
+			Name:         n.Name,
+			Kind:         kind,
+			Evolution:    evo,
+			Type:         n.Type,
+			Evolving:     evolving,
+			EvolvedTo:    evolvedTo,
+			Inertia:      n.Inertia,
+			InertiaKinds: inertiaKinds,
 		}
 
 		// Check if this component is a pipeline parent.
