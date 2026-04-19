@@ -91,7 +91,9 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
 /* Step content */
 .wizard-step { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 12px; gap: 12px; min-height: 0; }
-.wizard-step.active { display: flex; }
+.wizard-step.active { display: flex; animation: fadeSlideIn 0.25s ease; }
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Wizard common */
 .wizard-section { background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(14, 35, 86, 0.08); border-radius: 10px; overflow: visible; box-shadow: 0 2px 8px rgba(14, 35, 86, 0.04); flex-shrink: 0; }
@@ -129,8 +131,22 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
 /* Evolution sliders */
 .evo-list { display: flex; flex-direction: column; gap: 8px; }
-.evo-item { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(14, 35, 86, 0.08); border-radius: 10px; padding: 12px 14px; }
-.evo-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.evo-item { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(14, 35, 86, 0.08); border-radius: 10px; padding: 12px 14px; animation: fadeIn 0.15s ease; }
+.evo-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; cursor: pointer; padding: 2px 0; border-radius: 6px; transition: background 0.15s ease; }
+.evo-item-header:hover { background: rgba(14, 35, 86, 0.03); }
+.evo-item:not(.collapsed) .evo-item-header { margin-bottom: 8px; }
+.evo-item-body { overflow: hidden; max-height: 600px; transition: max-height 0.25s ease, opacity 0.2s ease; opacity: 1; }
+.evo-item.collapsed .evo-item-body { max-height: 0; opacity: 0; }
+.evo-item-summary { display: none; align-items: center; gap: 6px; font-size: 11px; color: #6E7B9A; margin-left: auto; margin-right: 8px; }
+.evo-item.collapsed .evo-item-summary { display: flex; }
+.evo-item-summary .summary-type { padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 500; }
+.evo-item-summary .summary-type.build { background: #d6d6d6; color: #333; }
+.evo-item-summary .summary-type.buy { background: #AAA5A9; color: #fff; }
+.evo-item-summary .summary-type.outsource { background: #444; color: #fff; }
+.evo-item-summary .summary-evolving { color: #6ab04c; }
+.evo-item-summary .summary-inertia { color: #e17055; font-weight: 700; }
+.evo-item-chevron { font-size: 10px; color: #8691AB; transition: transform 0.2s ease; margin-left: 4px; }
+.evo-item.collapsed .evo-item-chevron { transform: rotate(-90deg); }
 .evo-item-name { font-size: 13px; font-weight: 600; color: #0E2356; }
 .evo-item-pos { font-size: 12px; color: #00D2DD; font-family: 'SF Mono', monospace; font-weight: 600; }
 .evo-slider-track { position: relative; height: 32px; margin-bottom: 4px; }
@@ -241,6 +257,20 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 #comp-list-container label { color: #3E4F78 !important; }
 #comp-count { color: #8691AB !important; }
 
+/* === CANVAS CONTROLS === */
+#canvas-viewport { overflow: hidden; position: relative; width: 100%; height: 100%; }
+#canvas-viewport #output-pane { transform-origin: 0 0; transition: transform 0.15s ease; cursor: grab; }
+#canvas-viewport #output-pane.panning { cursor: grabbing; transition: none; }
+#canvas-controls { position: absolute; bottom: 12px; right: 12px; z-index: 10; display: flex; align-items: center; gap: 2px; background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(14, 35, 86, 0.10); border-radius: 8px; padding: 4px 6px; box-shadow: 0 2px 8px rgba(14, 35, 86, 0.08); }
+#canvas-controls button { width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; font-size: 16px; color: #0E2356; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease; }
+#canvas-controls button:hover { background: rgba(14, 35, 86, 0.08); }
+#canvas-zoom-label { font-size: 11px; color: #586586; min-width: 36px; text-align: center; font-family: 'SF Mono', monospace; font-weight: 500; }
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 1023px) {
   #left-pane { width: 45%; }
@@ -266,6 +296,10 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
         <div class="mode-toggle">
             <button id="mode-guided" class="active" onclick="setMode('guided')" data-i18n="mode.guided">Guide</button>
             <button id="mode-editor" onclick="setMode('editor')" data-i18n="mode.editor">Editeur</button>
+        </div>
+        <div class="toolbar-group" id="undo-redo-group">
+            <button id="undo-btn" onclick="undo()" title="Undo (Ctrl+Z)" disabled style="font-size:16px;padding:2px 6px;background:none;border:1px solid rgba(14,35,86,0.12);border-radius:6px;cursor:pointer;color:#586586">&#8630;</button>
+            <button id="redo-btn" onclick="redo()" title="Redo (Ctrl+Shift+Z)" disabled style="font-size:16px;padding:2px 6px;background:none;border:1px solid rgba(14,35,86,0.12);border-radius:6px;cursor:pointer;color:#586586">&#8631;</button>
         </div>
         <div class="toolbar-spacer"></div>
         <div class="toolbar-secondary">
@@ -465,7 +499,15 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
         <div id="divider"></div>
         <div id="right-pane">
-            <div id="output-pane"></div>
+            <div id="canvas-viewport">
+                <div id="output-pane"></div>
+                <div id="canvas-controls">
+                    <button onclick="canvasZoomIn()" title="Zoom in">+</button>
+                    <span id="canvas-zoom-label">100%</span>
+                    <button onclick="canvasZoomOut()" title="Zoom out">&minus;</button>
+                    <button onclick="canvasReset()" title="Fit to view">&#8982;</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -846,6 +888,61 @@ let currentMode = 'guided'; // 'guided' or 'editor'
 let editor = null;
 let renderTimer = null;
 let detachedWindow = null;
+let expandedEvoIdx = -1;
+
+// ================================================================
+// 3b. Undo/Redo
+// ================================================================
+let undoStack = [];
+let redoStack = [];
+let undoTimer = null;
+const UNDO_MAX = 50;
+
+function scheduleUndoPush() {
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(pushUndoState, 600);
+}
+
+function pushUndoState() {
+    undoStack.push(JSON.parse(JSON.stringify(wizardState)));
+    if (undoStack.length > UNDO_MAX) undoStack.shift();
+    redoStack = [];
+    updateUndoButtons();
+}
+
+function undo() {
+    if (currentMode !== 'guided' || undoStack.length === 0) return;
+    redoStack.push(JSON.parse(JSON.stringify(wizardState)));
+    wizardState = undoStack.pop();
+    expandedEvoIdx = -1;
+    syncWizardUI();
+    scheduleRender();
+    updateUndoButtons();
+}
+
+function redo() {
+    if (currentMode !== 'guided' || redoStack.length === 0) return;
+    undoStack.push(JSON.parse(JSON.stringify(wizardState)));
+    wizardState = redoStack.pop();
+    expandedEvoIdx = -1;
+    syncWizardUI();
+    scheduleRender();
+    updateUndoButtons();
+}
+
+function updateUndoButtons() {
+    const undoBtn = document.getElementById('undo-btn');
+    const redoBtn = document.getElementById('redo-btn');
+    if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+    if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+}
+
+document.addEventListener('keydown', function(e) {
+    if (currentMode !== 'guided') return;
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) { e.preventDefault(); redo(); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); }
+});
 
 // ================================================================
 // 4. Evolution helpers
@@ -1075,69 +1172,96 @@ function renderCompList() {
     `).join('');
 }
 
+function evoSummaryHtml(c) {
+    let parts = [];
+    if (c.type) parts.push(`<span class="summary-type ${c.type}">${c.type}</span>`);
+    if (c.evolving) parts.push(`<span class="summary-evolving">&rarr; ${evoToRoman(c.evolvedTo)}</span>`);
+    if (c.inertia > 0) parts.push(`<span class="summary-inertia">${'!'.repeat(c.inertia)}</span>`);
+    return parts.join('');
+}
+
 function renderEvoList() {
     const container = document.getElementById('evo-list');
     container.innerHTML = wizardState.components.map((c, compIdx) => {
         const isAnchor = c.kind === 'anchor';
         if (!isAnchor && c.isPipeline) return renderPipelineItem(c, compIdx);
+        const isCollapsed = compIdx !== expandedEvoIdx;
         return `
-        <div class="evo-item">
-            <div class="evo-item-header">
+        <div class="evo-item${isCollapsed ? ' collapsed' : ''}" data-evo-idx="${compIdx}">
+            <div class="evo-item-header" onclick="toggleEvoCard(${compIdx})">
                 <span class="evo-item-name">${escapeHtml(c.name)}</span>
                 ${isAnchor ? '<span class="comp-badge anchor">' + t('comp.anchor') + '</span>' : ''}
+                <span class="evo-item-summary">${evoSummaryHtml(c)}</span>
                 <span class="evo-item-pos" id="evo-pos-${compIdx}">${evoToRoman(c.evolution)}</span>
+                <span class="evo-item-chevron">&#9654;</span>
             </div>
-            <div class="evo-slider-track">
-                <div class="evo-slider-phases">
-                    <div>I</div><div>II</div><div>III</div><div>IV</div>
+            <div class="evo-item-body">
+                <div class="evo-slider-track">
+                    <div class="evo-slider-phases">
+                        <div>I</div><div>II</div><div>III</div><div>IV</div>
+                    </div>
+                    <input type="range" min="0" max="99" value="${c.evolution}"
+                        oninput="updateEvolution(${compIdx}, this.value)"
+                        onchange="onWizardChange()">
                 </div>
-                <input type="range" min="0" max="99" value="${c.evolution}"
-                    oninput="updateEvolution(${compIdx}, this.value)"
-                    onchange="onWizardChange()">
+                ${isAnchor ? '' : `
+                <div class="evo-item-options">
+                    <label>${t('evo.type')}</label>
+                    <div class="pill-group">
+                        <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
+                        <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
+                        <button class="${c.type === 'buy' ? 'active' : ''}" onclick="setType(${compIdx},'buy')">buy</button>
+                        <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
+                    </div>
+                    <label style="margin-left:8px">
+                        <input type="checkbox" ${c.evolving ? 'checked' : ''} onchange="toggleEvolving(${compIdx}, this.checked)"> ${t('evo.evolution')}
+                    </label>
+                    ${c.evolving ? `
+                    <span style="font-size:11px;color:#888">${t('evo.towards')}</span>
+                    <input type="range" min="0" max="99" value="${c.evolvedTo}" style="width:60px;accent-color:#6ab04c"
+                        oninput="updateEvolvedTo(${compIdx}, this.value)"
+                        onchange="onWizardChange()">
+                    <span style="font-size:11px;color:#6ab04c;font-family:monospace" id="evo-to-${compIdx}">${evoToRoman(c.evolvedTo)}</span>
+                    <select onchange="setInertia(${compIdx}, this.value)" style="margin-left:4px">
+                        <option value="0" ${c.inertia === 0 ? 'selected' : ''}>${t('evo.inertia0')}</option>
+                        <option value="1" ${c.inertia === 1 ? 'selected' : ''}>${t('evo.inertia1')}</option>
+                        <option value="2" ${c.inertia === 2 ? 'selected' : ''}>${t('evo.inertia2')}</option>
+                        <option value="3" ${c.inertia === 3 ? 'selected' : ''}>${t('evo.inertia3')}</option>
+                    </select>
+                    ${c.inertia > 0 ? `
+                    <span style="font-size:11px;color:#888;margin-left:6px">${t('evo.inertiaKinds')}</span>
+                    ${['tech','financial','human','relational','social'].map(k =>
+                        `<label style="font-size:11px;margin-left:4px;white-space:nowrap">
+                            <input type="checkbox" ${(c.inertiaKinds || []).includes(k) ? 'checked' : ''}
+                                onchange="toggleInertiaKind(${compIdx}, '${k}', this.checked)">
+                            ${t('evo.inertia.' + k)}
+                        </label>`
+                    ).join('')}
+                    ` : ''}
+                    ` : ''}
+                    <label style="margin-left:8px">
+                        <input type="checkbox" onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
+                    </label>
+                </div>`}
             </div>
-            ${isAnchor ? '' : `
-            <div class="evo-item-options">
-                <label>${t('evo.type')}</label>
-                <div class="pill-group">
-                    <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
-                    <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
-                    <button class="${c.type === 'buy' ? 'active' : ''}" onclick="setType(${compIdx},'buy')">buy</button>
-                    <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
-                </div>
-                <label style="margin-left:8px">
-                    <input type="checkbox" ${c.evolving ? 'checked' : ''} onchange="toggleEvolving(${compIdx}, this.checked)"> ${t('evo.evolution')}
-                </label>
-                ${c.evolving ? `
-                <span style="font-size:11px;color:#888">${t('evo.towards')}</span>
-                <input type="range" min="0" max="99" value="${c.evolvedTo}" style="width:60px;accent-color:#6ab04c"
-                    oninput="updateEvolvedTo(${compIdx}, this.value)"
-                    onchange="onWizardChange()">
-                <span style="font-size:11px;color:#6ab04c;font-family:monospace" id="evo-to-${compIdx}">${evoToRoman(c.evolvedTo)}</span>
-                <select onchange="setInertia(${compIdx}, this.value)" style="margin-left:4px">
-                    <option value="0" ${c.inertia === 0 ? 'selected' : ''}>${t('evo.inertia0')}</option>
-                    <option value="1" ${c.inertia === 1 ? 'selected' : ''}>${t('evo.inertia1')}</option>
-                    <option value="2" ${c.inertia === 2 ? 'selected' : ''}>${t('evo.inertia2')}</option>
-                    <option value="3" ${c.inertia === 3 ? 'selected' : ''}>${t('evo.inertia3')}</option>
-                </select>
-                ${c.inertia > 0 ? `
-                <span style="font-size:11px;color:#888;margin-left:6px">${t('evo.inertiaKinds')}</span>
-                ${['tech','financial','human','relational','social'].map(k =>
-                    `<label style="font-size:11px;margin-left:4px;white-space:nowrap">
-                        <input type="checkbox" ${(c.inertiaKinds || []).includes(k) ? 'checked' : ''}
-                            onchange="toggleInertiaKind(${compIdx}, '${k}', this.checked)">
-                        ${t('evo.inertia.' + k)}
-                    </label>`
-                ).join('')}
-                ` : ''}
-                ` : ''}
-                <label style="margin-left:8px">
-                    <input type="checkbox" onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
-                </label>
-            </div>`}
         </div>`;
     }).join('');
     initPipelineDrag();
     initPipelineLabelClicks();
+}
+
+function toggleEvoCard(idx) {
+    const items = document.querySelectorAll('.evo-item[data-evo-idx]');
+    if (expandedEvoIdx === idx) {
+        expandedEvoIdx = -1;
+        items.forEach(el => el.classList.add('collapsed'));
+    } else {
+        expandedEvoIdx = idx;
+        items.forEach(el => {
+            const elIdx = parseInt(el.dataset.evoIdx);
+            el.classList.toggle('collapsed', elIdx !== idx);
+        });
+    }
 }
 
 function renderPipelineItem(c, compIdx) {
@@ -1159,39 +1283,44 @@ function renderPipelineItem(c, compIdx) {
         </div>`;
     }).join('');
 
+    const isCollapsed = compIdx !== expandedEvoIdx;
     return `
-    <div class="evo-item evo-item--pipeline">
-        <div class="evo-item-header">
+    <div class="evo-item evo-item--pipeline${isCollapsed ? ' collapsed' : ''}" data-evo-idx="${compIdx}">
+        <div class="evo-item-header" onclick="toggleEvoCard(${compIdx})">
             <span class="evo-item-name">${escapeHtml(c.name)}</span>
+            <span class="evo-item-summary">${evoSummaryHtml(c)}<span style="font-size:10px;color:#8691AB;margin-left:2px">pipeline</span></span>
             <span class="evo-item-pos" id="evo-pos-${compIdx}">${evoToRoman(c.evolution)}</span>
+            <span class="evo-item-chevron">&#9654;</span>
         </div>
-        <div class="evo-slider-track evo-slider-track--secondary">
-            <div class="evo-slider-phases">
-                <div>I</div><div>II</div><div>III</div><div>IV</div>
+        <div class="evo-item-body">
+            <div class="evo-slider-track evo-slider-track--secondary">
+                <div class="evo-slider-phases">
+                    <div>I</div><div>II</div><div>III</div><div>IV</div>
+                </div>
+                <input type="range" min="0" max="99" value="${c.evolution}"
+                    oninput="updateEvolution(${compIdx}, this.value)"
+                    onchange="onWizardChange()">
             </div>
-            <input type="range" min="0" max="99" value="${c.evolution}"
-                oninput="updateEvolution(${compIdx}, this.value)"
-                onchange="onWizardChange()">
-        </div>
-        <div class="pipeline-track" data-comp-idx="${compIdx}">
-            <div class="evo-slider-phases">
-                <div>I</div><div>II</div><div>III</div><div>IV</div>
+            <div class="pipeline-track" data-comp-idx="${compIdx}">
+                <div class="evo-slider-phases">
+                    <div>I</div><div>II</div><div>III</div><div>IV</div>
+                </div>
+                ${members.length > 1 ? `<div class="pipeline-span" style="left:${spanLeft}%;width:${spanWidth}%"></div>` : ''}
+                ${handles}
+                <button class="pipeline-add-btn" onclick="addPipelineMember(${compIdx})" title="${t('pipeline.addMember')}">+</button>
             </div>
-            ${members.length > 1 ? `<div class="pipeline-span" style="left:${spanLeft}%;width:${spanWidth}%"></div>` : ''}
-            ${handles}
-            <button class="pipeline-add-btn" onclick="addPipelineMember(${compIdx})" title="${t('pipeline.addMember')}">+</button>
-        </div>
-        <div class="evo-item-options">
-            <label>${t('evo.type')}</label>
-            <div class="pill-group">
-                <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
-                <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
-                <button class="${c.type === 'buy' ? 'active' : ''}" onclick="setType(${compIdx},'buy')">buy</button>
-                <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
+            <div class="evo-item-options">
+                <label>${t('evo.type')}</label>
+                <div class="pill-group">
+                    <button class="${!c.type ? 'active' : ''}" onclick="setType(${compIdx},'')">&mdash;</button>
+                    <button class="${c.type === 'build' ? 'active' : ''}" onclick="setType(${compIdx},'build')">build</button>
+                    <button class="${c.type === 'buy' ? 'active' : ''}" onclick="setType(${compIdx},'buy')">buy</button>
+                    <button class="${c.type === 'outsource' ? 'active' : ''}" onclick="setType(${compIdx},'outsource')">outsource</button>
+                </div>
+                <label style="margin-left:8px">
+                    <input type="checkbox" checked onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
+                </label>
             </div>
-            <label style="margin-left:8px">
-                <input type="checkbox" checked onchange="togglePipeline(${compIdx}, this.checked)"> ${t('evo.pipeline')}
-            </label>
         </div>
     </div>`;
 }
@@ -1620,6 +1749,8 @@ function setMode(mode) {
     document.getElementById('mode-editor').classList.toggle('active', mode === 'editor');
     document.getElementById('wizard-pane').style.display = mode === 'guided' ? 'flex' : 'none';
     document.getElementById('editor-pane').style.display = mode === 'editor' ? 'flex' : 'none';
+    document.getElementById('undo-redo-group').style.display = mode === 'guided' ? '' : 'none';
+    undoStack = []; redoStack = []; updateUndoButtons();
 
     if (mode === 'editor') {
         if (!editor) initEditor();
@@ -1702,6 +1833,7 @@ function toggleSection(header) {
 function onWizardChange() {
     saveState();
     scheduleRender();
+    scheduleUndoPush();
 }
 
 function scheduleRender() {
@@ -1740,6 +1872,7 @@ function render() {
         output.innerHTML = result;
     }
     document.getElementById('status').textContent = t('status.ok');
+    applyCanvasTransform();
     updateDetached();
 }
 
@@ -1751,6 +1884,92 @@ function getBaseDimensions() {
     const parts = document.getElementById('ratio').value.split(',');
     return [parseInt(parts[0], 10), parseInt(parts[1], 10)];
 }
+
+// ================================================================
+// 13b. Canvas Zoom/Pan
+// ================================================================
+let canvasScale = 1;
+let canvasPanX = 0;
+let canvasPanY = 0;
+let _panActive = false;
+let _panStartX = 0;
+let _panStartY = 0;
+let _panStartPanX = 0;
+let _panStartPanY = 0;
+
+function applyCanvasTransform() {
+    const pane = document.getElementById('output-pane');
+    if (!pane) return;
+    if (canvasScale === 1 && canvasPanX === 0 && canvasPanY === 0) {
+        pane.style.transform = '';
+    } else {
+        pane.style.transform = `translate(${canvasPanX}px, ${canvasPanY}px) scale(${canvasScale})`;
+    }
+    const label = document.getElementById('canvas-zoom-label');
+    if (label) label.textContent = Math.round(canvasScale * 100) + '%';
+}
+
+function canvasZoomIn() { canvasZoomTo(canvasScale + 0.15); }
+function canvasZoomOut() { canvasZoomTo(canvasScale - 0.15); }
+function canvasZoomTo(s) {
+    canvasScale = Math.max(0.25, Math.min(3, s));
+    applyCanvasTransform();
+}
+function canvasReset() {
+    canvasScale = 1; canvasPanX = 0; canvasPanY = 0;
+    applyCanvasTransform();
+}
+
+(function initCanvasControls() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const vp = document.getElementById('canvas-viewport');
+        if (!vp) return;
+
+        vp.addEventListener('wheel', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = vp.getBoundingClientRect();
+                const cx = e.clientX - rect.left;
+                const cy = e.clientY - rect.top;
+                const oldScale = canvasScale;
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                canvasScale = Math.max(0.25, Math.min(3, canvasScale + delta));
+                const ratio = canvasScale / oldScale;
+                canvasPanX = cx - ratio * (cx - canvasPanX);
+                canvasPanY = cy - ratio * (cy - canvasPanY);
+            } else {
+                e.preventDefault();
+                canvasPanX -= e.deltaX;
+                canvasPanY -= e.deltaY;
+            }
+            applyCanvasTransform();
+        }, { passive: false });
+
+        vp.addEventListener('mousedown', function(e) {
+            if (e.target.closest('svg') || e.target.closest('#canvas-controls')) return;
+            _panActive = true;
+            _panStartX = e.clientX;
+            _panStartY = e.clientY;
+            _panStartPanX = canvasPanX;
+            _panStartPanY = canvasPanY;
+            document.getElementById('output-pane').classList.add('panning');
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!_panActive) return;
+            canvasPanX = _panStartPanX + (e.clientX - _panStartX);
+            canvasPanY = _panStartPanY + (e.clientY - _panStartY);
+            applyCanvasTransform();
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (!_panActive) return;
+            _panActive = false;
+            document.getElementById('output-pane').classList.remove('panning');
+        });
+    });
+})();
 
 // ================================================================
 // 14. Editor Init
