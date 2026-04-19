@@ -88,7 +88,7 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			elems = append(elems, n)
 		}
 	}
-	sort.Sort(svgMarshalers(elems))
+	sort.Stable(svgMarshalers(elems))
 	currentLayer := makeGroup("layer", encoding.Background)
 	if err := e.e.EncodeToken(currentLayer.StartElement); err != nil {
 		return err

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
+	"sort"
 	"strings"
 
 	"github.com/owulveryck/wardleyToGo/internal/graph"
@@ -151,17 +152,28 @@ func (m *Map) Components() []Component {
 	return result
 }
 
-// Collaborations returns all collaborations in the map.
+// Collaborations returns all collaborations in the map in deterministic order,
+// sorted by (from ID, to ID).
 func (m *Map) Collaborations() []Collaboration {
-	// Estimate capacity: sum of inner map sizes.
+	fromIDs := make([]int64, 0, len(m.collabs))
+	for fid := range m.collabs {
+		fromIDs = append(fromIDs, fid)
+	}
+	sort.Slice(fromIDs, func(i, j int) bool { return fromIDs[i] < fromIDs[j] })
+
 	n := 0
-	for _, targets := range m.collabs {
-		n += len(targets)
+	for _, fid := range fromIDs {
+		n += len(m.collabs[fid])
 	}
 	result := make([]Collaboration, 0, n)
-	for _, targets := range m.collabs {
-		for _, c := range targets {
-			result = append(result, c)
+	for _, fid := range fromIDs {
+		toIDs := make([]int64, 0, len(m.collabs[fid]))
+		for tid := range m.collabs[fid] {
+			toIDs = append(toIDs, tid)
+		}
+		sort.Slice(toIDs, func(i, j int) bool { return toIDs[i] < toIDs[j] })
+		for _, tid := range toIDs {
+			result = append(result, m.collabs[fid][tid])
 		}
 	}
 	return result

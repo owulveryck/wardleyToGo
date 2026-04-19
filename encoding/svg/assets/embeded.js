@@ -2,8 +2,8 @@ var g = new Map();
 var allLinks = new Array(); 
 
 allLinks.push({{ range .AllLinks }}'{{.}}',{{ end }});
-{{range $key, $value := .G }}
-g.set('{{$key}}',Array({{range $value}}'{{.}}',{{end}}));
+{{range .G }}
+g.set('{{.Key}}',Array({{range .Edges}}'{{.}}',{{end}}));
 {{- end}}
 
 const max = 9
