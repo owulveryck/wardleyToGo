@@ -171,6 +171,39 @@ func TestEstimateBBox(t *testing.T) {
 	}
 }
 
+func TestPlaceLabels_Deterministic(t *testing.T) {
+	comps := []Component{
+		{Name: "Anchor", Position: image.Pt(50, 3), Label: "Automobiliste"},
+		{Name: "App", Position: image.Pt(62, 21), Label: "Application Mobile"},
+		{Name: "Itin", Position: image.Pt(55, 43), Label: "Itineraire Affiche"},
+		{Name: "Alertes", Position: image.Pt(37, 37), Label: "Alertes Trafic"},
+		{Name: "CDN", Position: image.Pt(87, 40), Label: "CDN"},
+		{Name: "Moteur", Position: image.Pt(42, 61), Label: "Moteur de Calcul"},
+		{Name: "Flux", Position: image.Pt(27, 54), Label: "Flux Temps Reel"},
+		{Name: "Donnees", Position: image.Pt(52, 80), Label: "Modele de Donnees"},
+		{Name: "Cloud", Position: image.Pt(82, 77), Label: "Infrastructure Cloud"},
+		{Name: "OSM", Position: image.Pt(70, 95), Label: "Donnees OSM"},
+		{Name: "Reseau", Position: image.Pt(92, 97), Label: "Reseau Mobile"},
+		// Pipeline members at same Y — triggers the tiebreaker
+		{Name: "AlgoD", Position: image.Pt(82, 61), Label: "Algo Dijkstra"},
+		{Name: "AlgoP", Position: image.Pt(37, 61), Label: "Algo Predictif IA"},
+		{Name: "AlgoQ", Position: image.Pt(5, 61), Label: "Algo Quantique"},
+	}
+
+	opts := DefaultOptions()
+	reference := PlaceLabels(comps, opts)
+
+	for run := 0; run < 50; run++ {
+		result := PlaceLabels(comps, opts)
+		for name, r := range reference {
+			if result[name] != r {
+				t.Fatalf("run %d: %s placement %+v != reference %+v",
+					run, name, result[name], r)
+			}
+		}
+	}
+}
+
 func abs64(x float64) float64 {
 	if x < 0 {
 		return -x

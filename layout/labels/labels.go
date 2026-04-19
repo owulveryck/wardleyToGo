@@ -123,7 +123,12 @@ func PlaceLabels(comps []Component, opts Options) map[string]Result {
 		if indexed[a].density != indexed[b].density {
 			return indexed[a].density > indexed[b].density
 		}
-		return comps[indexed[a].index].Position.Y < comps[indexed[b].index].Position.Y
+		ya := comps[indexed[a].index].Position.Y
+		yb := comps[indexed[b].index].Position.Y
+		if ya != yb {
+			return ya < yb
+		}
+		return indexed[a].index < indexed[b].index
 	})
 
 	// Pre-compute label metrics once per component to avoid repeated
