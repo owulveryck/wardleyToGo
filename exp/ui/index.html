@@ -90,14 +90,14 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .step-chevron { color: #B7BDCC; font-size: 10px; }
 
 /* Step content */
-.wizard-step { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 12px; gap: 12px; min-height: 0; }
+.wizard-step { display: none; flex: 1; flex-direction: column; overflow-y: auto; padding: 14px; gap: 14px; min-height: 0; }
 .wizard-step.active { display: flex; animation: fadeSlideIn 0.25s ease; }
 @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Wizard common */
 .wizard-section { background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(14, 35, 86, 0.08); border-radius: 10px; overflow: visible; box-shadow: 0 2px 8px rgba(14, 35, 86, 0.04); flex-shrink: 0; }
-.wizard-section-header { padding: 10px 14px; background: rgba(14, 35, 86, 0.03); cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; color: #0E2356; }
+.wizard-section-header { padding: 10px 14px; background: rgba(14, 35, 86, 0.03); cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; color: #0E2356; border-left: 3px solid #00D2DD; }
 .wizard-section-header .chevron { transition: transform .2s ease; font-size: 10px; color: #8691AB; }
 .wizard-section.collapsed .wizard-section-body { display: none; }
 .wizard-section.collapsed .chevron { transform: rotate(-90deg); }
@@ -113,7 +113,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
 /* Component list */
 .comp-list { display: flex; flex-direction: column; gap: 4px; }
-.comp-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(14, 35, 86, 0.06); border-radius: 8px; font-size: 13px; color: #0E2356; transition: all .15s ease; }
+.comp-item { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(14, 35, 86, 0.06); border-radius: 8px; font-size: 13px; color: #0E2356; transition: all .15s ease; }
 .comp-item:hover { background: rgba(255, 255, 255, 0.75); box-shadow: 0 1px 4px rgba(14, 35, 86, 0.06); }
 .comp-item .comp-name { flex: 1; }
 .comp-item .comp-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(14, 35, 86, 0.06); color: #6E7B9A; text-transform: uppercase; font-weight: 500; }
@@ -130,7 +130,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .comp-item .comp-type-toggle.outsource { background: #444; color: #fff; border-color: #333; }
 
 /* Evolution sliders */
-.evo-list { display: flex; flex-direction: column; gap: 8px; }
+.evo-list { display: flex; flex-direction: column; gap: 5px; }
 .evo-item { background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(14, 35, 86, 0.08); border-radius: 10px; padding: 12px 14px; animation: fadeIn 0.15s ease; }
 .evo-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; cursor: pointer; padding: 2px 0; border-radius: 6px; transition: background 0.15s ease; }
 .evo-item-header:hover { background: rgba(14, 35, 86, 0.03); }
@@ -266,6 +266,60 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 #canvas-controls button:hover { background: rgba(14, 35, 86, 0.08); }
 #canvas-zoom-label { font-size: 11px; color: #586586; min-width: 36px; text-align: center; font-family: 'SF Mono', monospace; font-weight: 500; }
 
+/* === PROGRESSIVE DISCLOSURE === */
+.comp-item .comp-type-toggle,
+.comp-item .comp-focus,
+.comp-item .comp-remove { opacity: 0; pointer-events: none; transition: opacity 0.15s ease; }
+.comp-item:hover .comp-type-toggle,
+.comp-item:hover .comp-focus,
+.comp-item:hover .comp-remove,
+.comp-item:focus-within .comp-type-toggle,
+.comp-item:focus-within .comp-focus,
+.comp-item:focus-within .comp-remove { opacity: 1; pointer-events: auto; }
+
+/* === COLLAPSIBLE ENRICHMENT SECTIONS === */
+.enrich-section-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 6px 0; margin-bottom: 4px; }
+.enrich-section-header h4 { margin-bottom: 0; }
+.enrich-section-header .enrich-chevron { font-size: 10px; color: #8691AB; transition: transform 0.2s ease; }
+.enrich-section.enrich-collapsed .enrich-section-body { display: none; }
+.enrich-section.enrich-collapsed .enrich-chevron { transform: rotate(-90deg); }
+.enrich-section-count { font-size: 10px; color: #8691AB; font-weight: 400; margin-left: 6px; }
+
+/* === ONBOARDING / COACH MARKS === */
+#onboarding-overlay { position: fixed; inset: 0; z-index: 5000; pointer-events: none; }
+#onboarding-overlay.active { pointer-events: auto; }
+.onboarding-backdrop { position: fixed; inset: 0; background: rgba(14, 35, 86, 0.35); z-index: 5001; transition: opacity 0.3s ease; }
+.onboarding-spotlight { position: fixed; z-index: 5002; border-radius: 10px; box-shadow: 0 0 0 9999px rgba(14, 35, 86, 0.45); transition: top 0.35s ease, left 0.35s ease, width 0.35s ease, height 0.35s ease; pointer-events: none; }
+.onboarding-spotlight.pulse { animation: spotlightPulse 2s ease-in-out infinite; }
+@keyframes spotlightPulse {
+    0%, 100% { box-shadow: 0 0 0 9999px rgba(14, 35, 86, 0.45), 0 0 0 0 rgba(0, 210, 221, 0); }
+    50% { box-shadow: 0 0 0 9999px rgba(14, 35, 86, 0.45), 0 0 0 4px rgba(0, 210, 221, 0.3); }
+}
+.onboarding-tooltip { position: fixed; z-index: 5003; max-width: 340px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(14, 35, 86, 0.12); border-radius: 14px; padding: 20px; box-shadow: 0 8px 32px rgba(14, 35, 86, 0.18); pointer-events: auto; animation: onboardFadeIn 0.3s ease; }
+@keyframes onboardFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.onboarding-tooltip h3 { font-size: 15px; font-weight: 600; color: #0E2356; margin-bottom: 8px; }
+.onboarding-tooltip p { font-size: 13px; color: #3E4F78; line-height: 1.5; margin-bottom: 16px; }
+.onboarding-tooltip .try-it { background: rgba(0, 210, 221, 0.08); border: 1px solid rgba(0, 210, 221, 0.2); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #0E2356; margin-bottom: 16px; font-family: 'SF Mono', 'Fira Code', monospace; line-height: 1.5; }
+.onboarding-tooltip .try-it strong { color: #00D2DD; font-weight: 600; }
+.onboarding-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.onboarding-dots { display: flex; gap: 6px; }
+.onboarding-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(14, 35, 86, 0.15); transition: background 0.2s ease; }
+.onboarding-dot.active { background: #00D2DD; width: 18px; border-radius: 3px; }
+.onboarding-skip { background: none; border: none; color: #8691AB; font-size: 12px; cursor: pointer; padding: 4px 8px; transition: color 0.15s ease; }
+.onboarding-skip:hover { color: #0E2356; }
+.onboarding-next { background: #0E2356; color: #FFFFFF; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s ease; }
+.onboarding-next:hover { background: #263967; }
+.onboarding-tooltip::before { content: ''; position: absolute; width: 12px; height: 12px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(14, 35, 86, 0.12); transform: rotate(45deg); z-index: -1; }
+.onboarding-tooltip.arrow-left::before { left: -7px; top: 24px; border-right: none; border-top: none; }
+.onboarding-tooltip.arrow-top::before { top: -7px; left: 24px; border-bottom: none; border-right: none; }
+.onboarding-tooltip.arrow-bottom::before { bottom: -7px; left: 24px; border-top: none; border-left: none; }
+.onboarding-tooltip.arrow-right::before { right: -7px; top: 24px; border-left: none; border-bottom: none; }
+@media (max-width: 767px) {
+    .onboarding-tooltip { max-width: 280px; padding: 16px; }
+    .onboarding-tooltip h3 { font-size: 14px; }
+    .onboarding-tooltip p { font-size: 12px; }
+}
+
 /* === REDUCED MOTION === */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -350,6 +404,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
         </div>
     </div>
     <div id="share-toast"></div>
+    <div id="onboarding-overlay"></div>
 
     <!-- === COLLABORATION BAR === -->
     <div id="collab-bar" class="collab-bar">
@@ -462,20 +517,35 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
                 <!-- Step 3: Enrichment -->
                 <div class="wizard-step" id="step-2">
-                    <div class="enrich-section">
-                        <h4 data-i18n="enrich.groups">Groupes</h4>
-                        <div id="groups-container"></div>
-                        <button class="btn btn-sm" onclick="addGroup()" data-i18n="enrich.addGroup">+ Ajouter un groupe</button>
+                    <div class="enrich-section" id="enrich-groups-section">
+                        <div class="enrich-section-header" onclick="toggleEnrichSection('enrich-groups-section')">
+                            <h4 data-i18n="enrich.groups">Groupes<span class="enrich-section-count" id="groups-count"></span></h4>
+                            <span class="enrich-chevron">&#9660;</span>
+                        </div>
+                        <div class="enrich-section-body">
+                            <div id="groups-container"></div>
+                            <button class="btn btn-sm" onclick="addGroup()" data-i18n="enrich.addGroup">+ Ajouter un groupe</button>
+                        </div>
                     </div>
-                    <div class="enrich-section">
-                        <h4 data-i18n="enrich.annotations">Annotations</h4>
-                        <div id="annotations-container"></div>
-                        <button class="btn btn-sm" onclick="addAnnotation()" data-i18n="enrich.addAnnotation">+ Ajouter une annotation</button>
+                    <div class="enrich-section" id="enrich-annotations-section">
+                        <div class="enrich-section-header" onclick="toggleEnrichSection('enrich-annotations-section')">
+                            <h4 data-i18n="enrich.annotations">Annotations<span class="enrich-section-count" id="annotations-count"></span></h4>
+                            <span class="enrich-chevron">&#9660;</span>
+                        </div>
+                        <div class="enrich-section-body">
+                            <div id="annotations-container"></div>
+                            <button class="btn btn-sm" onclick="addAnnotation()" data-i18n="enrich.addAnnotation">+ Ajouter une annotation</button>
+                        </div>
                     </div>
-                    <div class="enrich-section">
-                        <h4 data-i18n="enrich.signals">Signaux</h4>
-                        <div id="signals-container"></div>
-                        <button class="btn btn-sm" onclick="addSignal()" data-i18n="enrich.addSignal">+ Ajouter un signal</button>
+                    <div class="enrich-section" id="enrich-signals-section">
+                        <div class="enrich-section-header" onclick="toggleEnrichSection('enrich-signals-section')">
+                            <h4 data-i18n="enrich.signals">Signaux<span class="enrich-section-count" id="signals-count"></span></h4>
+                            <span class="enrich-chevron">&#9660;</span>
+                        </div>
+                        <div class="enrich-section-body">
+                            <div id="signals-container"></div>
+                            <button class="btn btn-sm" onclick="addSignal()" data-i18n="enrich.addSignal">+ Ajouter un signal</button>
+                        </div>
                     </div>
                     <div class="enrich-section" style="margin-top:8px">
                         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
@@ -741,6 +811,20 @@ const translations = {
         'collab.invalidUrl': 'URL invalide (doit commencer par ws:// ou wss://)',
         'collab.connectionError': 'Erreur de connexion : {message}',
         'collab.reconnecting': 'Reconnexion...',
+        'onboarding.welcome.title': 'Bienvenue dans le Playground',
+        'onboarding.welcome.body': 'Créez votre carte Wardley en 3 étapes simples. Ce guide rapide vous montre les bases.',
+        'onboarding.step1.title': 'Étape 1 : Chaîne de valeur',
+        'onboarding.step1.body': 'Définissez vos composants et leurs dépendances. Tapez des chaînes avec -> pour les relier.',
+        'onboarding.step1.tryit': 'Essayez : tapez <strong>Client -> Application -> Base de données</strong>',
+        'onboarding.step2.title': 'Étape 2 : Évolution',
+        'onboarding.step2.body': 'Positionnez chaque composant sur l\'axe d\'évolution. Cliquez sur une carte pour l\'ouvrir et ajuster le curseur.',
+        'onboarding.step3.title': 'Étape 3 : Enrichissement',
+        'onboarding.step3.body': 'Ajoutez des groupes, annotations et signaux pour donner du contexte à votre carte.',
+        'onboarding.preview.title': 'Aperçu en temps réel',
+        'onboarding.preview.body': 'Vos modifications apparaissent instantanément dans l\'aperçu SVG à droite.',
+        'onboarding.skip': 'Passer',
+        'onboarding.next': 'Suivant',
+        'onboarding.finish': 'Commencer',
     },
     en: {
         'toolbar.title': 'WTG2 Playground',
@@ -844,6 +928,20 @@ const translations = {
         'collab.invalidUrl': 'Invalid URL (must start with ws:// or wss://)',
         'collab.connectionError': 'Connection error: {message}',
         'collab.reconnecting': 'Reconnecting...',
+        'onboarding.welcome.title': 'Welcome to the Playground',
+        'onboarding.welcome.body': 'Create your Wardley Map in 3 simple steps. This quick guide shows you the basics.',
+        'onboarding.step1.title': 'Step 1: Value Chain',
+        'onboarding.step1.body': 'Define your components and their dependencies. Type chains with -> to link them.',
+        'onboarding.step1.tryit': 'Try it: type <strong>Customer -> Application -> Database</strong>',
+        'onboarding.step2.title': 'Step 2: Evolution',
+        'onboarding.step2.body': 'Position each component on the evolution axis. Click a card to open it and adjust the slider.',
+        'onboarding.step3.title': 'Step 3: Enrichment',
+        'onboarding.step3.body': 'Add groups, annotations and signals to give context to your map.',
+        'onboarding.preview.title': 'Live Preview',
+        'onboarding.preview.body': 'Your changes appear instantly in the SVG preview on the right.',
+        'onboarding.skip': 'Skip',
+        'onboarding.next': 'Next',
+        'onboarding.finish': 'Get Started',
     }
 };
 
@@ -1349,6 +1447,12 @@ function renderGroups() {
             </div>
         </div>
     `).join('');
+    const gc = document.getElementById('groups-count');
+    if (gc) gc.textContent = wizardState.groups.length ? ' (' + wizardState.groups.length + ')' : '';
+}
+
+function toggleEnrichSection(id) {
+    document.getElementById(id).classList.toggle('enrich-collapsed');
 }
 
 function renderAnnotations() {
@@ -1370,6 +1474,8 @@ function renderAnnotations() {
             <button onclick="removeAnnotation(${ai})">&times;</button>
         </div>
     `).join('');
+    const ac = document.getElementById('annotations-count');
+    if (ac) ac.textContent = wizardState.annotations.length ? ' (' + wizardState.annotations.length + ')' : '';
 }
 
 function renderSignals() {
@@ -1390,6 +1496,8 @@ function renderSignals() {
             <button onclick="removeSignal(${si})">&times;</button>
         </div>
     `).join('');
+    const sc = document.getElementById('signals-count');
+    if (sc) sc.textContent = wizardState.signals.length ? ' (' + wizardState.signals.length + ')' : '';
 }
 
 // ================================================================
@@ -2353,6 +2461,171 @@ function escapeAttr(s) {
 }
 
 // ================================================================
+// 20b. Onboarding / Coach Marks
+// ================================================================
+
+const ONBOARDING_KEY = 'wtg2-onboarding-done';
+
+const onboardingSteps = [
+    {
+        target: '#wizard-pane',
+        titleKey: 'onboarding.welcome.title',
+        bodyKey: 'onboarding.welcome.body',
+        tryItKey: null,
+        arrow: 'left',
+        padding: 8,
+        beforeShow: null,
+    },
+    {
+        target: '#chain-input',
+        titleKey: 'onboarding.step1.title',
+        bodyKey: 'onboarding.step1.body',
+        tryItKey: 'onboarding.step1.tryit',
+        arrow: 'left',
+        padding: 6,
+        beforeShow: function() { goToStep(0); },
+    },
+    {
+        target: '.steps-bar .step-indicator:nth-child(3)',
+        titleKey: 'onboarding.step2.title',
+        bodyKey: 'onboarding.step2.body',
+        tryItKey: null,
+        arrow: 'top',
+        padding: 4,
+        beforeShow: function() { goToStep(1); },
+    },
+    {
+        target: '.steps-bar .step-indicator:nth-child(5)',
+        titleKey: 'onboarding.step3.title',
+        bodyKey: 'onboarding.step3.body',
+        tryItKey: null,
+        arrow: 'top',
+        padding: 4,
+        beforeShow: function() { goToStep(2); },
+    },
+    {
+        target: '#right-pane',
+        titleKey: 'onboarding.preview.title',
+        bodyKey: 'onboarding.preview.body',
+        tryItKey: null,
+        arrow: 'right',
+        padding: 12,
+        beforeShow: function() { goToStep(0); },
+    },
+];
+
+var onboardingCurrentStep = 0;
+var onboardingActive = false;
+
+function shouldShowOnboarding() {
+    if (localStorage.getItem(ONBOARDING_KEY)) return false;
+    if (new URLSearchParams(window.location.search).has('wtg2')) return false;
+    if (window.innerWidth < 768) return false;
+    return true;
+}
+
+function startOnboarding() {
+    onboardingActive = true;
+    onboardingCurrentStep = 0;
+    loadTemplate('blank');
+    var overlay = document.getElementById('onboarding-overlay');
+    overlay.classList.add('active');
+    showOnboardingStep(0);
+}
+
+function showOnboardingStep(stepIdx) {
+    onboardingCurrentStep = stepIdx;
+    var step = onboardingSteps[stepIdx];
+    var overlay = document.getElementById('onboarding-overlay');
+    var total = onboardingSteps.length;
+
+    if (step.beforeShow) step.beforeShow();
+
+    requestAnimationFrame(function() {
+        var targetEl = document.querySelector(step.target);
+        if (!targetEl) { finishOnboarding(); return; }
+
+        var rect = targetEl.getBoundingClientRect();
+        var pad = step.padding || 8;
+
+        var dotsHtml = '';
+        for (var i = 0; i < total; i++) {
+            dotsHtml += '<span class="onboarding-dot' + (i === stepIdx ? ' active' : '') + '"></span>';
+        }
+
+        var isLast = stepIdx === total - 1;
+        var nextLabel = isLast ? t('onboarding.finish') : t('onboarding.next');
+        var tryItHtml = step.tryItKey ? '<div class="try-it">' + t(step.tryItKey) + '</div>' : '';
+
+        var tooltipStyle = '';
+        var arrowClass = 'arrow-' + step.arrow;
+
+        switch (step.arrow) {
+            case 'left':
+                tooltipStyle = 'top:' + Math.max(8, rect.top + rect.height / 2 - 60) + 'px;left:' + (rect.right + pad + 16) + 'px;';
+                break;
+            case 'right':
+                tooltipStyle = 'top:' + Math.max(8, rect.top + rect.height / 2 - 60) + 'px;right:' + (window.innerWidth - rect.left + pad + 16) + 'px;';
+                break;
+            case 'top':
+                tooltipStyle = 'top:' + (rect.bottom + pad + 16) + 'px;left:' + rect.left + 'px;';
+                break;
+            case 'bottom':
+                tooltipStyle = 'bottom:' + (window.innerHeight - rect.top + pad + 16) + 'px;left:' + rect.left + 'px;';
+                break;
+        }
+
+        overlay.innerHTML =
+            '<div class="onboarding-backdrop"></div>' +
+            '<div class="onboarding-spotlight pulse" style="' +
+                'top:' + (rect.top - pad) + 'px;' +
+                'left:' + (rect.left - pad) + 'px;' +
+                'width:' + (rect.width + pad * 2) + 'px;' +
+                'height:' + (rect.height + pad * 2) + 'px;' +
+            '"></div>' +
+            '<div class="onboarding-tooltip ' + arrowClass + '" style="' + tooltipStyle + '" ' +
+                 'role="dialog" tabindex="-1">' +
+                '<h3>' + t(step.titleKey) + '</h3>' +
+                '<p>' + t(step.bodyKey) + '</p>' +
+                tryItHtml +
+                '<div class="onboarding-nav">' +
+                    '<button class="onboarding-skip" onclick="finishOnboarding()">' + t('onboarding.skip') + '</button>' +
+                    '<div class="onboarding-dots">' + dotsHtml + '</div>' +
+                    '<button class="onboarding-next" onclick="nextOnboardingStep()">' + nextLabel + '</button>' +
+                '</div>' +
+            '</div>';
+
+        var tooltip = overlay.querySelector('.onboarding-tooltip');
+        if (tooltip) {
+            tooltip.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') finishOnboarding();
+                if (e.key === 'ArrowRight' || e.key === 'Enter') nextOnboardingStep();
+                if (e.key === 'ArrowLeft' && onboardingCurrentStep > 0) showOnboardingStep(onboardingCurrentStep - 1);
+            });
+            tooltip.focus();
+        }
+    });
+}
+
+function nextOnboardingStep() {
+    if (onboardingCurrentStep < onboardingSteps.length - 1) {
+        showOnboardingStep(onboardingCurrentStep + 1);
+    } else {
+        finishOnboarding();
+    }
+}
+
+function finishOnboarding() {
+    onboardingActive = false;
+    localStorage.setItem(ONBOARDING_KEY, '1');
+    var overlay = document.getElementById('onboarding-overlay');
+    overlay.classList.remove('active');
+    overlay.innerHTML = '';
+    loadTemplate('teashop');
+    goToStep(0);
+}
+
+// ================================================================
 // 21. WASM Init & Startup
 // ================================================================
 
@@ -2382,6 +2655,10 @@ WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async
     }
 
     render();
+
+    if (shouldShowOnboarding()) {
+        setTimeout(startOnboarding, 600);
+    }
 }).catch(err => {
     document.getElementById('status').textContent = 'WASM: ' + err;
     // Still allow UI interaction
