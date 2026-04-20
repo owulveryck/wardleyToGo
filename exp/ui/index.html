@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.css">
     <style>
 /* === RESET & BASE === */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,13 +23,13 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 /* === HEADER === */
 #toolbar { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid rgba(14, 35, 86, 0.08); flex-shrink: 0; flex-wrap: wrap; box-shadow: 0 1px 3px rgba(14, 35, 86, 0.06); }
 #toolbar h1 { font-size: 14px; color: #0E2356; font-weight: 600; white-space: nowrap; letter-spacing: -0.02em; }
-.mode-toggle { display: flex; border: 1px solid rgba(14, 35, 86, 0.12); border-radius: 8px; overflow: hidden; flex-shrink: 0; background: rgba(14, 35, 86, 0.04); }
-.mode-toggle button { background: transparent; color: #586586; border: none; padding: 5px 14px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all .2s ease; }
-.mode-toggle button.active { background: #0E2356; color: #00D2DD; border-radius: 7px; }
-.mode-toggle button:hover:not(.active) { background: rgba(14, 35, 86, 0.08); }
+.mode-toggle { display: flex; position: relative; border-radius: 20px; flex-shrink: 0; background: rgba(14, 35, 86, 0.06); border: 1px solid rgba(14, 35, 86, 0.10); padding: 2px; }
+.mode-toggle button { background: transparent; color: #586586; border: none; padding: 5px 16px; font-size: 12px; font-weight: 500; cursor: pointer; transition: color .2s ease; border-radius: 18px; position: relative; z-index: 1; min-width: 70px; text-align: center; }
+.mode-toggle button.active { color: #fff; }
+.mode-toggle button:hover:not(.active) { color: #0E2356; }
+.mode-toggle .toggle-slider { position: absolute; top: 2px; bottom: 2px; width: calc(50% - 2px); border-radius: 18px; background: #0E2356; transition: transform 0.25s ease; z-index: 0; left: 2px; }
+.mode-toggle .toggle-slider.editor { transform: translateX(100%); }
 .toolbar-spacer { flex: 1; }
-.toolbar-secondary { display: flex; align-items: center; gap: 10px; }
-.separator { width: 1px; height: 20px; background: rgba(14, 35, 86, 0.10); flex-shrink: 0; }
 .toolbar-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .toolbar-group label { font-size: 12px; white-space: nowrap; color: #586586; }
 .toolbar-group select, .toolbar-group button { background: rgba(255, 255, 255, 0.6); color: #263967; border: 1px solid rgba(14, 35, 86, 0.12); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all .15s ease; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
@@ -39,6 +40,34 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .llm-hint { font-size: 11px; color: #8691AB; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
 .llm-hint a { color: #00D2DD; text-decoration: none; border: 1px solid rgba(0, 210, 221, 0.25); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 500; transition: all .2s ease; background: rgba(0, 210, 221, 0.06); }
 .llm-hint a:hover { background: rgba(0, 210, 221, 0.15); border-color: rgba(0, 210, 221, 0.5); box-shadow: 0 1px 4px rgba(0, 210, 221, 0.15); }
+
+/* === BURGER MENU === */
+#burger-btn { background: none; border: 1px solid rgba(14,35,86,0.12); border-radius: 6px; font-size: 18px; padding: 2px 7px; cursor: pointer; color: #0E2356; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s ease; position: relative; }
+#burger-btn:hover { background: rgba(14,35,86,0.08); border-color: rgba(0,210,221,0.4); }
+#burger-btn .collab-dot { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; border-radius: 50%; background: #00D2DD; display: none; }
+#burger-btn .collab-dot.active { display: block; }
+#burger-backdrop { position: fixed; inset: 0; background: rgba(14,35,86,0.25); z-index: 1099; display: none; }
+#burger-backdrop.open { display: block; }
+#burger-panel { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; max-width: 85vw; background: rgba(255,255,255,0.97); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); transform: translateX(-100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); z-index: 1100; box-shadow: 4px 0 24px rgba(14,35,86,0.10); display: flex; flex-direction: column; overflow-y: auto; }
+#burger-panel.open { transform: translateX(0); }
+.burger-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(14,35,86,0.08); }
+.burger-header h2 { font-size: 14px; font-weight: 600; color: #0E2356; }
+#burger-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #586586; padding: 2px 6px; border-radius: 6px; transition: all .15s ease; }
+#burger-close:hover { background: rgba(14,35,86,0.08); color: #0E2356; }
+.burger-section { padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+.burger-separator { border: none; border-top: 1px solid rgba(14,35,86,0.06); margin: 0; }
+.burger-item { display: flex; align-items: center; gap: 8px; width: 100%; background: none; border: none; padding: 9px 12px; font-size: 13px; color: #263967; cursor: pointer; border-radius: 8px; transition: all .15s ease; text-decoration: none; font-family: inherit; text-align: left; }
+.burger-item:hover { background: rgba(0,210,221,0.08); color: #0E2356; }
+.burger-item-icon { width: 20px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.burger-item-row { display: flex; align-items: center; gap: 8px; padding: 6px 12px; }
+.burger-section-label { font-size: 10px; font-weight: 600; color: #8691AB; text-transform: uppercase; letter-spacing: .5px; padding: 4px 12px 2px; }
+.burger-item-row label { font-size: 12px; color: #586586; white-space: nowrap; min-width: 32px; }
+.burger-item-row select, .burger-item-row input[type="range"] { flex: 1; }
+.burger-item-row select { background: rgba(255,255,255,0.6); border: 1px solid rgba(14,35,86,0.12); border-radius: 6px; padding: 4px 8px; font-size: 12px; color: #263967; cursor: pointer; }
+.burger-item-row input[type="range"] { accent-color: #00D2DD; }
+.burger-item-row span { font-size: 12px; color: #3E4F78; min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; }
+.toolbar-icon-btn { background: rgba(255,255,255,0.6); color: #263967; border: 1px solid rgba(14,35,86,0.12); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all .15s ease; backdrop-filter: blur(8px); flex-shrink: 0; }
+.toolbar-icon-btn:hover { background: rgba(255,255,255,0.85); border-color: rgba(0,210,221,0.4); box-shadow: 0 1px 4px rgba(0,210,221,0.12); }
 
 /* === MOBILE TABS === */
 #mobile-tabs { display: none; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(14, 35, 86, 0.08); }
@@ -79,7 +108,8 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 #wizard-pane { display: flex; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
 
 /* Steps indicator */
-.steps-bar { display: flex; align-items: center; padding: 10px 12px; background: rgba(14, 35, 86, 0.04); border-bottom: 1px solid rgba(14, 35, 86, 0.06); gap: 4px; flex-shrink: 0; }
+.steps-bar { display: none; align-items: center; gap: 4px; flex-shrink: 0; margin-left: auto; padding: 0; background: transparent; border-bottom: none; }
+.steps-bar.visible { display: flex; }
 .step-indicator { display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 12px; color: #8691AB; transition: all .2s ease; }
 .step-indicator:hover { background: rgba(14, 35, 86, 0.06); }
 .step-indicator.active { color: #0E2356; background: rgba(0, 210, 221, 0.10); }
@@ -217,9 +247,6 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .step-nav { display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(14, 35, 86, 0.03); border-top: 1px solid rgba(14, 35, 86, 0.06); flex-shrink: 0; }
 
 /* Template dropdown */
-.template-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(14, 35, 86, 0.03); border-bottom: 1px solid rgba(14, 35, 86, 0.06); flex-shrink: 0; }
-.template-bar label { font-size: 12px; color: #6E7B9A; }
-.template-bar select { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(14, 35, 86, 0.12); border-radius: 6px; padding: 5px 10px; color: #0E2356; font-size: 12px; flex: 1; }
 
 /* === TOAST === */
 #share-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(14, 35, 86, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: #FFFFFF; padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity .3s ease; box-shadow: 0 4px 16px rgba(14, 35, 86, 0.3); }
@@ -246,6 +273,25 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .collab-bar .collab-disconnect { margin-left: auto; }
 .remote-cursor { display: inline-block; width: 0; position: relative; border-left: 2px solid; z-index: 10; pointer-events: none; vertical-align: text-top; height: 1.2em; }
 .remote-cursor-label { position: absolute; top: -18px; left: -1px; font-size: 9px; padding: 1px 4px; border-radius: 3px; color: #fff; white-space: nowrap; pointer-events: none; }
+
+/* === MAP LIST MODAL === */
+.maps-overlay { position: fixed; inset: 0; background: rgba(14,35,86,0.4); backdrop-filter: blur(6px); z-index: 1200; display: flex; align-items: center; justify-content: center; }
+.maps-dialog { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(14,35,86,0.12); border-radius: 16px; padding: 24px; width: 520px; max-width: 92vw; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(14,35,86,0.15); }
+.maps-dialog h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #0E2356; flex-shrink: 0; }
+.maps-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.maps-list-empty { text-align: center; color: #8691AB; font-size: 13px; padding: 32px 0; }
+.map-entry { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid rgba(14,35,86,0.08); border-radius: 10px; transition: all .15s ease; background: rgba(255,255,255,0.6); cursor: default; }
+.map-entry:hover { border-color: rgba(0,210,221,0.3); background: rgba(0,210,221,0.04); }
+.map-entry.current { border-color: rgba(0,210,221,0.4); background: rgba(0,210,221,0.06); }
+.map-entry-info { flex: 1; min-width: 0; }
+.map-entry-title { font-size: 13px; font-weight: 600; color: #0E2356; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map-entry-title .current-badge { font-size: 10px; font-weight: 500; color: #00D2DD; margin-left: 6px; }
+.map-entry-dates { font-size: 11px; color: #8691AB; margin-top: 2px; }
+.map-entry-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.map-entry-actions .btn { padding: 5px 12px; font-size: 11px; }
+.btn-danger { background: rgba(231,76,60,0.08); color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); border-radius: 8px; cursor: pointer; font-family: inherit; }
+.btn-danger:hover { background: rgba(231,76,60,0.15); border-color: rgba(231,76,60,0.4); }
+.maps-dialog .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-shrink: 0; }
 
 /* === INLINE STYLE OVERRIDES === */
 #evo-stages-bar > div:nth-child(1) { background: rgba(0, 210, 221, 0.08) !important; }
@@ -332,7 +378,8 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 @media (max-width: 767px) {
   #toolbar { gap: 6px; padding: 6px 8px; }
   #toolbar h1 { font-size: 13px; }
-  .toolbar-secondary { display: none; }
+  .steps-bar.visible { display: none !important; }
+  #burger-panel { width: 85vw; }
   #mobile-tabs { display: flex; }
   #main { flex-direction: column; }
   #left-pane { width: 100%; flex: 1; border-right: none; }
@@ -341,13 +388,59 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
   #left-pane.hidden { display: none; }
   #right-pane.visible { display: flex; flex: 1; }
 }
+/* === CHAIN EDITOR === */
+#chain-editor-wrapper .CodeMirror {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(14, 35, 86, 0.10);
+  border-radius: 8px;
+  min-height: 120px;
+  height: auto;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #0E2356;
+  transition: all .2s ease;
+}
+#chain-editor-wrapper .CodeMirror-focused {
+  border-color: #00D2DD;
+  box-shadow: 0 0 0 3px rgba(0, 210, 221, 0.15);
+}
+#chain-editor-wrapper .CodeMirror-placeholder {
+  color: #999;
+}
+/* === AUTOCOMPLETE === */
+.CodeMirror-hints {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(14,35,86,0.12);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(14,35,86,0.10);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 4px 0;
+  max-height: 200px;
+  z-index: 100;
+}
+.CodeMirror-hint {
+  padding: 4px 12px;
+  color: #0E2356;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 0 4px;
+}
+.CodeMirror-hint-active {
+  background: rgba(0,210,221,0.15);
+  color: #0E2356;
+}
     </style>
 </head>
 <body>
     <!-- === HEADER === -->
     <div id="toolbar">
+        <button id="burger-btn" title="Menu">&#9776;<span class="collab-dot" id="collab-dot"></span></button>
         <h1 data-i18n="toolbar.title">WTG2 Playground</h1>
         <div class="mode-toggle">
+            <div class="toggle-slider"></div>
             <button id="mode-guided" class="active" onclick="setMode('guided')" data-i18n="mode.guided">Guide</button>
             <button id="mode-editor" onclick="setMode('editor')" data-i18n="mode.editor">Editeur</button>
         </div>
@@ -355,9 +448,58 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
             <button id="undo-btn" onclick="undo()" title="Undo (Ctrl+Z)" disabled style="font-size:16px;padding:2px 6px;background:none;border:1px solid rgba(14,35,86,0.12);border-radius:6px;cursor:pointer;color:#586586">&#8630;</button>
             <button id="redo-btn" onclick="redo()" title="Redo (Ctrl+Shift+Z)" disabled style="font-size:16px;padding:2px 6px;background:none;border:1px solid rgba(14,35,86,0.12);border-radius:6px;cursor:pointer;color:#586586">&#8631;</button>
         </div>
+        <button id="detach" class="toolbar-icon-btn" data-i18n-title="toolbar.detach" title="Ouvrir dans une fenetre separee">&#8599;</button>
         <div class="toolbar-spacer"></div>
-        <div class="toolbar-secondary">
-            <div class="toolbar-group">
+        <div class="steps-bar visible" id="steps-bar">
+            <div class="step-indicator active" onclick="goToStep(0)">
+                <div class="step-num">1</div>
+                <span data-i18n="step.mapInfo">Carte</span>
+            </div>
+            <span class="step-chevron">&#9654;</span>
+            <div class="step-indicator" onclick="goToStep(1)">
+                <div class="step-num">2</div>
+                <span data-i18n="step.valueChain">Chaine de valeur</span>
+            </div>
+            <span class="step-chevron">&#9654;</span>
+            <div class="step-indicator" onclick="goToStep(2)">
+                <div class="step-num">3</div>
+                <span data-i18n="step.evolution">Evolution</span>
+            </div>
+            <span class="step-chevron">&#9654;</span>
+            <div class="step-indicator" onclick="goToStep(3)">
+                <div class="step-num">4</div>
+                <span data-i18n="step.enrichment">Enrichissement</span>
+            </div>
+        </div>
+        <span id="status" data-i18n="status.loading">Chargement WASM...</span>
+        <div class="toolbar-group">
+            <select id="lang-select" style="min-width:auto">
+                <option value="fr">&#127467;&#127479; FR</option>
+                <option value="en">&#127468;&#127463; EN</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- === BURGER MENU === -->
+    <div id="burger-backdrop"></div>
+    <div id="burger-panel">
+        <div class="burger-header">
+            <h2 data-i18n="toolbar.title">WTG2 Playground</h2>
+            <button id="burger-close" onclick="closeBurgerMenu()">&#10005;</button>
+        </div>
+        <div class="burger-section">
+            <button class="burger-item" id="burger-new"><span class="burger-item-icon">&#10010;</span> <span data-i18n="menu.newProject">Nouveau Projet</span></button>
+            <button class="burger-item" id="burger-my-maps"><span class="burger-item-icon">&#128194;</span> <span data-i18n="menu.myMaps">Mes Cartes</span></button>
+        </div>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <div class="burger-section-label" data-i18n="menu.templates">Templates</div>
+            <button class="burger-item burger-template" data-template="teashop"><span class="burger-item-icon">&#9749;</span> <span data-i18n="template.teashop">Tea Shop (simple)</span></button>
+            <button class="burger-item burger-template" data-template="navigation"><span class="burger-item-icon">&#9962;</span> <span data-i18n="template.navigation">Plateforme Navigation (riche)</span></button>
+        </div>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <div class="burger-item-row">
                 <label data-i18n="toolbar.ratio">Ratio</label>
                 <select id="ratio">
                     <option value="1200,900" selected>4:3</option>
@@ -367,42 +509,41 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                     <option value="1273,900">A4</option>
                 </select>
             </div>
-            <div class="separator"></div>
-            <div class="toolbar-group">
+            <div class="burger-item-row">
                 <label for="resolution" data-i18n="toolbar.resolution">Def.</label>
                 <input type="range" id="resolution" min="50" max="300" step="25" value="100">
                 <span id="res-label">100%</span>
             </div>
-            <div class="separator"></div>
-            <div class="toolbar-group">
-                <button id="dl-svg" data-i18n-title="toolbar.dlSvg" title="Telecharger SVG">&#11015; SVG</button>
-                <button id="dl-png" data-i18n-title="toolbar.dlPng" title="Telecharger PNG">&#11015; PNG</button>
-                <button id="detach" data-i18n-title="toolbar.detach" title="Ouvrir dans une fenetre separee">&#8599;</button>
-            </div>
-            <div class="separator"></div>
-            <div class="toolbar-group">
-                <button id="dl-wtg2" data-i18n-title="toolbar.dlWtg2" title="Exporter le source WTG2">&#11015; WTG2</button>
-                <button id="import-wtg2" data-i18n-title="toolbar.importWtg2" title="Importer un fichier WTG2">&#11014; WTG2</button>
-                <input type="file" id="import-file-input" accept=".wtg2,.wtg,.txt" style="display:none">
-                <button id="share-url" data-i18n-title="toolbar.share" title="Copier le lien de partage">&#128279; <span data-i18n="toolbar.shareLabel">Partager</span></button>
-            </div>
-            <div class="separator"></div>
-            <div class="toolbar-group">
-                <button id="collab-btn" onclick="openCollabDialog()" data-i18n-title="toolbar.collab" title="Rejoindre une session collaborative">&#9881; <span data-i18n="toolbar.collabLabel">Collaborer</span></button>
-            </div>
         </div>
-        <span id="status" data-i18n="status.loading">Chargement WASM...</span>
-        <span class="llm-hint">
-            <span data-i18n="toolbar.llmHint">Syntaxe WTG2 :</span>
-            <a href="https://github.com/owulveryck/wardleyToGo/blob/main/wtg2/skill.md" target="_blank" rel="noopener noreferrer" data-i18n-title="toolbar.llmHintTitle" title="Fichier skill utilisable avec ChatGPT, Claude, etc."><span data-i18n="toolbar.llmHintLink">&#129302; Skill LLM</span></a>
-        </span>
-        <div class="toolbar-group">
-            <select id="lang-select" style="min-width:auto">
-                <option value="fr">&#127467;&#127479; FR</option>
-                <option value="en">&#127468;&#127463; EN</option>
-            </select>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <button class="burger-item" id="dl-png"><span class="burger-item-icon">&#11015;</span> <span data-i18n="menu.exportPng">Export PNG</span></button>
+            <button class="burger-item" id="dl-svg"><span class="burger-item-icon">&#11015;</span> <span data-i18n="menu.exportSvg">Export SVG</span></button>
+        </div>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <button class="burger-item" id="dl-wtg2" data-i18n-title="toolbar.dlWtg2" title="Exporter le source WTG2"><span class="burger-item-icon">&#11015;</span> Export WTG2</button>
+            <button class="burger-item" id="import-wtg2" data-i18n-title="toolbar.importWtg2" title="Importer un fichier WTG2"><span class="burger-item-icon">&#11014;</span> Import WTG2</button>
+            <input type="file" id="import-file-input" accept=".wtg2,.wtg,.txt" style="display:none">
+        </div>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <button class="burger-item" id="share-url"><span class="burger-item-icon">&#128279;</span> <span data-i18n="toolbar.shareLabel">Partager</span></button>
+            <button class="burger-item" id="collab-btn" onclick="openCollabDialog()"><span class="burger-item-icon">&#9881;</span> <span data-i18n="toolbar.collabLabel">Collaborer</span></button>
+        </div>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <span class="llm-hint">
+                <span data-i18n="toolbar.llmHint">Syntaxe WTG2 :</span>
+                <a href="https://github.com/owulveryck/wardleyToGo/blob/main/wtg2/skill.md" target="_blank" rel="noopener noreferrer" data-i18n-title="toolbar.llmHintTitle" title="Fichier skill utilisable avec ChatGPT, Claude, etc."><span data-i18n="toolbar.llmHintLink">&#129302; Skill LLM</span></a>
+            </span>
+        </div>
+        <hr class="burger-separator">
+        <div class="burger-section">
+            <a class="burger-item" href="https://github.com/owulveryck/wardleyToGo" target="_blank" rel="noopener noreferrer"><span class="burger-item-icon">&#128218;</span> <span data-i18n="menu.documentation">Documentation</span></a>
         </div>
     </div>
+
     <div id="share-toast"></div>
     <div id="onboarding-overlay"></div>
 
@@ -424,33 +565,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
         <div id="left-pane">
             <!-- Wizard pane -->
             <div id="wizard-pane">
-                <div class="template-bar">
-                    <label data-i18n="template.label">Template :</label>
-                    <select id="template-select" onchange="loadTemplate(this.value)">
-                        <option value="" data-i18n="template.choose">-- Choisir --</option>
-                        <option value="teashop" data-i18n="template.teashop">Tea Shop (simple)</option>
-                        <option value="navigation" data-i18n="template.navigation">Plateforme Navigation (riche)</option>
-                        <option value="blank" data-i18n="template.blank">Vide</option>
-                    </select>
-                </div>
-                <div class="steps-bar">
-                    <div class="step-indicator active" onclick="goToStep(0)">
-                        <div class="step-num">1</div>
-                        <span data-i18n="step.valueChain">Chaine de valeur</span>
-                    </div>
-                    <span class="step-chevron">&#9654;</span>
-                    <div class="step-indicator" onclick="goToStep(1)">
-                        <div class="step-num">2</div>
-                        <span data-i18n="step.evolution">Evolution</span>
-                    </div>
-                    <span class="step-chevron">&#9654;</span>
-                    <div class="step-indicator" onclick="goToStep(2)">
-                        <div class="step-num">3</div>
-                        <span data-i18n="step.enrichment">Enrichissement</span>
-                    </div>
-                </div>
-
-                <!-- Step 1: Value Chain -->
+                <!-- Step 0: Map Info -->
                 <div class="wizard-step active" id="step-0">
                     <div class="wizard-section">
                         <div class="wizard-section-header" onclick="toggleSection(this)">
@@ -471,6 +586,10 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Step 1: Value Chain -->
+                <div class="wizard-step" id="step-1">
                     <div class="wizard-section">
                         <div class="wizard-section-header" onclick="toggleSection(this)">
                             <span data-i18n="section.valueChain">Chaine de valeur</span> <span class="chevron">&#9660;</span>
@@ -478,7 +597,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                         <div class="wizard-section-body">
                             <div class="field">
                                 <label data-i18n="field.dependencies">Dependances (une chaine par ligne)</label>
-                                <textarea id="chain-input" data-i18n-placeholder="field.dependenciesPlaceholder" placeholder="Client -> Application -> Base de donnees&#10;Application -> API -> Service externe" oninput="parseChains()"></textarea>
+                                <div id="chain-editor-wrapper"><textarea id="chain-input" data-i18n-placeholder="field.dependenciesPlaceholder" placeholder="Client -> Application -> Base de donnees&#10;Application -> API -> Service externe"></textarea></div>
                                 <div class="hint" data-i18n="field.dependenciesHint">Tapez des chaines avec -> pour lier les composants. Les composants sans dependance entrante deviennent automatiquement des ancres.</div>
                             </div>
                             <div id="comp-list-container">
@@ -493,7 +612,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                 </div>
 
                 <!-- Step 2: Evolution -->
-                <div class="wizard-step" id="step-1">
+                <div class="wizard-step" id="step-2">
                     <div id="evo-stages-bar" style="display:flex;gap:2px;margin-bottom:4px">
                         <div style="flex:1;text-align:center;font-size:10px;padding:4px;background:#2a1a1a;border-radius:3px">
                             <span style="color:#888;font-weight:bold">I</span><br>
@@ -516,7 +635,7 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                 </div>
 
                 <!-- Step 3: Enrichment -->
-                <div class="wizard-step" id="step-2">
+                <div class="wizard-step" id="step-3">
                     <div class="enrich-section" id="enrich-groups-section">
                         <div class="enrich-section-header" onclick="toggleEnrichSection('enrich-groups-section')">
                             <h4 data-i18n="enrich.groups">Groupes<span class="enrich-section-count" id="groups-count"></span></h4>
@@ -583,6 +702,8 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/display/placeholder.min.js"></script>
     <!-- monokai theme removed: using light glass theme via CSS overrides -->
     <script src="wasm_exec.js"></script>
     <script>
@@ -733,6 +854,7 @@ const translations = {
         'template.teashop': 'Tea Shop (simple)',
         'template.navigation': 'Plateforme Navigation (riche)',
         'template.blank': 'Vide',
+        'step.mapInfo': 'Carte',
         'step.valueChain': 'Chaine de valeur',
         'step.evolution': 'Evolution',
         'step.enrichment': 'Enrichissement',
@@ -794,6 +916,23 @@ const translations = {
         'status.urlError': 'Erreur URL: {message}',
         'toolbar.collab': 'Rejoindre une session collaborative',
         'toolbar.collabLabel': 'Collaborer',
+        'menu.newProject': 'Nouveau Projet',
+        'menu.documentation': 'Documentation',
+        'menu.exportPng': 'Export PNG',
+        'menu.exportSvg': 'Export SVG',
+        'menu.confirmNew': 'Creer un nouveau projet ? Les modifications non sauvegardees seront perdues.',
+        'menu.myMaps': 'Mes Cartes',
+        'menu.templates': 'Templates',
+        'menu.confirmDelete': 'Supprimer cette carte ? Cette action est irreversible.',
+        'maps.title': 'Mes Cartes',
+        'maps.empty': 'Aucune carte sauvegardee.',
+        'maps.open': 'Ouvrir',
+        'maps.delete': 'Supprimer',
+        'maps.close': 'Fermer',
+        'maps.created': 'Creee le',
+        'maps.modified': 'Modifiee le',
+        'maps.current': '(en cours)',
+        'maps.untitled': 'Sans titre',
         'toolbar.llmHint': 'Syntaxe WTG2 :',
         'toolbar.llmHintTitle': 'Fichier skill utilisable avec ChatGPT, Claude, etc.',
         'toolbar.llmHintLink': '\uD83E\uDD16 Skill LLM',
@@ -850,6 +989,7 @@ const translations = {
         'template.teashop': 'Tea Shop (simple)',
         'template.navigation': 'Navigation Platform (rich)',
         'template.blank': 'Blank',
+        'step.mapInfo': 'Map',
         'step.valueChain': 'Value Chain',
         'step.evolution': 'Evolution',
         'step.enrichment': 'Enrichment',
@@ -911,6 +1051,23 @@ const translations = {
         'status.urlError': 'URL Error: {message}',
         'toolbar.collab': 'Join a collaborative session',
         'toolbar.collabLabel': 'Collaborate',
+        'menu.newProject': 'New Project',
+        'menu.documentation': 'Documentation',
+        'menu.exportPng': 'Export PNG',
+        'menu.exportSvg': 'Export SVG',
+        'menu.confirmNew': 'Create a new project? Unsaved changes will be lost.',
+        'menu.myMaps': 'My Maps',
+        'menu.templates': 'Templates',
+        'menu.confirmDelete': 'Delete this map? This action cannot be undone.',
+        'maps.title': 'My Maps',
+        'maps.empty': 'No saved maps.',
+        'maps.open': 'Open',
+        'maps.delete': 'Delete',
+        'maps.close': 'Close',
+        'maps.created': 'Created',
+        'maps.modified': 'Modified',
+        'maps.current': '(current)',
+        'maps.untitled': 'Untitled',
         'toolbar.llmHint': 'WTG2 syntax:',
         'toolbar.llmHintTitle': 'Skill file usable with ChatGPT, Claude, etc.',
         'toolbar.llmHintLink': '\uD83E\uDD16 LLM Skill',
@@ -987,6 +1144,8 @@ let editor = null;
 let renderTimer = null;
 let detachedWindow = null;
 let expandedEvoIdx = -1;
+let currentMapId = null;
+let mapsIndex = [];
 
 // ================================================================
 // 3b. Undo/Redo
@@ -1069,7 +1228,7 @@ function romanToEvo(roman) {
 // 5. Chain parser
 // ================================================================
 function parseChains() {
-    const text = document.getElementById('chain-input').value;
+    const text = chainEditor ? chainEditor.getValue() : document.getElementById('chain-input').value;
     const componentMap = new Map();
     const edges = [];
     const inbound = new Set();
@@ -1526,9 +1685,9 @@ function toggleFocus(idx) {
 }
 
 function updateChainInputFromState() {
-    // Reconstruct chain text from current edges
     const lines = wizardState.edges.map(e => e.from + ' -> ' + e.to);
-    document.getElementById('chain-input').value = lines.join('\n');
+    if (chainEditor) chainEditor.setValue(lines.join('\n'));
+    else document.getElementById('chain-input').value = lines.join('\n');
 }
 
 function updateMeta() {
@@ -1790,20 +1949,17 @@ function goToStep(step) {
     });
     document.querySelectorAll('.step-indicator').forEach((el, i) => {
         el.classList.toggle('active', i === step);
-        // Mark previous steps as completed if they have content
         if (i < step && wizardState.components.length > 0) {
             el.classList.add('completed');
         }
     });
 
-    // Nav buttons
     document.getElementById('btn-prev').style.visibility = step === 0 ? 'hidden' : 'visible';
     const nextBtn = document.getElementById('btn-next');
-    nextBtn.innerHTML = step === 2 ? t('nav.finish') : t('nav.next') + ' \u25B6';
+    nextBtn.innerHTML = step === 3 ? t('nav.finish') : t('nav.next') + ' \u25B6';
 
-    // Render step-specific content
-    if (step === 1) renderEvoList();
-    if (step === 2) {
+    if (step === 2) renderEvoList();
+    if (step === 3) {
         renderGroups();
         renderAnnotations();
         renderSignals();
@@ -1811,7 +1967,7 @@ function goToStep(step) {
 }
 
 function nextStep() {
-    if (currentStep < 2) goToStep(currentStep + 1);
+    if (currentStep < 3) goToStep(currentStep + 1);
 }
 
 function prevStep() {
@@ -1855,6 +2011,9 @@ function setMode(mode) {
     currentMode = mode;
     document.getElementById('mode-guided').classList.toggle('active', mode === 'guided');
     document.getElementById('mode-editor').classList.toggle('active', mode === 'editor');
+    var slider = document.querySelector('.mode-toggle .toggle-slider');
+    if (slider) slider.classList.toggle('editor', mode === 'editor');
+    document.getElementById('steps-bar').classList.toggle('visible', mode === 'guided');
     document.getElementById('wizard-pane').style.display = mode === 'guided' ? 'flex' : 'none';
     document.getElementById('editor-pane').style.display = mode === 'editor' ? 'flex' : 'none';
     document.getElementById('undo-redo-group').style.display = mode === 'guided' ? '' : 'none';
@@ -1883,7 +2042,8 @@ function syncWizardUI() {
 
     // Reconstruct chain-input from edges
     const lines = wizardState.edges.map(e => e.from + ' -> ' + e.to);
-    document.getElementById('chain-input').value = lines.join('\n');
+    if (chainEditor) chainEditor.setValue(lines.join('\n'));
+    else document.getElementById('chain-input').value = lines.join('\n');
 
     renderCompList();
     goToStep(currentStep);
@@ -1912,18 +2072,16 @@ function loadTemplate(key) {
     document.getElementById('meta-title').value = wizardState.meta.title;
     document.getElementById('meta-author').value = wizardState.meta.author;
     document.getElementById('meta-question').value = wizardState.meta.question;
-    document.getElementById('chain-input').value = tpl.chains;
+    if (chainEditor) chainEditor.setValue(tpl.chains);
+    else document.getElementById('chain-input').value = tpl.chains;
     document.getElementById('legend-toggle').checked = wizardState.legend;
     for (let i = 0; i < 4; i++) {
         document.getElementById('stage-' + i).value = wizardState.stages[i];
     }
 
     renderCompList();
-    goToStep(0);
+    goToStep(1);
     onWizardChange();
-
-    // Reset template selector
-    document.getElementById('template-select').value = '';
 }
 
 // ================================================================
@@ -2080,6 +2238,177 @@ function canvasReset() {
 })();
 
 // ================================================================
+// 13c. Autocompletion
+// ================================================================
+
+function extractComponentNames(text) {
+    const names = new Set();
+    const lines = text.split('\n');
+    const metaRe = /^(title|date|author|scope|question|stages|legend|focus)\b/;
+    const defRe = /^(?:component\s+|anchor\s+|submap\s+)?(.+?)\s+:\s+[IVX]+\.\d+/;
+    const anchorRe = /^anchor\s+(.+?)\s*$/;
+    const pipelineRe = /^pipeline\s+(.+?)\s*\{/;
+
+    for (const raw of lines) {
+        const line = raw.trim();
+        if (!line || line.startsWith('//') || line.startsWith('/*')) continue;
+        if (metaRe.test(line)) continue;
+        if (/^(note|warning|signal)\b/.test(line)) continue;
+
+        let m;
+        if ((m = line.match(pipelineRe))) { names.add(m[1].trim()); continue; }
+        if ((m = line.match(defRe))) { names.add(m[1].trim()); continue; }
+        if ((m = line.match(anchorRe))) { names.add(m[1].trim()); continue; }
+
+        if (line.includes('->')) {
+            var edgeParts = line.split(/\s*(?:-\[.*?\])?->\s*/);
+            for (var ep of edgeParts) {
+                var ename = ep.trim();
+                if (ename && !/^(group|note|warning|signal)\b/.test(ename)) {
+                    names.add(ename);
+                }
+            }
+            continue;
+        }
+
+        if (/^group\s+/.test(line)) continue;
+    }
+    return Array.from(names).sort();
+}
+
+function isInsideGroupBlock(cm, lineNo) {
+    for (var i = lineNo - 1; i >= 0; i--) {
+        var l = cm.getLine(i).trim();
+        if (l === '}') return false;
+        if (/^group\s+.+\{/.test(l)) return true;
+        if (/^pipeline\s+.+\{/.test(l)) return false;
+    }
+    return false;
+}
+
+function wtg2Hint(cm) {
+    var cursor = cm.getCursor();
+    var line = cm.getLine(cursor.line);
+    var textUpTo = line.substring(0, cursor.ch);
+
+    var partial = '';
+    var startCh = 0;
+
+    var arrowMatch = textUpTo.match(/(?:->|]\->)\s*(.*)$/);
+    if (arrowMatch) {
+        partial = arrowMatch[1];
+        startCh = cursor.ch - partial.length;
+    } else if (isInsideGroupBlock(cm, cursor.line)) {
+        partial = textUpTo.trimStart();
+        startCh = textUpTo.length - partial.length;
+    } else {
+        var keywords = /^(title|date|author|scope|question|stages|legend|focus|anchor|component|submap|pipeline|group|note|warning|signal)\b/;
+        if (!keywords.test(textUpTo.trim())) {
+            if (textUpTo.indexOf(' : ') >= 0) return null;
+            partial = textUpTo.trimStart();
+            startCh = textUpTo.length - partial.length;
+        } else {
+            return null;
+        }
+    }
+
+    if (!partial) return null;
+
+    var allNames = extractComponentNames(cm.getValue());
+    var lowerPartial = partial.toLowerCase();
+    var matches = allNames.filter(function(n) {
+        return n.toLowerCase().startsWith(lowerPartial) && n.toLowerCase() !== lowerPartial;
+    });
+
+    if (matches.length === 0) return null;
+
+    return {
+        list: matches,
+        from: CodeMirror.Pos(cursor.line, startCh),
+        to: cursor
+    };
+}
+
+// --- Guided mode: chain-input as CodeMirror editor ---
+
+var chainEditor = null;
+
+function chainHint(cm) {
+    var cursor = cm.getCursor();
+    var line = cm.getLine(cursor.line);
+    var textUpTo = line.substring(0, cursor.ch);
+
+    var partial = '';
+    var startCh = 0;
+
+    var arrowMatch = textUpTo.match(/(?:->)\s*(.*)$/);
+    if (arrowMatch) {
+        partial = arrowMatch[1];
+        startCh = cursor.ch - partial.length;
+    } else {
+        partial = textUpTo.replace(/^\s+/, '');
+        startCh = textUpTo.length - partial.length;
+    }
+
+    if (!partial) return null;
+
+    var names = (typeof wizardState !== 'undefined' && wizardState.components)
+        ? wizardState.components.map(function(c) { return c.name; })
+        : [];
+    var lowerPartial = partial.toLowerCase();
+    var matches = names.filter(function(n) {
+        return n.toLowerCase().startsWith(lowerPartial) && n.toLowerCase() !== lowerPartial;
+    });
+
+    if (matches.length === 0) return null;
+
+    return {
+        list: matches,
+        from: CodeMirror.Pos(cursor.line, startCh),
+        to: cursor
+    };
+}
+
+function initChainEditor() {
+    var textarea = document.getElementById('chain-input');
+    if (!textarea) return;
+
+    chainEditor = CodeMirror.fromTextArea(textarea, {
+        mode: null,
+        theme: 'default',
+        lineNumbers: false,
+        tabSize: 2,
+        lineWrapping: true,
+        placeholder: textarea.getAttribute('placeholder'),
+        hintOptions: { completeSingle: false },
+        extraKeys: {
+            'Ctrl-Space': function(cm) { cm.showHint({ hint: chainHint }); }
+        }
+    });
+    chainEditor.on('change', function(cm, changeObj) {
+        if (changeObj.origin === 'setValue') return;
+        parseChains();
+    });
+    chainEditor.on('inputRead', function(cm, changeObj) {
+        if (changeObj.origin !== '+input') return;
+        var cursor = cm.getCursor();
+        var line = cm.getLine(cursor.line);
+        var textUpTo = line.substring(0, cursor.ch);
+
+        var partial = null;
+        var arrowMatch = textUpTo.match(/(?:->)\s*(.+)$/);
+        if (arrowMatch) partial = arrowMatch[1];
+        else partial = textUpTo.replace(/^\s+/, '');
+
+        if (partial && partial.trim().length >= 1) {
+            setTimeout(function() {
+                cm.showHint({ hint: chainHint, completeSingle: false });
+            }, 0);
+        }
+    });
+}
+
+// ================================================================
 // 14. Editor Init
 // ================================================================
 
@@ -2089,10 +2418,39 @@ function initEditor() {
         theme: 'default',
         lineNumbers: true,
         tabSize: 2,
+        hintOptions: { completeSingle: false },
+        extraKeys: {
+            'Ctrl-Space': function(cm) { cm.showHint({ hint: wtg2Hint }); }
+        }
     });
-    editor.on('change', () => {
+    editor.on('change', function() {
         localStorage.setItem('wtg2-source', editor.getValue());
         scheduleRender();
+    });
+    editor.on('inputRead', function(cm, changeObj) {
+        if (changeObj.origin !== '+input') return;
+        var cursor = cm.getCursor();
+        var line = cm.getLine(cursor.line);
+        var textUpTo = line.substring(0, cursor.ch);
+
+        var partial = null;
+        var arrowMatch = textUpTo.match(/(?:->|]\->)\s*(.+)$/);
+        if (arrowMatch) {
+            partial = arrowMatch[1];
+        } else if (isInsideGroupBlock(cm, cursor.line)) {
+            partial = textUpTo.trimStart();
+        } else {
+            var kw = /^(title|date|author|scope|question|stages|legend|focus|anchor|component|submap|pipeline|group|note|warning|signal)\b/;
+            if (!kw.test(textUpTo.trim()) && textUpTo.indexOf(' : ') < 0) {
+                partial = textUpTo.trimStart();
+            }
+        }
+
+        if (partial && partial.trim().length >= 1) {
+            setTimeout(function() {
+                cm.showHint({ hint: wtg2Hint, completeSingle: false });
+            }, 0);
+        }
     });
 }
 
@@ -2301,34 +2659,21 @@ function showToast(message) {
 // ================================================================
 
 function saveState() {
-    try {
-        localStorage.setItem('wtg2-guided-state', JSON.stringify(wizardState));
-    } catch (e) { /* quota exceeded */ }
+    saveCurrentMapToStorage();
 }
 
 function loadState() {
-    try {
-        const saved = localStorage.getItem('wtg2-guided-state');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            wizardState = {
-                meta: parsed.meta || { title: '', author: '', question: '' },
-                stages: parsed.stages || ['', '', '', ''],
-                components: (parsed.components || []).map(c => ({
-                    ...c,
-                    isPipeline: c.isPipeline || false,
-                    pipelineMembers: c.pipelineMembers || []
-                })),
-                edges: parsed.edges || [],
-                groups: parsed.groups || [],
-                annotations: parsed.annotations || [],
-                signals: parsed.signals || [],
-                legend: parsed.legend || false,
-                focus: parsed.focus || ""
-            };
-            return true;
-        }
-    } catch (e) { /* parse error */ }
+    loadMapsIndex();
+    var savedId = localStorage.getItem('wtg2-current-map-id');
+    if (savedId && mapsIndex.find(function(m) { return m.id === savedId; })) {
+        return openMap(savedId);
+    }
+    if (mapsIndex.length > 0) {
+        var sorted = mapsIndex.slice().sort(function(a, b) {
+            return new Date(b.modifiedAt) - new Date(a.modifiedAt);
+        });
+        return openMap(sorted[0].id);
+    }
     return false;
 }
 
@@ -2340,10 +2685,229 @@ function restoreUI() {
     for (let i = 0; i < 4; i++) {
         document.getElementById('stage-' + i).value = (wizardState.stages && wizardState.stages[i]) || '';
     }
-
-    // Reconstruct chain input
     updateChainInputFromState();
     renderCompList();
+}
+
+// ================================================================
+// 16b. Multi-Map Management
+// ================================================================
+
+function generateMapId() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+
+function formatDateShort(isoString) {
+    try {
+        var d = new Date(isoString);
+        return d.toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', {
+            day: 'numeric', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    } catch (e) { return isoString; }
+}
+
+function loadMapsIndex() {
+    try {
+        var raw = localStorage.getItem('wtg2-maps-index');
+        mapsIndex = raw ? JSON.parse(raw) : [];
+    } catch (e) { mapsIndex = []; }
+    return mapsIndex;
+}
+
+function saveMapsIndex() {
+    try { localStorage.setItem('wtg2-maps-index', JSON.stringify(mapsIndex)); }
+    catch (e) { /* quota exceeded */ }
+}
+
+function saveCurrentMapToStorage() {
+    if (!currentMapId) return;
+    try {
+        localStorage.setItem('wtg2-map-' + currentMapId, JSON.stringify(wizardState));
+        var entry = mapsIndex.find(function(m) { return m.id === currentMapId; });
+        if (entry) {
+            entry.modifiedAt = new Date().toISOString();
+            entry.title = (wizardState.meta && wizardState.meta.title) || '';
+            saveMapsIndex();
+        }
+    } catch (e) { /* quota exceeded */ }
+}
+
+function parseStateFromJSON(parsed) {
+    return {
+        meta: parsed.meta || { title: '', author: '', question: '' },
+        stages: parsed.stages || ['', '', '', ''],
+        components: (parsed.components || []).map(function(c) {
+            return Object.assign({}, c, {
+                isPipeline: c.isPipeline || false,
+                pipelineMembers: c.pipelineMembers || []
+            });
+        }),
+        edges: parsed.edges || [],
+        groups: parsed.groups || [],
+        annotations: parsed.annotations || [],
+        signals: parsed.signals || [],
+        legend: parsed.legend || false,
+        focus: parsed.focus || ''
+    };
+}
+
+function createNewMap() {
+    if (currentMapId) saveCurrentMapToStorage();
+
+    var id = generateMapId();
+    var now = new Date().toISOString();
+    mapsIndex.push({ id: id, title: '', createdAt: now, modifiedAt: now });
+    saveMapsIndex();
+
+    wizardState = { meta: { title: '', author: '', question: '' }, stages: ['', '', '', ''], components: [], edges: [], groups: [], annotations: [], signals: [], legend: false, focus: '' };
+    currentMapId = id;
+    localStorage.setItem('wtg2-current-map-id', id);
+    saveCurrentMapToStorage();
+
+    undoStack = [];
+    redoStack = [];
+    updateUndoButtons();
+    syncWizardUI();
+    render();
+}
+
+function openMap(id) {
+    if (currentMapId && currentMapId !== id) saveCurrentMapToStorage();
+
+    try {
+        var raw = localStorage.getItem('wtg2-map-' + id);
+        if (!raw) return false;
+        wizardState = parseStateFromJSON(JSON.parse(raw));
+        currentMapId = id;
+        localStorage.setItem('wtg2-current-map-id', id);
+
+        undoStack = [];
+        redoStack = [];
+        updateUndoButtons();
+        restoreUI();
+        render();
+        return true;
+    } catch (e) { return false; }
+}
+
+function deleteMap(id) {
+    localStorage.removeItem('wtg2-map-' + id);
+    mapsIndex = mapsIndex.filter(function(m) { return m.id !== id; });
+    saveMapsIndex();
+
+    if (currentMapId === id) {
+        currentMapId = null;
+        if (mapsIndex.length > 0) {
+            var sorted = mapsIndex.slice().sort(function(a, b) {
+                return new Date(b.modifiedAt) - new Date(a.modifiedAt);
+            });
+            openMap(sorted[0].id);
+        } else {
+            createNewMap();
+        }
+    }
+}
+
+function openMapsModal() {
+    loadMapsIndex();
+
+    var overlay = document.createElement('div');
+    overlay.className = 'maps-overlay';
+    overlay.id = 'maps-overlay';
+
+    var listHTML = '';
+    if (mapsIndex.length === 0) {
+        listHTML = '<div class="maps-list-empty">' + t('maps.empty') + '</div>';
+    } else {
+        var sorted = mapsIndex.slice().sort(function(a, b) {
+            return new Date(b.modifiedAt) - new Date(a.modifiedAt);
+        });
+        listHTML = sorted.map(function(m) {
+            var isCurrent = m.id === currentMapId;
+            var title = m.title || t('maps.untitled');
+            var created = formatDateShort(m.createdAt);
+            var modified = formatDateShort(m.modifiedAt);
+            return '<div class="map-entry' + (isCurrent ? ' current' : '') + '" data-map-id="' + m.id + '">' +
+                '<div class="map-entry-info">' +
+                    '<div class="map-entry-title">' + escapeHtml(title) +
+                        (isCurrent ? ' <span class="current-badge">' + t('maps.current') + '</span>' : '') +
+                    '</div>' +
+                    '<div class="map-entry-dates">' +
+                        t('maps.created') + ' ' + created + ' &middot; ' +
+                        t('maps.modified') + ' ' + modified +
+                    '</div>' +
+                '</div>' +
+                '<div class="map-entry-actions">' +
+                    (isCurrent ? '' : '<button class="btn btn-primary btn-open-map" data-id="' + m.id + '">' + t('maps.open') + '</button>') +
+                    '<button class="btn btn-danger btn-delete-map" data-id="' + m.id + '">' + t('maps.delete') + '</button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    overlay.innerHTML =
+        '<div class="maps-dialog">' +
+        '<h2>' + t('maps.title') + '</h2>' +
+        '<div class="maps-list">' + listHTML + '</div>' +
+        '<div class="btn-row">' +
+        '<button class="btn" id="maps-close-btn">' + t('maps.close') + '</button>' +
+        '</div>' +
+        '</div>';
+
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', function(e) {
+        var openBtn = e.target.closest('.btn-open-map');
+        var deleteBtn = e.target.closest('.btn-delete-map');
+        if (openBtn) {
+            openMap(openBtn.getAttribute('data-id'));
+            closeMapsModal();
+        } else if (deleteBtn) {
+            if (confirm(t('menu.confirmDelete'))) {
+                deleteMap(deleteBtn.getAttribute('data-id'));
+                closeMapsModal();
+                if (mapsIndex.length > 0) openMapsModal();
+            }
+        } else if (e.target === overlay) {
+            closeMapsModal();
+        }
+    });
+
+    document.getElementById('maps-close-btn').addEventListener('click', closeMapsModal);
+    document.addEventListener('keydown', mapsModalEscHandler);
+}
+
+function mapsModalEscHandler(e) {
+    if (e.key === 'Escape' && document.getElementById('maps-overlay')) {
+        closeMapsModal();
+    }
+}
+
+function closeMapsModal() {
+    var overlay = document.getElementById('maps-overlay');
+    if (overlay) overlay.remove();
+    document.removeEventListener('keydown', mapsModalEscHandler);
+}
+
+function migrateToMultiMap() {
+    if (localStorage.getItem('wtg2-maps-index')) return;
+    var oldState = localStorage.getItem('wtg2-guided-state');
+    if (!oldState) return;
+    try {
+        var parsed = JSON.parse(oldState);
+        var id = generateMapId();
+        var now = new Date().toISOString();
+        var index = [{ id: id, title: (parsed.meta && parsed.meta.title) || '', createdAt: now, modifiedAt: now }];
+        localStorage.setItem('wtg2-map-' + id, oldState);
+        localStorage.setItem('wtg2-maps-index', JSON.stringify(index));
+        localStorage.setItem('wtg2-current-map-id', id);
+        localStorage.removeItem('wtg2-guided-state');
+    } catch (e) { /* migration failed */ }
 }
 
 // ================================================================
@@ -2407,7 +2971,48 @@ function setMobileTab(tab) {
 })();
 
 // ================================================================
-// 19. Toolbar Events
+// 19. Burger Menu
+// ================================================================
+
+function openBurgerMenu() {
+    document.getElementById('burger-panel').classList.add('open');
+    document.getElementById('burger-backdrop').classList.add('open');
+}
+function closeBurgerMenu() {
+    document.getElementById('burger-panel').classList.remove('open');
+    document.getElementById('burger-backdrop').classList.remove('open');
+}
+document.getElementById('burger-btn').addEventListener('click', openBurgerMenu);
+document.getElementById('burger-backdrop').addEventListener('click', closeBurgerMenu);
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('burger-panel').classList.contains('open')) {
+        closeBurgerMenu();
+    }
+});
+
+document.getElementById('burger-new').addEventListener('click', function() {
+    if (confirm(t('menu.confirmNew'))) {
+        createNewMap();
+    }
+    closeBurgerMenu();
+});
+
+document.getElementById('burger-my-maps').addEventListener('click', function() {
+    closeBurgerMenu();
+    openMapsModal();
+});
+
+document.querySelectorAll('.burger-template').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var key = btn.getAttribute('data-template');
+        createNewMap();
+        loadTemplate(key);
+        closeBurgerMenu();
+    });
+});
+
+// ================================================================
+// 20. Toolbar Events
 // ================================================================
 
 document.getElementById('ratio').addEventListener('change', render);
@@ -2432,8 +3037,8 @@ document.getElementById('lang-select').addEventListener('change', function() {
     document.documentElement.lang = currentLang;
     applyStaticTranslations();
     renderCompList();
-    if (currentStep === 1) renderEvoList();
-    if (currentStep === 2) { renderGroups(); renderAnnotations(); renderSignals(); }
+    if (currentStep === 2) renderEvoList();
+    if (currentStep === 3) { renderGroups(); renderAnnotations(); renderSignals(); }
     goToStep(currentStep);
 });
 
@@ -2445,6 +3050,8 @@ document.getElementById('lang-select').addEventListener('change', function() {
     document.getElementById('lang-select').value = currentLang;
     applyStaticTranslations();
 })();
+
+initChainEditor();
 
 // ================================================================
 // 20. Utilities
@@ -2477,31 +3084,31 @@ const onboardingSteps = [
         beforeShow: null,
     },
     {
-        target: '#chain-input',
+        target: '#chain-editor-wrapper',
         titleKey: 'onboarding.step1.title',
         bodyKey: 'onboarding.step1.body',
         tryItKey: 'onboarding.step1.tryit',
         arrow: 'left',
         padding: 6,
-        beforeShow: function() { goToStep(0); },
+        beforeShow: function() { goToStep(1); },
     },
     {
-        target: '.steps-bar .step-indicator:nth-child(3)',
+        target: '.steps-bar .step-indicator:nth-child(5)',
         titleKey: 'onboarding.step2.title',
         bodyKey: 'onboarding.step2.body',
         tryItKey: null,
         arrow: 'top',
         padding: 4,
-        beforeShow: function() { goToStep(1); },
+        beforeShow: function() { goToStep(2); },
     },
     {
-        target: '.steps-bar .step-indicator:nth-child(5)',
+        target: '.steps-bar .step-indicator:nth-child(7)',
         titleKey: 'onboarding.step3.title',
         bodyKey: 'onboarding.step3.body',
         tryItKey: null,
         arrow: 'top',
         padding: 4,
-        beforeShow: function() { goToStep(2); },
+        beforeShow: function() { goToStep(3); },
     },
     {
         target: '#right-pane',
@@ -2510,7 +3117,7 @@ const onboardingSteps = [
         tryItKey: null,
         arrow: 'right',
         padding: 12,
-        beforeShow: function() { goToStep(0); },
+        beforeShow: function() { goToStep(1); },
     },
 ];
 
@@ -2647,10 +3254,14 @@ WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async
         }
     }
 
+    // Migrate single-map localStorage to multi-map
+    migrateToMultiMap();
+
     // Load saved state or default template
-    if (loadState() && wizardState.components.length > 0) {
-        restoreUI();
+    if (loadState()) {
+        // openMap already calls restoreUI and render
     } else {
+        createNewMap();
         loadTemplate('teashop');
     }
 
@@ -2661,10 +3272,11 @@ WebAssembly.instantiateStreaming(fetch('main.wasm'), go.importObject).then(async
     }
 }).catch(err => {
     document.getElementById('status').textContent = 'WASM: ' + err;
-    // Still allow UI interaction
-    if (loadState() && wizardState.components.length > 0) {
-        restoreUI();
+    migrateToMultiMap();
+    if (loadState()) {
+        // loaded
     } else {
+        createNewMap();
         loadTemplate('teashop');
     }
 });
@@ -2827,7 +3439,9 @@ function disconnectSession() {
 
     // Update UI
     document.getElementById('collab-bar').classList.remove('active');
-    document.getElementById('collab-btn').innerHTML = '&#9881; <span data-i18n="toolbar.collabLabel">' + t('toolbar.collabLabel') + '</span>';
+    document.getElementById('collab-btn').innerHTML = '<span class="burger-item-icon">&#9881;</span> <span data-i18n="toolbar.collabLabel">' + t('toolbar.collabLabel') + '</span>';
+    var dot = document.getElementById('collab-dot');
+    if (dot) dot.classList.remove('active');
 }
 
 function onWelcome(payload) {
@@ -2987,8 +3601,10 @@ function updateCollabBar() {
     }
     usersEl.innerHTML = html;
 
-    // Update button text
-    document.getElementById('collab-btn').innerHTML = '&#9881; ' + userCount;
+    // Update button text and collab indicator
+    document.getElementById('collab-btn').innerHTML = '<span class="burger-item-icon">&#9881;</span> <span data-i18n="toolbar.collabLabel">' + t('toolbar.collabLabel') + '</span> (' + userCount + ')';
+    var dot = document.getElementById('collab-dot');
+    if (dot) dot.classList.add('active');
 }
 
 function localChangeToOp(change) {
