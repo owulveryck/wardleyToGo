@@ -19,7 +19,7 @@ func TestLayout_LinearChain(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	if pos["A"] >= pos["B"] {
 		t.Errorf("A.Y=%d should be < B.Y=%d", pos["A"], pos["B"])
@@ -49,7 +49,7 @@ func TestLayout_Diamond(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	if pos["A"] >= pos["B"] {
 		t.Errorf("A.Y=%d should be < B.Y=%d", pos["A"], pos["B"])
@@ -80,7 +80,7 @@ func TestLayout_PipelineMembers(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	parentY := pos["Engine"]
 	if pos["Algo A"] != parentY {
@@ -97,7 +97,7 @@ func TestLayout_SingleNode(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	if _, ok := pos["A"]; !ok {
 		t.Fatal("expected position for A")
@@ -115,7 +115,7 @@ func TestLayout_Disconnected(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	for _, name := range []string{"A", "B", "C"} {
 		assertInRange(t, pos, name)
@@ -136,7 +136,7 @@ func TestLayout_AnchorsAtTop(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	opts := DefaultOptions()
 	if pos["Anchor1"] > opts.MinY+opts.MinSpacing {
@@ -171,7 +171,7 @@ func TestLayout_MinSpacing(t *testing.T) {
 	opts := DefaultOptions()
 	opts.MinSpacing = 3
 	l := New(opts)
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	for _, name := range []string{"N0", "N1", "N2", "N3", "N4", "N5"} {
 		assertInRange(t, pos, name)
@@ -194,7 +194,7 @@ func TestLayout_LargeGraph(t *testing.T) {
 	l := New(DefaultOptions())
 
 	start := time.Now()
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 	elapsed := time.Since(start)
 
 	if elapsed > 100*time.Millisecond {
@@ -221,7 +221,7 @@ func TestLayout_ColonMemberEdges(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	if _, ok := pos["AlgoA"]; !ok {
 		t.Fatal("expected position for AlgoA")
@@ -276,7 +276,7 @@ func TestLayout_NegativeDyForce(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	if pos["A"] >= pos["B"] {
 		t.Errorf("A.Y=%d should be < B.Y=%d", pos["A"], pos["B"])
@@ -302,7 +302,7 @@ func TestLayout_MissingEdgeEndpoints(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	assertInRange(t, pos, "A")
 	assertInRange(t, pos, "B")
@@ -334,7 +334,7 @@ func TestLayout_LowerBoundClamp(t *testing.T) {
 	}
 
 	l := New(opts)
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	for _, name := range []string{"A", "B", "C", "D", "E"} {
 		y := pos[name]
@@ -359,7 +359,7 @@ func TestLayout_DisconnectedNodeRank(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	assertInRange(t, pos, "A")
 	assertInRange(t, pos, "B")
@@ -388,7 +388,7 @@ func TestLayout_PipelineMemberEdgeInForce(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	// Pipeline members share parent Y
 	if pos["AlgoA"] != pos["Engine"] {
@@ -440,7 +440,7 @@ func TestLayout_VerticalSpreadWithPipeline(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	opts := DefaultOptions()
 	for _, name := range []string{"Anchor1", "Anchor2", "App", "API", "Display", "Alerts", "CDN", "Engine", "Feed", "DataModel", "Cloud", "OSMData", "Mobile"} {
@@ -488,7 +488,7 @@ func TestLayout_SameRankNodesCloseY(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	maxDiff := 0
 	for _, n1 := range []string{"B", "C", "D"} {
@@ -556,7 +556,7 @@ func TestLayout_GPSNavigationMap(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	opts := DefaultOptions()
 	nonPipeline := []string{
@@ -626,7 +626,7 @@ func TestLayout_PipelineMemberOutgoingEdge(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	opts := DefaultOptions()
 
@@ -691,7 +691,7 @@ func TestLayout_MultiplePipelinesSpacing(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	pos := l.Layout(g)
+	pos := mustLayout(t, l, g)
 
 	opts := DefaultOptions()
 
@@ -763,10 +763,10 @@ func TestLayout_Deterministic(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	reference := l.Layout(g)
+	reference := mustLayout(t, l, g)
 
 	for run := 0; run < 50; run++ {
-		pos := l.Layout(g)
+		pos := mustLayout(t, l, g)
 		for name, y := range reference {
 			if pos[name] != y {
 				t.Fatalf("run %d: %s.Y=%d, want %d (non-deterministic layout)",
@@ -784,10 +784,10 @@ func TestLayout_DeterministicDisconnected(t *testing.T) {
 	}
 
 	l := New(DefaultOptions())
-	reference := l.Layout(g)
+	reference := mustLayout(t, l, g)
 
 	for run := 0; run < 50; run++ {
-		pos := l.Layout(g)
+		pos := mustLayout(t, l, g)
 		for name, y := range reference {
 			if pos[name] != y {
 				t.Fatalf("run %d: %s.Y=%d, want %d (non-deterministic layout)",
@@ -795,6 +795,64 @@ func TestLayout_DeterministicDisconnected(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestLayout_CycleReturnsError(t *testing.T) {
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "A"},
+			{Name: "B"},
+			{Name: "C"},
+		},
+		Edges: []Edge{
+			{From: "A", To: "B"},
+			{From: "B", To: "C"},
+			{From: "C", To: "A"},
+		},
+	}
+
+	l := New(DefaultOptions())
+	done := make(chan error, 1)
+	go func() {
+		_, err := l.Layout(g)
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("expected error for cyclic graph, got nil")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("Layout with cyclic graph did not terminate")
+	}
+}
+
+func TestLayout_SelfLoopReturnsError(t *testing.T) {
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "A"},
+			{Name: "B"},
+		},
+		Edges: []Edge{
+			{From: "A", To: "B"},
+			{From: "B", To: "B"},
+		},
+	}
+
+	l := New(DefaultOptions())
+	_, err := l.Layout(g)
+	if err == nil {
+		t.Fatal("expected error for self-loop, got nil")
+	}
+}
+
+func mustLayout(t *testing.T, l Layouter, g *Graph) map[string]int {
+	t.Helper()
+	pos, err := l.Layout(g)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return pos
 }
 
 func assertInRange(t *testing.T, pos map[string]int, name string) {

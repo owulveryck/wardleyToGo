@@ -57,7 +57,10 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	// Compute Y positions from dependency graph
 	lg := documentToLayoutGraph(doc)
 	layouter := layout.New(layout.DefaultOptions())
-	yPositions := layouter.Layout(lg)
+	yPositions, err := layouter.Layout(lg)
+	if err != nil {
+		return nil, fmt.Errorf("layout: %w", err)
+	}
 
 	// Phase 1: Create all declared nodes
 	for _, nd := range doc.Nodes {

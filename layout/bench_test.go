@@ -39,7 +39,7 @@ func BenchmarkLayout(b *testing.B) {
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				_ = l.Layout(g)
+				_, _ = l.Layout(g)
 			}
 		})
 	}
@@ -49,7 +49,7 @@ func BenchmarkForceSpread(b *testing.B) {
 	for _, size := range []int{10, 20, 50, 100} {
 		b.Run(fmt.Sprintf("N%d", size), func(b *testing.B) {
 			g := buildDenseGraph(size)
-			ranks, maxRank := topoRanks(g)
+			ranks, maxRank, _ := topoRanks(g)
 			pipelineMembers := make(map[string]bool)
 
 			positions := make(map[string]float64, len(ranks))
@@ -81,7 +81,7 @@ func BenchmarkForceSpread(b *testing.B) {
 
 func BenchmarkEnforceRankOrder(b *testing.B) {
 	g := buildDenseGraph(50)
-	ranks, _ := topoRanks(g)
+	ranks, _, _ := topoRanks(g)
 	opts := DefaultOptions()
 
 	names := make([]string, 0, len(ranks))

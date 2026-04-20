@@ -181,7 +181,8 @@ func DefaultOptions() Options {
 type Layouter interface {
 	// Layout assigns Y coordinates to every node in g.
 	// The returned map uses node names as keys and Y positions as values.
-	Layout(g *Graph) map[string]int
+	// It returns an error if the graph contains cycles.
+	Layout(g *Graph) (map[string]int, error)
 }
 
 // defaultLayouter is the standard implementation combining topological
@@ -200,9 +201,12 @@ func New(opts Options) Layouter {
 
 // Layout implements [Layouter] using topological rank assignment followed
 // by force-directed spacing.
-func (l *defaultLayouter) Layout(g *Graph) map[string]int {
+func (l *defaultLayouter) Layout(g *Graph) (map[string]int, error) {
 	// Phase 1: topological rank assignment
-	ranks, _ := topoRanks(g)
+	ranks, _, err := topoRanks(g)
+	if err != nil {
+		return nil, err
+	}
 
 	// Collect pipeline members early so we can compute effective max rank
 	pipelineMembers := make(map[string]bool)
@@ -280,5 +284,5 @@ func (l *defaultLayouter) Layout(g *Graph) map[string]int {
 		}
 	}
 
-	return result
+	return result, nil
 }

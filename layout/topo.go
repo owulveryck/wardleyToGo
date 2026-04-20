@@ -1,6 +1,9 @@
 package layout
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 // topoRanks computes a longest-path rank assignment for every node in g
 // using a breadth-first search (BFS).
@@ -28,7 +31,7 @@ import "sort"
 //
 // Complexity: O(V + E) for the BFS pass, where V = |Nodes| and E = |Edges|.
 // The disconnected-node fallback adds at most V extra assignments.
-func topoRanks(g *Graph) (map[string]int, int) {
+func topoRanks(g *Graph) (map[string]int, int, error) {
 	// Build adjacency and collect all node names
 	nodeSet := make(map[string]bool)
 	children := make(map[string][]string)
@@ -52,6 +55,11 @@ func topoRanks(g *Graph) (map[string]int, int) {
 			children[from] = append(children[from], to)
 			hasParent[to] = true
 		}
+	}
+
+	// Detect cycles before BFS — a cycle would cause infinite looping.
+	if err := detectCycle(nodeSet, children); err != nil {
+		return nil, 0, err
 	}
 
 	// Find roots: anchors first, then nodes with no incoming edges
@@ -118,7 +126,54 @@ func topoRanks(g *Graph) (map[string]int, int) {
 		}
 	}
 
-	return rank, maxRank
+	return rank, maxRank, nil
+}
+
+// detectCycle uses DFS with white/gray/black coloring to find cycles.
+// A back edge (current → gray node) proves a cycle exists.
+func detectCycle(nodes map[string]bool, children map[string][]string) error {
+	const (
+		white = 0
+		gray  = 1
+		black = 2
+	)
+	color := make(map[string]int, len(nodes))
+
+	// Sort node names for deterministic error messages.
+	sorted := make([]string, 0, len(nodes))
+	for n := range nodes {
+		sorted = append(sorted, n)
+	}
+	sort.Strings(sorted)
+
+	var dfs func(string) error
+	dfs = func(node string) error {
+		color[node] = gray
+		for _, child := range children[node] {
+			if !nodes[child] {
+				continue
+			}
+			switch color[child] {
+			case gray:
+				return fmt.Errorf("cycle detected: %s -> %s", node, child)
+			case white:
+				if err := dfs(child); err != nil {
+					return err
+				}
+			}
+		}
+		color[node] = black
+		return nil
+	}
+
+	for _, n := range sorted {
+		if color[n] == white {
+			if err := dfs(n); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // resolveMember extracts the member name from a "Pipeline:Member" reference.
