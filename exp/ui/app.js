@@ -132,6 +132,17 @@ const translations = {
         'toolbar.detach': 'Ouvrir dans une fenetre separee',
         'toolbar.dlWtg2': 'Exporter le source WTG2',
         'toolbar.importWtg2': 'Importer un fichier WTG2',
+        'toolbar.importOwm': 'Importer un fichier OWM (Online Wardley Maps)',
+        'owm.title': 'Importer une carte OWM',
+        'owm.uploadLabel': 'Charger un fichier',
+        'owm.uploadHint': 'Fichier .owm ou .txt au format Online Wardley Maps',
+        'owm.orSeparator': '— ou —',
+        'owm.pasteLabel': 'Coller du texte OWM',
+        'owm.pastePlaceholder': 'title Ma Carte\\ncomponent Client [0.95, 0.5]\\n...',
+        'owm.import': 'Importer',
+        'owm.cancel': 'Annuler',
+        'owm.emptyError': 'Veuillez selectionner un fichier ou coller du texte OWM.',
+        'owm.convertError': 'Erreur de conversion : {message}',
         'toolbar.share': 'Copier le lien de partage',
         'toolbar.shareLabel': 'Partager',
         'status.loading': 'Chargement WASM...',
@@ -267,6 +278,17 @@ const translations = {
         'toolbar.detach': 'Open in separate window',
         'toolbar.dlWtg2': 'Export WTG2 source',
         'toolbar.importWtg2': 'Import WTG2 file',
+        'toolbar.importOwm': 'Import OWM file (Online Wardley Maps)',
+        'owm.title': 'Import OWM Map',
+        'owm.uploadLabel': 'Upload a file',
+        'owm.uploadHint': '.owm or .txt file in Online Wardley Maps format',
+        'owm.orSeparator': '— or —',
+        'owm.pasteLabel': 'Paste OWM text',
+        'owm.pastePlaceholder': 'title My Map\\ncomponent Customer [0.95, 0.5]\\n...',
+        'owm.import': 'Import',
+        'owm.cancel': 'Cancel',
+        'owm.emptyError': 'Please select a file or paste OWM text.',
+        'owm.convertError': 'Conversion error: {message}',
         'toolbar.share': 'Copy share link',
         'toolbar.shareLabel': 'Share',
         'status.loading': 'Loading WASM...',
@@ -1872,6 +1894,98 @@ function loadWTG2IntoEditor(text) {
     render();
 }
 
+function openOWMImportModal() {
+    var overlay = document.createElement('div');
+    overlay.className = 'collab-overlay';
+    overlay.id = 'owm-import-overlay';
+    overlay.innerHTML =
+        '<div class="collab-dialog" style="width:500px">' +
+        '  <h2>' + t('owm.title') + '</h2>' +
+        '  <div class="field">' +
+        '    <label>' + t('owm.uploadLabel') + '</label>' +
+        '    <input type="file" id="owm-file-input" accept=".owm,.txt,.json" style="width:100%;background:rgba(255,255,255,0.7);border:1px solid rgba(14,35,86,0.10);border-radius:8px;padding:8px 10px;color:#0E2356;font-size:13px;">' +
+        '    <div class="hint">' + t('owm.uploadHint') + '</div>' +
+        '  </div>' +
+        '  <div style="text-align:center;color:#8691AB;font-size:12px;margin:12px 0;">' + t('owm.orSeparator') + '</div>' +
+        '  <div class="field">' +
+        '    <label>' + t('owm.pasteLabel') + '</label>' +
+        '    <textarea id="owm-text-input" placeholder="' + t('owm.pastePlaceholder').replace(/"/g, '&quot;') + '" style="width:100%;min-height:140px;background:rgba(255,255,255,0.7);border:1px solid rgba(14,35,86,0.10);border-radius:8px;padding:10px 12px;color:#0E2356;font-size:13px;font-family:\'SF Mono\',\'Fira Code\',monospace;resize:vertical;"></textarea>' +
+        '  </div>' +
+        '  <div id="owm-import-error" style="display:none;color:#e74c3c;font-size:12px;margin-top:8px;"></div>' +
+        '  <div class="btn-row">' +
+        '    <button class="btn" id="owm-cancel-btn">' + t('owm.cancel') + '</button>' +
+        '    <button class="btn btn-primary" id="owm-import-btn">' + t('owm.import') + '</button>' +
+        '  </div>' +
+        '</div>';
+    document.body.appendChild(overlay);
+
+    setTimeout(function() { document.getElementById('owm-text-input').focus(); }, 50);
+
+    document.getElementById('owm-cancel-btn').addEventListener('click', closeOWMImportModal);
+    document.getElementById('owm-import-btn').addEventListener('click', doOWMImport);
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeOWMImportModal();
+    });
+    overlay.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeOWMImportModal();
+    });
+
+    document.getElementById('owm-file-input').addEventListener('change', function() {
+        document.getElementById('owm-text-input').value = '';
+    });
+    document.getElementById('owm-text-input').addEventListener('input', function() {
+        if (this.value.trim()) document.getElementById('owm-file-input').value = '';
+    });
+}
+
+function closeOWMImportModal() {
+    var overlay = document.getElementById('owm-import-overlay');
+    if (overlay) overlay.remove();
+}
+
+function doOWMImport() {
+    var errorEl = document.getElementById('owm-import-error');
+    errorEl.style.display = 'none';
+
+    var fileInput = document.getElementById('owm-file-input');
+    var textInput = document.getElementById('owm-text-input');
+    var pastedText = textInput.value.trim();
+
+    if (fileInput.files && fileInput.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            processOWMText(e.target.result);
+        };
+        reader.readAsText(fileInput.files[0]);
+    } else if (pastedText) {
+        processOWMText(pastedText);
+    } else {
+        errorEl.textContent = t('owm.emptyError');
+        errorEl.style.display = 'block';
+    }
+}
+
+function processOWMText(owmText) {
+    var errorEl = document.getElementById('owm-import-error');
+
+    if (typeof convertOWMToWTG2 !== 'function') {
+        errorEl.textContent = t('status.wasmNotLoaded');
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    var result = convertOWMToWTG2(owmText);
+    if (typeof result === 'string' && result.indexOf('error:') === 0) {
+        errorEl.textContent = t('owm.convertError', { message: result.substring(7) });
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    closeOWMImportModal();
+    loadWTG2IntoEditor(result);
+}
+
 // ================================================================
 // 15c. Compression & URL Sharing
 // ================================================================
@@ -2319,6 +2433,10 @@ document.getElementById('detach').addEventListener('click', detachMap);
 document.getElementById('dl-wtg2').addEventListener('click', downloadWTG2);
 document.getElementById('import-wtg2').addEventListener('click', importWTG2);
 document.getElementById('import-file-input').addEventListener('change', handleImportFile);
+document.getElementById('import-owm').addEventListener('click', function() {
+    closeBurgerMenu();
+    openOWMImportModal();
+});
 document.getElementById('share-url').addEventListener('click', shareURL);
 
 // Language selector

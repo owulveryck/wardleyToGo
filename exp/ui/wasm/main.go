@@ -10,12 +10,14 @@ import (
 	"syscall/js"
 
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/exp/owm2wtg2"
 	"github.com/owulveryck/wardleyToGo/parser/wtg2"
 )
 
 func main() {
 	js.Global().Set("generateSVG", js.FuncOf(generate))
 	js.Global().Set("parseWTG2ToState", js.FuncOf(parseToState))
+	js.Global().Set("convertOWMToWTG2", js.FuncOf(convertOWM))
 	<-make(chan bool)
 }
 
@@ -346,4 +348,29 @@ func docToState(doc *wtg2.Document) jsState {
 	}
 
 	return state
+}
+
+func convertOWM(_ js.Value, args []js.Value) any {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered:", r)
+		}
+	}()
+	if len(args) < 1 {
+		return "error: no input provided"
+	}
+
+	input := args[0].String()
+
+	doc, err := owm2wtg2.Parse(bytes.NewBufferString(input))
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := owm2wtg2.Emit(doc, &buf); err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+
+	return buf.String()
 }
