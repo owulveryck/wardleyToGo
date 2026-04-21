@@ -20,6 +20,7 @@ import (
 
 func main() {
 	static := flag.Bool("static", false, "produce static SVG without CSS/JS interactivity")
+	animate := flag.Bool("animate", false, "enrich SVG with data-attributes for step-by-step animation")
 	width := flag.Int("width", 1100, "SVG viewBox width (impacts rendering definition)")
 	height := flag.Int("height", 900, "SVG viewBox height (impacts rendering definition)")
 	auto := flag.Bool("auto", false, "automatically compute viewBox dimensions based on component count and density")
@@ -96,6 +97,15 @@ func main() {
 			e.Themes = []svgmap.Theme{focusTheme}
 		} else {
 			e.Themes = append(e.Themes, focusTheme)
+		}
+	}
+
+	if *animate && result.Animation != nil {
+		animTheme := &svgmap.AnimationTheme{Data: result.Animation}
+		if e.Themes == nil {
+			e.Themes = []svgmap.Theme{animTheme}
+		} else {
+			e.Themes = append(e.Themes, animTheme)
 		}
 	}
 

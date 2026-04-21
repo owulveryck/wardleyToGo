@@ -272,24 +272,50 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		Text: c.Description,
 	})
 
-	// Render signals as small indicators above-right of the component
-	for i, sig := range c.Signals {
-		offsetY := -20 - i*28
-		components = append(components, signalIndicator(sig.Type, 20, offsetY)...)
+	if len(c.Signals) > 0 {
+		var sigChildren []interface{}
+		for i, sig := range c.Signals {
+			offsetY := -20 - i*28
+			for _, el := range signalIndicator(sig.Type, 20, offsetY) {
+				sigChildren = append(sigChildren, el)
+			}
+		}
+		components = append(components, svg.Group{
+			Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "signal"}},
+			Children: sigChildren,
+		})
 	}
 
-	// Render warnings as orange triangles
-	for i, ann := range c.Annotations {
-		if ann.Kind == "warning" {
-			offsetX := -30 - i*28
-			components = append(components, warningIndicator(offsetX, 0, ann.Text)...)
+	if len(c.Annotations) > 0 {
+		var warnChildren []interface{}
+		for i, ann := range c.Annotations {
+			if ann.Kind == "warning" {
+				offsetX := -30 - i*28
+				for _, el := range warningIndicator(offsetX, 0, ann.Text) {
+					warnChildren = append(warnChildren, el)
+				}
+			}
+		}
+		if len(warnChildren) > 0 {
+			components = append(components, svg.Group{
+				Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "warning"}},
+				Children: warnChildren,
+			})
 		}
 	}
 
-	// Render gameplays as small labeled badges below the component
-	for i, gp := range c.Gameplays {
-		offsetY := 18 + i*14
-		components = append(components, gameplayBadge(gp.Type, 0, offsetY)...)
+	if len(c.Gameplays) > 0 {
+		var gpChildren []interface{}
+		for i, gp := range c.Gameplays {
+			offsetY := 18 + i*14
+			for _, el := range gameplayBadge(gp.Type, 0, offsetY) {
+				gpChildren = append(gpChildren, el)
+			}
+		}
+		components = append(components, svg.Group{
+			Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "gameplay"}},
+			Children: gpChildren,
+		})
 	}
 
 	return e.Encode(svg.Transform{

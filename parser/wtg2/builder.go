@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -23,7 +24,8 @@ type BuildResult struct {
 	Stages      []svgmap.Evolution
 	Legend      bool
 	LegendItems []svgmap.LegendItem
-	Focus       *FocusSet // nil if no focus directive is present
+	Focus       *FocusSet              // nil if no focus directive is present
+	Animation   *svgmap.AnimationData  // nil until computed; populated by BuildMap
 }
 
 // FocusSet identifies which elements should remain at full opacity when focus is active.
@@ -494,7 +496,166 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 		}
 	}
 
+	// Phase 6: Compute animation data
+	result.Animation = computeAnimationData(lg, nodeDict, doc, m, evolvedMap)
+
 	return result, nil
+}
+
+// computeAnimationData builds the AnimationData from the layout graph,
+// node dictionary, and the constructed map.
+func computeAnimationData(
+	lg *layout.Graph,
+	nodeDict map[string]*nodeEntry,
+	doc *Document,
+	m *wardleyToGo.Map,
+	evolvedMap map[int64]int64,
+) *svgmap.AnimationData {
+	ranks, err := layout.TopoRanks(lg)
+	if err != nil {
+		return nil
+	}
+
+	data := &svgmap.AnimationData{
+		Depth:    make(map[int64]int),
+		Type:     make(map[int64]string),
+		ParentID: make(map[int64]int64),
+		YRank:    make(map[int64]int),
+		Members:  make(map[int64][]int64),
+	}
+
+	// Convert name-based ranks to ID-based and determine types
+	for name, entry := range nodeDict {
+		id := entry.node.ID()
+		if rank, ok := ranks[name]; ok {
+			data.Depth[id] = rank
+		}
+		switch {
+		case entry.isAnchor:
+			data.Type[id] = "anchor"
+			data.ParentID[id] = -1
+		case entry.decl != nil && entry.decl.Kind == KindSubmap:
+			data.Type[id] = "submap"
+		default:
+			if comp, ok := entry.node.(*wardley.Component); ok {
+				switch comp.Type {
+				case wardley.PipelineComponent:
+					data.Type[id] = "pipeline"
+				default:
+					data.Type[id] = "component"
+				}
+			} else {
+				data.Type[id] = "component"
+			}
+		}
+	}
+
+	// Handle evolved components
+	for origID, evolvedID := range evolvedMap {
+		data.Type[evolvedID] = "evolved"
+		if depth, ok := data.Depth[origID]; ok {
+			data.Depth[evolvedID] = depth
+		}
+		data.ParentID[evolvedID] = origID
+	}
+
+	// Compute parent IDs: for each non-anchor, pick the parent with minimum depth
+	for name, entry := range nodeDict {
+		id := entry.node.ID()
+		if entry.isAnchor {
+			continue
+		}
+		if _, hasParent := data.ParentID[id]; hasParent {
+			continue
+		}
+
+		predecessors := m.To(id)
+		if len(predecessors) == 0 {
+			data.ParentID[id] = -1
+			continue
+		}
+
+		bestParent := int64(-1)
+		bestDepth := int(^uint(0) >> 1) // max int
+		for _, pred := range predecessors {
+			predDepth, ok := data.Depth[pred.ID()]
+			if !ok {
+				predDepth = int(^uint(0) >> 1)
+			}
+			if predDepth < bestDepth {
+				bestDepth = predDepth
+				bestParent = pred.ID()
+			}
+		}
+		data.ParentID[id] = bestParent
+		_ = name
+	}
+
+	// Compute Y-rank buckets: group components by similar Y positions
+	type yEntry struct {
+		id int64
+		y  int
+	}
+	var yEntries []yEntry
+	for _, entry := range nodeDict {
+		id := entry.node.ID()
+		pos := entry.node.GetPosition()
+		yEntries = append(yEntries, yEntry{id: id, y: pos.Y})
+	}
+	for origID, evolvedID := range evolvedMap {
+		if entry, ok := nodeDict[findNameByID(nodeDict, origID)]; ok {
+			_ = entry
+		}
+		// Evolved components share the same Y as original
+		for _, e := range yEntries {
+			if e.id == origID {
+				yEntries = append(yEntries, yEntry{id: evolvedID, y: e.y})
+				break
+			}
+		}
+	}
+
+	sort.Slice(yEntries, func(i, j int) bool { return yEntries[i].y < yEntries[j].y })
+	bucket := 0
+	for i, e := range yEntries {
+		if i > 0 && e.y-yEntries[i-1].y > 5 {
+			bucket++
+		}
+		data.YRank[e.id] = bucket
+	}
+
+	// Compute group membership
+	for _, gd := range doc.Groups {
+		// Find the Group component by label
+		for _, c := range m.Components() {
+			g, ok := c.(*wardley.Group)
+			if !ok || g.Label != gd.Name {
+				continue
+			}
+			data.Type[g.ID()] = "group"
+			data.Depth[g.ID()] = -1
+			data.ParentID[g.ID()] = -1
+			var memberIDs []int64
+			for _, memberName := range gd.Members {
+				if entry, ok := nodeDict[memberName]; ok {
+					memberIDs = append(memberIDs, entry.node.ID())
+				}
+			}
+			data.Members[g.ID()] = memberIDs
+			break
+		}
+	}
+
+	return data
+}
+
+func findNameByID(nodeDict map[string]*nodeEntry, id int64) string {
+	for name, entry := range nodeDict {
+		if entry.node.ID() == id {
+			return name
+		}
+	}
+	return ""
 }
 
 // resolveNodeRef looks up a node by name, handling "Pipeline:Member" syntax.

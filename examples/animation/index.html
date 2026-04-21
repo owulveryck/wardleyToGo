@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wardley Map Animation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#map-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 10px;
+}
+
+#map-container svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: #16213e;
+    border-top: 1px solid #0f3460;
+}
+
+#controls button {
+    background: #0f3460;
+    color: #e0e0e0;
+    border: 1px solid #533483;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+#controls button:hover { background: #533483; }
+#controls button:disabled { opacity: 0.4; cursor: default; }
+
+#counter {
+    font-size: 14px;
+    min-width: 100px;
+    text-align: center;
+    color: #a0a0c0;
+}
+
+#mode {
+    background: #0f3460;
+    color: #e0e0e0;
+    border: 1px solid #533483;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+#drop-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    border: 2px dashed #533483;
+    margin: 40px;
+    border-radius: 16px;
+    transition: border-color 0.2s;
+}
+#drop-zone.drag-over { border-color: #e94560; }
+#drop-zone p { font-size: 18px; color: #a0a0c0; }
+#drop-zone input[type="file"] { display: none; }
+#drop-zone label {
+    background: #0f3460;
+    color: #e0e0e0;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #533483;
+}
+#drop-zone label:hover { background: #533483; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="drop-zone">
+    <p>Drop an SVG file here or click to browse</p>
+    <label for="file-input">Choose SVG file</label>
+    <input type="file" id="file-input" accept=".svg">
+</div>
+
+<div id="map-container" class="hidden"></div>
+
+<div id="controls" class="hidden">
+    <button id="btn-reset" title="Home">Reset</button>
+    <button id="btn-prev" title="Left arrow">Prev</button>
+    <span id="counter">-</span>
+    <button id="btn-next" title="Right arrow">Next</button>
+    <button id="btn-end" title="End">Show All</button>
+    <select id="mode">
+        <option value="depth">By dependency depth</option>
+        <option value="yrank">By Y position</option>
+    </select>
+</div>
+
+<script>
+(function() {
+    "use strict";
+
+    let svgRoot = null;
+    let steps = [];
+    let currentStep = -1;
+    let visibleElementIDs = new Set();
+
+    // --- SVG Loading ---
+
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-input");
+    const container = document.getElementById("map-container");
+    const controls = document.getElementById("controls");
+
+    const params = new URLSearchParams(window.location.search);
+    const mapURL = params.get("map");
+    if (mapURL) {
+        fetch(mapURL)
+            .then(r => r.text())
+            .then(text => loadSVGText(text));
+    }
+
+    dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+    dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        dropZone.classList.remove("drag-over");
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.endsWith(".svg")) {
+            file.text().then(text => loadSVGText(text));
+        }
+    });
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) file.text().then(text => loadSVGText(text));
+    });
+
+    function loadSVGText(text) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "image/svg+xml");
+        const svg = doc.documentElement;
+        container.innerHTML = "";
+        container.appendChild(svg);
+        svgRoot = svg;
+
+        dropZone.classList.add("hidden");
+        container.classList.remove("hidden");
+        controls.classList.remove("hidden");
+
+        initAnimation();
+    }
+
+    // --- Animation Engine ---
+
+    function initAnimation() {
+        const mode = document.getElementById("mode").value;
+        buildSteps(mode);
+        resetAnimation();
+    }
+
+    function buildSteps(mode) {
+        steps = [];
+        const attrKey = mode === "yrank" ? "data-y-rank" : "data-depth";
+
+        const components = svgRoot.querySelectorAll("[data-depth]");
+        const edges = svgRoot.querySelectorAll("[data-child-id]");
+        const signals = svgRoot.querySelectorAll("[data-type='signal']");
+        const warnings = svgRoot.querySelectorAll("[data-type='warning']");
+        const gameplays = svgRoot.querySelectorAll("[data-type='gameplay']");
+        const groups = svgRoot.querySelectorAll("[data-type='group']");
+
+        // Hide everything initially
+        components.forEach(el => { el.style.opacity = "0"; el.style.pointerEvents = "none"; });
+        edges.forEach(el => { el.style.opacity = "0"; el.style.pointerEvents = "none"; });
+        signals.forEach(el => { el.style.opacity = "0"; });
+        warnings.forEach(el => { el.style.opacity = "0"; });
+        gameplays.forEach(el => { el.style.opacity = "0"; });
+        groups.forEach(el => { el.style.opacity = "0"; el.style.pointerEvents = "none"; });
+
+        // Collect levels
+        const levelMap = new Map();
+        components.forEach(el => {
+            const type = el.getAttribute("data-type");
+            if (type === "group") return;
+            const level = parseInt(el.getAttribute(attrKey) || "0");
+            if (!levelMap.has(level)) levelMap.set(level, []);
+            levelMap.get(level).push(el);
+        });
+
+        const sortedLevels = [...levelMap.keys()].filter(l => l >= 0).sort((a, b) => a - b);
+
+        // Build component depth lookup
+        const depthOf = new Map();
+        components.forEach(el => {
+            const level = parseInt(el.getAttribute(attrKey) || "0");
+            depthOf.set(el.id, level);
+        });
+
+        // Assign each edge to max(source_depth, target_depth) so both
+        // endpoints are visible when the edge appears.
+        const edgesByLevel = new Map();
+        edges.forEach(edge => {
+            const childId = edge.getAttribute("data-child-id");
+            const edgeId = edge.id || "";
+            const match = edgeId.match(/^edge_(\d+)_(\d+)$/);
+            const sourceId = match ? "element_" + match[1] : null;
+            const sourceDepth = sourceId && depthOf.has(sourceId) ? depthOf.get(sourceId) : 0;
+            const targetDepth = depthOf.has(childId) ? depthOf.get(childId) : 0;
+            const showAt = Math.max(sourceDepth, targetDepth);
+            if (!edgesByLevel.has(showAt)) edgesByLevel.set(showAt, []);
+            edgesByLevel.get(showAt).push(edge);
+        });
+
+        // Step per level
+        for (const level of sortedLevels) {
+            const nodesAtLevel = levelMap.get(level);
+            const edgesAtLevel = edgesByLevel.get(level) || [];
+            steps.push({ nodes: nodesAtLevel, edges: edgesAtLevel, groups, extras: [] });
+        }
+
+        // Signals + warnings step
+        const allExtras = [...signals, ...warnings];
+        if (allExtras.length > 0) {
+            steps.push({ nodes: [], edges: [], groups, extras: allExtras });
+        }
+
+        // Gameplays step
+        const allGameplays = [...gameplays];
+        if (allGameplays.length > 0) {
+            steps.push({ nodes: [], edges: [], groups, extras: allGameplays });
+        }
+    }
+
+    function resetAnimation() {
+        currentStep = -1;
+        visibleElementIDs = new Set();
+
+        // Re-hide everything
+        const components = svgRoot.querySelectorAll("[data-depth]");
+        const edges = svgRoot.querySelectorAll("[data-child-id]");
+        const signals = svgRoot.querySelectorAll("[data-type='signal']");
+        const warnings = svgRoot.querySelectorAll("[data-type='warning']");
+        const gameplays = svgRoot.querySelectorAll("[data-type='gameplay']");
+        const groups = svgRoot.querySelectorAll("[data-type='group']");
+
+        components.forEach(el => {
+            el.style.opacity = "0";
+            el.style.pointerEvents = "none";
+            el.style.transition = "none";
+            const inner = el.querySelector("g[transform]");
+            if (inner && inner._finalTransform) {
+                inner.setAttribute("transform", inner._finalTransform);
+                inner.style.transition = "none";
+            }
+        });
+        edges.forEach(el => {
+            el.style.opacity = "0";
+            el.style.pointerEvents = "none";
+            el.style.transition = "none";
+            resetEdgeDrawing(el);
+        });
+        signals.forEach(el => { el.style.opacity = "0"; el.style.transition = "none"; });
+        warnings.forEach(el => { el.style.opacity = "0"; el.style.transition = "none"; });
+        gameplays.forEach(el => { el.style.opacity = "0"; el.style.transition = "none"; });
+        groups.forEach(el => { el.style.opacity = "0"; el.style.pointerEvents = "none"; el.style.transition = "none"; });
+
+        updateCounter();
+    }
+
+    function goToStep(target) {
+        if (target < 0 || target >= steps.length) return;
+
+        if (target <= currentStep) {
+            // Going backward: reset and replay
+            resetAnimation();
+            // Force reflow to apply hidden styles
+            void svgRoot.getBoundingClientRect();
+            for (let i = 0; i <= target; i++) {
+                applyStep(i, i === target);
+            }
+        } else {
+            for (let i = currentStep + 1; i <= target; i++) {
+                applyStep(i, i === target);
+            }
+        }
+        currentStep = target;
+        updateCounter();
+    }
+
+    function applyStep(stepIndex, withAnimation) {
+        const step = steps[stepIndex];
+        const duration = withAnimation ? 0.5 : 0;
+
+        // Show nodes with deploy-from-parent effect
+        for (const node of step.nodes) {
+            if (withAnimation) {
+                deployFromParent(node, duration);
+            } else {
+                node.style.transition = "none";
+                node.style.opacity = "1";
+                node.style.pointerEvents = "auto";
+            }
+            visibleElementIDs.add(node.id);
+        }
+
+        // Show edges with draw effect
+        for (const edge of step.edges) {
+            if (withAnimation) {
+                drawEdge(edge, duration);
+            } else {
+                edge.style.transition = "none";
+                edge.style.opacity = "1";
+                edge.style.pointerEvents = "auto";
+            }
+        }
+
+        // Show extras (signals, warnings, gameplays) with fade
+        for (const extra of step.extras) {
+            extra.style.transition = withAnimation ? `opacity ${duration}s ease` : "none";
+            extra.style.opacity = "1";
+        }
+
+        // Check groups
+        checkGroups(step.groups, withAnimation);
+    }
+
+    function getTranslateCoords(el) {
+        const g = el.querySelector("g[transform]");
+        if (!g) return null;
+        const attr = g.getAttribute("transform");
+        const match = attr && attr.match(/translate\(\s*([^,\s]+)\s*,\s*([^)\s]+)\s*\)/);
+        if (!match) return null;
+        return { x: parseFloat(match[1]), y: parseFloat(match[2]), g, attr };
+    }
+
+    function deployFromParent(node, duration) {
+        const parentId = node.getAttribute("data-parent-id");
+        const coords = getTranslateCoords(node);
+
+        if (parentId && coords) {
+            const parentEl = svgRoot.getElementById(parentId);
+            const parentCoords = parentEl && getTranslateCoords(parentEl);
+
+            if (parentCoords) {
+                // Save final transform
+                coords.g._finalTransform = coords.attr;
+
+                // Start at parent position
+                coords.g.setAttribute("transform", `translate(${parentCoords.x},${parentCoords.y})`);
+                coords.g.style.transition = "none";
+                node.style.transition = "none";
+                node.style.opacity = "1";
+                node.style.pointerEvents = "auto";
+
+                // Force reflow
+                void coords.g.getBoundingClientRect();
+
+                // Animate to final position
+                coords.g.style.transition = `transform ${duration}s ease`;
+                coords.g.setAttribute("transform", coords.attr);
+                return;
+            }
+        }
+
+        // Fallback: simple fade-in
+        node.style.transition = `opacity ${duration}s ease`;
+        node.style.opacity = "1";
+        node.style.pointerEvents = "auto";
+    }
+
+    function isEvolutionEdge(line) {
+        const cls = line.getAttribute("class") || "";
+        return cls.indexOf("evolutionEdge") >= 0;
+    }
+
+    function drawEdge(edgeEl, duration) {
+        const line = edgeEl.querySelector("line, path");
+        if (line && typeof line.getTotalLength === "function") {
+            if (isEvolutionEdge(line)) {
+                edgeEl.style.transition = `opacity ${duration}s ease`;
+                edgeEl.style.opacity = "1";
+                edgeEl.style.pointerEvents = "auto";
+                return;
+            }
+            const length = line.getTotalLength();
+            line.style.strokeDasharray = length;
+            line.style.strokeDashoffset = length;
+            line.style.transition = "none";
+            edgeEl.style.opacity = "1";
+            edgeEl.style.pointerEvents = "auto";
+
+            void line.getBoundingClientRect();
+
+            line.style.transition = `stroke-dashoffset ${duration}s ease`;
+            line.style.strokeDashoffset = "0";
+        } else {
+            edgeEl.style.transition = `opacity ${duration}s ease`;
+            edgeEl.style.opacity = "1";
+            edgeEl.style.pointerEvents = "auto";
+        }
+    }
+
+    function resetEdgeDrawing(edgeEl) {
+        const line = edgeEl.querySelector("line, path");
+        if (line && !isEvolutionEdge(line)) {
+            line.style.strokeDasharray = "";
+            line.style.strokeDashoffset = "";
+            line.style.transition = "none";
+        }
+    }
+
+    function checkGroups(groups, withAnimation) {
+        if (!groups) return;
+        groups.forEach(g => {
+            const membersAttr = g.getAttribute("data-members");
+            if (!membersAttr) return;
+            const members = membersAttr.split(",");
+            const allVisible = members.every(id => visibleElementIDs.has(id.trim()));
+            if (allVisible && g.style.opacity !== "1") {
+                g.style.transition = withAnimation ? "opacity 0.4s ease" : "none";
+                g.style.opacity = "1";
+                g.style.pointerEvents = "auto";
+            }
+        });
+    }
+
+    function showAll() {
+        if (steps.length === 0) return;
+        // Apply all steps without animation
+        resetAnimation();
+        for (let i = 0; i < steps.length; i++) {
+            applyStep(i, false);
+        }
+        currentStep = steps.length - 1;
+        updateCounter();
+    }
+
+    function updateCounter() {
+        const counter = document.getElementById("counter");
+        counter.textContent = `Step ${currentStep + 1} / ${steps.length}`;
+        document.getElementById("btn-prev").disabled = currentStep < 0;
+        document.getElementById("btn-next").disabled = currentStep >= steps.length - 1;
+    }
+
+    // --- Controls ---
+
+    document.getElementById("btn-next").addEventListener("click", () => goToStep(currentStep + 1));
+    document.getElementById("btn-prev").addEventListener("click", () => goToStep(currentStep - 1));
+    document.getElementById("btn-reset").addEventListener("click", () => { resetAnimation(); });
+    document.getElementById("btn-end").addEventListener("click", showAll);
+    document.getElementById("mode").addEventListener("change", () => {
+        if (svgRoot) initAnimation();
+    });
+
+    document.addEventListener("keydown", e => {
+        if (!svgRoot) return;
+        switch (e.key) {
+            case "ArrowRight": e.preventDefault(); goToStep(currentStep + 1); break;
+            case "ArrowLeft": e.preventDefault(); goToStep(currentStep - 1); break;
+            case "Home": e.preventDefault(); resetAnimation(); break;
+            case "End": e.preventDefault(); showAll(); break;
+        }
+    });
+})();
+</script>
+</body>
+</html>

@@ -286,3 +286,10 @@ func (l *defaultLayouter) Layout(g *Graph) (map[string]int, error) {
 
 	return result, nil
 }
+
+// TopoRanks returns the topological depth of each node from root anchors.
+// Anchors have rank 0, their direct children rank 1, etc.
+func TopoRanks(g *Graph) (map[string]int, error) {
+	ranks, _, err := topoRanks(g)
+	return ranks, err
+}
