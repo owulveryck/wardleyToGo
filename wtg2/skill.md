@@ -22,7 +22,7 @@ A Wardley Map is a strategic tool that visualizes a **value chain** (vertical ax
   4. **Commodity/Utility** (IV) — Highly standardized, pay-per-use, invisible
 
 Key principles:
-- **Anchors** represent users or actors — they sit at the top of the value chain.
+- **Anchors** represent users or actors — they sit at the top of the value chain, rendered with a person icon. They have a position on the evolution axis to control horizontal placement.
 - **Components** are connected by dependency edges forming the value chain: `User -> Application -> Database -> Compute`.
 - Position a component on the evolution axis based on its maturity, not where you *want* it to be.
 - Common infrastructure (cloud, networking, power) belongs in phase IV. Novel R&D belongs in phase I.
@@ -210,7 +210,7 @@ There are three node kinds:
 
 | Keyword     | Purpose                                    |
 |-------------|--------------------------------------------|
-| `anchor`    | User or actor (always at top of map)       |
+| `anchor`    | User or actor — rendered with a person icon, always at the top of the map. Has a position on the evolution axis to control horizontal placement. |
 | `component` | Regular component (keyword is optional)    |
 | `submap`    | Encapsulated sub-map shown as a component  |
 
@@ -234,7 +234,7 @@ Infrastructure : IV.3 (buy) @0.2
 submap Payment System : III.6
 ```
 
-Anchors can optionally have an evolution position and even movement (`>>`), but they are always rendered at the top of the map.
+Anchors have a position on the evolution axis that controls their horizontal placement on the map. They are always rendered at the top of the map (vertical position is fixed) with a person icon. Anchors can also have movement (`>>`) to show a shift in user positioning.
 
 #### Block declaration (multi-line)
 

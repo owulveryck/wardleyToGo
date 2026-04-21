@@ -48,7 +48,7 @@ func (a *Anchor) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 		labelP.X = 0
 	}
 	if labelP.Y == components.UndefinedCoord {
-		labelP.Y = 5
+		labelP.Y = 15
 	}
 	textAnchor := svg.TextAnchorMiddle
 	switch a.Anchor {
@@ -59,9 +59,21 @@ func (a *Anchor) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	case AdjustEnd:
 		textAnchor = svg.TextAnchorEnd
 	}
+	iconColor := svg.Color{Color: color.RGBA{0x33, 0x33, 0x33, 0xFF}}
 	return e.Encode(svg.Transform{
 		Translate: coords,
 		Components: []interface{}{
+			svg.Circle{
+				P:           image.Pt(0, -10),
+				R:           5,
+				Fill:        iconColor,
+				Stroke:      iconColor,
+				StrokeWidth: "1",
+			},
+			svg.Path{
+				D:    "M -8,-4 C -8,6 8,6 8,-4 Z",
+				Fill: iconColor,
+			},
 			svg.Text{
 				P:          labelP,
 				Text:       []byte(a.Label),
