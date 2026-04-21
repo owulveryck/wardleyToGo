@@ -41,8 +41,8 @@ jobs:
             cp "$GOROOT/lib/wasm/wasm_exec.js" site/
           fi
 
-      - name: Copy index.html
-        run: cp exp/ui/index.html site/
+      - name: Copy UI files
+        run: cp exp/ui/index.html exp/ui/app.js site/
 
       - name: Copy favicon files
         run: cp exp/ui/favicon.ico exp/ui/favicon-16.png exp/ui/favicon-32.png site/
