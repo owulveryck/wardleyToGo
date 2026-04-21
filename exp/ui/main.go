@@ -51,7 +51,7 @@ func gzipHandler(next http.Handler) http.Handler {
 		gz := gzipWriterPool.Get().(*gzip.Writer)
 		gz.Reset(w)
 		defer func() {
-			gz.Close()
+			_ = gz.Close()
 			gzipWriterPool.Put(gz)
 		}()
 

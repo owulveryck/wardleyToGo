@@ -12,7 +12,7 @@ func TestEmitTeashop(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	doc, err := Parse(f)
 	if err != nil {
@@ -282,7 +282,7 @@ func TestEmitCompleteRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	doc, err := Parse(f)
 	if err != nil {
