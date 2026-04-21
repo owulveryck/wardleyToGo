@@ -1,54 +1,190 @@
-  title: wardleyToGo
+// Wardley Map — wardleyToGo maps itself
 
-  anchor User
+title: wardleyToGo — the mapping tool maps itself
+date: 2026-04-21
+author: wardleyToGo maintainers
+scope: Go library, CLI, and playground for authoring and rendering Wardley Maps
+question: "How to grow WTG2 adoption while keeping zero external dependencies in core?"
+doctrine: context
 
-  Map Visualization : III.5
+stages: Genesis, Custom-Built, Product, Commodity
+legend
 
-  Discussion : II.8
-  LLM : IV.5
-  WTG2 DSL : II.5
+// Anchors
+anchor Strategist : IV.4
+anchor LLM Agent : II.3
 
-  Formal Grammar : II.7 {
-    note: "BNF — required to implement the language"
-  }
-  Parser : II.5
+// Visible layer
+Map Visualization : III.5 {
+  type: build
+  asset: tech
+}
 
-  Layout Algorithm : II.3 {
-    note: "Deterministic placement from topology — computes what the language deliberately omits"
-  }
+Discussion : II.8 {
+  asset: social
+  note: "Human and AI conversations that produce and consume maps"
+}
 
-  SVG Renderer : III.5
-  Playground : II.2 >> III.0
-  CLI : III.7
+LLM : IV.5 (outsource) {
+  asset: relational
+}
 
-  Core Library : III.3
-  Directed Graph : IV.3
-  Go : IV.8
-  WebAssembly : IV.6
+// The language
+WTG2 DSL : II.5 !!(tech) >> III.0 {
+  type: build
+  asset: tech
+  note: "Grammar backward-compatibility constrains evolution"
+}
 
-  group Common Language {
-    Discussion
-    LLM
-    WTG2 DSL
-  }
+Formal Grammar : II.7 {
+  type: build
+  asset: tech
+  note: "BNF — single source of truth for the language"
+}
 
+// Parser pipeline
+Format Parser : II.5 {
+  type: build
+  asset: tech
+}
 
+pipeline Format Parser {
+  OWM Parser : I.5
+  WTG2 Parser : II.7
+}
 
-  User -> Map Visualization
+// Layout and rendering
+Layout Engine : II.3 {
+  type: build
+  asset: tech
+  note: "Computes what the language deliberately omits"
+}
 
-  Map Visualization -> Discussion
-  Discussion -> LLM
-  Discussion -> WTG2 DSL
+SVG Renderer : III.3 {
+  type: build
+  asset: tech
+  note: "Encoder with CSS/JS theme system, legend, and focus mode"
+}
 
-  WTG2 DSL -> Formal Grammar
-  WTG2 DSL -> Parser
+// Delivery channels
+Playground : II.2 !(tech) >> III.0 {
+  type: build
+  asset: tech
+  note: "Go compiled to WASM, deployed to GitHub Pages"
+}
 
-  Parser -> Layout Algorithm -> Directed Graph
-  Parser -> Core Library
+CLI : III.7 {
+  type: build
+  asset: tech
+}
 
-  Map Visualization -> SVG Renderer -> Core Library
-  Map Visualization -> Playground -> WTG2 DSL
-  Map Visualization -> CLI -> WTG2 DSL
+OWM Converter : II.5 {
+  type: build
+  asset: tech
+  note: "owm2wtg2 — migration path from OnlineWardleyMaps"
+}
 
-  Playground -> WebAssembly
-  Core Library -> Directed Graph -> Go
+// Core SDK
+Core Library : III.3 {
+  type: build
+  asset: tech
+  cost: "Main maintenance burden — breaking changes cascade everywhere"
+}
+
+// Experimental
+Collaboration Server : I.3 !(tech) >> II.0 {
+  type: build
+  asset: tech
+  color: #E74C3C
+  cost: "Only module with an external dep (coder/websocket)"
+}
+
+// Infrastructure
+Directed Graph : IV.3
+GitHub Pages : IV.5 (outsource)
+WebAssembly : IV.6 (buy)
+Go : IV.8 (buy)
+
+// Value chain
+Strategist -> Map Visualization
+Strategist -> Discussion
+LLM Agent -> Discussion
+
+Discussion -> LLM
+Discussion -> WTG2 DSL
+
+WTG2 DSL -> Formal Grammar
+WTG2 DSL -> Format Parser
+
+Format Parser -> Layout Engine -> Directed Graph
+Format Parser -> Core Library
+
+Map Visualization -> SVG Renderer -> Core Library
+Map Visualization -> Playground -> WTG2 DSL
+Map Visualization -> CLI -> WTG2 DSL
+
+Playground -> WebAssembly
+Playground -> GitHub Pages
+
+OWM Converter -[transpiles to]-> WTG2 DSL
+
+Core Library -> Directed Graph -> Go
+
+Collaboration Server -> Format Parser
+Collaboration Server -> Core Library
+
+// Groups
+group Common Language {
+  Discussion
+  LLM
+  WTG2 DSL
+}
+
+group Engine {
+  team: settler
+  Formal Grammar
+  Format Parser
+  Layout Engine
+  SVG Renderer
+  OWM Converter
+}
+
+group Platform {
+  team: town-planner
+  Core Library
+  Directed Graph
+  CLI
+}
+
+group Experiments {
+  team: explorer
+  color: #E74C3C
+  Collaboration Server
+}
+
+// Notes
+note "Zero external deps — deliberate stdlib-only strategy" on Core Library
+note "Grammar is the contract between parser, docs, and LLM skill" on Formal Grammar
+note "Unique differentiator: topology-driven Y-axis placement" on Layout Engine
+
+// Warnings
+warning "Single maintainer — bus factor of 1" on Core Library
+warning "WASM binary size growing — monitor load times" on Playground
+warning "Experimental — API unstable" on Collaboration Server
+
+// Signals
+signal accelerating on LLM
+signal accelerating on WTG2 DSL
+signal co-evolution on Discussion
+signal commoditization on WebAssembly
+signal stagnating on OWM Parser
+signal red-queen on SVG Renderer
+
+// Gameplays
+gameplay open-source "Commoditize mapping to capture value in the language" on Core Library
+gameplay strangler-fig "Replace OWM format via converter bridge" on OWM Converter
+gameplay land-grab "Become default Wardley Map language for LLM agents" on WTG2 DSL
+gameplay ILC on Playground
+
+// Focus
+focus WTG2 DSL

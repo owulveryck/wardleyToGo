@@ -39,12 +39,12 @@ const TEMPLATES = {
         components: [
             { name: "Customer", kind: "anchor", evolution: 50, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
             { name: "Cup of Tea", kind: "component", evolution: 62, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
-            { name: "Tea", kind: "component", evolution: 45, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
-            { name: "Hot Water", kind: "component", evolution: 68, type: "", evolving: false, evolvedTo: 75, inertia: 0 },
+            { name: "Tea", kind: "component", evolution: 90, type: "", evolving: false, evolvedTo: 95, inertia: 0 },
+            { name: "Hot Water", kind: "component", evolution: 80, type: "", evolving: false, evolvedTo: 85, inertia: 0 },
             { name: "Water", kind: "component", evolution: 90, type: "", evolving: false, evolvedTo: 95, inertia: 0 },
-            { name: "Kettle", kind: "component", evolution: 62, type: "build", evolving: true, evolvedTo: 82, inertia: 0 },
+            { name: "Kettle", kind: "component", evolution: 40, type: "build", evolving: true, evolvedTo: 82, inertia: 1, inertiaKinds: ["tech"] },
             { name: "Power", kind: "component", evolution: 92, type: "outsource", evolving: false, evolvedTo: 95, inertia: 0 },
-            { name: "Cup", kind: "component", evolution: 87, type: "", evolving: false, evolvedTo: 95, inertia: 0 },
+            { name: "Cup", kind: "component", evolution: 95, type: "", evolving: false, evolvedTo: 97, inertia: 0 },
         ],
         edges: [
             { from: "Customer", to: "Cup of Tea" },
@@ -58,7 +58,7 @@ const TEMPLATES = {
         groups: [],
         annotations: [{ kind: "note", text: "Considering outsourcing", target: "Kettle" }],
         signals: [],
-        legend: false
+        legend: true
     },
     navigation: {
         meta: { title: "Plateforme de Navigation", author: "Cellule Strategie Produit", question: "Ou investir pour se differencier ?" },
@@ -999,8 +999,10 @@ function toggleFocus(idx) {
 
 function updateChainInputFromState() {
     const lines = wizardState.edges.map(e => e.from + ' -> ' + e.to);
-    if (chainEditor) chainEditor.setValue(lines.join('\n'));
-    else document.getElementById('chain-input').value = lines.join('\n');
+    if (chainEditor) {
+        chainEditor.setValue(lines.join('\n'));
+        setTimeout(() => chainEditor.refresh(), 10);
+    } else document.getElementById('chain-input').value = lines.join('\n');
 }
 
 function updateMeta() {
@@ -1355,8 +1357,10 @@ function syncWizardUI() {
 
     // Reconstruct chain-input from edges
     const lines = wizardState.edges.map(e => e.from + ' -> ' + e.to);
-    if (chainEditor) chainEditor.setValue(lines.join('\n'));
-    else document.getElementById('chain-input').value = lines.join('\n');
+    if (chainEditor) {
+        chainEditor.setValue(lines.join('\n'));
+        setTimeout(() => chainEditor.refresh(), 10);
+    } else document.getElementById('chain-input').value = lines.join('\n');
 
     renderCompList();
     goToStep(currentStep);
@@ -1385,8 +1389,10 @@ function loadTemplate(key) {
     document.getElementById('meta-title').value = wizardState.meta.title;
     document.getElementById('meta-author').value = wizardState.meta.author;
     document.getElementById('meta-question').value = wizardState.meta.question;
-    if (chainEditor) chainEditor.setValue(tpl.chains);
-    else document.getElementById('chain-input').value = tpl.chains;
+    if (chainEditor) {
+        chainEditor.setValue(tpl.chains);
+        setTimeout(() => chainEditor.refresh(), 10);
+    } else document.getElementById('chain-input').value = tpl.chains;
     document.getElementById('legend-toggle').checked = wizardState.legend;
     for (let i = 0; i < 4; i++) {
         document.getElementById('stage-' + i).value = wizardState.stages[i];
@@ -1420,6 +1426,14 @@ function scheduleRender() {
     renderTimer = setTimeout(render, 400);
 }
 
+function execInlineScripts(container) {
+    container.querySelectorAll('script').forEach(function(old) {
+        var s = document.createElement('script');
+        s.textContent = old.textContent;
+        old.parentNode.replaceChild(s, old);
+    });
+}
+
 function render() {
     let text;
     if (currentMode === 'guided') {
@@ -1449,6 +1463,7 @@ function render() {
         output.innerHTML = '<div class="error">' + escapeHtml(result) + '</div>';
     } else {
         output.innerHTML = result;
+        execInlineScripts(output);
     }
     document.getElementById('status').textContent = t('status.ok');
     applyCanvasTransform();
@@ -1852,7 +1867,14 @@ function updateDetached() {
     const svgStr = getExportSVG();
     if (!svgStr) return;
     const container = detachedWindow.document.getElementById('map');
-    if (container) container.innerHTML = svgStr;
+    if (container) {
+        container.innerHTML = svgStr;
+        container.querySelectorAll('script').forEach(function(old) {
+            var s = detachedWindow.document.createElement('script');
+            s.textContent = old.textContent;
+            old.parentNode.replaceChild(s, old);
+        });
+    }
 }
 
 // ================================================================
@@ -2177,6 +2199,9 @@ function createNewMap() {
     undoStack = [];
     redoStack = [];
     updateUndoButtons();
+    currentStep = 0;
+    if (editor) editor.setValue(generateWTG2(wizardState));
+    canvasReset();
     syncWizardUI();
     render();
 }

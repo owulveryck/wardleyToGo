@@ -7,6 +7,10 @@ A Go library and tools for creating and rendering [Wardley Maps](https://en.wiki
 
 A map is a directed graph of components, each with a position on a 100x100 coordinate system representing visibility (Y) and evolution (X). The entry point of this API is the `Map` structure.
 
+![wardleyToGo self-map](examples/self-map/this_repo.png)
+
+*The project maps itself using WTG2 — [read the full strategic analysis](examples/self-map/) or see the [source](this_repo.wtg2).*
+
 ## WTG2: the Wardley Map DSL
 
 WTG2 is a human-friendly domain-specific language for designing Wardley Maps. The full grammar is in [`wtg2/grammar.bnf`](wtg2/grammar.bnf).
