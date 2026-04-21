@@ -179,10 +179,12 @@ func TestEmitPipeline(t *testing.T) {
 		Components: []*OWMComponent{
 			{Name: "X", Visibility: 0.5, Maturity: 0.7},
 			{Name: "Y", Visibility: 0.5, Maturity: 0.8},
+			{Name: "Upstream", Visibility: 0.3, Maturity: 0.75},
 		},
 		Edges: []*OWMEdge{
 			{From: "Parent", To: "X", FlowType: "regular"},
 			{From: "Parent", To: "Y", FlowType: "regular"},
+			{From: "Upstream", To: "Parent", FlowType: "regular"},
 		},
 		Pipelines: []*OWMPipeline{{
 			Name:     "Parent",
@@ -203,6 +205,9 @@ func TestEmitPipeline(t *testing.T) {
 	}
 	if !strings.Contains(output, "X :") {
 		t.Errorf("expected member X in pipeline, got:\n%s", output)
+	}
+	if strings.Contains(output, "  Upstream :") {
+		t.Errorf("upstream component should not be a pipeline member, got:\n%s", output)
 	}
 }
 

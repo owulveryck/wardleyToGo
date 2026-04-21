@@ -232,9 +232,6 @@ func (e *emitter) findPipelineMembers(doc *OWMDocument, p *OWMPipeline) []*OWMCo
 		if edge.From == p.Name {
 			connected[edge.To] = true
 		}
-		if edge.To == p.Name {
-			connected[edge.From] = true
-		}
 	}
 
 	var members []*OWMComponent
