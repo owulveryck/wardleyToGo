@@ -155,6 +155,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 					return nil, fmt.Errorf("evolved component %q: %w", nd.Name, err)
 				}
 				evolvedMap[comp.ID()] = evolved.ID()
+				comp.Label = ""
 
 				// Create evolution edge
 				inertiaX := 0
