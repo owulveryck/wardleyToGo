@@ -160,6 +160,7 @@ const translations = {
         'step.valueChain': 'Chaine de valeur',
         'step.evolution': 'Evolution',
         'step.enrichment': 'Enrichissement',
+        'step.navigation': 'Navigation',
         'section.mapInfo': 'Infos carte',
         'field.title': 'Titre',
         'field.titlePlaceholder': 'Ma Carte Wardley',
@@ -210,6 +211,16 @@ const translations = {
         'nav.prev': 'Precedent',
         'nav.next': 'Suivant',
         'nav.finish': 'Terminer',
+        'nav.animationControls': 'Controles d\'animation',
+        'nav.mode': 'Mode',
+        'nav.modeDepth': 'Par profondeur de dependance',
+        'nav.modeYRank': 'Par position Y',
+        'nav.reset': 'Reinitialiser',
+        'nav.animPrev': 'Precedent',
+        'nav.animNext': 'Suivant',
+        'nav.showAll': 'Tout afficher',
+        'nav.keyboardHint': 'Clavier : Fleches pour naviguer, Debut pour reinitialiser, Fin pour tout afficher',
+        'nav.stepCounter': 'Etape {current} / {total}',
         'empty.message': 'Commencez a definir votre chaine de valeur pour voir l\'apercu',
         'share.tooLong': 'Attention : lien tres long ({length} car.). Certains navigateurs pourraient le tronquer.',
         'share.copied': 'Lien copie dans le presse-papier !',
@@ -253,7 +264,7 @@ const translations = {
         'collab.connectionError': 'Erreur de connexion : {message}',
         'collab.reconnecting': 'Reconnexion...',
         'onboarding.welcome.title': 'Bienvenue dans le Playground',
-        'onboarding.welcome.body': 'Créez votre carte Wardley en 3 étapes simples. Ce guide rapide vous montre les bases.',
+        'onboarding.welcome.body': 'Créez votre carte Wardley en 4 étapes simples. Ce guide rapide vous montre les bases.',
         'onboarding.step1.title': 'Étape 1 : Chaîne de valeur',
         'onboarding.step1.body': 'Définissez vos composants et leurs dépendances. Tapez des chaînes avec -> pour les relier.',
         'onboarding.step1.tryit': 'Essayez : tapez <strong>Client -> Application -> Base de données</strong>',
@@ -306,6 +317,7 @@ const translations = {
         'step.valueChain': 'Value Chain',
         'step.evolution': 'Evolution',
         'step.enrichment': 'Enrichment',
+        'step.navigation': 'Navigation',
         'section.mapInfo': 'Map Info',
         'field.title': 'Title',
         'field.titlePlaceholder': 'My Wardley Map',
@@ -356,6 +368,16 @@ const translations = {
         'nav.prev': 'Previous',
         'nav.next': 'Next',
         'nav.finish': 'Finish',
+        'nav.animationControls': 'Animation Controls',
+        'nav.mode': 'Mode',
+        'nav.modeDepth': 'By dependency depth',
+        'nav.modeYRank': 'By Y position',
+        'nav.reset': 'Reset',
+        'nav.animPrev': 'Prev',
+        'nav.animNext': 'Next',
+        'nav.showAll': 'Show All',
+        'nav.keyboardHint': 'Keyboard: Arrow keys to navigate, Home to reset, End to show all',
+        'nav.stepCounter': 'Step {current} / {total}',
         'empty.message': 'Start defining your value chain to see the preview',
         'share.tooLong': 'Warning: very long link ({length} chars). Some browsers may truncate it.',
         'share.copied': 'Link copied to clipboard!',
@@ -399,7 +421,7 @@ const translations = {
         'collab.connectionError': 'Connection error: {message}',
         'collab.reconnecting': 'Reconnecting...',
         'onboarding.welcome.title': 'Welcome to the Playground',
-        'onboarding.welcome.body': 'Create your Wardley Map in 3 simple steps. This quick guide shows you the basics.',
+        'onboarding.welcome.body': 'Create your Wardley Map in 4 simple steps. This quick guide shows you the basics.',
         'onboarding.step1.title': 'Step 1: Value Chain',
         'onboarding.step1.body': 'Define your components and their dependencies. Type chains with -> to link them.',
         'onboarding.step1.tryit': 'Try it: type <strong>Customer -> Application -> Database</strong>',
@@ -1271,7 +1293,7 @@ function goToStep(step) {
 
     document.getElementById('btn-prev').style.visibility = step === 0 ? 'hidden' : 'visible';
     const nextBtn = document.getElementById('btn-next');
-    nextBtn.innerHTML = step === 3 ? t('nav.finish') : t('nav.next') + ' \u25B6';
+    nextBtn.innerHTML = step === 4 ? t('nav.finish') : t('nav.next') + ' \u25B6';
 
     if (step === 2) renderEvoList();
     if (step === 3) {
@@ -1279,14 +1301,365 @@ function goToStep(step) {
         renderAnnotations();
         renderSignals();
     }
+    if (step === 4) {
+        initAnimationEngine();
+    } else {
+        teardownAnimationEngine();
+    }
 }
 
 function nextStep() {
-    if (currentStep < 3) goToStep(currentStep + 1);
+    if (currentStep < 4) goToStep(currentStep + 1);
 }
 
 function prevStep() {
     if (currentStep > 0) goToStep(currentStep - 1);
+}
+
+// ================================================================
+// 9b. Animation Engine (Step 4 - Navigation)
+// ================================================================
+
+let animSteps = [];
+let animCurrentStep = -1;
+let animVisibleIDs = new Set();
+let animActive = false;
+let animKeyHandler = null;
+
+function initAnimationEngine() {
+    const svgEl = document.querySelector('#output-pane svg');
+    if (!svgEl) return;
+    animActive = true;
+    buildAnimSteps(svgEl);
+    animResetState(svgEl);
+    updateAnimCounter();
+
+    if (animKeyHandler) document.removeEventListener('keydown', animKeyHandler);
+    animKeyHandler = function(e) {
+        if (!animActive) return;
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        switch (e.key) {
+            case 'ArrowRight': e.preventDefault(); animNext(); break;
+            case 'ArrowLeft':  e.preventDefault(); animPrev(); break;
+            case 'Home':       e.preventDefault(); animReset(); break;
+            case 'End':        e.preventDefault(); animShowAll(); break;
+        }
+    };
+    document.addEventListener('keydown', animKeyHandler);
+}
+
+function teardownAnimationEngine() {
+    if (!animActive) return;
+    var svgEl = document.querySelector('#output-pane svg');
+    if (svgEl) animShowAllImmediate(svgEl);
+    animActive = false;
+    animSteps = [];
+    animCurrentStep = -1;
+    animVisibleIDs = new Set();
+    if (animKeyHandler) {
+        document.removeEventListener('keydown', animKeyHandler);
+        animKeyHandler = null;
+    }
+}
+
+function buildAnimSteps(svgEl) {
+    animSteps = [];
+    var mode = document.getElementById('anim-mode').value;
+    var attrKey = mode === 'yrank' ? 'data-y-rank' : 'data-depth';
+
+    var components = svgEl.querySelectorAll('[data-depth]');
+    var edges = svgEl.querySelectorAll('[data-child-id]');
+    var signals = svgEl.querySelectorAll("[data-type='signal']");
+    var warnings = svgEl.querySelectorAll("[data-type='warning']");
+    var gameplays = svgEl.querySelectorAll("[data-type='gameplay']");
+    var groups = svgEl.querySelectorAll("[data-type='group']");
+
+    components.forEach(function(el) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; });
+    edges.forEach(function(el) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; });
+    signals.forEach(function(el) { el.style.opacity = '0'; });
+    warnings.forEach(function(el) { el.style.opacity = '0'; });
+    gameplays.forEach(function(el) { el.style.opacity = '0'; });
+    groups.forEach(function(el) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; });
+
+    var levelMap = new Map();
+    components.forEach(function(el) {
+        var type = el.getAttribute('data-type');
+        if (type === 'group') return;
+        var level = parseInt(el.getAttribute(attrKey) || '0');
+        if (!levelMap.has(level)) levelMap.set(level, []);
+        levelMap.get(level).push(el);
+    });
+
+    var sortedLevels = Array.from(levelMap.keys()).filter(function(l) { return l >= 0; }).sort(function(a, b) { return a - b; });
+
+    var depthOf = new Map();
+    components.forEach(function(el) {
+        var level = parseInt(el.getAttribute(attrKey) || '0');
+        depthOf.set(el.id, level);
+    });
+
+    var edgesByLevel = new Map();
+    edges.forEach(function(edge) {
+        var childId = edge.getAttribute('data-child-id');
+        var edgeId = edge.id || '';
+        var match = edgeId.match(/^edge_(\d+)_(\d+)$/);
+        var sourceId = match ? 'element_' + match[1] : null;
+        var sourceDepth = sourceId && depthOf.has(sourceId) ? depthOf.get(sourceId) : 0;
+        var targetDepth = depthOf.has(childId) ? depthOf.get(childId) : 0;
+        var showAt = Math.max(sourceDepth, targetDepth);
+        if (!edgesByLevel.has(showAt)) edgesByLevel.set(showAt, []);
+        edgesByLevel.get(showAt).push(edge);
+    });
+
+    for (var li = 0; li < sortedLevels.length; li++) {
+        var level = sortedLevels[li];
+        var nodesAtLevel = levelMap.get(level);
+        var edgesAtLevel = edgesByLevel.get(level) || [];
+        animSteps.push({ nodes: nodesAtLevel, edges: edgesAtLevel, groups: groups, extras: [] });
+    }
+
+    var allExtras = Array.from(signals).concat(Array.from(warnings));
+    if (allExtras.length > 0) {
+        animSteps.push({ nodes: [], edges: [], groups: groups, extras: allExtras });
+    }
+
+    var allGameplays = Array.from(gameplays);
+    if (allGameplays.length > 0) {
+        animSteps.push({ nodes: [], edges: [], groups: groups, extras: allGameplays });
+    }
+}
+
+function animResetState(svgEl) {
+    animCurrentStep = -1;
+    animVisibleIDs = new Set();
+    if (!svgEl) svgEl = document.querySelector('#output-pane svg');
+    if (!svgEl) return;
+
+    svgEl.querySelectorAll('[data-depth]').forEach(function(el) {
+        el.style.opacity = '0'; el.style.pointerEvents = 'none'; el.style.transition = 'none';
+        var inner = el.querySelector('g[transform]');
+        if (inner && inner._finalTransform) {
+            inner.setAttribute('transform', inner._finalTransform);
+            inner.style.transition = 'none';
+        }
+    });
+    svgEl.querySelectorAll('[data-child-id]').forEach(function(el) {
+        el.style.opacity = '0'; el.style.pointerEvents = 'none'; el.style.transition = 'none';
+        animResetEdgeDrawing(el);
+    });
+    svgEl.querySelectorAll("[data-type='signal']").forEach(function(el) { el.style.opacity = '0'; el.style.transition = 'none'; });
+    svgEl.querySelectorAll("[data-type='warning']").forEach(function(el) { el.style.opacity = '0'; el.style.transition = 'none'; });
+    svgEl.querySelectorAll("[data-type='gameplay']").forEach(function(el) { el.style.opacity = '0'; el.style.transition = 'none'; });
+    svgEl.querySelectorAll("[data-type='group']").forEach(function(el) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; el.style.transition = 'none'; });
+
+    updateAnimCounter();
+}
+
+function animApplyStep(stepIndex, withAnimation) {
+    var step = animSteps[stepIndex];
+    if (!step) return;
+    var duration = withAnimation ? 0.5 : 0;
+
+    for (var ni = 0; ni < step.nodes.length; ni++) {
+        var node = step.nodes[ni];
+        if (withAnimation) {
+            animDeployFromParent(node, duration);
+        } else {
+            node.style.transition = 'none';
+            node.style.opacity = '1';
+            node.style.pointerEvents = 'auto';
+        }
+        animVisibleIDs.add(node.id);
+    }
+
+    for (var ei = 0; ei < step.edges.length; ei++) {
+        var edge = step.edges[ei];
+        if (withAnimation) {
+            animDrawEdge(edge, duration);
+        } else {
+            edge.style.transition = 'none';
+            edge.style.opacity = '1';
+            edge.style.pointerEvents = 'auto';
+        }
+    }
+
+    for (var xi = 0; xi < step.extras.length; xi++) {
+        var extra = step.extras[xi];
+        extra.style.transition = withAnimation ? 'opacity ' + duration + 's ease' : 'none';
+        extra.style.opacity = '1';
+    }
+
+    if (step.groups) {
+        step.groups.forEach(function(g) {
+            var membersAttr = g.getAttribute('data-members');
+            if (!membersAttr) return;
+            var members = membersAttr.split(',');
+            var allVisible = members.every(function(id) { return animVisibleIDs.has(id.trim()); });
+            if (allVisible && g.style.opacity !== '1') {
+                g.style.transition = withAnimation ? 'opacity 0.4s ease' : 'none';
+                g.style.opacity = '1';
+                g.style.pointerEvents = 'auto';
+            }
+        });
+    }
+}
+
+function animGoToStep(target) {
+    if (target < 0 || target >= animSteps.length) return;
+    var svgEl = document.querySelector('#output-pane svg');
+    if (!svgEl) return;
+
+    if (target <= animCurrentStep) {
+        animResetState(svgEl);
+        void svgEl.getBoundingClientRect();
+        for (var i = 0; i <= target; i++) {
+            animApplyStep(i, i === target);
+        }
+    } else {
+        for (var i = animCurrentStep + 1; i <= target; i++) {
+            animApplyStep(i, i === target);
+        }
+    }
+    animCurrentStep = target;
+    updateAnimCounter();
+}
+
+function animGetTranslateCoords(el) {
+    var g = el.querySelector('g[transform]');
+    if (!g) return null;
+    var attr = g.getAttribute('transform');
+    var match = attr && attr.match(/translate\(\s*([^,\s]+)\s*,\s*([^)\s]+)\s*\)/);
+    if (!match) return null;
+    return { x: parseFloat(match[1]), y: parseFloat(match[2]), g: g, attr: attr };
+}
+
+function animDeployFromParent(node, duration) {
+    var parentId = node.getAttribute('data-parent-id');
+    var coords = animGetTranslateCoords(node);
+    var svgEl = document.querySelector('#output-pane svg');
+
+    if (parentId && coords && svgEl) {
+        var parentEl = svgEl.getElementById(parentId);
+        var parentCoords = parentEl && animGetTranslateCoords(parentEl);
+        if (parentCoords) {
+            coords.g._finalTransform = coords.attr;
+            coords.g.setAttribute('transform', 'translate(' + parentCoords.x + ',' + parentCoords.y + ')');
+            coords.g.style.transition = 'none';
+            node.style.transition = 'none';
+            node.style.opacity = '1';
+            node.style.pointerEvents = 'auto';
+            void coords.g.getBoundingClientRect();
+            coords.g.style.transition = 'transform ' + duration + 's ease';
+            coords.g.setAttribute('transform', coords.attr);
+            return;
+        }
+    }
+    node.style.transition = 'opacity ' + duration + 's ease';
+    node.style.opacity = '1';
+    node.style.pointerEvents = 'auto';
+}
+
+function animIsEvolutionEdge(line) {
+    var cls = line.getAttribute('class') || '';
+    return cls.indexOf('evolutionEdge') >= 0;
+}
+
+function animDrawEdge(edgeEl, duration) {
+    var line = edgeEl.querySelector('line, path');
+    if (line && typeof line.getTotalLength === 'function') {
+        if (animIsEvolutionEdge(line)) {
+            edgeEl.style.transition = 'opacity ' + duration + 's ease';
+            edgeEl.style.opacity = '1';
+            edgeEl.style.pointerEvents = 'auto';
+            return;
+        }
+        var length = line.getTotalLength();
+        line.style.strokeDasharray = length;
+        line.style.strokeDashoffset = length;
+        line.style.transition = 'none';
+        edgeEl.style.opacity = '1';
+        edgeEl.style.pointerEvents = 'auto';
+        void line.getBoundingClientRect();
+        line.style.transition = 'stroke-dashoffset ' + duration + 's ease';
+        line.style.strokeDashoffset = '0';
+    } else {
+        edgeEl.style.transition = 'opacity ' + duration + 's ease';
+        edgeEl.style.opacity = '1';
+        edgeEl.style.pointerEvents = 'auto';
+    }
+}
+
+function animResetEdgeDrawing(edgeEl) {
+    var line = edgeEl.querySelector('line, path');
+    if (line && !animIsEvolutionEdge(line)) {
+        line.style.strokeDasharray = '';
+        line.style.strokeDashoffset = '';
+        line.style.transition = 'none';
+    }
+}
+
+function animShowAllImmediate(svgEl) {
+    if (!svgEl) svgEl = document.querySelector('#output-pane svg');
+    if (!svgEl) return;
+    svgEl.querySelectorAll('[data-depth]').forEach(function(el) {
+        el.style.opacity = '1'; el.style.pointerEvents = 'auto'; el.style.transition = 'none';
+    });
+    svgEl.querySelectorAll('[data-child-id]').forEach(function(el) {
+        el.style.opacity = '1'; el.style.pointerEvents = 'auto'; el.style.transition = 'none';
+        animResetEdgeDrawing(el);
+    });
+    svgEl.querySelectorAll("[data-type='signal']").forEach(function(el) { el.style.opacity = '1'; el.style.transition = 'none'; });
+    svgEl.querySelectorAll("[data-type='warning']").forEach(function(el) { el.style.opacity = '1'; el.style.transition = 'none'; });
+    svgEl.querySelectorAll("[data-type='gameplay']").forEach(function(el) { el.style.opacity = '1'; el.style.transition = 'none'; });
+    svgEl.querySelectorAll("[data-type='group']").forEach(function(el) { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; el.style.transition = 'none'; });
+}
+
+function animReset() {
+    if (!animActive) return;
+    animResetState();
+}
+
+function animPrev() {
+    if (!animActive) return;
+    animGoToStep(animCurrentStep - 1);
+}
+
+function animNext() {
+    if (!animActive) return;
+    animGoToStep(animCurrentStep + 1);
+}
+
+function animShowAll() {
+    if (!animActive) return;
+    if (animSteps.length === 0) return;
+    animResetState();
+    for (var i = 0; i < animSteps.length; i++) {
+        animApplyStep(i, false);
+    }
+    animCurrentStep = animSteps.length - 1;
+    updateAnimCounter();
+}
+
+function onAnimModeChange() {
+    if (!animActive) return;
+    var svgEl = document.querySelector('#output-pane svg');
+    if (!svgEl) return;
+    buildAnimSteps(svgEl);
+    animResetState(svgEl);
+}
+
+function updateAnimCounter() {
+    var el = document.getElementById('anim-counter');
+    if (!el) return;
+    if (animSteps.length === 0) {
+        el.textContent = '-';
+    } else {
+        el.textContent = t('nav.stepCounter', { current: animCurrentStep + 1, total: animSteps.length });
+    }
+    var prevBtn = document.getElementById('anim-prev');
+    var nextBtn = document.getElementById('anim-next');
+    if (prevBtn) prevBtn.disabled = animCurrentStep < 0;
+    if (nextBtn) nextBtn.disabled = animCurrentStep >= animSteps.length - 1;
 }
 
 // ================================================================
@@ -1429,7 +1802,10 @@ function scheduleRender() {
 function execInlineScripts(container) {
     container.querySelectorAll('script').forEach(function(old) {
         var s = document.createElement('script');
-        s.textContent = old.textContent;
+        var code = old.textContent;
+        code = code.replace(/\bconst\s+/g, 'var ');
+        code = code.replace(/\blet\s+/g, 'var ');
+        s.textContent = code;
         old.parentNode.replaceChild(s, old);
     });
 }
@@ -1468,6 +1844,9 @@ function render() {
     document.getElementById('status').textContent = t('status.ok');
     applyCanvasTransform();
     updateDetached();
+    if (animActive && currentStep === 4) {
+        initAnimationEngine();
+    }
 }
 
 function getResolution() {

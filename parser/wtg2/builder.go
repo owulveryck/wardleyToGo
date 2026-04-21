@@ -150,14 +150,13 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 					return nil, fmt.Errorf("component %q evolved position: %w", nd.Name, err)
 				}
 				evolved := wardley.NewEvolvedComponent(newID())
-				evolved.Label = nd.Name
+				evolved.Label = ""
 				evolved.Placement = image.Pt(evolvedX, y)
 				evolved.Configured = true
 				if err := m.AddComponent(evolved); err != nil {
 					return nil, fmt.Errorf("evolved component %q: %w", nd.Name, err)
 				}
 				evolvedMap[comp.ID()] = evolved.ID()
-				comp.Label = ""
 
 				// Create evolution edge
 				inertiaX := 0

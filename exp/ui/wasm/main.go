@@ -109,6 +109,15 @@ func generate(_ js.Value, args []js.Value) any {
 		}
 	}
 
+	if result.Animation != nil {
+		animTheme := &svgmap.AnimationTheme{Data: result.Animation}
+		if e.Themes == nil {
+			e.Themes = []svgmap.Theme{animTheme}
+		} else {
+			e.Themes = append(e.Themes, animTheme)
+		}
+	}
+
 	var indicators []svgmap.Annotator
 	if result.Legend && len(result.LegendItems) > 0 {
 		indicators = append(indicators, &svgmap.Legend{Items: result.LegendItems})

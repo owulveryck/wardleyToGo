@@ -247,6 +247,12 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
 .btn-primary { background: #0E2356; color: #FFFFFF; border-color: #0E2356; }
 .btn-primary:hover { background: #263967; box-shadow: 0 2px 8px rgba(14, 35, 86, 0.25); }
 .btn-sm { padding: 4px 10px; font-size: 11px; }
+.anim-btn { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:none;background:transparent;color:#586586;cursor:pointer;transition:all .15s ease;padding:0; }
+.anim-btn:hover { background:rgba(14,35,86,0.08);color:#0E2356; }
+.anim-btn:active { background:rgba(14,35,86,0.14); }
+.anim-btn:disabled { opacity:0.3;cursor:default;pointer-events:none; }
+.anim-btn-primary { background:#0E2356;color:#FFFFFF;border-radius:50%;width:36px;height:36px; }
+.anim-btn-primary:hover { background:#263967;color:#FFFFFF;box-shadow:0 2px 8px rgba(14,35,86,0.25); }
 
 /* Step nav */
 .step-nav { display: flex; justify-content: space-between; padding: 10px 14px; background: rgba(14, 35, 86, 0.03); border-top: 1px solid rgba(14, 35, 86, 0.06); flex-shrink: 0; }
@@ -475,6 +481,11 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                 <div class="step-num">4</div>
                 <span data-i18n="step.enrichment">Enrichissement</span>
             </div>
+            <span class="step-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <div class="step-indicator" onclick="goToStep(4)">
+                <div class="step-num">5</div>
+                <span data-i18n="step.navigation">Navigation</span>
+            </div>
         </div>
         <span id="status" data-i18n="status.loading">Chargement WASM...</span>
         <div id="wasm-progress" style="width:80px;height:4px;background:rgba(14,35,86,0.1);border-radius:2px;overflow:hidden;display:none">
@@ -680,6 +691,32 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
                         <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer">
                             <input type="checkbox" id="legend-toggle" onchange="wizardState.legend=this.checked;onWizardChange()"> <span data-i18n="enrich.showLegend">Afficher la legende</span>
                         </label>
+                    </div>
+                </div>
+
+                <!-- Step 4: Navigation -->
+                <div class="wizard-step" id="step-4">
+                    <div class="wizard-section">
+                        <div class="wizard-section-header"><span data-i18n="nav.animationControls">Controles d'animation</span></div>
+                        <div class="wizard-section-body">
+                            <div style="display:flex;flex-direction:column;gap:16px;align-items:center">
+                                <div class="field" style="width:100%">
+                                    <label data-i18n="nav.mode" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#8691AB;margin-bottom:4px">Mode</label>
+                                    <select id="anim-mode" onchange="onAnimModeChange()" style="width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(14,35,86,0.12);font-size:13px;background:rgba(255,255,255,0.65);color:#0E2356;cursor:pointer">
+                                        <option value="depth" data-i18n="nav.modeDepth">Par profondeur de dependance</option>
+                                        <option value="yrank" data-i18n="nav.modeYRank">Par position Y</option>
+                                    </select>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:4px;background:rgba(14,35,86,0.04);border-radius:10px;padding:6px 8px">
+                                    <button class="anim-btn" id="anim-reset" onclick="animReset()" data-i18n-title="nav.reset" title="Reinitialiser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="19 20 12 20 5 20"/><polyline points="5 4 5 20"/></svg></button>
+                                    <button class="anim-btn" id="anim-prev" onclick="animPrev()" data-i18n-title="nav.animPrev" title="Precedent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg></button>
+                                    <span id="anim-counter" style="font-size:12px;font-weight:500;color:#0E2356;min-width:80px;text-align:center;user-select:none">-</span>
+                                    <button class="anim-btn anim-btn-primary" id="anim-next" onclick="animNext()" data-i18n-title="nav.animNext" title="Suivant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="9 18 15 12 9 6"/></svg></button>
+                                    <button class="anim-btn" id="anim-show-all" onclick="animShowAll()" data-i18n-title="nav.showAll" title="Tout afficher"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="5 4 12 4 19 4"/><polyline points="19 20 19 4"/></svg></button>
+                                </div>
+                                <div style="font-size:11px;color:#8691AB;text-align:center" data-i18n="nav.keyboardHint">Clavier : Fleches pour naviguer, Debut pour reinitialiser, Fin pour tout afficher</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
