@@ -62,7 +62,9 @@ func TestTextMarshalXML_LineSpacing(t *testing.T) {
 			if err := enc.Encode(txt); err != nil {
 				t.Fatal(err)
 			}
-			enc.Flush()
+			if err := enc.Flush(); err != nil {
+				t.Fatal(err)
+			}
 
 			matches := dyRe.FindAllStringSubmatch(buf.String(), -1)
 			if len(matches) < 2 {
