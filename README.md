@@ -11,22 +11,47 @@ A map is a directed graph of components, each with a position on a 100x100 coord
 
 *The project maps itself using WTG2 — [read the full strategic analysis](examples/self-map/) or see the [source](this_repo.wtg2).*
 
-## WTG2: the Wardley Map DSL
+## Quickstart
 
-WTG2 is a human-friendly domain-specific language for designing Wardley Maps. The full grammar is in [`wtg2/grammar.bnf`](wtg2/grammar.bnf).
+**WTG2** is a human-friendly DSL for describing Wardley Maps. **wtg2svg** reads WTG2 from stdin and writes SVG to stdout. See the full [grammar](wtg2/grammar.bnf) for details.
 
-### Quick start
+### Get wtg2svg
+
+Download a binary from [GitHub Releases](https://github.com/owulveryck/wardleyToGo/releases), or install with Go:
 
 ```bash
 go install github.com/owulveryck/wardleyToGo/cmd/wtg2svg@latest
-cat input.wtg2 | wtg2svg > output.svg
 ```
 
-Or without installing:
+### Usage
+
+Create a file `hello.wtg2`:
+
+```
+title: My First Map
+anchor User : III.5
+Platform : II.5
+Data : III.8 (buy)
+User -> Platform -> Data
+```
+
+Then render it:
 
 ```bash
-cat wtg2/example.wtg2 | go run ./cmd/wtg2svg/ > output.svg
+wtg2svg < hello.wtg2 > map.svg
 ```
+
+### Try it without installing
+
+Use the [online playground](https://owulveryck.github.io/wardleyToGo) to write and render WTG2 maps directly in your browser.
+
+### Generate maps with AI
+
+The file [`wtg2/skill.md`](wtg2/skill.md) is a ready-to-use prompt that teaches any LLM (ChatGPT, Claude, Gemini, etc.) to generate valid WTG2 maps. Copy-paste it as a system prompt or into a conversation, then ask the model to create a Wardley Map for your domain — it will output WTG2 that you can render with `wtg2svg` or the playground.
+
+## WTG2: the Wardley Map DSL
+
+WTG2 is a human-friendly domain-specific language for designing Wardley Maps. The full grammar is in [`wtg2/grammar.bnf`](wtg2/grammar.bnf).
 
 ### Example
 
