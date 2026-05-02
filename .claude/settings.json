@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.command // \"\"' | { read -r cmd; case \"$cmd\" in \"git commit\"*) out=$(go vet ./... 2>&1 && golangci-lint run 2>&1 && go test ./... 2>&1) || jq -n --arg reason \"Pre-commit CI checks failed. Run manually to see details: go vet ./... && golangci-lint run && go test ./...\" '{\"continue\":false,\"stopReason\":$reason}' ;; esac; }",
+            "command": "jq -r '.tool_input.command // \"\"' | { read -r cmd; case \"$cmd\" in \"git commit\"*|\"git push\"*) out=$(go vet ./... 2>&1 && golangci-lint run 2>&1 && go test ./... 2>&1) || jq -n --arg reason \"CI checks failed. Run manually to see details: go vet ./... && golangci-lint run && go test ./...\" '{\"continue\":false,\"stopReason\":$reason}' ;; esac; }",
             "timeout": 300
           }
         ]

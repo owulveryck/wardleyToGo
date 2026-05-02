@@ -276,9 +276,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		var sigChildren []interface{}
 		for i, sig := range c.Signals {
 			offsetY := -20 - i*28
-			for _, el := range signalIndicator(sig.Type, 20, offsetY) {
-				sigChildren = append(sigChildren, el)
-			}
+			sigChildren = append(sigChildren, signalIndicator(sig.Type, 20, offsetY)...)
 		}
 		components = append(components, svg.Group{
 			Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "signal"}},
@@ -291,9 +289,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		for i, ann := range c.Annotations {
 			if ann.Kind == "warning" {
 				offsetX := -30 - i*28
-				for _, el := range warningIndicator(offsetX, 0, ann.Text) {
-					warnChildren = append(warnChildren, el)
-				}
+				warnChildren = append(warnChildren, warningIndicator(offsetX, 0, ann.Text)...)
 			}
 		}
 		if len(warnChildren) > 0 {
@@ -308,9 +304,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		var gpChildren []interface{}
 		for i, gp := range c.Gameplays {
 			offsetY := 18 + i*14
-			for _, el := range gameplayBadge(gp.Type, 0, offsetY) {
-				gpChildren = append(gpChildren, el)
-			}
+			gpChildren = append(gpChildren, gameplayBadge(gp.Type, 0, offsetY)...)
 		}
 		components = append(components, svg.Group{
 			Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "gameplay"}},
