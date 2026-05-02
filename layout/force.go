@@ -39,6 +39,7 @@ func forceSpread(
 	ranks map[string]int,
 	maxRank int,
 	opts Options,
+	pipelineSpacing float64,
 ) map[string]float64 {
 	if len(positions) <= 1 {
 		return positions
@@ -115,7 +116,7 @@ func forceSpread(
 
 				effectiveSpacing := minSpacing
 				if pipelineParents[a] || pipelineParents[b] {
-					effectiveSpacing = minSpacing * 3
+					effectiveSpacing = pipelineSpacing
 				}
 
 				if absDy < effectiveSpacing {
@@ -213,7 +214,7 @@ func forceSpread(
 			}
 			return positions[sortedByRank[i]] < positions[sortedByRank[j]]
 		})
-		enforceRankOrder(positions, sortedByRank, ranks, minY, maxY, minSpacing, pipelineParents)
+		enforceRankOrder(positions, sortedByRank, ranks, minY, maxY, minSpacing, pipelineParents, pipelineSpacing)
 
 		damping *= 0.98
 	}
@@ -239,8 +240,7 @@ func forceSpread(
 // nodes by Y position, then sweeps forward: when two consecutive nodes include
 // at least one pipeline parent, they must be at least pipelineSpacing apart.
 // Pushed nodes are clamped to maxY.
-func spreadPipelineParents(positions map[string]float64, pipelineMembers, pipelineParents map[string]bool, minSpacing, maxY float64) {
-	pipelineSpacing := minSpacing * 3
+func spreadPipelineParents(positions map[string]float64, pipelineMembers, pipelineParents map[string]bool, maxY, pipelineSpacing float64) {
 
 	// Collect non-pipeline-member nodes sorted by Y position.
 	sorted := make([]string, 0, len(positions))
@@ -271,7 +271,7 @@ func spreadPipelineParents(positions map[string]float64, pipelineMembers, pipeli
 	}
 }
 
-func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[string]int, minY, _ float64, minSpacing float64, pipelineParents map[string]bool) {
+func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[string]int, minY, _ float64, minSpacing float64, pipelineParents map[string]bool, pipelineSpacing float64) {
 	// sorted is expected to be pre-sorted by rank then by position.
 	// Sweep forward per rank group: enforce minSpacing only between
 	// different rank groups, not between siblings at the same rank.
@@ -289,7 +289,7 @@ func enforceRankOrder(positions map[string]float64, sorted []string, ranks map[s
 			// based on the previous group's maximum.
 			spacing := minSpacing
 			if pipelineParents[prevRankMaxName] || pipelineParents[name] {
-				spacing = minSpacing * 3
+				spacing = pipelineSpacing
 			}
 			currentRankMinAllowed = prevRankMaxY + spacing
 			prevRank = r

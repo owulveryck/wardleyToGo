@@ -846,6 +846,93 @@ func TestLayout_SelfLoopReturnsError(t *testing.T) {
 	}
 }
 
+func TestLayout_ManyPipelinesSpacing(t *testing.T) {
+	// 8 pipeline parents must not pile up at maxY.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "A1", Kind: KindAnchor},
+			{Name: "A2", Kind: KindAnchor},
+			{Name: "A3", Kind: KindAnchor},
+			{Name: "Top1"},
+			{Name: "Top2"},
+			{Name: "Mid"},
+			{Name: "P1"}, {Name: "P2"}, {Name: "P3"}, {Name: "P4"},
+			{Name: "P5"}, {Name: "P6"}, {Name: "P7"}, {Name: "P8"},
+			{Name: "Infra1"},
+			{Name: "Infra2"},
+		},
+		Edges: []Edge{
+			{From: "A1", To: "Top1"},
+			{From: "A2", To: "Top2"},
+			{From: "A3", To: "Top1"},
+			{From: "Top1", To: "Mid"},
+			{From: "Top2", To: "Mid"},
+			{From: "Mid", To: "P1"},
+			{From: "Mid", To: "P2"},
+			{From: "Mid", To: "P3"},
+			{From: "Mid", To: "P4"},
+			{From: "P1", To: "P5"},
+			{From: "P2", To: "P6"},
+			{From: "P3", To: "P7"},
+			{From: "P4", To: "P8"},
+			{From: "P5", To: "Infra1"},
+			{From: "P6", To: "Infra1"},
+			{From: "P7", To: "Infra2"},
+			{From: "P8", To: "Infra2"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "P1", Members: []string{"P1M1", "P1M2"}},
+			{Parent: "P2", Members: []string{"P2M1", "P2M2"}},
+			{Parent: "P3", Members: []string{"P3M1", "P3M2"}},
+			{Parent: "P4", Members: []string{"P4M1", "P4M2"}},
+			{Parent: "P5", Members: []string{"P5M1", "P5M2"}},
+			{Parent: "P6", Members: []string{"P6M1", "P6M2"}},
+			{Parent: "P7", Members: []string{"P7M1", "P7M2"}},
+			{Parent: "P8", Members: []string{"P8M1", "P8M2"}},
+		},
+	}
+
+	l := New(DefaultOptions())
+	pos := mustLayout(t, l, g)
+
+	opts := DefaultOptions()
+
+	for name := range pos {
+		assertInRange(t, pos, name)
+	}
+
+	// No more than 2 pipeline parents at any single Y position
+	ppNames := []string{"P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"}
+	ppYs := make(map[int]int)
+	for _, name := range ppNames {
+		ppYs[pos[name]]++
+	}
+	for y, count := range ppYs {
+		if count > 2 {
+			t.Errorf("%d pipeline parents at Y=%d, want <= 2", count, y)
+		}
+	}
+
+	// No more than 2 pipeline parents crammed at maxY
+	atMax := 0
+	for _, name := range ppNames {
+		if pos[name] >= opts.MaxY {
+			atMax++
+		}
+	}
+	if atMax > 2 {
+		t.Errorf("%d pipeline parents at maxY=%d, want <= 2", atMax, opts.MaxY)
+	}
+
+	// Pipeline members inherit parent Y
+	if pos["P1M1"] != pos["P1"] {
+		t.Errorf("P1M1.Y=%d should equal P1.Y=%d", pos["P1M1"], pos["P1"])
+	}
+	if pos["P5M2"] != pos["P5"] {
+		t.Errorf("P5M2.Y=%d should equal P5.Y=%d", pos["P5M2"], pos["P5"])
+	}
+}
+
 func mustLayout(t *testing.T, l Layouter, g *Graph) map[string]int {
 	t.Helper()
 	pos, err := l.Layout(g)

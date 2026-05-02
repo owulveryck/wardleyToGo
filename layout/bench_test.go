@@ -73,7 +73,7 @@ func BenchmarkForceSpread(b *testing.B) {
 					pos[k] = v
 				}
 				pipelineParents := make(map[string]bool)
-				_ = forceSpread(pos, g.Edges, pipelineMembers, pipelineParents, ranks, maxRank, opts)
+				_ = forceSpread(pos, g.Edges, pipelineMembers, pipelineParents, ranks, maxRank, opts, float64(opts.MinSpacing)*3)
 			}
 		})
 	}
@@ -97,6 +97,6 @@ func BenchmarkEnforceRankOrder(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		pipelineParents := make(map[string]bool)
-		enforceRankOrder(positions, names, ranks, minY, maxY, float64(opts.MinSpacing), pipelineParents)
+		enforceRankOrder(positions, names, ranks, minY, maxY, float64(opts.MinSpacing), pipelineParents, float64(opts.MinSpacing)*3)
 	}
 }

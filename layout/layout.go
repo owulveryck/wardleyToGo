@@ -240,6 +240,21 @@ func (l *defaultLayouter) Layout(g *Graph) (map[string]int, error) {
 	minY := float64(l.opts.MinY)
 	maxY := float64(l.opts.MaxY)
 
+	// Adaptive pipeline spacing: scale down when many pipeline parents
+	// would otherwise exceed available vertical space.
+	pipelineSpacing := float64(l.opts.MinSpacing) * 3.0
+	if len(pipelineParents) > 0 {
+		available := maxY - minY
+		maxConsumption := available * 0.5
+		idealTotal := float64(len(pipelineParents)) * pipelineSpacing
+		if idealTotal > maxConsumption {
+			pipelineSpacing = maxConsumption / float64(len(pipelineParents))
+			if pipelineSpacing < float64(l.opts.MinSpacing) {
+				pipelineSpacing = float64(l.opts.MinSpacing)
+			}
+		}
+	}
+
 	for name, r := range ranks {
 		if pipelineMembers[name] {
 			continue // pipeline members inherit parent Y in post-processing
@@ -251,7 +266,7 @@ func (l *defaultLayouter) Layout(g *Graph) (map[string]int, error) {
 		}
 	}
 
-	positions = forceSpread(positions, g.Edges, pipelineMembers, pipelineParents, ranks, effectiveMaxRank, l.opts)
+	positions = forceSpread(positions, g.Edges, pipelineMembers, pipelineParents, ranks, effectiveMaxRank, l.opts, pipelineSpacing)
 
 	// Phase 2.5: separate pipeline parents that are too close.
 	// Pipeline parents render as rectangles taller than regular component
@@ -259,7 +274,7 @@ func (l *defaultLayouter) Layout(g *Graph) (map[string]int, error) {
 	// nodes by Y, then push apart consecutive nodes where either is a
 	// pipeline parent.
 	if len(pipelineParents) > 1 {
-		spreadPipelineParents(positions, pipelineMembers, pipelineParents, float64(l.opts.MinSpacing), maxY)
+		spreadPipelineParents(positions, pipelineMembers, pipelineParents, maxY, pipelineSpacing)
 	}
 
 	// Phase 3: round to int, apply pipeline inheritance, clamp
