@@ -101,6 +101,25 @@ text {
     animation: signalStagnate 3s ease-in-out infinite;
 }
 
+@keyframes signalDecline {
+    0% { transform: translateY(0); opacity: 1; }
+    70% { transform: translateY(5px); opacity: 0.8; }
+    85% { transform: translateY(5px); opacity: 0; }
+    86% { transform: translateY(-3px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.signal-animated .signal-declining {
+    animation: signalDecline 2.2s ease-in-out infinite;
+}
+
+@keyframes signalNetwork {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.18); opacity: 0.85; }
+}
+.signal-animated .signal-network-effects {
+    animation: signalNetwork 2.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .signal-animated * { animation: none !important; }
 }

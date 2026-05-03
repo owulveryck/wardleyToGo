@@ -321,19 +321,20 @@ func marshalSignalIcon(enc *xml.Encoder, signalType string, p image.Point) {
 			StrokeWidth: "2",
 		})
 	case "network-effects":
+		col := svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}}
 		cx, cy := ox+7, oy
-		_ = enc.Encode(svg.Circle{
-			P:           image.Pt(cx, cy),
-			R:           3,
-			Fill:        svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "1.5",
-		})
+		// Edges
 		_ = enc.Encode(svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 7,-4 M %d,%d l 7,4 M %d,%d l -7,-4 M %d,%d l -7,4", cx, cy, cx, cy, cx, cy, cx, cy),
-			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "1.5",
+			D:           fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d M %d,%d L %d,%d", cx, cy-6, cx-5, cy+3, cx+5, cy+3, cx, cy-6, cx, cy, cx-5, cy+3, cx, cy, cx+5, cy+3),
+			Stroke:      col,
+			StrokeWidth: "1",
 		})
+		// Center node
+		_ = enc.Encode(svg.Circle{P: image.Pt(cx, cy), R: 2, Fill: col, Stroke: col, StrokeWidth: "1"})
+		// Outer nodes
+		_ = enc.Encode(svg.Circle{P: image.Pt(cx, cy-6), R: 1, Fill: col, Stroke: col, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Circle{P: image.Pt(cx-5, cy+3), R: 1, Fill: col, Stroke: col, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Circle{P: image.Pt(cx+5, cy+3), R: 1, Fill: col, Stroke: col, StrokeWidth: "1"})
 	case "economies-of-scale":
 		_ = enc.Encode(svg.Path{
 			D:           fmt.Sprintf("M %d,%d a 4,4 0 0,1 8,0 M %d,%d a 7,7 0 0,1 14,0", ox, oy, ox-3, oy),

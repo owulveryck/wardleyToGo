@@ -65,22 +65,37 @@ func signalIndicator(signalType string, offsetX, offsetY int) []interface{} {
 			Class:       []string{"signal-commoditization"},
 		})
 	case "network-effects":
-		// Small network/star pattern
+		// Interconnected nodes forming a network graph
+		col := svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}}
 		cx, cy := offsetX+10, offsetY
-		elements = append(elements, svg.Circle{
-			P:           image.Pt(cx, cy),
-			R:           4,
-			Fill:        svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "2",
+		// Edges connecting all nodes
+		elements = append(elements, svg.Path{
+			D:           fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d", cx, cy-10, cx-9, cy+5, cx+9, cy+5, cx, cy-10, cx, cy, cx-9, cy+5) + fmt.Sprintf(" M %d,%d L %d,%d", cx, cy, cx+9, cy+5),
+			Stroke:      col,
+			StrokeWidth: "1.5",
 			Class:       []string{"signal-network-effects"},
 		})
-		// Lines radiating out
-		elements = append(elements, svg.Path{
-			D:           fmt.Sprintf("M %d,%d l 10,-6 M %d,%d l 10,6 M %d,%d l -10,-6 M %d,%d l -10,6", cx, cy, cx, cy, cx, cy, cx, cy),
-			Stroke:      svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}},
-			StrokeWidth: "2",
-			Class:       []string{"signal-network-effects"},
+		// Center node
+		elements = append(elements, svg.Circle{
+			P: image.Pt(cx, cy), R: 3,
+			Fill: col, Stroke: col, StrokeWidth: "1",
+			Class: []string{"signal-network-effects"},
+		})
+		// Outer nodes
+		elements = append(elements, svg.Circle{
+			P: image.Pt(cx, cy-10), R: 2,
+			Fill: col, Stroke: col, StrokeWidth: "1",
+			Class: []string{"signal-network-effects"},
+		})
+		elements = append(elements, svg.Circle{
+			P: image.Pt(cx-9, cy+5), R: 2,
+			Fill: col, Stroke: col, StrokeWidth: "1",
+			Class: []string{"signal-network-effects"},
+		})
+		elements = append(elements, svg.Circle{
+			P: image.Pt(cx+9, cy+5), R: 2,
+			Fill: col, Stroke: col, StrokeWidth: "1",
+			Class: []string{"signal-network-effects"},
 		})
 	case "economies-of-scale":
 		// Expanding concentric arcs
