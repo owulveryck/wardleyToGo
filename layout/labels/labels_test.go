@@ -204,6 +204,26 @@ func TestPlaceLabels_Deterministic(t *testing.T) {
 	}
 }
 
+func TestPlaceLabels_LeftSidePreference(t *testing.T) {
+	comps := []Component{
+		{Name: "Left", Position: image.Pt(20, 50), Label: "Genesis Item"},
+		{Name: "Right", Position: image.Pt(80, 50), Label: "Commodity Item"},
+	}
+	results := PlaceLabels(comps, DefaultOptions())
+
+	rLeft := results["Left"]
+	if rLeft.Anchor != AnchorEnd {
+		t.Errorf("component at x=20 (stage I): got anchor %d, want AnchorEnd (%d)",
+			rLeft.Anchor, AnchorEnd)
+	}
+
+	rRight := results["Right"]
+	if rRight.Anchor != AnchorStart {
+		t.Errorf("component at x=80 (stage IV): got anchor %d, want AnchorStart (%d)",
+			rRight.Anchor, AnchorStart)
+	}
+}
+
 func abs64(x float64) float64 {
 	if x < 0 {
 		return -x

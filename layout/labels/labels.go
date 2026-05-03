@@ -150,10 +150,14 @@ func PlaceLabels(comps []Component, opts Options) map[string]Result {
 		bestScore := math.Inf(-1)
 		bestIdx := 0
 
+		preferAnchor := AnchorStart
+		if comp.Position.X < 50 {
+			preferAnchor = AnchorEnd
+		}
 		for ci, cand := range defaultCandidates {
 			bbox := candidateBBoxWithMetrics(cand, comp, m, opts)
-			preferRight := cand.name == "right"
-			score := scoreCandidate(bbox, placed, circles, preferRight)
+			preferred := cand.anchor == preferAnchor
+			score := scoreCandidate(bbox, placed, circles, preferred)
 
 			if score > bestScore {
 				bestScore = score

@@ -28,8 +28,9 @@ var defaultCandidates = []candidate{
 
 // scoreCandidate evaluates how good a candidate bounding box is.
 // Higher is better. Penalties for overlapping placed labels, component
-// circles, and going out of map bounds.
-func scoreCandidate(bbox Rect, placed []Rect, circles []Rect, preferRight bool) float64 {
+// circles, and going out of map bounds. The preferred flag adds a small
+// bonus (+0.5) to nudge the algorithm toward the caller's preferred side.
+func scoreCandidate(bbox Rect, placed []Rect, circles []Rect, preferred bool) float64 {
 	score := 0.0
 
 	for _, p := range placed {
@@ -54,7 +55,7 @@ func scoreCandidate(bbox Rect, placed []Rect, circles []Rect, preferRight bool) 
 		score -= (bbox.MaxY - 100) * 200.0
 	}
 
-	if preferRight {
+	if preferred {
 		score += 0.5
 	}
 
