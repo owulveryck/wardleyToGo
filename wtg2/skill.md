@@ -31,30 +31,64 @@ Key principles:
 
 ## Strategic Concepts for Richer Maps
 
-### Gameplays (Strategic Maneuvers)
+### The Climat / Doctrine / Manoeuvre Framework
 
-A gameplay is a deliberate action to modify your position on the map. Annotate gameplays on the component that is the *target* of the maneuver.
+Strategic action on a Wardley Map operates at three distinct levels:
+
+- **Climat** — External forces you cannot control but must read: evolution toward commodity, network effects, Red Queen dynamics, co-evolution of practices and technologies. In WTG2, these are expressed as `signal` annotations. The strategist does not fight the climate — they use it.
+- **Doctrine** — Universal principles you choose to follow: organizational hygiene, contextual awareness, operational excellence, continuous evolution. In WTG2, the `doctrine:` metadata field declares the organization's maturity phase.
+- **Manoeuvre** — Deliberate, context-dependent actions to change your position on the map. In WTG2, these are expressed as `gameplay` annotations. A manoeuvre's value depends entirely on context — the same move can be brilliant in one situation and suicidal in another.
+
+**Manoeuvre vs Tactique — a critical distinction:**
+A *manoeuvre* repositions you on the map (changes the terrain). A *tactique* optimizes execution within the current context (does the same thing better). Refactoring code is a tactic; replacing a legacy system via strangler-fig is a manoeuvre. Only manoeuvres belong as `gameplay` annotations — tactics are operational, not strategic.
+
+### Gameplays (Strategic Manoeuvres)
+
+A gameplay is a deliberate manoeuvre to modify your position on the map. Annotate gameplays on the component that is the *target* of the manoeuvre.
 
 | Gameplay | Description | Typical context |
 |----------|-------------|-----------------|
-| `ILC` | Innovate-Leverage-Commoditize: provide infrastructure, observe what thrives, absorb | Platform with ecosystem |
-| `open-source` | Commoditize a layer to capture value in an adjacent layer | Competitor with proprietary rent |
-| `land-grab` | Sacrifice profitability for rapid market share | New market with strong network effects |
-| `embrace-extend` | Adopt a standard, add proprietary extensions, close ecosystem | Standard you want to control |
-| `tower-moat` | Erect barriers: patents, lock-in, closed protocols | Protecting an existing rent |
-| `FUD` | Spread fear/uncertainty/doubt to slow competitor adoption | Competitor gaining traction |
-| `strangler-fig` | Progressively replace a legacy system by commoditizing non-differentiating layers | Legacy system blocking evolution |
-| `signal-distortion` | Mislead competitors about strategic intent | Competitive misdirection |
+| `ILC` | Innovate-Leverage-Commoditize: 3 phases — (1) Innovate: provide base infrastructure, externalize innovation risk to the ecosystem; (2) Leverage: use a Sensing Engine to detect weak signals of success in ecosystem usage; (3) Commoditize: absorb validated innovations into your own offering. Self-perpetuating growth machine. | Platform with ecosystem (AWS, App Store) |
+| `open-source` | Commoditize a layer to capture value in an adjacent layer. 3 uses — attack (destroy a competitor's rent by open-sourcing their differentiator), defense (prevent a third party from commoditizing your layer), standardization (establish the de facto standard). | Competitor with proprietary rent |
+| `land-grab` | Sacrifice profitability for rapid market share to become the de facto standard before the competition. First to reach critical mass becomes difficult to dislodge. | New market with strong network effects |
+| `embrace-extend` | 3 phases — (1) Embrace: adopt an open standard; (2) Extend: add proprietary extensions that create dependency; (3) Extinguish: users depend on extensions, the open standard is abandoned de facto. | Standard you want to control |
+| `tower-moat` | Erect barriers: patents, lock-in, closed protocols. Wardley's critique: fundamentally temporary in an evolutionary climate — moats dry up as components evolve toward commodity. A harvesting tactic, not a long-term strategy. | Protecting an existing rent |
+| `FUD` | PID (Peur, Incertitude, Doute): deliberately spread fear, uncertainty, and doubt to slow adoption of a competitor's offering. Double-edged — can damage your reputation if discovered. | Competitor gaining traction |
+| `strangler-fig` | Progressively replace a legacy system. 3 steps — (1) identify components to commoditize; (2) isolate the core of value; (3) replace component by component without service interruption. Opposed to Big Bang rewrites. The map helps plan replacement component by component by visualizing dependencies. | Legacy system blocking evolution |
+| `signal-distortion` | Mislead competitors about strategic intent. Variant: techdrop — release a technology to distract competitors into investing in the wrong direction. | Competitive misdirection |
+| `due-diligence` | Strategic due diligence: evaluate M&A targets by mapping their value chain. Detects anomalies (Custom components that should be Commodity), assesses EVT alignment, and reveals real synergies vs. paper synergies. | Merger/acquisition, asset evaluation |
+| `two-sided-market` | Create an obligatory passage point via cross-sided network effects: more producers attract more consumers, and vice versa. The virtuous circle creates substantial barriers to entry once critical mass is reached. | Platform connecting producers and consumers |
 
 ```wtg2
 gameplay ILC on Platform API
 gameplay open-source "Commoditize compute to capture AI layer" on Cloud Infra
 gameplay strangler-fig on Legacy CRM
+gameplay due-diligence "Assess strategic coherence before acquisition" on Target Company
+gameplay two-sided-market on Marketplace
 ```
+
+### Flow Analysis
+
+A map is not just a snapshot — value flows through it. Two types of flow reveal invisible dynamics:
+
+1. **Evolutionary flow** — The gravitational pull from left to right (Genesis → Commodity). Every component tends toward commoditization. Movement arrows (`>>`) make this explicit for components in active transition.
+2. **Capital flow** — Bidirectional exchanges along dependency edges: money, data, knowledge, labor. Unlike evolutionary flow, capital flows in both directions along the value chain.
+
+**Flow anomalies to flag with `warning` or `note`:**
+
+| Anomaly | Symptom | WTG2 annotation |
+|---------|---------|-----------------|
+| One-way flow | A dependency where value only flows in one direction (e.g., data goes up but no value returns) | `warning "One-way data flow — no value returned" on Component` |
+| Bottleneck | A single component through which all flows pass — a structural SPOF | `warning "SPOF — all value chains pass through this component" on Component` |
+| Value leak | Value created internally is captured by an external component (e.g., a `buy` component in phase III extracting rent) | `warning "Value leak — vendor captures margin on our differentiation" on Component` |
 
 ### Five Capitals (Asset Classification)
 
-Components represent different types of organizational capital. The `asset` field classifies the *nature* of the asset (orthogonal to `type` which classifies sourcing):
+Components represent different types of organizational capital. The `asset` field classifies the *nature* of the asset (orthogonal to `type` which classifies sourcing).
+
+Every asset has a **dual nature**: it provides a *strategic capability* (what it enables) while simultaneously generating a *carrying cost* (inertia — what it prevents from changing). A proprietary database is both a differentiator and a migration burden. The `asset` field captures the capability side; `cost:` and inertia (`!`) capture the carrying cost side.
+
+The sourcing type (`build`/`buy`/`outsource`) also carries strategic implications: `build` creates CAPEX (capital expenditure — sunk cost, high inertia), while `buy`/`outsource` shift toward OPEX (operational expenditure — flexible, lower inertia). Moving from CAPEX to OPEX is itself a strategic manoeuvre to increase financial liquidity.
 
 | Asset type | Description | Example |
 |------------|-------------|---------|
@@ -74,7 +108,13 @@ AI Team : II.3 {
 
 ### Qualified Inertia
 
-Inertia is not just a severity level — it has a *nature*. The book identifies 5 forms:
+Inertia is not a defect — it is a mechanical consequence of past success. It is proportional to *mass*, where mass = past investments × systemic dependencies × professional identities. The more successful a component has been, the harder it is to change.
+
+Phase transitions (e.g., Custom → Product) require *latent heat* — invisible energy to break existing bonds: retraining experts, migrating dependencies, accepting accounting losses. This cost is invisible on a balance sheet but real on the map.
+
+Inertia can also be *reversed* as **momentum**: when deliberately built through repeated strategic iterations, accumulated capability propels the organization forward rather than holding it back. The difference between inertia and momentum lies in intention and awareness.
+
+Inertia is not just a severity level — it has a *nature*. The 5 forms are:
 
 | Kind | Meaning | Symptom |
 |------|---------|---------|
@@ -118,6 +158,17 @@ The Explorer-Villager-Town-planner model aligns team types to evolution phases. 
 | `settler` / `villager` | Custom-Product (II-III) | Productization, standards, analysis |
 | `town-planner` | Commodity (IV) | Industrialization, cost optimization, experience-driven |
 
+**Organization-phase alignment grid:**
+
+| Evolution phase | Team profile | Organizational role |
+|----------------|-------------|-------------------|
+| Genesis (I) | Explorers / Commandos | R&D, skunkworks, innovation labs |
+| Custom (II) | Artisans / Villagers | Engineering teams, consultants |
+| Product (III) | Product managers / Settlers | Product teams, solution architects |
+| Commodity (IV) | Ops/SRE / Town Planners | Platform teams, infrastructure |
+
+**Formal transfer principle:** Explorers create, Villagers productize, Town Planners industrialize. The fatal error is assigning the wrong profile to a phase — e.g., asking Town Planners to innovate (they optimize) or Explorers to run production (they break things). Transitions between profiles generate friction; transfers must be orchestrated, not assumed.
+
 A mismatch between team type and component evolution phase is a strategic signal worth highlighting.
 
 ```wtg2
@@ -137,6 +188,30 @@ Legacy CRM : III.2 {
     cost: "850k/year, 80% maintenance"
 }
 ```
+
+### Doctrine Violations
+
+Recurrent anti-patterns detectable on a map. When generating a strategic map, flag these with `warning` annotations:
+
+| Violation | Map symptom | What to flag |
+|-----------|------------|--------------|
+| NIH (Not Invented Here) | Component marked `build` in phase III-IV when market alternatives exist | `warning "NIH — standard solutions exist at this evolution stage"` |
+| No differentiation | All components in phase III-IV, zero investment in I-II | `warning "No differentiation — entire value chain is commodity"` |
+| Dispersion | Many components in phase I without critical mass in any | `warning "Dispersion — too many bets, insufficient focus"` |
+| Single method | Same approach applied uniformly regardless of evolution phase | `note "Agile/Six Sigma may not suit all phases equally"` |
+| Strategy theatre | Map has no `question:`, no `gameplay`, no movement (`>>`) | A map without a question is a ritual, not strategy |
+
+### Strategic Cycle
+
+Strategy is not an event — it is a continuous discipline following the **OODA loop** (Observe → Orient → Decide → Act). Each iteration reduces friction, transforming the laborious effort of a beginner into the fluidity of an experienced practitioner.
+
+The **Value Flywheel Effect** structures this cycle in 4 phases:
+1. **Clarity of Purpose** — understand the user need (anchors, value chain)
+2. **Challenge and Landscape** — map the terrain (components, evolution, climate)
+3. **Next Best Actions** — decide and act (gameplays, manoeuvres)
+4. **Long Term Value** — harvest value and reinvest (momentum builds)
+
+Each iteration feeds the next: capabilities developed in phase 1 facilitate phase 2; patterns recognized in phase 2 accelerate phase 3. The flywheel spins faster with practice — the **velocity of adaptation** (how fast you complete the cycle) becomes a competitive advantage in itself.
 
 ---
 
@@ -431,7 +506,7 @@ gameplay strangler-fig on Legacy System
 gameplay land-grab on New Market
 ```
 
-Gameplay types: `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`.
+Gameplay types: `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `due-diligence`, `two-sided-market`.
 
 The quoted description is optional and provides strategic context.
 
@@ -462,7 +537,7 @@ Identifiers (component names, group names, etc.):
 - Spaces are allowed inside identifiers (e.g., `Application Mobile`)
 - Cannot be a reserved keyword used alone
 
-**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `legend`, `focus`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`, `hygiene`, `context`, `excellence`
+**Reserved keywords:** `anchor`, `component`, `submap`, `pipeline`, `group`, `note`, `warning`, `signal`, `gameplay`, `legend`, `focus`, `title`, `date`, `author`, `scope`, `question`, `stages`, `doctrine`, `evolution`, `type`, `asset`, `color`, `visibility`, `cost`, `team`, `build`, `buy`, `outsource`, `accelerating`, `stagnating`, `declining`, `co-evolution`, `red-queen`, `commoditization`, `network-effects`, `economies-of-scale`, `ILC`, `open-source`, `land-grab`, `embrace-extend`, `tower-moat`, `FUD`, `strangler-fig`, `signal-distortion`, `due-diligence`, `two-sided-market`, `explorer`, `settler`, `town-planner`, `pioneer`, `villager`, `tech`, `financial`, `human`, `relational`, `social`, `on`, `hygiene`, `context`, `excellence`
 
 ---
 
@@ -646,6 +721,10 @@ When generating a WTG2 map:
 
 16. **Annotate cost** for components consuming significant budget. This enables run/change ratio analysis across the value chain. Use `cost:` in block config.
 
+17. **Respect the Extremistan/Mediocristan divide.** Phases I-II (Genesis, Custom) operate in Extremistan: power laws, unpredictable ROI, winner-takes-all dynamics. Phases III-IV (Product, Commodity) operate in Mediocristan: normal distributions, predictable metrics, Six Sigma applicable. Do not apply the same KPIs or risk models uniformly across all phases — a startup metric (burn rate) does not apply to infrastructure, and an SLA does not apply to R&D.
+
+18. **Flag doctrine violations.** Check for NIH (building what could be bought in phase III-IV), lack of differentiation (nothing in phase I-II), dispersion (too many phase I bets), and strategy theatre (map without a question or gameplays).
+
 ---
 
 ## Strategic Completeness Checklist
@@ -660,3 +739,8 @@ Before finalizing a map, verify:
 6. Warnings exist for SPOF, vendor lock-in, or single-supplier risks
 7. Cost annotations exist for high-budget components
 8. Signals reflect observed market dynamics, not speculation
+9. The `question:` metadata is defined — a map without a question is strategy theatre
+10. At least one component has movement (`>>`) — a static map is not strategic
+11. Components marked `build` in phase III-IV are justified (otherwise: NIH violation)
+12. Capital flows along edges are bidirectional — one-way flows deserve a `warning`
+13. The map contains at least one surprise — if nothing contradicts your assumptions, you have not looked closely enough (test de la surprise)
