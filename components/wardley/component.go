@@ -99,14 +99,13 @@ func (c *Component) ID() int64 {
 // rectangle r in dst with the result of drawing src on dst.
 func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	placement := utils.CalcCoords(c.Placement, r)
-	// Draw type-specific outer circle
 	switch c.Type {
 	case BuildComponent:
-		drawing.DrawCircle(dst, 10, placement, color.Black, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+		drawing.DrawCircle(dst, 6, placement, color.RGBA{0x29, 0x80, 0xB9, 0xFF}, color.RGBA{0x29, 0x80, 0xB9, 0xFF})
 	case BuyComponent:
-		drawing.DrawCircle(dst, 10, placement, color.RGBA{0xAA, 0xA5, 0xa9, 0xff}, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+		drawing.DrawCircle(dst, 6, placement, color.RGBA{0x27, 0xAE, 0x60, 0xFF}, color.RGBA{0x27, 0xAE, 0x60, 0xFF})
 	case OutsourceComponent:
-		drawing.DrawCircle(dst, 10, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{0x44, 0x44, 0x44, 0xff})
+		drawing.DrawCircle(dst, 6, placement, color.RGBA{0x8E, 0x44, 0xAD, 0xFF}, color.RGBA{0x8E, 0x44, 0xAD, 0xFF})
 	case DataProductComponent:
 		drawing.DrawCircle(dst, 7, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{246, 72, 22, 0xff})
 	}
@@ -218,36 +217,31 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		Fill:        fillColor,
 	}
 	components := make([]interface{}, 0, 8)
-	switch c.Type {
-	case BuildComponent:
-		components = append(components, svg.Circle{
-			R:           20,
-			StrokeWidth: "1",
-			Stroke:      svg.Black,
-			Fill:        svg.Color{Color: color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
-		})
-	case BuyComponent:
-		components = append(components, svg.Circle{
-			R:           20,
-			StrokeWidth: "1",
-			Fill:        svg.Color{Color: color.RGBA{0xaa, 0xa5, 0xa9, 0xff}},
-			Stroke:      svg.Color{Color: color.RGBA{0xd6, 0xd6, 0xd6, 0xff}},
-		})
-	case OutsourceComponent:
-		components = append(components, svg.Circle{
-			R:           20,
-			StrokeWidth: "1",
-			Fill:        svg.Color{Color: color.RGBA{0x44, 0x44, 0x44, 0xff}},
-			Stroke:      svg.Color{Color: color.RGBA{0x44, 0x44, 0x44, 0xff}},
-		})
-	case DataProductComponent:
-		components = append(components, svg.Circle{
-			R:           14,
-			StrokeWidth: "1",
-			Fill:        svg.Color{Color: color.RGBA{246, 72, 22, 0xff}},
-		})
+
+	hasNote := false
+	for _, ann := range c.Annotations {
+		if ann.Kind == "note" {
+			hasNote = true
+			break
+		}
 	}
-	components = append(components, baseCircle)
+
+	var iconElems []interface{}
+	if elems := typeIndicator(c.Type); elems != nil {
+		iconElems = elems
+	} else {
+		iconElems = []interface{}{baseCircle}
+	}
+
+	if hasNote {
+		components = append(components, svg.Group{
+			Attrs:    []xml.Attr{{Name: xml.Name{Local: "class"}, Value: "has-note"}},
+			Children: iconElems,
+		})
+	} else {
+		components = append(components, iconElems...)
+	}
+
 	anchor := svg.TextAnchorUndefined
 	switch c.Anchor {
 	case AdjustStart:
@@ -312,10 +306,27 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		})
 	}
 
+	if len(c.Annotations) > 0 {
+		var noteChildren []interface{}
+		noteIdx := 0
+		for _, ann := range c.Annotations {
+			if ann.Kind == "note" {
+				offsetX := 10 + noteIdx*12
+				noteChildren = append(noteChildren, noteIndicator(offsetX, -10, ann.Text)...)
+				noteIdx++
+			}
+		}
+		if len(noteChildren) > 0 {
+			components = append(components, svg.Group{
+				Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "note"}},
+				Children: noteChildren,
+			})
+		}
+	}
+
 	return e.Encode(svg.Transform{
 		Translate:  coords,
 		Components: components,
-		//Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
 	})
 }
 
@@ -344,14 +355,13 @@ func NewEvolvedComponent(id int64) *EvolvedComponent {
 // rectangle r in dst with the result of drawing src on dst.
 func (c *EvolvedComponent) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) {
 	placement := utils.CalcCoords(c.Placement, r)
-	// Draw type-specific outer circle
 	switch c.Type {
 	case BuildComponent:
-		drawing.DrawCircle(dst, 10, placement, color.Black, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+		drawing.DrawCircle(dst, 6, placement, color.RGBA{0x29, 0x80, 0xB9, 0xFF}, color.RGBA{0x29, 0x80, 0xB9, 0xFF})
 	case BuyComponent:
-		drawing.DrawCircle(dst, 10, placement, color.RGBA{0xAA, 0xA5, 0xa9, 0xff}, color.RGBA{0xd6, 0xd6, 0xd6, 0xff})
+		drawing.DrawCircle(dst, 6, placement, color.RGBA{0x27, 0xAE, 0x60, 0xFF}, color.RGBA{0x27, 0xAE, 0x60, 0xFF})
 	case OutsourceComponent:
-		drawing.DrawCircle(dst, 10, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{0x44, 0x44, 0x44, 0xff})
+		drawing.DrawCircle(dst, 6, placement, color.RGBA{0x8E, 0x44, 0xAD, 0xFF}, color.RGBA{0x8E, 0x44, 0xAD, 0xFF})
 	case DataProductComponent:
 		drawing.DrawCircle(dst, 7, placement, color.RGBA{0x44, 0x44, 0x44, 0xff}, color.RGBA{246, 72, 22, 0xff})
 	}

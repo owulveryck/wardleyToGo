@@ -37,3 +37,12 @@
   position: absolute;
 }
 
+@keyframes notePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.has-note {
+    animation: notePulse 2s ease-in-out infinite;
+}
+

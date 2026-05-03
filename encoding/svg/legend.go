@@ -148,50 +148,39 @@ func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
 			StrokeWidth: "1",
 		})
 	case "build":
-		// Double circle: outer gray, inner white
-		_ = enc.Encode(svg.Circle{
-			P:           p,
-			R:           8,
-			Fill:        svg.Gray(196),
-			Stroke:      svg.Gray(196),
-			StrokeWidth: "1",
-		})
-		_ = enc.Encode(svg.Circle{
-			P:           p,
-			R:           4,
-			Fill:        svg.White,
-			Stroke:      svg.Black,
-			StrokeWidth: "1",
+		buildCol := svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}}
+		_ = enc.Encode(svg.Circle{P: p, R: 7, Fill: buildCol, Stroke: buildCol, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Path{
+			D: fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d Z",
+				p.X-1, p.Y+5, p.X-1, p.Y+1, p.X-3, p.Y+1, p.X-4, p.Y-1, p.X-3, p.Y-3, p.X-1, p.Y-3,
+				p.X-1, p.Y-1, p.X+1, p.Y-1, p.X+1, p.Y-3, p.X+3, p.Y-3, p.X+4, p.Y-1, p.X+3, p.Y+1,
+				p.X+1, p.Y+1, p.X+1, p.Y+5),
+			Fill: svg.White,
 		})
 	case "buy":
-		_ = enc.Encode(svg.Circle{
-			P:           p,
-			R:           8,
-			Fill:        svg.Color{Color: color.RGBA{170, 165, 169, 255}},
-			Stroke:      svg.Color{Color: color.RGBA{170, 165, 169, 255}},
-			StrokeWidth: "1",
+		buyCol := svg.Color{Color: color.RGBA{0x27, 0xAE, 0x60, 0xFF}}
+		_ = enc.Encode(svg.Circle{P: p, R: 7, Fill: buyCol, Stroke: buyCol, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Path{
+			D: fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d L %d,%d L %d,%d Z",
+				p.X-5, p.Y-4, p.X-3, p.Y-4, p.X-2, p.Y-2, p.X+4, p.Y-2, p.X+3, p.Y+1, p.X-1, p.Y+1),
+			Fill: svg.White,
 		})
-		_ = enc.Encode(svg.Circle{
-			P:           p,
-			R:           4,
-			Fill:        svg.White,
-			Stroke:      svg.Black,
-			StrokeWidth: "1",
-		})
+		_ = enc.Encode(svg.Circle{P: image.Pt(p.X-1, p.Y+3), R: 1, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Circle{P: image.Pt(p.X+2, p.Y+3), R: 1, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"})
 	case "outsource":
-		_ = enc.Encode(svg.Circle{
-			P:           p,
-			R:           8,
-			Fill:        svg.Color{Color: color.RGBA{68, 68, 68, 255}},
-			Stroke:      svg.Color{Color: color.RGBA{68, 68, 68, 255}},
-			StrokeWidth: "1",
+		outCol := svg.Color{Color: color.RGBA{0x8E, 0x44, 0xAD, 0xFF}}
+		_ = enc.Encode(svg.Circle{P: p, R: 7, Fill: outCol, Stroke: outCol, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Circle{P: image.Pt(p.X-2, p.Y-3), R: 2, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Path{
+			D: fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Q %d,%d %d,%d Z",
+				p.X-5, p.Y, p.X-5, p.Y+5, p.X, p.Y+5, p.X, p.Y, p.X-2, p.Y-2, p.X-5, p.Y),
+			Fill: svg.White,
 		})
-		_ = enc.Encode(svg.Circle{
-			P:           p,
-			R:           4,
-			Fill:        svg.White,
-			Stroke:      svg.Black,
-			StrokeWidth: "1",
+		_ = enc.Encode(svg.Circle{P: image.Pt(p.X+2, p.Y-3), R: 2, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"})
+		_ = enc.Encode(svg.Path{
+			D: fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Q %d,%d %d,%d Z",
+				p.X, p.Y, p.X, p.Y+5, p.X+5, p.Y+5, p.X+5, p.Y, p.X+2, p.Y-2, p.X, p.Y),
+			Fill: svg.White,
 		})
 	case "evolved":
 		// Red circle for evolved component

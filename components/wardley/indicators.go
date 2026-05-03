@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 
+	"github.com/owulveryck/wardleyToGo"
 	"github.com/owulveryck/wardleyToGo/internal/svg"
 )
 
@@ -175,6 +176,84 @@ func gameplayColor(gpType string) color.RGBA {
 	default:
 		return color.RGBA{0x95, 0xA5, 0xA6, 0xFF} // light gray
 	}
+}
+
+// typeIndicator returns SVG elements that replace the base circle for typed components.
+// Icons are centered on (0,0) and sized visibly (~16px diameter).
+func typeIndicator(compType wardleyToGo.ComponentType) []interface{} {
+	switch compType {
+	case BuildComponent:
+		col := svg.Color{Color: color.RGBA{0x29, 0x80, 0xB9, 0xFF}}
+		return []interface{}{
+			svg.Circle{R: 8, Fill: col, Stroke: col, StrokeWidth: "1"},
+			svg.Path{
+				D:    "M -1.5,6 L -1.5,1 L -4,1 L -5,-1 L -4,-4 L -1.5,-4 L -1.5,-1.5 L 1.5,-1.5 L 1.5,-4 L 4,-4 L 5,-1 L 4,1 L 1.5,1 L 1.5,6 Z",
+				Fill: svg.White,
+			},
+		}
+	case BuyComponent:
+		col := svg.Color{Color: color.RGBA{0x27, 0xAE, 0x60, 0xFF}}
+		return []interface{}{
+			svg.Circle{R: 8, Fill: col, Stroke: col, StrokeWidth: "1"},
+			svg.Path{
+				D:    "M -6,-5 L -4,-5 L -3,-2 L 5,-2 L 4,2 L -2,2 Z",
+				Fill: svg.White,
+			},
+			svg.Circle{P: image.Pt(-1, 4), R: 1, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"},
+			svg.Circle{P: image.Pt(3, 4), R: 1, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"},
+		}
+	case OutsourceComponent:
+		col := svg.Color{Color: color.RGBA{0x8E, 0x44, 0xAD, 0xFF}}
+		return []interface{}{
+			svg.Circle{R: 8, Fill: col, Stroke: col, StrokeWidth: "1"},
+			svg.Circle{P: image.Pt(-3, -3), R: 2, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"},
+			svg.Path{
+				D:    "M -6,0 L -6,6 L 0,6 L 0,0 Q -3,-2 -6,0 Z",
+				Fill: svg.White,
+			},
+			svg.Circle{P: image.Pt(3, -3), R: 2, Fill: svg.White, Stroke: svg.White, StrokeWidth: "1"},
+			svg.Path{
+				D:    "M 0,0 L 0,6 L 6,6 L 6,0 Q 3,-2 0,0 Z",
+				Fill: svg.White,
+			},
+		}
+	case DataProductComponent:
+		return []interface{}{
+			svg.Circle{R: 14, StrokeWidth: "1", Fill: svg.Color{Color: color.RGBA{246, 72, 22, 0xff}}},
+			svg.Circle{R: 5, StrokeWidth: "1", Stroke: svg.Black, Fill: svg.White},
+		}
+	default:
+		return nil
+	}
+}
+
+// noteIndicator returns SVG elements for a small note dot at the given offset.
+func noteIndicator(offsetX, offsetY int, text string) []interface{} {
+	col := svg.Color{Color: color.RGBA{0x34, 0x98, 0xDB, 0xFF}} // light blue
+	elements := []interface{}{
+		svg.Circle{
+			P:           image.Pt(offsetX, offsetY),
+			R:           4,
+			Fill:        col,
+			Stroke:      svg.White,
+			StrokeWidth: "1",
+		},
+		svg.Text{
+			P:          image.Pt(offsetX, offsetY+3),
+			Text:       []byte("i"),
+			FontSize:   "7px",
+			FontWeight: "bold",
+			TextAnchor: svg.TextAnchorMiddle,
+			Fill:       svg.White,
+		},
+	}
+	elements = append(elements, struct {
+		XMLName xml.Name `xml:"title"`
+		Text    string   `xml:",chardata"`
+	}{
+		Text: text,
+	})
+	return elements
 }
 
 // inertiaKindColor returns a color for an inertia kind.
