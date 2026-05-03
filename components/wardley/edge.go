@@ -176,6 +176,7 @@ func edgeLabelText(x, y int, label string) svg.Transform {
 				TextAdjust: true,
 				Fill:       svg.Gray(100),
 				FontSize:   "11px",
+				FontWeight: "300",
 			},
 		},
 	}

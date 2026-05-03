@@ -24,7 +24,7 @@ type Legend struct {
 }
 
 const (
-	legendFontFamily = "Century Gothic,CenturyGothic,AppleGothic,sans-serif"
+	legendFontFamily = "'Outfit', sans-serif"
 	legendFontSize   = "11px"
 	legendLineHeight = 24
 	legendIconOffset = 15 // X offset for icon center from left edge

@@ -17,7 +17,7 @@ type OctoStyle struct {
 }
 
 func NewOctoStyle(evolutionSteps []Evolution, annotators ...Annotator) *OctoStyle {
-	svg.UpdateDefaultFont("Century Gothic,CenturyGothic,AppleGothic,sans-serif")
+	svg.UpdateDefaultFont("'Outfit', sans-serif")
 	return &OctoStyle{
 		evolutionSteps: evolutionSteps,
 		WithValueChain: true,
@@ -146,14 +146,14 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			P:          image.Point{5, -10},
 			Text:       []byte(`Invisible`),
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+			FontFamily: "'Outfit', sans-serif",
 			TextAnchor: svg.TextAnchorStart,
 		})
 		verticals = append(verticals, svg.Text{
 			P:          image.Point{canvas.Dy() - 5, -10},
 			Text:       []byte(`Visible`),
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+			FontFamily: "'Outfit', sans-serif",
 			TextAnchor: svg.TextAnchorEnd,
 		})
 		verticals = append(verticals, svg.Text{
@@ -161,8 +161,8 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			Text:       []byte(`Value Chain`),
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			TextAnchor: svg.TextAnchorMiddle,
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
-			FontWeight: "bold",
+			FontFamily: "'Outfit', sans-serif",
+			FontWeight: "500",
 		})
 	}
 	_ = enc.Encode(svg.Transform{
@@ -182,21 +182,21 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 	if w.WithSpace {
 		_ = enc.Encode(svg.Text{
 			P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
-			FontWeight: "bold",
+			FontWeight: "500",
 			FontSize:   "11px",
 			Text:       []byte(`Uncharted`),
 			TextAnchor: svg.TextAnchorStart,
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+			FontFamily: "'Outfit', sans-serif",
 		})
 		_ = enc.Encode(svg.Text{
 			P:          image.Point{canvas.Max.X - 5, canvas.Min.Y + 15},
-			FontWeight: "bold",
+			FontWeight: "500",
 			FontSize:   "11px",
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
 			Text:       []byte(`Industrialised`),
 			TextAnchor: svg.TextAnchorEnd,
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+			FontFamily: "'Outfit', sans-serif",
 		})
 	}
 	// Phase indicators (I, II, III, IV) at zone boundaries
@@ -210,10 +210,10 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 20},
 			Text:       []byte(axis.Label),
 			TextAnchor: anchor,
-			FontWeight: "bold",
+			FontWeight: "600",
 			FontSize:   "14px",
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+			FontFamily: "'Outfit', sans-serif",
 		})
 	}
 	// Zone labels centered within each zone
@@ -240,7 +240,7 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 			TextAdjust: true,
 			MaxChars:   maxChars,
 			Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 180}},
-			FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+			FontFamily: "'Outfit', sans-serif",
 		})
 	}
 	_ = enc.Encode(svg.Text{
@@ -248,8 +248,8 @@ func (w *OctoStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Rectangl
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
 		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
-		FontWeight: "bold",
+		FontFamily: "'Outfit', sans-serif",
+		FontWeight: "500",
 	})
 	for _, a := range w.Annotators {
 		a.MarshalSVG(enc, box, canvas)
@@ -276,7 +276,7 @@ func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 		Text:       []byte(`Toggle visibility`),
 		TextAnchor: svg.TextAnchorStart,
 		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+		FontFamily: "'Outfit', sans-serif",
 	})
 	_ = enc.EncodeToken(visibilityGroup.End())
 	linkGroup := makeGroup("linktoggle", 0)
@@ -298,7 +298,7 @@ func displayControls(enc *xml.Encoder, _, canvas image.Rectangle) {
 		Text:       []byte(`Toggle links`),
 		TextAnchor: svg.TextAnchorStart,
 		Fill:       svg.Color{Color: color.RGBA{19, 36, 84, 255}},
-		FontFamily: "Century Gothic,CenturyGothic,AppleGothic,sans-serif",
+		FontFamily: "'Outfit', sans-serif",
 	})
 	_ = enc.EncodeToken(linkGroup.End())
 

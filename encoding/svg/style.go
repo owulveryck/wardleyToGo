@@ -74,6 +74,7 @@ var DefaultEvolution = []Evolution{
 }
 
 func NewWardleyStyle(evolutionSteps []Evolution) *WardleyStyle {
+	svg.UpdateDefaultFont("'Outfit', sans-serif")
 	return &WardleyStyle{
 		evolutionSteps: evolutionSteps,
 	}
@@ -204,7 +205,7 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 		P:          image.Point{canvas.Dy() / 2, -10},
 		Text:       []byte(`Value Chain`),
 		TextAnchor: svg.TextAnchorMiddle,
-		FontWeight: "bold",
+		FontWeight: "500",
 	})
 	_ = enc.Encode(svg.Transform{
 		Rotate:     270,
@@ -223,14 +224,14 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 	})
 	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Min.X + 7, canvas.Min.Y + 15},
-		FontWeight: "bold",
+		FontWeight: "500",
 		FontSize:   "11px",
 		Text:       []byte(`Uncharted`),
 		TextAnchor: svg.TextAnchorStart,
 	})
 	_ = enc.Encode(svg.Text{
 		P:          image.Point{canvas.Max.X - 5, canvas.Min.Y + 15},
-		FontWeight: "bold",
+		FontWeight: "500",
 		FontSize:   "11px",
 		Text:       []byte(`Industrialised`),
 		TextAnchor: svg.TextAnchorEnd,
@@ -246,7 +247,7 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 			P:          image.Point{int(float64(canvas.Dx())*axis.Position) + canvas.Min.X, canvas.Max.Y + 20},
 			Text:       []byte(axis.Label),
 			TextAnchor: anchor,
-			FontWeight: "bold",
+			FontWeight: "600",
 			FontSize:   "14px",
 		})
 	}
@@ -279,6 +280,6 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 		P:          image.Point{canvas.Max.X, canvas.Max.Y + 20},
 		Text:       []byte(`Evolution`),
 		TextAnchor: svg.TextAnchorEnd,
-		FontWeight: "bold",
+		FontWeight: "500",
 	})
 }

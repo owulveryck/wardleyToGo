@@ -63,7 +63,7 @@ function toggleLink(clicked_id)
 		t.setAttribute('x', '20');
 		t.setAttribute('y', String(-boxH / 2 + 16 + i * lineHeight));
 		t.setAttribute('font-size', '12px');
-		t.setAttribute('font-family', 'Century Gothic,CenturyGothic,AppleGothic,sans-serif');
+		t.setAttribute('font-family', "'Outfit', sans-serif");
 		t.setAttribute('fill', 'white');
 		t.textContent = lines[i].trim();
 		tip.appendChild(t);
