@@ -4,6 +4,6 @@ import "encoding/xml"
 
 type Defs struct {
 	XMLName  xml.Name `xml:"defs"`
-	Gradient LinearGradient
+	Gradients []LinearGradient
 	Markers  []Marker
 }

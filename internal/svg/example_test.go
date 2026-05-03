@@ -25,7 +25,7 @@ func Example() {
 		Fill: svg.Color{Color: color.Gray{Y: 128}},
 	})
 	_ = enc.Encode(svg.Defs{
-		Gradient: svg.LinearGradient{
+		Gradients: []svg.LinearGradient{{
 			ID: "wardleyGradient",
 			X1: "0%", Y1: "0%", X2: "100%", Y2: "0%",
 			Stops: []svg.Stop{
@@ -46,7 +46,7 @@ func Example() {
 					StopColor: svg.Color{Color: color.RGBA{196, 196, 196, 255}},
 				},
 			},
-		},
+		}},
 		Markers: []svg.Marker{
 			{
 				ID:           "arrow",

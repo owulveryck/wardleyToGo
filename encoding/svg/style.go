@@ -85,28 +85,56 @@ func (w *WardleyStyle) MarshalStyleSVG(enc *xml.Encoder, box, canvas image.Recta
 		Fill: svg.Gray(128),
 	})
 	_ = enc.Encode(svg.Defs{
-		Gradient: svg.LinearGradient{
-			ID: "wardleyGradient",
-			X1: "0%", Y1: "0%", X2: "100%", Y2: "0%",
-			Stops: []svg.Stop{
-				{
-					Offset: "0%",
-					StopColor: svg.Color{
-						Color: color.RGBA{196, 196, 196, 255},
+		Gradients: []svg.LinearGradient{
+			{
+				ID: "wardleyGradient",
+				X1: "0%", Y1: "0%", X2: "100%", Y2: "0%",
+				Stops: []svg.Stop{
+					{
+						Offset: "0%",
+						StopColor: svg.Color{
+							Color: color.RGBA{196, 196, 196, 255},
+						},
+					},
+					{
+						Offset:    "30%",
+						StopColor: svg.White,
+					},
+					{
+						Offset:    "70%",
+						StopColor: svg.White,
+					},
+					{
+						Offset: "100%",
+						StopColor: svg.Color{
+							Color: color.RGBA{196, 196, 196, 255},
+						},
 					},
 				},
-				{
-					Offset:    "30%",
-					StopColor: svg.White,
-				},
-				{
-					Offset:    "70%",
-					StopColor: svg.White,
-				},
-				{
-					Offset: "100%",
-					StopColor: svg.Color{
-						Color: color.RGBA{196, 196, 196, 255},
+			},
+			{
+				ID: "pipelineTubeGradient",
+				X1: "0%", Y1: "0%", X2: "0%", Y2: "100%",
+				Stops: []svg.Stop{
+					{
+						Offset:    "0%",
+						StopColor: svg.Color{Color: color.RGBA{180, 195, 225, 255}},
+					},
+					{
+						Offset:    "25%",
+						StopColor: svg.Color{Color: color.RGBA{220, 230, 248, 255}},
+					},
+					{
+						Offset:    "50%",
+						StopColor: svg.Color{Color: color.RGBA{205, 218, 242, 255}},
+					},
+					{
+						Offset:    "80%",
+						StopColor: svg.Color{Color: color.RGBA{185, 200, 230, 255}},
+					},
+					{
+						Offset:    "100%",
+						StopColor: svg.Color{Color: color.RGBA{160, 175, 210, 255}},
 					},
 				},
 			},

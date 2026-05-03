@@ -2,6 +2,7 @@ package wardley
 
 import (
 	"encoding/xml"
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -114,11 +115,23 @@ func (c *Component) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp 
 
 func (c *Component) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error {
 	if c.PipelinedComponents != nil {
+		pipelineGroup := xml.StartElement{
+			Name: xml.Name{Local: "g"},
+			Attr: []xml.Attr{
+				{Name: xml.Name{Local: "opacity"}, Value: "0.75"},
+			},
+		}
+		if err := e.EncodeToken(pipelineGroup); err != nil {
+			return err
+		}
 		for _, pipelineComp := range c.PipelinedComponents {
 			err := pipelineComp.MarshalSVG(e, canvas)
 			if err != nil {
 				return err
 			}
+		}
+		if err := e.EncodeToken(pipelineGroup.End()); err != nil {
+			return err
 		}
 	}
 	switch c.Type {
@@ -135,16 +148,7 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		rect := getBounds(c.PipelinedComponents)
 		lowestBound := components.CalcCoords(rect.Min, canvas)
 		greaterBound := components.CalcCoords(rect.Max, canvas)
-		err := e.Encode(svg.Rectangle{
-			R:           image.Rect(lowestBound.X, lowestBound.Y+10, greaterBound.X, greaterBound.Y-10),
-			Rx:          0,
-			Ry:          0,
-			Fill:        svg.Transparent,
-			Stroke:      svg.Black,
-			StrokeWidth: "1",
-			Style:       "",
-		})
-		if err != nil {
+		if err := encodePipelineTube(e, lowestBound, greaterBound); err != nil {
 			return err
 		}
 	}
@@ -196,6 +200,92 @@ func (c *Component) marshalSVGPipeline(e *xml.Encoder, canvas image.Rectangle, c
 		//Classes:    []string{fmt.Sprintf("visibility%v", c.AbsoluteVisibility)},
 	})
 }
+func encodePipelineTube(e *xml.Encoder, lowestBound, greaterBound image.Point) error {
+	centerY := lowestBound.Y
+	leftX := lowestBound.X
+	rightX := greaterBound.X
+	ry := 16
+	rx := 10
+	topY := centerY - ry
+	bottomY := centerY + ry
+	highlightH := ry * 2 / 5
+
+	// Layer 1: inner face of left opening (dark depth)
+	innerD := fmt.Sprintf(
+		"M %d,%d A %d,%d 0 1,0 %d,%d A %d,%d 0 1,0 %d,%d Z",
+		leftX-rx, centerY, rx, ry, leftX+rx, centerY,
+		rx, ry, leftX-rx, centerY,
+	)
+	if err := e.Encode(svg.Path{D: innerD, Fill: svg.Color{Color: color.RGBA{130, 145, 180, 255}}}); err != nil {
+		return err
+	}
+
+	// Layer 2: tube body (outer shell)
+	bodyD := fmt.Sprintf(
+		"M %d,%d L %d,%d A %d,%d 0 0 1 %d,%d L %d,%d A %d,%d 0 0 1 %d,%d Z",
+		leftX, topY, rightX, topY,
+		rx, ry, rightX, bottomY,
+		leftX, bottomY,
+		rx, ry, leftX, topY,
+	)
+	bodyEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: bodyD},
+			{Name: xml.Name{Local: "style"}, Value: "fill:url(#pipelineTubeGradient);opacity:0.7"},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgb(140,155,190)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "1.5"},
+		},
+	}
+	if err := e.EncodeToken(bodyEl); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(bodyEl.End()); err != nil {
+		return err
+	}
+
+	// Layer 3: highlight strip along top
+	highlightD := fmt.Sprintf(
+		"M %d,%d L %d,%d A %d,%d 0 0 1 %d,%d L %d,%d Z",
+		leftX, topY, rightX, topY,
+		rx, highlightH, rightX, topY+highlightH,
+		leftX, topY+highlightH,
+	)
+	highlightEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: highlightD},
+			{Name: xml.Name{Local: "fill"}, Value: "white"},
+			{Name: xml.Name{Local: "opacity"}, Value: "0.4"},
+		},
+	}
+	if err := e.EncodeToken(highlightEl); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(highlightEl.End()); err != nil {
+		return err
+	}
+
+	// Layer 4: left front rim (3D overlap)
+	rimD := fmt.Sprintf(
+		"M %d,%d A %d,%d 0 0 0 %d,%d",
+		leftX, topY, rx, ry, leftX, bottomY,
+	)
+	rimEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: rimD},
+			{Name: xml.Name{Local: "fill"}, Value: "none"},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgb(140,155,190)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "2"},
+		},
+	}
+	if err := e.EncodeToken(rimEl); err != nil {
+		return err
+	}
+	return e.EncodeToken(rimEl.End())
+}
+
 func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.Color) error {
 	coords := components.CalcCoords(c.Placement, canvas)
 	labelP := c.LabelPlacement

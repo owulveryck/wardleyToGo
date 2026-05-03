@@ -192,13 +192,22 @@ func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
 			StrokeWidth: "1.5",
 		})
 	case "pipeline":
-		// Small rectangle
-		_ = enc.Encode(svg.Rectangle{
-			R:           image.Rect(p.X-10, p.Y-4, p.X+10, p.Y+4),
-			Fill:        svg.Transparent,
-			Stroke:      svg.Black,
-			StrokeWidth: "1",
+		lx, cy, rx, ry := p.X-10, p.Y, 4, 5
+		_ = enc.Encode(svg.Path{
+			D:    fmt.Sprintf("M %d,%d A %d,%d 0 1,0 %d,%d A %d,%d 0 1,0 %d,%d Z", lx-rx, cy, rx, ry, lx+rx, cy, rx, ry, lx-rx, cy),
+			Fill: svg.Color{Color: color.RGBA{130, 145, 180, 255}},
 		})
+		bodyEl := xml.StartElement{
+			Name: xml.Name{Local: "path"},
+			Attr: []xml.Attr{
+				{Name: xml.Name{Local: "d"}, Value: fmt.Sprintf("M %d,%d L %d,%d A %d,%d 0 0 1 %d,%d L %d,%d A %d,%d 0 0 1 %d,%d Z", lx, cy-ry, p.X+10, cy-ry, rx, ry, p.X+10, cy+ry, lx, cy+ry, rx, ry, lx, cy-ry)},
+				{Name: xml.Name{Local: "style"}, Value: "fill:url(#pipelineTubeGradient)"},
+				{Name: xml.Name{Local: "stroke"}, Value: "rgb(90,110,160)"},
+				{Name: xml.Name{Local: "stroke-width"}, Value: "1"},
+			},
+		}
+		_ = enc.EncodeToken(bodyEl)
+		_ = enc.EncodeToken(bodyEl.End())
 	case "edge":
 		// Gray line
 		_ = enc.Encode(svg.Line{
