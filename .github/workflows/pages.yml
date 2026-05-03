@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Copy UI files
-        run: cp exp/ui/index.html exp/ui/app.js site/
+        run: cp exp/ui/index.html exp/ui/app.js exp/ui/gif.js exp/ui/gif.worker.js exp/ui/THIRD-PARTY-LICENSES.md site/
 
       - name: Copy favicon files
         run: cp exp/ui/favicon.ico exp/ui/favicon-16.png exp/ui/favicon-32.png site/

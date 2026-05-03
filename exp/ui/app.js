@@ -231,8 +231,16 @@ const translations = {
         'toolbar.collabLabel': 'Collaborer',
         'menu.newProject': 'Nouveau Projet',
         'menu.documentation': 'Documentation',
+        'menu.licenses': 'Licences tierces',
         'menu.exportPng': 'Export PNG',
         'menu.exportSvg': 'Export SVG',
+        'menu.exportGif': 'Export GIF animé',
+        'menu.exportApng': 'Export APNG animé',
+        'export.progress': 'Export en cours... {percent}%',
+        'export.encoding': 'Encodage...',
+        'export.cancel': 'Annuler',
+        'export.noAnimations': 'Aucune animation détectée, export statique.',
+        'export.error': 'Erreur d\'export : {message}',
         'menu.confirmNew': 'Creer un nouveau projet ? Les modifications non sauvegardees seront perdues.',
         'menu.myMaps': 'Mes Cartes',
         'menu.templates': 'Templates',
@@ -388,8 +396,16 @@ const translations = {
         'toolbar.collabLabel': 'Collaborate',
         'menu.newProject': 'New Project',
         'menu.documentation': 'Documentation',
+        'menu.licenses': 'Third-party licenses',
         'menu.exportPng': 'Export PNG',
         'menu.exportSvg': 'Export SVG',
+        'menu.exportGif': 'Export animated GIF',
+        'menu.exportApng': 'Export animated APNG',
+        'export.progress': 'Exporting... {percent}%',
+        'export.encoding': 'Encoding...',
+        'export.cancel': 'Cancel',
+        'export.noAnimations': 'No animations detected, exporting static image.',
+        'export.error': 'Export error: {message}',
         'menu.confirmNew': 'Create a new project? Unsaved changes will be lost.',
         'menu.myMaps': 'My Maps',
         'menu.templates': 'Templates',
@@ -2228,6 +2244,315 @@ function downloadPNG() {
     img.src = url;
 }
 
+// ================================================================
+// 15a. Animated Export (GIF / APNG)
+// ================================================================
+
+var _exportCancelled = false;
+
+function getAnimatedSVG() {
+    var text = getCurrentWTG2();
+    if (!text.trim() || typeof generateSVG !== 'function') return null;
+    var dims = getBaseDimensions();
+    var result = generateSVG(text, false, getResolution(), dims[0], dims[1]);
+    if (result.startsWith('error:')) return null;
+    return result;
+}
+
+function showExportProgress(onCancel) {
+    var overlay = document.createElement('div');
+    overlay.className = 'export-progress-overlay';
+    overlay.id = 'export-progress-overlay';
+    overlay.innerHTML =
+        '<div class="export-progress-dialog">' +
+        '<div class="export-progress-label" id="export-progress-label">' + t('export.progress', { percent: 0 }) + '</div>' +
+        '<div class="export-progress-bar-track"><div class="export-progress-bar-fill" id="export-progress-bar-fill"></div></div>' +
+        '<button class="btn" id="export-cancel-btn">' + t('export.cancel') + '</button>' +
+        '</div>';
+    document.body.appendChild(overlay);
+    document.getElementById('export-cancel-btn').addEventListener('click', function() {
+        _exportCancelled = true;
+        if (onCancel) onCancel();
+        hideExportProgress();
+    });
+}
+
+function updateExportProgress(percent, label) {
+    var el = document.getElementById('export-progress-label');
+    var bar = document.getElementById('export-progress-bar-fill');
+    if (el) el.textContent = label || t('export.progress', { percent: Math.round(percent) });
+    if (bar) bar.style.width = percent + '%';
+}
+
+function hideExportProgress() {
+    var overlay = document.getElementById('export-progress-overlay');
+    if (overlay) overlay.remove();
+}
+
+function captureAnimationFrames(svgString, w, h, onProgress, fps) {
+    return new Promise(function(resolve, reject) {
+        var DURATION_MS = 3000;
+        var FPS = fps || 15;
+        var FRAME_COUNT = Math.round(DURATION_MS * FPS / 1000);
+        var FRAME_INTERVAL = DURATION_MS / FRAME_COUNT;
+
+        var container = document.createElement('div');
+        container.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:' + w + 'px;height:' + h + 'px;overflow:hidden;';
+        container.innerHTML = svgString;
+        document.body.appendChild(container);
+
+        var svgEl = container.querySelector('svg');
+        if (!svgEl) {
+            container.remove();
+            reject(new Error('No SVG element found'));
+            return;
+        }
+
+        svgEl.querySelectorAll('script').forEach(function(s) { s.remove(); });
+        svgEl.querySelectorAll('foreignObject').forEach(function(f) { f.remove(); });
+
+        svgEl.setAttribute('width', w);
+        svgEl.setAttribute('height', h);
+
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+        var animations = svgEl.getAnimations({ subtree: true });
+        var hasAnimations = animations.length > 0;
+        var totalFrames = hasAnimations ? FRAME_COUNT : 1;
+
+        if (hasAnimations) {
+            animations.forEach(function(a) { a.pause(); });
+        }
+
+        var frames = [];
+        var frameIndex = 0;
+        var serializer = new XMLSerializer();
+
+        function processNextFrame() {
+            if (_exportCancelled) {
+                container.remove();
+                reject(new Error('cancelled'));
+                return;
+            }
+
+            if (frameIndex >= totalFrames) {
+                container.remove();
+                resolve({ frames: frames, delay: Math.round(1000 / FPS), hasAnimations: hasAnimations });
+                return;
+            }
+
+            var timeMs = frameIndex * FRAME_INTERVAL;
+
+            if (hasAnimations) {
+                animations.forEach(function(a) {
+                    a.currentTime = timeMs;
+                });
+            }
+
+            requestAnimationFrame(function() {
+                var savedStyles = [];
+                if (hasAnimations) {
+                    animations.forEach(function(a) {
+                        var el = a.effect.target;
+                        if (!el) return;
+                        var cs = window.getComputedStyle(el);
+                        savedStyles.push({
+                            el: el,
+                            origStyle: el.getAttribute('style') || '',
+                            transform: cs.transform,
+                            opacity: cs.opacity,
+                            strokeDashoffset: cs.strokeDashoffset
+                        });
+                    });
+
+                    savedStyles.forEach(function(info) {
+                        if (info.transform && info.transform !== 'none') {
+                            info.el.style.transform = info.transform;
+                        }
+                        info.el.style.opacity = info.opacity;
+                        if (info.strokeDashoffset) {
+                            info.el.style.strokeDashoffset = info.strokeDashoffset;
+                        }
+                        info.el.style.animation = 'none';
+                    });
+                }
+
+                var svgStr = serializer.serializeToString(svgEl);
+
+                if (hasAnimations) {
+                    savedStyles.forEach(function(info) {
+                        if (info.origStyle) {
+                            info.el.setAttribute('style', info.origStyle);
+                        } else {
+                            info.el.removeAttribute('style');
+                        }
+                    });
+                }
+
+                var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+                var url = URL.createObjectURL(blob);
+                var img = new Image();
+                img.onload = function() {
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    URL.revokeObjectURL(url);
+
+                    frames.push(ctx.getImageData(0, 0, w, h));
+
+                    frameIndex++;
+                    if (onProgress) onProgress(frameIndex / totalFrames);
+                    setTimeout(processNextFrame, 0);
+                };
+                img.onerror = function(e) {
+                    console.error('SVG frame render failed at frame', frameIndex, e);
+                    URL.revokeObjectURL(url);
+                    container.remove();
+                    reject(new Error('Failed to render SVG frame'));
+                };
+                img.src = url;
+            });
+        }
+
+        setTimeout(processNextFrame, 50);
+    });
+}
+
+function downloadGIF() {
+    closeBurgerMenu();
+    if (typeof GIF === 'undefined') {
+        showToast(t('export.error', { message: 'gif.js not loaded' }));
+        return;
+    }
+    var svgStr = getAnimatedSVG();
+    if (!svgStr) return;
+
+    var resPct = getResolution();
+    var dims = getBaseDimensions();
+    var GIF_FPS = 10;
+    var w = Math.round(dims[0] * resPct / 100);
+    var h = Math.round(dims[1] * resPct / 100);
+
+    _exportCancelled = false;
+    var gifEncoder = null;
+
+    showExportProgress(function() {
+        if (gifEncoder) gifEncoder.abort();
+    });
+
+    captureAnimationFrames(svgStr, w, h, function(p) {
+        updateExportProgress(p * 50, t('export.progress', { percent: Math.round(p * 50) }));
+    }, GIF_FPS).then(function(result) {
+        if (_exportCancelled) return;
+
+        if (!result.hasAnimations) {
+            showToast(t('export.noAnimations'));
+        }
+
+        updateExportProgress(50, t('export.encoding'));
+
+        gifEncoder = new GIF({
+            workers: 2,
+            quality: 10,
+            width: w,
+            height: h,
+            workerScript: 'gif.worker.js',
+            globalPalette: true
+        });
+
+        var tempCanvas = document.createElement('canvas');
+        tempCanvas.width = w;
+        tempCanvas.height = h;
+        var tempCtx = tempCanvas.getContext('2d');
+
+        result.frames.forEach(function(imageData) {
+            tempCtx.putImageData(imageData, 0, 0);
+            gifEncoder.addFrame(tempCanvas, { delay: result.delay, copy: true });
+        });
+
+        gifEncoder.on('progress', function(p) {
+            updateExportProgress(50 + p * 50, t('export.encoding'));
+        });
+
+        gifEncoder.on('finished', function(blob) {
+            hideExportProgress();
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = getMapTitle() + '.gif';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        gifEncoder.render();
+    }).catch(function(err) {
+        console.error('GIF export error:', err);
+        hideExportProgress();
+        if (err.message !== 'cancelled') {
+            showToast(t('export.error', { message: err.message }));
+        }
+    });
+}
+
+function downloadAPNG() {
+    closeBurgerMenu();
+    if (typeof UPNG === 'undefined') {
+        showToast(t('export.error', { message: 'UPNG.js not loaded' }));
+        return;
+    }
+    var svgStr = getAnimatedSVG();
+    if (!svgStr) return;
+
+    var resPct = getResolution();
+    var dims = getBaseDimensions();
+    var w = Math.round(dims[0] * resPct / 100);
+    var h = Math.round(dims[1] * resPct / 100);
+
+    _exportCancelled = false;
+
+    showExportProgress(null);
+
+    captureAnimationFrames(svgStr, w, h, function(p) {
+        updateExportProgress(p * 70, t('export.progress', { percent: Math.round(p * 70) }));
+    }).then(function(result) {
+        if (_exportCancelled) return;
+
+        if (!result.hasAnimations) {
+            showToast(t('export.noAnimations'));
+        }
+
+        updateExportProgress(70, t('export.encoding'));
+
+        setTimeout(function() {
+            try {
+                var bufs = result.frames.map(function(f) { return f.data.buffer; });
+                var delays = result.frames.map(function() { return result.delay; });
+                var apngData = UPNG.encode(bufs, w, h, 0, delays);
+
+                hideExportProgress();
+
+                var blob = new Blob([apngData], { type: 'image/png' });
+                var a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = getMapTitle() + '.apng';
+                a.click();
+                URL.revokeObjectURL(a.href);
+            } catch (err) {
+                hideExportProgress();
+                showToast(t('export.error', { message: err.message }));
+            }
+        }, 50);
+    }).catch(function(err) {
+        console.error('APNG export error:', err);
+        hideExportProgress();
+        if (err.message !== 'cancelled') {
+            showToast(t('export.error', { message: err.message }));
+        }
+    });
+}
+
 function detachMap() {
     if (detachedWindow && !detachedWindow.closed) {
         detachedWindow.focus();
@@ -2833,6 +3158,8 @@ resSlider.addEventListener('input', () => {
 });
 document.getElementById('dl-svg').addEventListener('click', downloadSVG);
 document.getElementById('dl-png').addEventListener('click', downloadPNG);
+document.getElementById('dl-gif').addEventListener('click', downloadGIF);
+document.getElementById('dl-apng').addEventListener('click', downloadAPNG);
 document.getElementById('detach').addEventListener('click', detachMap);
 document.getElementById('dl-wtg2').addEventListener('click', downloadWTG2);
 document.getElementById('import-wtg2').addEventListener('click', importWTG2);
