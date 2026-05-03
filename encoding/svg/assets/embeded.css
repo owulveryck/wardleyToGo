@@ -5,6 +5,10 @@
 	animation: dash 3s linear forwards infinite;
 }
 
+.evolutionEdgeFaded {
+	opacity: 0.25;
+}
+
 {{ range $key, $value := . }}
 .{{$value.Visibility}} {
 	opacity: 0.8;

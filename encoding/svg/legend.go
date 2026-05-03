@@ -226,11 +226,7 @@ func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
 			StrokeDashArray: []int{3, 3},
 		})
 	case "inertia":
-		// Black bar
-		_ = enc.Encode(svg.Rectangle{
-			R:    image.Rect(p.X-2, p.Y-6, p.X+2, p.Y+6),
-			Fill: svg.Black,
-		})
+		marshalLegendInertiaWall(enc, p, "rgba(60,60,80,0.5)")
 	case "group":
 		// Colored ellipse using the group's actual color
 		fillColor := color.RGBA{52, 152, 219, 40}
@@ -274,14 +270,12 @@ func marshalLegendIcon(enc *xml.Encoder, item LegendItem, p image.Point) {
 		if signalType, ok := strings.CutPrefix(item.Type, "signal_"); ok {
 			marshalSignalIcon(enc, signalType, p)
 		} else if _, ok := strings.CutPrefix(item.Type, "inertia_"); ok {
-			fillColor := svg.Color{Color: color.RGBA{0, 0, 0, 255}}
+			fill := "rgba(60,60,80,0.5)"
 			if item.Color != nil {
-				fillColor = svg.Color{Color: item.Color}
+				r, g, b, _ := item.Color.RGBA()
+				fill = fmt.Sprintf("rgba(%d,%d,%d,0.5)", r>>8, g>>8, b>>8)
 			}
-			_ = enc.Encode(svg.Rectangle{
-				R:    image.Rect(p.X-2, p.Y-6, p.X+2, p.Y+6),
-				Fill: fillColor,
-			})
+			marshalLegendInertiaWall(enc, p, fill)
 		}
 	}
 }
@@ -349,6 +343,64 @@ func marshalSignalIcon(enc *xml.Encoder, signalType string, p image.Point) {
 	default:
 		marshalDiamond(enc, p, svg.Color{Color: color.RGBA{0xF3, 0x9C, 0x12, 0xFF}})
 	}
+}
+
+func marshalLegendInertiaWall(enc *xml.Encoder, p image.Point, frontFill string) {
+	cx, cy := p.X, p.Y
+	halfThick := 4
+	halfH := 5
+	shearX := 2
+	shearY := -2
+
+	ax, ay := cx-halfThick, cy-halfH
+	bx, by := cx+halfThick, cy-halfH
+	cx2, cy2 := cx+halfThick, cy+halfH
+	dx, dy := cx-halfThick, cy+halfH
+	fx, fy := bx+shearX, by+shearY
+	ex, ey := ax+shearX, ay+shearY
+	gx, gy := cx2+shearX, cy2+shearY
+
+	// Front face
+	frontD := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z", ax, ay, bx, by, cx2, cy2, dx, dy)
+	frontEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: frontD},
+			{Name: xml.Name{Local: "style"}, Value: "fill:" + frontFill},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgba(40,40,60,0.6)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+		},
+	}
+	_ = enc.EncodeToken(frontEl)
+	_ = enc.EncodeToken(frontEl.End())
+
+	// Right side face
+	sideD := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z", bx, by, fx, fy, gx, gy, cx2, cy2)
+	sideEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: sideD},
+			{Name: xml.Name{Local: "style"}, Value: "fill:rgba(40,40,60,0.5)"},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgba(30,30,50,0.6)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+		},
+	}
+	_ = enc.EncodeToken(sideEl)
+	_ = enc.EncodeToken(sideEl.End())
+
+	// Top face
+	topD := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z", ax, ay, bx, by, fx, fy, ex, ey)
+	topEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: topD},
+			{Name: xml.Name{Local: "style"}, Value: "fill:rgba(100,100,130,0.4)"},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgba(80,80,110,0.5)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+		},
+	}
+	_ = enc.EncodeToken(topEl)
+	_ = enc.EncodeToken(topEl.End())
 }
 
 func marshalDiamond(enc *xml.Encoder, p image.Point, fill svg.Color) {

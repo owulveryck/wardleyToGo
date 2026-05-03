@@ -73,54 +73,48 @@ func (c *Collaboration) MarshalSVG(e *xml.Encoder, canvas image.Rectangle) error
 		classes = append(classes, "evolutionEdge")
 		if c.Inertia.X != 0 {
 			inertiaPosition := utils.CalcCoords(c.Inertia, canvas)
-			if len(c.InertiaKinds) > 0 {
-				// Qualified inertia: render colored bars side by side
-				barWidth := 10 / len(c.InertiaKinds)
-				if barWidth < 3 {
-					barWidth = 3
-				}
-				totalWidth := barWidth * len(c.InertiaKinds)
-				startX := inertiaPosition.X - totalWidth/2
-				for i, kind := range c.InertiaKinds {
-					kindColor := inertiaKindColor(kind)
-					bar := svg.Rectangle{
-						R: image.Rectangle{
-							Min: image.Point{
-								X: startX + i*barWidth,
-								Y: coordsF.Y - 15,
-							},
-							Max: image.Point{
-								X: startX + (i+1)*barWidth,
-								Y: coordsF.Y + 15,
-							},
-						},
-						Fill:   svg.Color{Color: kindColor},
-						Stroke: svg.Color{Color: kindColor},
-					}
-					if err := e.Encode(bar); err != nil {
-						return err
-					}
-				}
-			} else {
-				// Unqualified inertia: single black bar (backward compatible)
-				inertia := svg.Rectangle{
-					R: image.Rectangle{
-						Min: image.Point{
-							X: inertiaPosition.X - 5,
-							Y: coordsF.Y - 15,
-						},
-						Max: image.Point{
-							X: inertiaPosition.X + 5,
-							Y: coordsF.Y + 15,
-						},
-					},
-					Fill:   svg.Black,
-					Stroke: svg.Black,
-				}
-				if err := e.Encode(inertia); err != nil {
+			wallCX := inertiaPosition.X
+			wallCY := coordsF.Y
+			halfThick := inertiaWallHalfThick(c.InertiaKinds)
+
+			// Segment 1: source to front of the wall
+			if err := e.Encode(svg.Line{
+				F:               coordsF,
+				T:               image.Point{X: wallCX - halfThick, Y: wallCY},
+				StrokeWidth:     "1",
+				Stroke:          stroke,
+				StrokeDashArray: dashArray,
+				Class:           classes,
+			}); err != nil {
+				return err
+			}
+
+			// 3D perspective wall
+			if err := encodeInertiaWall(e, wallCX, wallCY, c.InertiaKinds); err != nil {
+				return err
+			}
+
+			// Segment 2: back of wall to target (faded)
+			if err := e.Encode(svg.Line{
+				F:               image.Point{X: wallCX + halfThick, Y: wallCY},
+				T:               coordsT,
+				StrokeWidth:     "1",
+				Stroke:          stroke,
+				StrokeDashArray: dashArray,
+				MarkerEnd:       markerEnd,
+				Class:           append(append([]string{}, classes...), "evolutionEdgeFaded"),
+			}); err != nil {
+				return err
+			}
+
+			if c.Label != "" {
+				mx := (coordsF.X + coordsT.X) / 2
+				my := (coordsF.Y + coordsT.Y) / 2
+				if err := e.Encode(edgeLabelText(mx, my-8, c.Label)); err != nil {
 					return err
 				}
 			}
+			return nil
 		}
 	case EvolvedEdge:
 		stroke = svg.Red
@@ -202,6 +196,119 @@ func curveControlPoint(from, to image.Point, offset int) (int, int) {
 	px := -dy / length
 	py := dx / length
 	return int(mx + px*float64(offset)), int(my + py*float64(offset))
+}
+
+func inertiaWallHalfThick(kinds []string) int {
+	halfThick := 6
+	if n := len(kinds); n > 0 {
+		if needed := n * 3; needed > halfThick {
+			halfThick = needed
+		}
+	}
+	return halfThick
+}
+
+func encodeInertiaWall(e *xml.Encoder, cx, cy int, kinds []string) error {
+	halfThick := inertiaWallHalfThick(kinds)
+	halfH := 18
+	shearX := 12
+	shearY := -10
+
+	// Points
+	ax, ay := cx-halfThick, cy-halfH       // A: front top-left
+	bx, by := cx+halfThick, cy-halfH       // B: front top-right
+	cx2, cy2 := cx+halfThick, cy+halfH     // C: front bottom-right
+	dx, dy := cx-halfThick, cy+halfH       // D: front bottom-left
+	ex, ey := ax+shearX, ay+shearY         // E: back top-left
+	fx, fy := bx+shearX, by+shearY         // F: back top-right
+	gx, gy := cx2+shearX, cy2+shearY       // G: back bottom-right
+
+	// Face 1: front face (wall thickness visible face-on)
+	if len(kinds) > 0 {
+		stripeW := (2 * halfThick) / len(kinds)
+		if stripeW < 2 {
+			stripeW = 2
+		}
+		for i, kind := range kinds {
+			col := inertiaKindColor(kind)
+			sx := ax + i*stripeW
+			sxEnd := ax + (i+1)*stripeW
+			if i == len(kinds)-1 {
+				sxEnd = bx
+			}
+			d := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z",
+				sx, ay, sxEnd, by, sxEnd, cy2, sx, dy)
+			el := xml.StartElement{
+				Name: xml.Name{Local: "path"},
+				Attr: []xml.Attr{
+					{Name: xml.Name{Local: "d"}, Value: d},
+					{Name: xml.Name{Local: "style"}, Value: fmt.Sprintf("fill:rgba(%d,%d,%d,0.5)", col.R, col.G, col.B)},
+					{Name: xml.Name{Local: "stroke"}, Value: fmt.Sprintf("rgba(%d,%d,%d,0.6)", col.R, col.G, col.B)},
+					{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+				},
+			}
+			if err := e.EncodeToken(el); err != nil {
+				return err
+			}
+			if err := e.EncodeToken(el.End()); err != nil {
+				return err
+			}
+		}
+	} else {
+		d := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z",
+			ax, ay, bx, by, cx2, cy2, dx, dy)
+		el := xml.StartElement{
+			Name: xml.Name{Local: "path"},
+			Attr: []xml.Attr{
+				{Name: xml.Name{Local: "d"}, Value: d},
+				{Name: xml.Name{Local: "style"}, Value: "fill:rgba(60,60,80,0.5)"},
+				{Name: xml.Name{Local: "stroke"}, Value: "rgba(40,40,60,0.6)"},
+				{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+			},
+		}
+		if err := e.EncodeToken(el); err != nil {
+			return err
+		}
+		if err := e.EncodeToken(el.End()); err != nil {
+			return err
+		}
+	}
+
+	// Face 2: right side face (back wall visible in perspective)
+	sideD := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z",
+		bx, by, fx, fy, gx, gy, cx2, cy2)
+	sideEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: sideD},
+			{Name: xml.Name{Local: "style"}, Value: "fill:rgba(40,40,60,0.5)"},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgba(30,30,50,0.6)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+		},
+	}
+	if err := e.EncodeToken(sideEl); err != nil {
+		return err
+	}
+	if err := e.EncodeToken(sideEl.End()); err != nil {
+		return err
+	}
+
+	// Face 3: top face (perspective depth)
+	topD := fmt.Sprintf("M %d,%d L %d,%d L %d,%d L %d,%d Z",
+		ax, ay, bx, by, fx, fy, ex, ey)
+	topEl := xml.StartElement{
+		Name: xml.Name{Local: "path"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "d"}, Value: topD},
+			{Name: xml.Name{Local: "style"}, Value: "fill:rgba(100,100,130,0.4)"},
+			{Name: xml.Name{Local: "stroke"}, Value: "rgba(80,80,110,0.5)"},
+			{Name: xml.Name{Local: "stroke-width"}, Value: "0.5"},
+		},
+	}
+	if err := e.EncodeToken(topEl); err != nil {
+		return err
+	}
+	return e.EncodeToken(topEl.End())
 }
 
 // Draw aligns r.Min in dst with sp in src and then replaces the
