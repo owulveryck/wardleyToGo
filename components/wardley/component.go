@@ -363,7 +363,10 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 			sigChildren = append(sigChildren, signalIndicator(sig.Type, 20, offsetY)...)
 		}
 		components = append(components, svg.Group{
-			Attrs:    []xml.Attr{{Name: xml.Name{Local: "data-type"}, Value: "signal"}},
+			Attrs: []xml.Attr{
+				{Name: xml.Name{Local: "data-type"}, Value: "signal"},
+				{Name: xml.Name{Local: "class"}, Value: "signal-animated"},
+			},
 			Children: sigChildren,
 		})
 	}

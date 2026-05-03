@@ -50,3 +50,49 @@
     animation: notePulse 2s ease-in-out infinite;
 }
 
+@keyframes signalAccelerate {
+    0% { transform: translateX(0); opacity: 1; }
+    80% { transform: translateX(6px); opacity: 1; }
+    90% { transform: translateX(6px); opacity: 0; }
+    91% { transform: translateX(-3px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+.signal-animated .signal-accelerating {
+    animation: signalAccelerate 2s ease-in-out infinite;
+}
+
+@keyframes signalCommoditize {
+    0% { transform: translateY(0); opacity: 1; }
+    70% { transform: translateY(4px); opacity: 0.9; }
+    85% { transform: translateY(4px); opacity: 0; }
+    86% { transform: translateY(-2px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+.signal-animated .signal-commoditization {
+    animation: signalCommoditize 2.5s ease-in-out infinite;
+}
+
+@keyframes signalRedQueen {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(2px); }
+    20% { transform: translateX(-1.5px); }
+    30% { transform: translateX(1px); }
+    40% { transform: translateX(-1px); }
+    50% { transform: translateX(0); }
+}
+.signal-animated .signal-red-queen {
+    animation: signalRedQueen 1.2s ease-in-out infinite;
+}
+
+@keyframes signalStagnate {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.signal-animated .signal-stagnating {
+    animation: signalStagnate 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .signal-animated * { animation: none !important; }
+}
+

@@ -12,6 +12,7 @@ type Circle struct {
 	Fill        Color
 	Stroke      Color
 	StrokeWidth string
+	Class       []string
 }
 
 func must(a xml.Attr, _ error) xml.Attr {
@@ -45,6 +46,13 @@ func (c Circle) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 			Name:  xml.Name{Local: "stroke-width"},
 			Value: c.StrokeWidth,
 		})
+	}
+	if len(c.Class) > 0 {
+		classes := ""
+		for _, cls := range c.Class {
+			classes += " " + cls
+		}
+		element.Attr = append(element.Attr, xml.Attr{Name: xml.Name{Local: "class"}, Value: classes})
 	}
 	if err := e.EncodeToken(element); err != nil {
 		return err
