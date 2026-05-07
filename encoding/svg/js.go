@@ -123,6 +123,6 @@ func generateJsData(w *wardleyToGo.Map) jsData {
 
 type script struct {
 	XMLName xml.Name `xml:"script"`
-	Data    string   `xml:",innerxml"`
+	Data    string   `xml:",cdata"`
 	ID      string   `xml:"id,attr"`
 }
