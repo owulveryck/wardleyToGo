@@ -63,10 +63,12 @@ func topoRanks(g *Graph) (map[string]int, int, error) {
 	}
 
 	// Find roots: anchors first, then nodes with no incoming edges
+	anchorSet := make(map[string]bool)
 	var roots []string
 	for _, n := range g.Nodes {
 		if n.Kind == KindAnchor {
 			roots = append(roots, n.Name)
+			anchorSet[n.Name] = true
 		}
 	}
 	if len(roots) == 0 {
@@ -93,6 +95,9 @@ func topoRanks(g *Graph) (map[string]int, int, error) {
 		current := queue[0]
 		queue = queue[1:]
 		for _, child := range children[current] {
+			if anchorSet[child] {
+				continue
+			}
 			newRank := rank[current] + 1
 			if newRank > rank[child] {
 				rank[child] = newRank
@@ -116,8 +121,20 @@ func topoRanks(g *Graph) (map[string]int, int, error) {
 	}
 	sort.Strings(unvisited)
 	for _, name := range unvisited {
-		maxRank++
-		rank[name] = maxRank
+		minChildRank := -1
+		for _, child := range children[name] {
+			if rank[child] >= 0 && (minChildRank < 0 || rank[child] < minChildRank) {
+				minChildRank = rank[child]
+			}
+		}
+		if minChildRank > 0 {
+			rank[name] = minChildRank - 1
+		} else if minChildRank == 0 {
+			rank[name] = 0
+		} else {
+			maxRank++
+			rank[name] = maxRank
+		}
 	}
 	// Recalculate maxRank
 	for _, r := range rank {

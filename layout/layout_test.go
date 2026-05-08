@@ -933,6 +933,117 @@ func TestLayout_ManyPipelinesSpacing(t *testing.T) {
 	}
 }
 
+func TestLayout_AnchorWithIncomingEdge(t *testing.T) {
+	// Reproduces the bug where an edge pointing TO an anchor pushes it
+	// to a deep rank, cascading all its children to the bottom.
+	// Real-world case: "Boucle enrichissement -> Equipe communication"
+	// where Equipe communication is an anchor.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Anchor1", Kind: KindAnchor},
+			{Name: "Anchor2", Kind: KindAnchor},
+			{Name: "A"},
+			{Name: "B"},
+			{Name: "C"},
+			{Name: "D"},
+		},
+		Edges: []Edge{
+			{From: "Anchor1", To: "A"},
+			{From: "A", To: "B"},
+			{From: "B", To: "C"},
+			{From: "C", To: "Anchor2"}, // feedback edge to anchor
+			{From: "Anchor2", To: "D"}, // anchor's own dependency
+		},
+	}
+	l := New(DefaultOptions())
+	pos := mustLayout(t, l, g)
+
+	if pos["Anchor2"] != 3 {
+		t.Errorf("Anchor2.Y=%d, want 3 (pinned at top)", pos["Anchor2"])
+	}
+	if pos["D"] <= pos["Anchor2"] {
+		t.Errorf("D.Y=%d should be below Anchor2.Y=%d", pos["D"], pos["Anchor2"])
+	}
+	if pos["D"] >= pos["C"] {
+		t.Errorf("D.Y=%d should be above C.Y=%d (D is rank 1 from Anchor2, C is rank 3)",
+			pos["D"], pos["C"])
+	}
+}
+
+func TestLayout_DisconnectedWithOutgoingEdges(t *testing.T) {
+	// A non-anchor node with outgoing edges but no incoming edges
+	// should be placed above its shallowest child, not at the bottom.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Anchor", Kind: KindAnchor},
+			{Name: "A"},
+			{Name: "B"},
+			{Name: "Orphan"}, // no incoming edges, but has outgoing
+		},
+		Edges: []Edge{
+			{From: "Anchor", To: "A"},
+			{From: "A", To: "B"},
+			{From: "Orphan", To: "A"}, // Orphan points to A (rank 1)
+		},
+	}
+	l := New(DefaultOptions())
+	pos := mustLayout(t, l, g)
+
+	// Orphan should be above A (its child), not at the bottom
+	if pos["Orphan"] >= pos["A"] {
+		t.Errorf("Orphan.Y=%d should be above A.Y=%d", pos["Orphan"], pos["A"])
+	}
+	if pos["Orphan"] >= pos["B"] {
+		t.Errorf("Orphan.Y=%d should be above B.Y=%d", pos["Orphan"], pos["B"])
+	}
+	assertInRange(t, pos, "Orphan")
+}
+
+func TestLayout_PipelineSpacingBudget(t *testing.T) {
+	// Three pipeline parents at consecutive ranks should not compress
+	// bottom nodes to maxY. The spacing budget must count actual rank
+	// transitions, not just the number of pipeline parents.
+	g := &Graph{
+		Nodes: []Node{
+			{Name: "Anchor", Kind: KindAnchor},
+			{Name: "P1"}, // pipeline parent, rank 1
+			{Name: "P2"}, // pipeline parent, rank 2
+			{Name: "P3"}, // pipeline parent, rank 3
+			{Name: "Leaf1"},
+			{Name: "Leaf2"},
+			{Name: "Bottom"},
+		},
+		Edges: []Edge{
+			{From: "Anchor", To: "P1"},
+			{From: "P1", To: "P2"},
+			{From: "P2", To: "P3"},
+			{From: "P3", To: "Leaf1"},
+			{From: "P3", To: "Leaf2"},
+			{From: "Leaf1", To: "Bottom"},
+		},
+		Pipelines: []Pipeline{
+			{Parent: "P1", Members: []string{"M1a", "M1b"}},
+			{Parent: "P2", Members: []string{"M2a", "M2b"}},
+			{Parent: "P3", Members: []string{"M3a", "M3b"}},
+		},
+	}
+	l := New(DefaultOptions())
+	pos := mustLayout(t, l, g)
+
+	// Leaf1 and Leaf2 should NOT both be at maxY (97)
+	opts := DefaultOptions()
+	if pos["Leaf1"] == opts.MaxY && pos["Leaf2"] == opts.MaxY {
+		t.Errorf("Leaf1.Y=%d and Leaf2.Y=%d both at maxY — pipeline spacing consumed too much space",
+			pos["Leaf1"], pos["Leaf2"])
+	}
+	// Bottom should be below the leaves
+	if pos["Bottom"] <= pos["Leaf1"] && pos["Bottom"] <= pos["Leaf2"] {
+		t.Errorf("Bottom.Y=%d should be below at least one leaf (Leaf1.Y=%d, Leaf2.Y=%d)",
+			pos["Bottom"], pos["Leaf1"], pos["Leaf2"])
+	}
+	assertInRange(t, pos, "Bottom")
+}
+
 func mustLayout(t *testing.T, l Layouter, g *Graph) map[string]int {
 	t.Helper()
 	pos, err := l.Layout(g)

@@ -240,15 +240,39 @@ func (l *defaultLayouter) Layout(g *Graph) (map[string]int, error) {
 	minY := float64(l.opts.MinY)
 	maxY := float64(l.opts.MaxY)
 
-	// Adaptive pipeline spacing: scale down when many pipeline parents
-	// would otherwise exceed available vertical space.
+	// Adaptive pipeline spacing: scale down when pipeline parents would
+	// consume too much vertical space. Count actual rank transitions
+	// that will use pipeline spacing (where either neighbor rank
+	// contains a pipeline parent), not just the number of parents.
 	pipelineSpacing := float64(l.opts.MinSpacing) * 3.0
 	if len(pipelineParents) > 0 {
 		available := maxY - minY
 		maxConsumption := available * 0.5
-		idealTotal := float64(len(pipelineParents)) * pipelineSpacing
+
+		pipelineRanks := make(map[int]bool)
+		for name := range pipelineParents {
+			pipelineRanks[ranks[name]] = true
+		}
+		transitions := 0
+		for r := 1; r <= effectiveMaxRank; r++ {
+			if pipelineRanks[r] || pipelineRanks[r-1] {
+				transitions++
+			}
+		}
+		// Use the larger of transition count and parent count:
+		// transitions captures inter-rank spacing from enforceRankOrder,
+		// parent count captures intra-rank spacing from spreadPipelineParents.
+		budgetDivisor := transitions
+		if len(pipelineParents) > budgetDivisor {
+			budgetDivisor = len(pipelineParents)
+		}
+		if budgetDivisor == 0 {
+			budgetDivisor = 1
+		}
+
+		idealTotal := float64(budgetDivisor) * pipelineSpacing
 		if idealTotal > maxConsumption {
-			pipelineSpacing = maxConsumption / float64(len(pipelineParents))
+			pipelineSpacing = maxConsumption / float64(budgetDivisor)
 			if pipelineSpacing < float64(l.opts.MinSpacing) {
 				pipelineSpacing = float64(l.opts.MinSpacing)
 			}
