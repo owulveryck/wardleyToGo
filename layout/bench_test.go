@@ -100,3 +100,37 @@ func BenchmarkEnforceRankOrder(b *testing.B) {
 		enforceRankOrder(positions, names, ranks, minY, maxY, float64(opts.MinSpacing), pipelineParents, float64(opts.MinSpacing)*3)
 	}
 }
+
+func BenchmarkTopoRanks(b *testing.B) {
+	for _, size := range []int{10, 20, 50, 100} {
+		b.Run(fmt.Sprintf("N%d", size), func(b *testing.B) {
+			g := buildDenseGraph(size)
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_, _, _ = topoRanks(g)
+			}
+		})
+	}
+}
+
+func BenchmarkDetectCycle(b *testing.B) {
+	for _, size := range []int{10, 20, 50, 100} {
+		b.Run(fmt.Sprintf("N%d", size), func(b *testing.B) {
+			g := buildDenseGraph(size)
+			nodeSet := make(map[string]bool)
+			children := make(map[string][]string)
+			for _, n := range g.Nodes {
+				nodeSet[n.Name] = true
+			}
+			for _, e := range g.Edges {
+				children[e.From] = append(children[e.From], e.To)
+			}
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_ = detectCycle(nodeSet, children)
+			}
+		})
+	}
+}

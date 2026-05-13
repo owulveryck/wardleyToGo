@@ -35,6 +35,7 @@ type Map struct {
 	area                 image.Rectangle
 	g                    *graph.DirectedGraph
 	collabs              map[int64]map[int64]Collaboration
+	cachedCollabs        []Collaboration
 }
 
 func (m *Map) String() string {
@@ -129,6 +130,7 @@ func (m *Map) SetCollaboration(e Collaboration) error {
 		m.collabs[fid] = make(map[int64]Collaboration)
 	}
 	m.collabs[fid][tid] = e
+	m.cachedCollabs = nil
 	// Store an adapter edge in the internal graph for traversal
 	if err := m.g.SetEdge(collabEdge{c: e}); err != nil {
 		return err
@@ -142,6 +144,7 @@ func (m *Map) RemoveEdge(uid, vid int64) {
 	if m.collabs[uid] != nil {
 		delete(m.collabs[uid], vid)
 	}
+	m.cachedCollabs = nil
 }
 
 // Components returns all components in the map.
@@ -159,6 +162,9 @@ func (m *Map) Components() []Component {
 // Collaborations returns all collaborations in the map in deterministic order,
 // sorted by (from ID, to ID).
 func (m *Map) Collaborations() []Collaboration {
+	if m.cachedCollabs != nil {
+		return m.cachedCollabs
+	}
 	fromIDs := make([]int64, 0, len(m.collabs))
 	for fid := range m.collabs {
 		fromIDs = append(fromIDs, fid)
@@ -180,6 +186,7 @@ func (m *Map) Collaborations() []Collaboration {
 			result = append(result, m.collabs[fid][tid])
 		}
 	}
+	m.cachedCollabs = result
 	return result
 }
 

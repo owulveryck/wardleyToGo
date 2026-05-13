@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/xml"
-	"sort"
 	"strconv"
 	"text/template"
 
@@ -48,14 +47,8 @@ func (t *JSTheme) DecorateComponent(c wardleyToGo.Component) []xml.Attr {
 }
 
 type jsData struct {
-	AllLinks   []string        // in the form edge_F_T
-	G          []jsGraphEntry  // sorted by Key for deterministic output
+	AllLinks   []string // in the form edge_F_T
 	Visibility []cssVisibility
-}
-
-type jsGraphEntry struct {
-	Key   string
-	Edges []string
 }
 
 func generateJsData(w *wardleyToGo.Map) jsData {
@@ -65,59 +58,8 @@ func generateJsData(w *wardleyToGo.Map) jsData {
 		allLinks[i] = "edge_" + strconv.FormatInt(c.From().ID(), 10) + "_" + strconv.FormatInt(c.To().ID(), 10)
 	}
 
-	// Build adjacency list once to avoid repeated w.From() calls
-	// (each call allocates and sorts).
-	components := w.Components()
-	adj := make(map[int64][]int64, len(components))
-	for _, n := range components {
-		succs := w.From(n.ID())
-		if len(succs) > 0 {
-			ids := make([]int64, len(succs))
-			for i, s := range succs {
-				ids[i] = s.ID()
-			}
-			adj[n.ID()] = ids
-		}
-	}
-
-	// Memoized DFS: compute reachable edges per node in O(V+E) total.
-	memo := make(map[int64][]string, len(adj))
-	var dfs func(id int64) []string
-	dfs = func(id int64) []string {
-		if cached, ok := memo[id]; ok {
-			return cached
-		}
-		succs := adj[id]
-		edges := make([]string, 0, len(succs))
-		for _, succID := range succs {
-			edges = append(edges, "edge_"+strconv.FormatInt(id, 10)+"_"+strconv.FormatInt(succID, 10))
-			edges = append(edges, dfs(succID)...)
-		}
-		memo[id] = edges
-		return edges
-	}
-
-	pathsMap := make(map[string][]string, len(adj))
-	for _, n := range components {
-		if len(adj[n.ID()]) == 0 {
-			continue
-		}
-		element := "element_" + strconv.FormatInt(n.ID(), 10)
-		pathsMap[element] = dfs(n.ID())
-	}
-	keys := make([]string, 0, len(pathsMap))
-	for k := range pathsMap {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	paths := make([]jsGraphEntry, 0, len(keys))
-	for _, k := range keys {
-		paths = append(paths, jsGraphEntry{Key: k, Edges: pathsMap[k]})
-	}
-
 	return jsData{
 		AllLinks: allLinks,
-		G:        paths,
 	}
 }
 

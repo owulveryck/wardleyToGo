@@ -2,6 +2,7 @@ package svgmap
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"testing"
 
@@ -109,5 +110,115 @@ func BenchmarkEncoderEncode(b *testing.B) {
 			b.Fatal(err)
 		}
 		enc.Close()
+	}
+}
+
+func BenchmarkNewEncoder(b *testing.B) {
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var buf bytes.Buffer
+		imgSize := image.Rect(0, 0, 1300, 900)
+		mapSize := image.Rect(30, 50, 1270, 850)
+		_, _ = NewEncoder(&buf, imgSize, mapSize)
+	}
+}
+
+func BenchmarkOctoStyleMarshal(b *testing.B) {
+	_, stages := buildBenchMap()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var buf bytes.Buffer
+		imgSize := image.Rect(0, 0, 1300, 900)
+		mapSize := image.Rect(30, 50, 1270, 850)
+		enc, err := NewEncoder(&buf, imgSize, mapSize)
+		if err != nil {
+			b.Fatal(err)
+		}
+		style := NewOctoStyle(stages)
+		enc.Init(style)
+	}
+}
+
+func BenchmarkEncoderInitAndEncode(b *testing.B) {
+	m, stages := buildBenchMap()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var buf bytes.Buffer
+		imgSize := image.Rect(0, 0, 1300, 900)
+		mapSize := image.Rect(30, 50, 1270, 850)
+		enc, err := NewEncoder(&buf, imgSize, mapSize)
+		if err != nil {
+			b.Fatal(err)
+		}
+		style := NewOctoStyle(stages)
+		enc.Init(style)
+		if err := enc.Encode(m); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func buildLargeBenchMap(n int) (*wardleyToGo.Map, []Evolution) {
+	m := wardleyToGo.NewMap(0)
+	m.Title = "Large Benchmark Map"
+
+	a := wardley.NewAnchor(1)
+	a.Label = "User"
+	a.Placement = image.Pt(50, 3)
+	_ = m.AddComponent(a)
+
+	comps := make([]*wardley.Component, n)
+	for i := 0; i < n; i++ {
+		c := wardley.NewComponent(int64(10 + i))
+		c.Label = fmt.Sprintf("Component %d", i)
+		c.Placement = image.Pt(5+90*i/(n+1), 5+90*i/(n+1))
+		if c.Placement.X > 99 {
+			c.Placement.X = 99
+		}
+		if c.Placement.Y > 99 {
+			c.Placement.Y = 99
+		}
+		c.Configured = true
+		comps[i] = c
+		_ = m.AddComponent(c)
+	}
+
+	// Chain + cross-links
+	_ = m.SetCollaboration(&wardley.Collaboration{F: a, T: comps[0], RenderingLayer: 1})
+	for i := 0; i < n-1; i++ {
+		_ = m.SetCollaboration(&wardley.Collaboration{F: comps[i], T: comps[i+1], RenderingLayer: 1})
+	}
+	for i := 0; i < n-3; i += 3 {
+		_ = m.SetCollaboration(&wardley.Collaboration{F: comps[i], T: comps[i+2], RenderingLayer: 1})
+	}
+
+	return m, DefaultEvolution
+}
+
+func BenchmarkEncoderEncode_LargeMap(b *testing.B) {
+	for _, size := range []int{15, 30, 50} {
+		m, stages := buildLargeBenchMap(size)
+		b.Run(fmt.Sprintf("N%d", size), func(b *testing.B) {
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				var buf bytes.Buffer
+				imgSize := image.Rect(0, 0, 1300, 900)
+				mapSize := image.Rect(30, 50, 1270, 850)
+				enc, err := NewEncoder(&buf, imgSize, mapSize)
+				if err != nil {
+					b.Fatal(err)
+				}
+				style := NewOctoStyle(stages)
+				enc.Init(style)
+				if err := enc.Encode(m); err != nil {
+					b.Fatal(err)
+				}
+				enc.Close()
+			}
+		})
 	}
 }

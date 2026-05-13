@@ -22,6 +22,9 @@ type DirectedGraph struct {
 	// cachedNodes holds the sorted node list. It is invalidated (set to nil)
 	// whenever nodes are added or removed.
 	cachedNodes []Node
+
+	cachedFrom map[int64][]Node
+	cachedTo   map[int64][]Node
 }
 
 // NewDirectedGraph returns an empty directed graph.
@@ -109,6 +112,8 @@ func (g *DirectedGraph) SetEdge(e Edge) error {
 	}
 	g.from[from][to] = e
 	g.to[to][from] = e
+	g.cachedFrom = nil
+	g.cachedTo = nil
 	return nil
 }
 
@@ -116,6 +121,8 @@ func (g *DirectedGraph) SetEdge(e Edge) error {
 func (g *DirectedGraph) RemoveEdge(uid, vid int64) {
 	delete(g.from[uid], vid)
 	delete(g.to[vid], uid)
+	g.cachedFrom = nil
+	g.cachedTo = nil
 }
 
 // HasEdgeFromTo reports whether an edge exists from uid to vid.
@@ -160,6 +167,11 @@ func (g *DirectedGraph) Edges() *Edges {
 // From returns an iterator over nodes reachable from the node with the
 // given ID via outgoing edges.
 func (g *DirectedGraph) From(id int64) *Nodes {
+	if g.cachedFrom != nil {
+		if nodes, ok := g.cachedFrom[id]; ok {
+			return NewNodes(nodes)
+		}
+	}
 	m := g.from[id]
 	ids := make([]int64, 0, len(m))
 	for tid := range m {
@@ -170,12 +182,21 @@ func (g *DirectedGraph) From(id int64) *Nodes {
 	for i, tid := range ids {
 		nodes[i] = g.nodes[tid]
 	}
+	if g.cachedFrom == nil {
+		g.cachedFrom = make(map[int64][]Node)
+	}
+	g.cachedFrom[id] = nodes
 	return NewNodes(nodes)
 }
 
 // To returns an iterator over nodes that have an edge to the node with
 // the given ID.
 func (g *DirectedGraph) To(id int64) *Nodes {
+	if g.cachedTo != nil {
+		if nodes, ok := g.cachedTo[id]; ok {
+			return NewNodes(nodes)
+		}
+	}
 	m := g.to[id]
 	ids := make([]int64, 0, len(m))
 	for uid := range m {
@@ -186,5 +207,9 @@ func (g *DirectedGraph) To(id int64) *Nodes {
 	for i, uid := range ids {
 		nodes[i] = g.nodes[uid]
 	}
+	if g.cachedTo == nil {
+		g.cachedTo = make(map[int64][]Node)
+	}
+	g.cachedTo[id] = nodes
 	return NewNodes(nodes)
 }

@@ -1,10 +1,6 @@
-var g = new Map();
-var allLinks = new Array(); 
+var allLinks = new Array();
 
 allLinks.push({{ range .AllLinks }}'{{.}}',{{ end }});
-{{range .G }}
-g.set('{{.Key}}',Array({{range .Edges}}'{{.}}',{{end}}));
-{{- end}}
 
 const max = 9
 var activeTooltip = null;

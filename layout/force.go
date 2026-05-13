@@ -80,10 +80,6 @@ func forceSpread(
 	for i, n := range names {
 		nameIndex[n] = i
 	}
-	allNameIndex := make(map[string]int, len(allNames))
-	for i, n := range allNames {
-		allNameIndex[n] = i
-	}
 	displacements := make([]float64, len(names))
 
 	// Pre-sort names by rank for enforceRankOrder (rank is stable across iterations).
@@ -96,6 +92,23 @@ func forceSpread(
 		}
 		return sortedByRank[i] < sortedByRank[j]
 	})
+
+	// Pre-compute rank group boundaries: rankGroups[i] = [start, end) of group i.
+	// Ranks are stable across iterations so boundaries never change.
+	type rankSpan struct{ start, end int }
+	var rankGroups []rankSpan
+	if len(sortedByRank) > 0 {
+		gStart := 0
+		gRank := ranks[sortedByRank[0]]
+		for k := 1; k < len(sortedByRank); k++ {
+			if ranks[sortedByRank[k]] != gRank {
+				rankGroups = append(rankGroups, rankSpan{gStart, k})
+				gStart = k
+				gRank = ranks[sortedByRank[k]]
+			}
+		}
+		rankGroups = append(rankGroups, rankSpan{gStart, len(sortedByRank)})
+	}
 
 	for iter := 0; iter < opts.ForceIterations; iter++ {
 		// Reset displacements without re-allocating.
@@ -188,6 +201,7 @@ func forceSpread(
 		// enforceRankOrder then uses the outlier's position as the floor
 		// for subsequent ranks, cascading all deeper nodes to maxY.
 		maxDisp := minSpacing
+		maxApplied := 0.0
 		for i, name := range names {
 			d := displacements[i] * damping
 			if d > maxDisp {
@@ -195,6 +209,9 @@ func forceSpread(
 			}
 			if d < -maxDisp {
 				d = -maxDisp
+			}
+			if math.Abs(d) > maxApplied {
+				maxApplied = math.Abs(d)
 			}
 			positions[name] += d
 			if positions[name] < minY {
@@ -206,17 +223,22 @@ func forceSpread(
 		}
 
 		// Enforce rank ordering: nodes with higher ranks must have higher Y.
-		// Re-sort the pre-sorted slice by position within same rank groups.
-		sort.SliceStable(sortedByRank, func(i, j int) bool {
-			ri, rj := ranks[sortedByRank[i]], ranks[sortedByRank[j]]
-			if ri != rj {
-				return ri < rj
+		// Only sort within each rank group (inter-group order is fixed by rank).
+		for _, rg := range rankGroups {
+			sub := sortedByRank[rg.start:rg.end]
+			if len(sub) > 1 {
+				sort.Slice(sub, func(i, j int) bool {
+					return positions[sub[i]] < positions[sub[j]]
+				})
 			}
-			return positions[sortedByRank[i]] < positions[sortedByRank[j]]
-		})
+		}
 		enforceRankOrder(positions, sortedByRank, ranks, minY, maxY, minSpacing, pipelineParents, pipelineSpacing)
 
 		damping *= 0.98
+
+		if maxApplied < 0.5 {
+			break
+		}
 	}
 
 	return positions

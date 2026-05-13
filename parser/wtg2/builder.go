@@ -620,16 +620,13 @@ func computeAnimationData(
 		pos := entry.node.GetPosition()
 		yEntries = append(yEntries, yEntry{id: id, y: pos.Y})
 	}
+	idToY := make(map[int64]int, len(yEntries))
+	for _, e := range yEntries {
+		idToY[e.id] = e.y
+	}
 	for origID, evolvedID := range evolvedMap {
-		if entry, ok := nodeDict[findNameByID(nodeDict, origID)]; ok {
-			_ = entry
-		}
-		// Evolved components share the same Y as original
-		for _, e := range yEntries {
-			if e.id == origID {
-				yEntries = append(yEntries, yEntry{id: evolvedID, y: e.y})
-				break
-			}
+		if y, ok := idToY[origID]; ok {
+			yEntries = append(yEntries, yEntry{id: evolvedID, y: y})
 		}
 	}
 
@@ -643,9 +640,10 @@ func computeAnimationData(
 	}
 
 	// Compute group membership
+	allComponents := m.Components()
 	for _, gd := range doc.Groups {
 		// Find the Group component by label
-		for _, c := range m.Components() {
+		for _, c := range allComponents {
 			g, ok := c.(*wardley.Group)
 			if !ok || g.Label != gd.Name {
 				continue
@@ -665,15 +663,6 @@ func computeAnimationData(
 	}
 
 	return data
-}
-
-func findNameByID(nodeDict map[string]*nodeEntry, id int64) string {
-	for name, entry := range nodeDict {
-		if entry.node.ID() == id {
-			return name
-		}
-	}
-	return ""
 }
 
 // resolveNodeRef looks up a node by name, handling "Pipeline:Member" syntax.
