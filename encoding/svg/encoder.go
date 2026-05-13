@@ -175,7 +175,17 @@ func (e *Encoder) Encode(m *wardleyToGo.Map) error {
 			}
 		}
 	}
-	return e.e.EncodeToken(currentLayer.End())
+	if err := e.e.EncodeToken(currentLayer.End()); err != nil {
+		return err
+	}
+	tooltipLayer := xml.StartElement{
+		Name: xml.Name{Local: "g"},
+		Attr: []xml.Attr{{Name: xml.Name{Local: "id"}, Value: "tooltip-layer"}},
+	}
+	if err := e.e.EncodeToken(tooltipLayer); err != nil {
+		return err
+	}
+	return e.e.EncodeToken(tooltipLayer.End())
 }
 
 type group struct {

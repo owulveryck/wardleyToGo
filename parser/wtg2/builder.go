@@ -133,7 +133,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 				descParts = append(descParts, "Cost: "+nd.Cost)
 			}
 			if len(descParts) > 0 {
-				comp.Description = strings.Join(descParts, " | ")
+				comp.Description = strings.Join(descParts, "\n")
 			}
 
 			comp.Inertia = nd.Inertia

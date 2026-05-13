@@ -36,13 +36,12 @@ func (t *JSTheme) Embed(enc *xml.Encoder, m *wardleyToGo.Map) error {
 	return enc.Encode(script{Data: buf.String(), ID: "SVGScript"})
 }
 
-// DecorateComponent adds an onclick handler that toggles linked edges.
+// DecorateComponent adds hover and click handlers for tooltips.
 func (t *JSTheme) DecorateComponent(c wardleyToGo.Component) []xml.Attr {
 	return []xml.Attr{
-		{
-			Name:  xml.Name{Local: "onclick"},
-			Value: "toggleLink(this.id)",
-		},
+		{Name: xml.Name{Local: "onclick"}, Value: "pinTooltip(this.id)"},
+		{Name: xml.Name{Local: "onmouseenter"}, Value: "showTooltip(this.id)"},
+		{Name: xml.Name{Local: "onmouseleave"}, Value: "hideTooltip(this.id)"},
 	}
 }
 

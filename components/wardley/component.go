@@ -350,7 +350,7 @@ func (c *Component) marshalSVG(e *xml.Encoder, canvas image.Rectangle, col svg.C
 		Fill:       col,
 	})
 	components = append(components, struct {
-		XMLName xml.Name `xml:"title"`
+		XMLName xml.Name `xml:"desc"`
 		Text    string   `xml:",chardata"`
 	}{
 		Text: c.Description,

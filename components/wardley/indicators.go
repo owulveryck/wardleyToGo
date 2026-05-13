@@ -137,9 +137,8 @@ func warningIndicator(offsetX, offsetY int, text string) []interface{} {
 			Fill:       svg.White,
 		},
 	}
-	// Tooltip with warning text
 	elements = append(elements, struct {
-		XMLName xml.Name `xml:"title"`
+		XMLName xml.Name `xml:"desc"`
 		Text    string   `xml:",chardata"`
 	}{
 		Text: "⚠ " + text,
@@ -273,7 +272,7 @@ func noteIndicator(offsetX, offsetY int, text string) []interface{} {
 		},
 	}
 	elements = append(elements, struct {
-		XMLName xml.Name `xml:"title"`
+		XMLName xml.Name `xml:"desc"`
 		Text    string   `xml:",chardata"`
 	}{
 		Text: text,
