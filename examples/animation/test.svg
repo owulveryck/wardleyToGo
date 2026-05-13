@@ -1,0 +1,663 @@
+<svg width="100%" height="100%" viewBox="0 0 1100 900" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+    <defs>
+        <linearGradient id="wardleyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="rgb(236,237,243)"></stop>
+            <stop offset="30%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="70%" stop-color="rgb(255,255,255)"></stop>
+            <stop offset="100%" stop-color="rgb(236,237,243)"></stop>
+        </linearGradient>
+        <marker id="arrow" refX="15" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(255,0,0)"></path>
+        </marker>
+        <marker id="graphArrow" refX="9" refY="0" markerWidth="12" markerHeight="12" viewBox="0 -5 10 10">
+            <path d="M0,-5L10,0L0,5" fill="rgb(0,0,0)"></path>
+        </marker>
+    </defs>
+    <rect x="30" y="50" width="1040" height="785" style="fill:url(#wardleyGradient)"></rect>
+    <g transform=" translate(30,835) rotate(270)">
+        <line x1="0" y1="0" x2="785" y2="0" stroke-width="1" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="260" x2="785" y2="260" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="520" x2="785" y2="520" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <line x1="0" y1="780" x2="785" y2="780" stroke-width="1" stroke-dasharray="2 2" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+            <tspan x="5" dy="-10">Invisible</tspan>
+        </text>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+            <tspan x="780" dy="-10">Visible</tspan>
+        </text>
+        <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+            <tspan x="392" dy="-10">Value Chain</tspan>
+        </text>
+    </g>
+    <line x1="30" y1="835" x2="1070" y2="835" marker-end="url(#graphArrow)" stroke="rgb(19,36,84)" stroke-opacity="1.0"></line>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="start">
+        <tspan x="37" dy="65">Uncharted</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="end">
+        <tspan x="1065" dy="65">Industrialised</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="start">
+        <tspan x="30" dy="855">I</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="middle">
+        <tspan x="290" dy="855">II</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="middle">
+        <tspan x="550" dy="855">III</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="middle">
+        <tspan x="810" dy="855">IV</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="0.7" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="12px" text-anchor="middle">
+        <tspan x="160" dy="855">Genesis</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="0.7" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="12px" text-anchor="middle">
+        <tspan x="420" dy="855">Custom-Built</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="0.7" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="12px" text-anchor="middle">
+        <tspan x="680" dy="855">Product</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="0.7" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="12px" text-anchor="middle">
+        <tspan x="940" dy="855">Commodity</tspan>
+    </text>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+        <tspan x="1070" dy="855">Evolution</tspan>
+    </text>
+    <style><![CDATA[
+.evolutionEdge {
+	stroke-dasharray: 7;
+	stroke-dashoffset: 7;
+	animation: dash 3s linear forwards infinite;
+}
+
+
+.visibility0 {
+	opacity: 0.8;
+}
+
+
+
+.invisibility0 {
+	opacity: NaN;
+}
+
+
+@keyframes dash {
+	from {
+		stroke-dashoffset: 100;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+.componentText {
+  background: transparent;
+  color: #fff;
+  resize: none;
+  border: 0 none;
+  width: 100%;
+  font-size: 0.8em;
+  outline: none;
+  height: 100%;
+  position: absolute;
+}
+
+]]></style>
+    <script id="SVGScript">var g = new Map();
+var allLinks = new Array(); 
+
+allLinks.push('edge_0_2','edge_0_3','edge_1_11','edge_1_12','edge_2_4','edge_2_7','edge_2_9','edge_2_17','edge_3_4','edge_3_7','edge_3_17','edge_4_5','edge_4_15','edge_4_21','edge_5_6','edge_5_14','edge_5_15','edge_7_8','edge_7_13','edge_7_20','edge_7_23','edge_9_10','edge_9_14','edge_9_15','edge_11_8','edge_11_15','edge_12_14','edge_14_16','edge_16_18','edge_17_16','edge_19_16','edge_20_16','edge_21_14','edge_21_22','edge_21_25',);
+
+g.set('element_0',Array('edge_0_2','edge_2_4','edge_4_5','edge_5_6','edge_5_14','edge_14_16','edge_16_18','edge_5_15','edge_4_15','edge_4_21','edge_21_14','edge_14_16','edge_16_18','edge_21_22','edge_21_25','edge_2_7','edge_7_8','edge_7_13','edge_7_20','edge_20_16','edge_16_18','edge_7_23','edge_2_9','edge_9_10','edge_9_14','edge_14_16','edge_16_18','edge_9_15','edge_2_17','edge_17_16','edge_16_18','edge_0_3','edge_3_4','edge_4_5','edge_5_6','edge_5_14','edge_14_16','edge_16_18','edge_5_15','edge_4_15','edge_4_21','edge_21_14','edge_14_16','edge_16_18','edge_21_22','edge_21_25','edge_3_7','edge_7_8','edge_7_13','edge_7_20','edge_20_16','edge_16_18','edge_7_23','edge_3_17','edge_17_16','edge_16_18',));
+g.set('element_1',Array('edge_1_11','edge_11_8','edge_11_15','edge_1_12','edge_12_14','edge_14_16','edge_16_18',));
+g.set('element_11',Array('edge_11_8','edge_11_15',));
+g.set('element_12',Array('edge_12_14','edge_14_16','edge_16_18',));
+g.set('element_14',Array('edge_14_16','edge_16_18',));
+g.set('element_16',Array('edge_16_18',));
+g.set('element_17',Array('edge_17_16','edge_16_18',));
+g.set('element_19',Array('edge_19_16','edge_16_18',));
+g.set('element_2',Array('edge_2_4','edge_4_5','edge_5_6','edge_5_14','edge_14_16','edge_16_18','edge_5_15','edge_4_15','edge_4_21','edge_21_14','edge_14_16','edge_16_18','edge_21_22','edge_21_25','edge_2_7','edge_7_8','edge_7_13','edge_7_20','edge_20_16','edge_16_18','edge_7_23','edge_2_9','edge_9_10','edge_9_14','edge_14_16','edge_16_18','edge_9_15','edge_2_17','edge_17_16','edge_16_18',));
+g.set('element_20',Array('edge_20_16','edge_16_18',));
+g.set('element_21',Array('edge_21_14','edge_14_16','edge_16_18','edge_21_22','edge_21_25',));
+g.set('element_3',Array('edge_3_4','edge_4_5','edge_5_6','edge_5_14','edge_14_16','edge_16_18','edge_5_15','edge_4_15','edge_4_21','edge_21_14','edge_14_16','edge_16_18','edge_21_22','edge_21_25','edge_3_7','edge_7_8','edge_7_13','edge_7_20','edge_20_16','edge_16_18','edge_7_23','edge_3_17','edge_17_16','edge_16_18',));
+g.set('element_4',Array('edge_4_5','edge_5_6','edge_5_14','edge_14_16','edge_16_18','edge_5_15','edge_4_15','edge_4_21','edge_21_14','edge_14_16','edge_16_18','edge_21_22','edge_21_25',));
+g.set('element_5',Array('edge_5_6','edge_5_14','edge_14_16','edge_16_18','edge_5_15',));
+g.set('element_7',Array('edge_7_8','edge_7_13','edge_7_20','edge_20_16','edge_16_18','edge_7_23',));
+g.set('element_9',Array('edge_9_10','edge_9_14','edge_14_16','edge_16_18','edge_9_15',));
+
+const max = 9
+function toggleLink(clicked_id)
+{
+	if (g.has(clicked_id)) {
+		g.get(clicked_id).forEach(element => {
+			var style = document.getElementById(element).style.display;
+			if(style === "none")
+				document.getElementById(element).style.display = "block";
+			else
+				document.getElementById(element).style.display = "none";
+
+		});
+	}
+}
+function toggleLinks() {
+	allLinks.forEach(element => {
+		var style = document.getElementById(element).style.display;
+		if(style === "none") {
+			document.getElementById(element).style.display = "block";
+		} else {
+			document.getElementById(element).style.display = "none";
+		}
+	});
+}
+
+var allVisibilities = new Map();
+var allInVisibilities = new Map();
+function setVisibility() {
+	
+	allVisibilities.set('invisibility0',document.querySelectorAll('.visibility0'))
+	allInVisibilities.set('visibility0',document.querySelectorAll('.invisibility0'))
+}
+
+var visible = true
+
+function toggleVisibility() {
+	components = allVisibilities
+	if (visible) {
+		components = allInVisibilities
+		visible = false
+	} else {
+		visible = true
+	}
+	components.forEach(function(value, key) {
+		if (value.length === 0) {
+			setVisibility();
+		}
+		value.forEach(element => {
+			element.classList.toggle(key)	
+		});
+	})
+}
+
+
+setVisibility();
+</script>
+    <text fill="rgb(19,36,84)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="16px" text-anchor="middle">
+        <tspan x="550" dy="35">Online Retail Platform — Strategic Review 2026</tspan>
+    </text>
+    <g id="layer_0">
+        <g id="edge_0_2" data-child-id="element_2" class="visibility0">
+            <path d="M 550,73 Q 622,199 726,301" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_0_3" data-child-id="element_3" class="visibility0">
+            <path d="M 550,73 Q 620,190 654,324" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_1_11" data-child-id="element_11" class="visibility0">
+            <line x1="550" y1="73" x2="498" y2="316" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_1_12" data-child-id="element_12" class="visibility0">
+            <line x1="550" y1="73" x2="342" y2="340" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_4" data-child-id="element_4" class="visibility0">
+            <path d="M 726,301 Q 622,389 550,505" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_2_7" data-child-id="element_7" class="visibility0">
+            <line x1="726" y1="301" x2="674" y2="450" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_2_9" data-child-id="element_9" class="visibility0">
+            <path d="M 726,301 Q 624,410 498,489" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_2_17" data-child-id="element_17" class="visibility0">
+            <path d="M 726,301 Q 846,385 986,434" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_3_4" data-child-id="element_4" class="visibility0">
+            <path d="M 654,324 Q 619,424 550,505" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_3_7" data-child-id="element_7" class="visibility0">
+            <line x1="654" y1="324" x2="674" y2="450" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_3_17" data-child-id="element_17" class="visibility0">
+            <path d="M 654,324 Q 826,360 986,434" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_4_5" data-child-id="element_5" class="visibility0">
+            <line x1="550" y1="505" x2="414" y2="662" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_4_15" data-child-id="element_15" class="visibility0">
+            <path d="M 550,505 Q 610,655 706,787" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_4_21" data-child-id="element_21" class="visibility0">
+            <line x1="550" y1="505" x2="206" y2="575" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_6" data-child-id="element_6" class="visibility0">
+            <rect x="472" y="647" width="10" height="30" fill="rgb(0,0,0)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0"></rect>
+            <line x1="414" y1="662" x2="622" y2="662" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_14" data-child-id="element_14" class="visibility0">
+            <line x1="414" y1="662" x2="446" y2="780" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_5_15" data-child-id="element_15" class="visibility0">
+            <line x1="414" y1="662" x2="706" y2="787" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_8" data-child-id="element_8" class="visibility0">
+            <line x1="674" y1="450" x2="602" y2="583" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_7_13" data-child-id="element_13" class="visibility0">
+            <path d="M 674,450 Q 758,518 862,552" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_7_20" data-child-id="element_20" class="visibility0">
+            <path d="M 674,450 Q 790,512 882,607" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_7_23" data-child-id="element_23" class="visibility0">
+            <path d="M 674,450 Q 730,483 758,544" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_9_10" data-child-id="element_10" class="visibility0">
+            <rect x="545" y="474" width="10" height="30" fill="rgb(0,0,0)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0"></rect>
+            <line x1="498" y1="489" x2="654" y2="489" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_9_14" data-child-id="element_14" class="visibility0">
+            <line x1="498" y1="489" x2="446" y2="780" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_9_15" data-child-id="element_15" class="visibility0">
+            <path d="M 498,489 Q 618,626 706,787" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_11_8" data-child-id="element_8" class="visibility0">
+            <line x1="498" y1="316" x2="602" y2="583" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_11_15" data-child-id="element_15" class="visibility0">
+            <line x1="498" y1="316" x2="706" y2="787" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_12_14" data-child-id="element_14" class="visibility0">
+            <line x1="342" y1="340" x2="446" y2="780" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+            <g transform=" translate(394,552)">
+                <text fill="rgb(100,100,100)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="11px" text-anchor="middle">
+                    <tspan x="0" dy="0">sales data</tspan>
+                    <tspan x="0" dy="18">feed</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="edge_14_16" data-child-id="element_16" class="visibility0">
+            <line x1="446" y1="780" x2="934" y2="811" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_16_18" data-child-id="element_18" class="visibility0">
+            <path d="M 934,811 Q 882,791 830,811" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_17_16" data-child-id="element_16" class="visibility0">
+            <line x1="986" y1="434" x2="934" y2="811" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_19_16" data-child-id="element_16" class="visibility0">
+            <path d="M 674,811 Q 804,791 934,811" fill="none" stroke="rgb(128,128,128)" stroke-opacity="1.0" stroke-width="1"></path>
+        </g>
+        <g id="edge_20_16" data-child-id="element_16" class="visibility0">
+            <line x1="882" y1="607" x2="934" y2="811" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_21_14" data-child-id="element_14" class="visibility0">
+            <line x1="206" y1="575" x2="446" y2="780" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_21_22" data-child-id="element_22" class="visibility0">
+            <rect x="264" y="560" width="10" height="30" fill="rgb(0,0,0)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0"></rect>
+            <line x1="206" y1="575" x2="394" y2="575" stroke-width="1" stroke-dasharray="5 5" marker-end="url(#arrow)" class=" evolutionEdge" stroke="rgb(255,0,0)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="edge_21_25" data-child-id="element_25" class="visibility0">
+            <line x1="206" y1="575" x2="362" y2="662" stroke-width="1" class="" stroke="rgb(128,128,128)" stroke-opacity="1.0"></line>
+        </g>
+        <g id="element_0" onclick="toggleLink(this.id)" data-depth="0" data-type="anchor" data-y-rank="0">
+            <g transform=" translate(550,73)">
+                <circle cx="0" cy="-10" r="5" fill="rgb(51,51,51)" fill-opacity="1.0" stroke="rgb(51,51,51)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <path d="M -8,-4 C -8,6 8,6 8,-4 Z" fill="rgb(51,51,51)"></path>
+                <text font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="start">
+                    <tspan x="25" dy="6">Customer</tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_1" onclick="toggleLink(this.id)" data-depth="0" data-type="anchor" data-y-rank="0">
+            <g transform=" translate(550,73)">
+                <circle cx="0" cy="-10" r="5" fill="rgb(51,51,51)" fill-opacity="1.0" stroke="rgb(51,51,51)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <path d="M -8,-4 C -8,6 8,6 8,-4 Z" fill="rgb(51,51,51)"></path>
+                <text font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="end">
+                    <tspan x="-25" dy="6">Merchant</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+    <g id="layer_1">
+        <g id="element_27" onclick="toggleLink(this.id)" data-depth="-1" data-type="group" data-members="element_5,element_25,element_26,element_21,element_14">
+            <path d="M 108.4,651.4 L 114.3,637.3 Q 118.6,626.6 134.2,600.5 L 155.0,565.7 Q 170.6,539.6 181.3,535.3 L 195.4,529.4 Q 206.0,525.0 216.6,529.4 L 230.7,535.3 Q 241.4,539.6 303.8,565.7 L 387.0,600.5 Q 449.4,626.6 453.7,637.3 L 459.6,651.4 Q 464.0,662.0 473.6,697.4 L 486.4,744.6 Q 496.0,780.0 491.6,790.6 L 485.7,804.7 Q 481.4,815.4 470.7,819.7 L 456.6,825.6 Q 446.0,830.0 358.4,794.6 L 241.6,747.4 Q 154.0,712.0 143.4,707.6 L 129.3,701.7 Q 118.6,697.4 114.3,686.7 L 108.4,672.6 Q 104.0,662.0 108.4,651.4 Z" fill="rgb(52,152,219)" fill-opacity="0.2" stroke="none"></path>
+            <path d="M 108.4,651.4 L 114.3,637.3 Q 118.6,626.6 134.2,600.5 L 155.0,565.7 Q 170.6,539.6 181.3,535.3 L 195.4,529.4 Q 206.0,525.0 216.6,529.4 L 230.7,535.3 Q 241.4,539.6 303.8,565.7 L 387.0,600.5 Q 449.4,626.6 453.7,637.3 L 459.6,651.4 Q 464.0,662.0 473.6,697.4 L 486.4,744.6 Q 496.0,780.0 491.6,790.6 L 485.7,804.7 Q 481.4,815.4 470.7,819.7 L 456.6,825.6 Q 446.0,830.0 358.4,794.6 L 241.6,747.4 Q 154.0,712.0 143.4,707.6 L 129.3,701.7 Q 118.6,697.4 114.3,686.7 L 108.4,672.6 Q 104.0,662.0 108.4,651.4 Z" fill="none" stroke-width="2" stroke="rgb(52,152,219)" stroke-opacity="0.6" stroke-dasharray="8,4"></path>
+        </g>
+        <g id="element_28" onclick="toggleLink(this.id)" data-depth="-1" data-type="group" data-members="element_7,element_8,element_9,element_13,element_15">
+            <path d="M 452.4,478.4 L 458.3,464.3 Q 462.6,453.6 473.3,449.3 L 487.4,443.4 Q 498.0,439.0 550.8,427.3 L 621.2,411.7 Q 674.0,400.0 684.6,404.4 L 698.7,410.3 Q 709.4,414.6 765.8,445.2 L 841.0,486.0 Q 897.4,516.6 901.7,527.3 L 907.6,541.4 Q 912.0,552.0 907.6,562.6 L 901.7,576.7 Q 897.4,587.4 850.6,657.9 L 788.2,751.9 Q 741.4,822.4 730.7,826.7 L 716.6,832.6 Q 706.0,837.0 695.4,832.6 L 681.3,826.7 Q 670.6,822.4 608.2,733.0 L 525.0,613.8 Q 462.6,524.4 458.3,513.7 L 452.4,499.6 Q 448.0,489.0 452.4,478.4 Z" fill="rgb(46,204,113)" fill-opacity="0.2" stroke="none"></path>
+            <path d="M 452.4,478.4 L 458.3,464.3 Q 462.6,453.6 473.3,449.3 L 487.4,443.4 Q 498.0,439.0 550.8,427.3 L 621.2,411.7 Q 674.0,400.0 684.6,404.4 L 698.7,410.3 Q 709.4,414.6 765.8,445.2 L 841.0,486.0 Q 897.4,516.6 901.7,527.3 L 907.6,541.4 Q 912.0,552.0 907.6,562.6 L 901.7,576.7 Q 897.4,587.4 850.6,657.9 L 788.2,751.9 Q 741.4,822.4 730.7,826.7 L 716.6,832.6 Q 706.0,837.0 695.4,832.6 L 681.3,826.7 Q 670.6,822.4 608.2,733.0 L 525.0,613.8 Q 462.6,524.4 458.3,513.7 L 452.4,499.6 Q 448.0,489.0 452.4,478.4 Z" fill="none" stroke-width="4" stroke="rgb(46,204,113)" stroke-opacity="0.6"></path>
+            <path d="M 452.4,478.4 L 458.3,464.3 Q 462.6,453.6 473.3,449.3 L 487.4,443.4 Q 498.0,439.0 550.8,427.3 L 621.2,411.7 Q 674.0,400.0 684.6,404.4 L 698.7,410.3 Q 709.4,414.6 765.8,445.2 L 841.0,486.0 Q 897.4,516.6 901.7,527.3 L 907.6,541.4 Q 912.0,552.0 907.6,562.6 L 901.7,576.7 Q 897.4,587.4 850.6,657.9 L 788.2,751.9 Q 741.4,822.4 730.7,826.7 L 716.6,832.6 Q 706.0,837.0 695.4,832.6 L 681.3,826.7 Q 670.6,822.4 608.2,733.0 L 525.0,613.8 Q 462.6,524.4 458.3,513.7 L 452.4,499.6 Q 448.0,489.0 452.4,478.4 Z" fill="none" stroke-width="1" stroke="rgb(46,204,113)" stroke-opacity="0.6"></path>
+        </g>
+        <g id="element_29" onclick="toggleLink(this.id)" data-depth="-1" data-type="group" data-members="element_16,element_17,element_18,element_20,element_19">
+            <path d="M 628.4,800.4 L 634.3,786.3 Q 638.6,775.6 732.2,662.5 L 857.0,511.7 Q 950.6,398.6 961.3,394.3 L 975.4,388.4 Q 986.0,384.0 996.6,388.4 L 1010.7,394.3 Q 1021.4,398.6 1025.7,409.3 L 1031.6,423.4 Q 1036.0,434.0 1020.4,547.1 L 999.6,697.9 Q 984.0,811.0 979.6,821.6 L 973.7,835.7 Q 969.4,846.4 958.7,850.7 L 944.6,856.6 Q 934.0,861.0 856.0,861.0 L 752.0,861.0 Q 674.0,861.0 663.4,856.6 L 649.3,850.7 Q 638.6,846.4 634.3,835.7 L 628.4,821.6 Q 624.0,811.0 628.4,800.4 Z" fill="rgb(149,165,166)" fill-opacity="0.2" stroke="none"></path>
+            <path d="M 628.4,800.4 L 634.3,786.3 Q 638.6,775.6 732.2,662.5 L 857.0,511.7 Q 950.6,398.6 961.3,394.3 L 975.4,388.4 Q 986.0,384.0 996.6,388.4 L 1010.7,394.3 Q 1021.4,398.6 1025.7,409.3 L 1031.6,423.4 Q 1036.0,434.0 1020.4,547.1 L 999.6,697.9 Q 984.0,811.0 979.6,821.6 L 973.7,835.7 Q 969.4,846.4 958.7,850.7 L 944.6,856.6 Q 934.0,861.0 856.0,861.0 L 752.0,861.0 Q 674.0,861.0 663.4,856.6 L 649.3,850.7 Q 638.6,846.4 634.3,835.7 L 628.4,821.6 Q 624.0,811.0 628.4,800.4 Z" fill="none" stroke-width="2" stroke="rgb(149,165,166)" stroke-opacity="0.6"></path>
+        </g>
+        <g id="element_30" onclick="toggleLink(this.id)" data-depth="-1" data-type="group" data-members="element_11,element_12">
+            <path d="M 296.4,329.4 L 302.3,315.3 Q 306.6,304.6 317.3,300.3 L 331.4,294.4 Q 342.0,290.0 388.8,282.8 L 451.2,273.2 Q 498.0,266.0 508.6,270.4 L 522.7,276.3 Q 533.4,280.6 537.7,291.3 L 543.6,305.4 Q 548.0,316.0 543.6,326.6 L 537.7,340.7 Q 533.4,351.4 522.7,355.7 L 508.6,361.6 Q 498.0,366.0 451.2,373.2 L 388.8,382.8 Q 342.0,390.0 331.4,385.6 L 317.3,379.7 Q 306.6,375.4 302.3,364.7 L 296.4,350.6 Q 292.0,340.0 296.4,329.4 Z" fill="rgb(155,89,182)" fill-opacity="0.2" stroke="none"></path>
+            <path d="M 296.4,329.4 L 302.3,315.3 Q 306.6,304.6 317.3,300.3 L 331.4,294.4 Q 342.0,290.0 388.8,282.8 L 451.2,273.2 Q 498.0,266.0 508.6,270.4 L 522.7,276.3 Q 533.4,280.6 537.7,291.3 L 543.6,305.4 Q 548.0,316.0 543.6,326.6 L 537.7,340.7 Q 533.4,351.4 522.7,355.7 L 508.6,361.6 Q 498.0,366.0 451.2,373.2 L 388.8,382.8 Q 342.0,390.0 331.4,385.6 L 317.3,379.7 Q 306.6,375.4 302.3,364.7 L 296.4,350.6 Q 292.0,340.0 296.4,329.4 Z" fill="none" stroke-width="2" stroke="rgb(155,89,182)" stroke-opacity="0.6"></path>
+        </g>
+    </g>
+    <g id="layer_10">
+        <g id="element_2" onclick="toggleLink(this.id)" data-depth="1" data-type="component" data-parent-id="element_0" data-y-rank="1" class="visibility0">
+            <g transform=" translate(726,301)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Web Storefront</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_3" onclick="toggleLink(this.id)" data-depth="1" data-type="component" data-parent-id="element_0" data-y-rank="1" class="visibility0">
+            <g transform=" translate(654,324)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="6">Mobile App</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_4" onclick="toggleLink(this.id)" data-depth="2" data-type="component" data-parent-id="element_2" data-y-rank="2" class="visibility0">
+            <g transform=" translate(550,505)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="middle">
+                    <tspan x="0" dy="30">Search and</tspan>
+                    <tspan x="0" dy="30">Discovery</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_5" onclick="toggleLink(this.id)" data-depth="3" data-type="pipeline" data-parent-id="element_4" data-y-rank="3" class="visibility0">
+            <g transform=" translate(622,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Collaborative</tspan>
+                    <tspan x="-25" dy="18">Filtering</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <path d="M 20,-24 h 20 M 20,-16 h 20" fill="none" stroke="rgb(149,165,166)" stroke-opacity="1.0" stroke-width="3"></path>
+                </g>
+            </g>
+            <g transform=" translate(362,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Deep Learning</tspan>
+                    <tspan x="-25" dy="18">Recommender</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <path d="M 20,-10 l 10,-10 l -10,-10 M 32,-10 l 10,-10 l -10,-10" fill="none" stroke="rgb(39,174,96)" stroke-opacity="1.0" stroke-width="3"></path>
+                </g>
+            </g>
+            <g transform=" translate(154,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Contextual</tspan>
+                    <tspan x="-25" dy="18">Bandit</tspan>
+                </text>
+                <title></title>
+            </g>
+            <rect x="154" y="652" width="468" height="20" fill="rgb(255,255,255)" fill-opacity="0.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></rect>
+            <g transform=" translate(414,662)">
+                <rect x="-5" y="-15" width="10" height="10" fill="rgb(142,68,173)" fill-opacity="1.0" stroke="rgb(142,68,173)" stroke-opacity="1.0" stroke-width="3"></rect>
+                <text fill="rgb(142,68,173)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6"></tspan>
+                </text>
+            </g>
+        </g>
+        <g id="element_6" onclick="toggleLink(this.id)" data-depth="3" data-type="evolved" data-parent-id="element_5" data-y-rank="3" class="visibility0">
+            <g transform=" translate(622,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="0">Recommendation</tspan>
+                    <tspan x="25" dy="18">Engine</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_7" onclick="toggleLink(this.id)" data-depth="2" data-type="component" data-parent-id="element_2" data-y-rank="2" class="visibility0">
+            <g transform=" translate(674,450)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Order Management</tspan>
+                </text>
+                <title></title>
+                <g data-type="warning">
+                    <path d="M -40,10 l 10,-20 l 10,20 Z" fill="rgb(230,126,34)"></path>
+                    <text fill="rgb(255,255,255)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="middle">
+                        <tspan x="-30" dy="6">!</tspan>
+                    </text>
+                    <title>⚠ Legacy monolith — hard to scale independently</title>
+                </g>
+            </g>
+        </g>
+        <g id="element_8" onclick="toggleLink(this.id)" data-depth="3" data-type="component" data-parent-id="element_11" data-y-rank="2" class="visibility0">
+            <g transform=" translate(602,583)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Inventory</tspan>
+                    <tspan x="-25" dy="18">Service</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_9" onclick="toggleLink(this.id)" data-depth="2" data-type="component" data-parent-id="element_2" data-y-rank="2" class="visibility0">
+            <g transform=" translate(498,489)">
+                <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(41,128,185)" fill-opacity="1.0" stroke="rgb(41,128,185)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(41,128,185)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6"></tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_10" onclick="toggleLink(this.id)" data-depth="2" data-type="evolved" data-parent-id="element_9" data-y-rank="2" class="visibility0">
+            <g transform=" translate(654,489)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Pricing Engine</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_11" onclick="toggleLink(this.id)" data-depth="1" data-type="component" data-parent-id="element_1" data-y-rank="1" class="visibility0">
+            <g transform=" translate(498,316)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Merchant</tspan>
+                    <tspan x="-25" dy="18">Portal</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <circle cx="30" cy="-20" r="4" fill="rgb(41,128,185)" fill-opacity="1.0" stroke="rgb(41,128,185)" stroke-opacity="1.0" stroke-width="2"></circle>
+                    <path d="M 30,-20 l 10,-6 M 30,-20 l 10,6 M 30,-20 l -10,-6 M 30,-20 l -10,6" fill="none" stroke="rgb(41,128,185)" stroke-opacity="1.0" stroke-width="2"></path>
+                </g>
+            </g>
+        </g>
+        <g id="element_12" onclick="toggleLink(this.id)" data-depth="1" data-type="component" data-parent-id="element_1" data-y-rank="1" class="visibility0">
+            <g transform=" translate(342,340)">
+                <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(39,174,96)" fill-opacity="1.0" stroke="rgb(39,174,96)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(39,174,96)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Merchant</tspan>
+                    <tspan x="-25" dy="18">Analytics</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_13" onclick="toggleLink(this.id)" data-depth="3" data-type="component" data-parent-id="element_7" data-y-rank="2" class="visibility0">
+            <g transform=" translate(862,552)">
+                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Payment Gateway</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_14" onclick="toggleLink(this.id)" data-depth="4" data-type="component" data-parent-id="element_12" data-y-rank="4" class="visibility0">
+            <g transform=" translate(446,780)">
+                <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(231,76,60)" fill-opacity="1.0" stroke="rgb(231,76,60)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(231,76,60)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Customer</tspan>
+                    <tspan x="-25" dy="18">Data Platform</tspan>
+                </text>
+                <title></title>
+                <g data-type="warning">
+                    <path d="M -40,10 l 10,-20 l 10,20 Z" fill="rgb(230,126,34)"></path>
+                    <text fill="rgb(255,255,255)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="middle">
+                        <tspan x="-30" dy="6">!</tspan>
+                    </text>
+                    <title>⚠ GDPR compliance gap in cross-border data flows</title>
+                </g>
+            </g>
+        </g>
+        <g id="element_15" onclick="toggleLink(this.id)" data-depth="4" data-type="component" data-parent-id="element_11" data-y-rank="4" class="visibility0">
+            <g transform=" translate(706,787)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Product Catalogue</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_16" onclick="toggleLink(this.id)" data-depth="5" data-type="component" data-parent-id="element_17" data-y-rank="4" class="visibility0">
+            <g transform=" translate(934,811)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Cloud Compute</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <path d="M 20,-20 a 6,6 0 0,1 12,0 M 16,-20 a 10,10 0 0,1 20,0" fill="none" stroke="rgb(22,160,133)" stroke-opacity="1.0" stroke-width="2.5"></path>
+                </g>
+                <g data-type="warning">
+                    <path d="M -40,10 l 10,-20 l 10,20 Z" fill="rgb(230,126,34)"></path>
+                    <text fill="rgb(255,255,255)" fill-opacity="1.0" font-weight="bold" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" font-size="14px" text-anchor="middle">
+                        <tspan x="-30" dy="6">!</tspan>
+                    </text>
+                    <title>⚠ Single vendor lock-in — AWS costs rising 25% YoY</title>
+                </g>
+            </g>
+        </g>
+        <g id="element_17" onclick="toggleLink(this.id)" data-depth="2" data-type="component" data-parent-id="element_2" data-y-rank="2" class="visibility0">
+            <g transform=" translate(986,434)">
+                <circle cx="0" cy="0" r="20" fill="rgb(68,68,68)" fill-opacity="1.0" stroke="rgb(68,68,68)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">CDN</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_18" onclick="toggleLink(this.id)" data-depth="6" data-type="component" data-parent-id="element_16" data-y-rank="4" class="visibility0">
+            <g transform=" translate(830,811)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-12" dy="18">Container</tspan>
+                    <tspan x="-12" dy="18">Orchestration</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <path d="M 20,-20 l 16,12 l -8,0 M 20,-20 l 16,12 l 0,-8" fill="none" stroke="rgb(52,73,94)" stroke-opacity="1.0" stroke-width="3"></path>
+                </g>
+            </g>
+        </g>
+        <g id="element_19" onclick="toggleLink(this.id)" data-depth="7" data-type="component" data-y-rank="4" class="visibility0">
+            <g transform=" translate(674,811)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-12" dy="-16">Observability</tspan>
+                    <tspan x="-12" dy="18">Stack</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_20" onclick="toggleLink(this.id)" data-depth="3" data-type="component" data-parent-id="element_7" data-y-rank="2" class="visibility0">
+            <g transform=" translate(882,607)">
+                <circle cx="0" cy="0" r="20" fill="rgb(170,165,169)" fill-opacity="1.0" stroke="rgb(214,214,214)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6">Message Queue</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_21" onclick="toggleLink(this.id)" data-depth="3" data-type="component" data-parent-id="element_4" data-y-rank="2" class="visibility0">
+            <g transform=" translate(206,575)">
+                <circle cx="0" cy="0" r="20" fill="rgb(214,214,214)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <circle cx="0" cy="0" r="5" fill="rgb(230,126,34)" fill-opacity="1.0" stroke="rgb(230,126,34)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(230,126,34)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="start">
+                    <tspan x="25" dy="6"></tspan>
+                </text>
+                <title>R&amp;D initiative — 3 engineers, 6-month horizon</title>
+                <g data-type="signal">
+                    <path d="M 20,-10 l 10,-10 l -10,-10 M 32,-10 l 10,-10 l -10,-10" fill="none" stroke="rgb(39,174,96)" stroke-opacity="1.0" stroke-width="3"></path>
+                </g>
+            </g>
+        </g>
+        <g id="element_22" onclick="toggleLink(this.id)" data-depth="3" data-type="evolved" data-parent-id="element_21" data-y-rank="2" class="visibility0">
+            <g transform=" translate(394,575)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(255,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(255,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Real-Time</tspan>
+                    <tspan x="-25" dy="18">Personalisation</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_23" onclick="toggleLink(this.id)" data-depth="3" data-type="submap" data-parent-id="element_7" data-y-rank="2" class="visibility0">
+            <g transform=" translate(758,544)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Fulfilment</tspan>
+                    <tspan x="-25" dy="18">and Logistics</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+        <g id="element_24" onclick="toggleLink(this.id)" data-depth="4" data-type="component" data-y-rank="3" class="visibility0">
+            <g transform=" translate(622,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Collaborative</tspan>
+                    <tspan x="-25" dy="18">Filtering</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <path d="M 20,-24 h 20 M 20,-16 h 20" fill="none" stroke="rgb(149,165,166)" stroke-opacity="1.0" stroke-width="3"></path>
+                </g>
+            </g>
+        </g>
+        <g id="element_25" onclick="toggleLink(this.id)" data-depth="4" data-type="component" data-parent-id="element_21" data-y-rank="3" class="visibility0">
+            <g transform=" translate(362,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Deep Learning</tspan>
+                    <tspan x="-25" dy="18">Recommender</tspan>
+                </text>
+                <title></title>
+                <g data-type="signal">
+                    <path d="M 20,-10 l 10,-10 l -10,-10 M 32,-10 l 10,-10 l -10,-10" fill="none" stroke="rgb(39,174,96)" stroke-opacity="1.0" stroke-width="3"></path>
+                </g>
+            </g>
+        </g>
+        <g id="element_26" onclick="toggleLink(this.id)" data-depth="4" data-type="component" data-y-rank="3" class="visibility0">
+            <g transform=" translate(154,662)">
+                <circle cx="0" cy="0" r="5" fill="rgb(255,255,255)" fill-opacity="1.0" stroke="rgb(0,0,0)" stroke-opacity="1.0" stroke-width="1"></circle>
+                <text fill="rgb(0,0,0)" fill-opacity="1.0" font-family="Century Gothic,CenturyGothic,AppleGothic,sans-serif" text-anchor="end">
+                    <tspan x="-25" dy="0">Contextual</tspan>
+                    <tspan x="-25" dy="18">Bandit</tspan>
+                </text>
+                <title></title>
+            </g>
+        </g>
+    </g>
+</svg>

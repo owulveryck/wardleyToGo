@@ -33,3 +33,7 @@ coverage.out
 /output.svg
 /sample.svg
 /wtg.svg
+/exp/collab/collab.test
+/exp/ui/ui
+/exp/ui/main.wasm
+/exp/ui/wasm_exec.js
