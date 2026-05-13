@@ -26,3 +26,10 @@ docs/static/demo/wtg.wasm
 .envrc
 .claude/settings.local.json
 coverage.out
+/coverage.txt
+/ui
+/wasm
+/owm2wtg2
+/output.svg
+/sample.svg
+/wtg.svg
