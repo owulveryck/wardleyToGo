@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; connect-src 'self' ws: wss:; img-src 'self' data: blob:; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; worker-src 'self' blob:;">
     <title>WTG2 Playground</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -11,8 +12,8 @@
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link rel="preload" href="main.wasm" as="fetch" type="application/wasm" crossorigin>
     <link rel="preload" href="wasm_exec.js" as="script">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css" integrity="sha384-zaeBlB/vwYsDRSlFajnDd7OydJ0cWk+c2OWybl3eSUf6hW2EbhlCsQPqKr3gkznT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.css" integrity="sha384-TU/qRI67N04B589luYdn1ZMRIGgJic3GB1WsvLJTRh92VO26vpxI4dCKiDtsR4fw" crossorigin="anonymous">
     <style>
 /* === RESET & BASE === */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -780,14 +781,14 @@ body { font-family: 'SF Pro Display', system-ui, -apple-system, 'Segoe UI', sans
         </div>
     </div>
 
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/display/placeholder.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js" integrity="sha384-BEgQlz0fN4eG0n4jipmUe+nOg65hPY7L0E/lPVRaOPdzAfLPGEbXnpAodHtSnlwM" crossorigin="anonymous"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/mode/simple.min.js" integrity="sha384-5+aYjV0V2W3IwhAYp/9WOrGMv1TaYkCjnkkW7Hv3yJQo28MergRCSRaUIUzDUs2J" crossorigin="anonymous"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/hint/show-hint.min.js" integrity="sha384-qCnKPgNYgVO8RO19jShRRAfU75+KVnN1cQy+8CPX/TTwJsUEJ/EpnwKx2UOyLx8c" crossorigin="anonymous"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/addon/display/placeholder.min.js" integrity="sha384-l05Wp1XtebCkGEIvEqqocN2o/YCyo0osxmJkB2k1cKkA29Au//d29LAph5kRro5I" crossorigin="anonymous"></script>
     <script defer src="wasm_exec.js"></script>
     <script defer src="gif.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js" integrity="sha384-rNlaE5fs9dGIjmxWDALQh/RBAaGRYT5ChrzHo6tRfgrZ36iRFAiquP5g41Jsv+0j" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js" integrity="sha384-5zRBkJ6IHy9ezWHX/cBuwC0SnrK23Cfx6G6kIjwR5no9khaSv2md2ZHMXphI3UCB" crossorigin="anonymous"></script>
     <script defer src="app.js"></script>
 </body>
 </html>

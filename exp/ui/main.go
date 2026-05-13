@@ -14,7 +14,7 @@ import (
 
 func main() {
 	fs := http.FileServer(http.Dir("."))
-	handler := cacheHeaders(gzipHandler(fs))
+	handler := securityHeaders(cacheHeaders(gzipHandler(fs)))
 	fmt.Println("Serving on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", handler); err != nil {
 		fmt.Println("Server error:", err)
@@ -58,6 +58,31 @@ func gzipHandler(next http.Handler) http.Handler {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.Header().Set("Vary", "Accept-Encoding")
 		next.ServeHTTP(&gzipResponseWriter{Writer: gz, ResponseWriter: w}, r)
+	})
+}
+
+var mimeTypes = map[string]string{
+	".js":   "application/javascript",
+	".mjs":  "application/javascript",
+	".wasm": "application/wasm",
+	".css":  "text/css",
+	".html": "text/html; charset=utf-8",
+	".svg":  "image/svg+xml",
+	".json": "application/json",
+	".png":  "image/png",
+	".ico":  "image/x-icon",
+}
+
+func securityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+		if ct, ok := mimeTypes[filepath.Ext(r.URL.Path)]; ok {
+			w.Header().Set("Content-Type", ct)
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 

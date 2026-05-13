@@ -13,11 +13,18 @@ type Parser struct {
 	lexer *Lexer
 }
 
+// MaxInputSize is the maximum number of bytes the parser will read.
+// Inputs exceeding this limit cause an error instead of risking OOM.
+const MaxInputSize = 1 << 20 // 1 MB
+
 // NewParser creates a parser from an io.Reader.
 func NewParser(r io.Reader) (*Parser, error) {
-	data, err := io.ReadAll(r)
+	data, err := io.ReadAll(io.LimitReader(r, MaxInputSize+1))
 	if err != nil {
 		return nil, fmt.Errorf("reading input: %w", err)
+	}
+	if len(data) > MaxInputSize {
+		return nil, fmt.Errorf("input too large: %d bytes exceeds limit of %d bytes", len(data), MaxInputSize)
 	}
 	return &Parser{
 		lexer: NewLexer(string(data)),

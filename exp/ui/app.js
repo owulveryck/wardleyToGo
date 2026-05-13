@@ -1815,15 +1815,20 @@ function scheduleRender() {
     renderTimer = setTimeout(render, 400);
 }
 
-function execInlineScripts(container) {
-    container.querySelectorAll('script').forEach(function(old) {
-        var s = document.createElement('script');
-        var code = old.textContent;
-        code = code.replace(/\bconst\s+/g, 'var ');
-        code = code.replace(/\blet\s+/g, 'var ');
-        s.textContent = code;
-        old.parentNode.replaceChild(s, old);
+function initSVGInteractivity(container, doc) {
+    doc = doc || document;
+    container.querySelectorAll('script:not(#SVGScript)').forEach(function(s) {
+        s.remove();
     });
+    var scriptEl = container.querySelector('#SVGScript');
+    if (!scriptEl) return;
+    var code = scriptEl.textContent;
+    scriptEl.remove();
+    code = code.replace(/\bconst\s+/g, 'var ');
+    code = code.replace(/\blet\s+/g, 'var ');
+    var s = doc.createElement('script');
+    s.textContent = code;
+    container.appendChild(s);
 }
 
 function render() {
@@ -1855,7 +1860,7 @@ function render() {
         output.innerHTML = '<div class="error">' + escapeHtml(result) + '</div>';
     } else {
         output.innerHTML = result;
-        execInlineScripts(output);
+        initSVGInteractivity(output);
     }
     document.getElementById('status').textContent = t('status.ok');
     applyCanvasTransform();
@@ -2428,7 +2433,10 @@ function downloadGIF() {
         return;
     }
     var svgStr = getAnimatedSVG();
-    if (!svgStr) return;
+    if (!svgStr) {
+        showToast(t('export.error', { message: 'Nothing to export' }));
+        return;
+    }
 
     var resPct = getResolution();
     var dims = getBaseDimensions();
@@ -2446,7 +2454,10 @@ function downloadGIF() {
     captureAnimationFrames(svgStr, w, h, function(p) {
         updateExportProgress(p * 50, t('export.progress', { percent: Math.round(p * 50) }));
     }, GIF_FPS).then(function(result) {
-        if (_exportCancelled) return;
+        if (_exportCancelled) {
+            hideExportProgress();
+            return;
+        }
 
         if (!result.hasAnimations) {
             showToast(t('export.noAnimations'));
@@ -2486,7 +2497,19 @@ function downloadGIF() {
             URL.revokeObjectURL(a.href);
         });
 
-        gifEncoder.render();
+        gifEncoder.on('error', function(err) {
+            console.error('GIF encoder error:', err);
+            hideExportProgress();
+            showToast(t('export.error', { message: err.message || String(err) }));
+        });
+
+        try {
+            gifEncoder.render();
+        } catch (err) {
+            console.error('GIF render error:', err);
+            hideExportProgress();
+            showToast(t('export.error', { message: err.message || String(err) }));
+        }
     }).catch(function(err) {
         console.error('GIF export error:', err);
         hideExportProgress();
@@ -2503,7 +2526,10 @@ function downloadAPNG() {
         return;
     }
     var svgStr = getAnimatedSVG();
-    if (!svgStr) return;
+    if (!svgStr) {
+        showToast(t('export.error', { message: 'Nothing to export' }));
+        return;
+    }
 
     var resPct = getResolution();
     var dims = getBaseDimensions();
@@ -2517,7 +2543,10 @@ function downloadAPNG() {
     captureAnimationFrames(svgStr, w, h, function(p) {
         updateExportProgress(p * 70, t('export.progress', { percent: Math.round(p * 70) }));
     }).then(function(result) {
-        if (_exportCancelled) return;
+        if (_exportCancelled) {
+            hideExportProgress();
+            return;
+        }
 
         if (!result.hasAnimations) {
             showToast(t('export.noAnimations'));
@@ -2573,11 +2602,7 @@ function updateDetached() {
     const container = detachedWindow.document.getElementById('map');
     if (container) {
         container.innerHTML = svgStr;
-        container.querySelectorAll('script').forEach(function(old) {
-            var s = detachedWindow.document.createElement('script');
-            s.textContent = old.textContent;
-            old.parentNode.replaceChild(s, old);
-        });
+        initSVGInteractivity(container, detachedWindow.document);
     }
 }
 
