@@ -2,6 +2,7 @@ package svg
 
 import (
 	"strings"
+	"unicode/utf8"
 )
 
 func splitString(s string, max int) []string {
@@ -9,7 +10,7 @@ func splitString(s string, max int) []string {
 	words := strings.Fields(s)
 	for _, w := range words {
 		switch {
-		case len(output[len(output)-1]) >= max:
+		case utf8.RuneCountInString(output[len(output)-1]) >= max:
 			output = append(output, w)
 		case len(output[len(output)-1]) == 0:
 			output[len(output)-1] = w

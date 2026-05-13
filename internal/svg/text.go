@@ -198,7 +198,7 @@ func (t Text) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 				dy = ((len(words))/2)*-6 + 6
 			}
 		case dy > 0:
-			if i > 0 && dy < 10 {
+			if i > 0 {
 				dy = 18
 			}
 		}
