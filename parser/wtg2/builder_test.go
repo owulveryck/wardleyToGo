@@ -715,3 +715,87 @@ func TestBuildMap_ExampleFile(t *testing.T) {
 		t.Errorf("edge count = %d, want >= 10", edgeCount)
 	}
 }
+
+func TestBuildMap_UnresolvedEdgeWarning(t *testing.T) {
+	doc := &Document{
+		Title:  "Test Warnings",
+		Stages: [4]string{"Genesis", "Custom", "Product", "Commodity"},
+		Nodes: []*NodeDecl{
+			{Name: "User", Kind: KindAnchor, Visibility: -1},
+			{Name: "App", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "User", To: "App"},
+			{From: "App", To: "NonExistent"},
+			{From: "Ghost", To: "User"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Valid edge should still be created
+	if len(result.Map.Collaborations()) != 1 {
+		t.Errorf("expected 1 valid edge, got %d", len(result.Map.Collaborations()))
+	}
+
+	// Warnings should be emitted for unresolved references
+	if len(result.Warnings) == 0 {
+		t.Fatal("expected warnings for unresolved edge references")
+	}
+
+	foundNonExistent := false
+	foundGhost := false
+	for _, w := range result.Warnings {
+		if contains(w, "NonExistent") {
+			foundNonExistent = true
+		}
+		if contains(w, "Ghost") {
+			foundGhost = true
+		}
+	}
+	if !foundNonExistent {
+		t.Error("expected warning mentioning 'NonExistent'")
+	}
+	if !foundGhost {
+		t.Error("expected warning mentioning 'Ghost'")
+	}
+}
+
+func TestBuildMap_NoWarningsForValidEdges(t *testing.T) {
+	doc := &Document{
+		Title:  "Test No Warnings",
+		Stages: [4]string{"Genesis", "Custom", "Product", "Commodity"},
+		Nodes: []*NodeDecl{
+			{Name: "A", Kind: KindAnchor, Visibility: -1},
+			{Name: "B", Kind: KindComponent, Evolution: "III.5", Visibility: -1},
+		},
+		Edges: []*EdgeDecl{
+			{From: "A", To: "B"},
+		},
+	}
+
+	result, err := BuildMap(doc)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(result.Warnings) != 0 {
+		t.Errorf("expected no warnings, got %v", result.Warnings)
+	}
+}
+
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsSubstr(s, substr))
+}
+
+func containsSubstr(s, sub string) bool {
+	for i := 0; i <= len(s)-len(sub); i++ {
+		if s[i:i+len(sub)] == sub {
+			return true
+		}
+	}
+	return false
+}

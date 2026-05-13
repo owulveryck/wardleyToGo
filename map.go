@@ -112,7 +112,9 @@ func (m *Map) AddComponent(e Component) error {
 			return errors.New("component out of bounds")
 		}
 	}
-	m.g.AddNode(e)
+	if err := m.g.AddNode(e); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -128,7 +130,9 @@ func (m *Map) SetCollaboration(e Collaboration) error {
 	}
 	m.collabs[fid][tid] = e
 	// Store an adapter edge in the internal graph for traversal
-	m.g.SetEdge(collabEdge{c: e})
+	if err := m.g.SetEdge(collabEdge{c: e}); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -54,6 +54,12 @@ func generate(_ js.Value, args []js.Value) any {
 		baseW = args[3].Int()
 		baseH = args[4].Int()
 	}
+	if baseW < 200 || baseH < 200 {
+		return fmt.Sprintf("error: dimensions too small %dx%d (minimum 200x200)", baseW, baseH)
+	}
+	if baseW > 10000 || baseH > 10000 {
+		return fmt.Sprintf("error: dimensions too large %dx%d (maximum 10000x10000)", baseW, baseH)
+	}
 
 	p, err := wtg2.NewParser(bytes.NewBufferString(input))
 	if err != nil {

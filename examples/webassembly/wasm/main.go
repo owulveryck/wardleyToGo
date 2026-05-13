@@ -41,6 +41,9 @@ func wtgWrapper() js.Func {
 		if width < 200 || height < 200 {
 			return fmt.Sprintf("size too small %vx%v (expected at least 200x200)", width, height)
 		}
+		if width > 10000 || height > 10000 {
+			return fmt.Sprintf("size too large %vx%v (expected at most 10000x10000)", width, height)
+		}
 		svg, err := wtg2SVG(input, width, height, withAnnotations)
 		if err != nil {
 			fmt.Printf("unable to generate svg %s\n", err)

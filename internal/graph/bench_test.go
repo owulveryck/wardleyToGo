@@ -8,17 +8,17 @@ func buildTestGraph(n int) *DirectedGraph {
 	nodes := make([]Node, n)
 	for i := 0; i < n; i++ {
 		nodes[i] = g.NewNode()
-		g.AddNode(nodes[i])
+		_ = g.AddNode(nodes[i])
 	}
 	// Create edges: each node connects to the next two (wrapping).
 	for i := 0; i < n; i++ {
 		j := (i + 1) % n
 		if i != j {
-			g.SetEdge(simpleEdge{from: nodes[i], to: nodes[j]})
+			_ = g.SetEdge(simpleEdge{from: nodes[i], to: nodes[j]})
 		}
 		k := (i + 2) % n
 		if i != k && j != k {
-			g.SetEdge(simpleEdge{from: nodes[i], to: nodes[k]})
+			_ = g.SetEdge(simpleEdge{from: nodes[i], to: nodes[k]})
 		}
 	}
 	return g

@@ -1,8 +1,11 @@
 package wtg2
 
 import (
+	"fmt"
 	"strings"
 )
+
+const maxNestingDepth = 64
 
 // TokenType classifies a lexed statement.
 type TokenType int
@@ -39,7 +42,11 @@ type Token struct {
 type Lexer struct {
 	lines []string
 	pos   int
+	err   error
 }
+
+// Err returns the first error encountered during lexing.
+func (l *Lexer) Err() error { return l.err }
 
 // NewLexer creates a lexer from the full source text.
 func NewLexer(input string) *Lexer {
@@ -119,6 +126,10 @@ func (l *Lexer) extractBlock(line string) (string, []string) {
 		}
 		if strings.Contains(trimmed, "{") {
 			depth++
+			if depth > maxNestingDepth {
+				l.err = fmt.Errorf("line %d: nesting depth exceeds maximum of %d", l.pos, maxNestingDepth)
+				return header, block
+			}
 		}
 		if strings.Contains(trimmed, "}") && !strings.HasPrefix(trimmed, "}") {
 			depth--

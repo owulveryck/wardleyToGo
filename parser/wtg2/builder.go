@@ -26,6 +26,7 @@ type BuildResult struct {
 	LegendItems []svgmap.LegendItem
 	Focus       *FocusSet              // nil if no focus directive is present
 	Animation   *svgmap.AnimationData  // nil until computed; populated by BuildMap
+	Warnings    []string               // non-fatal issues encountered during build
 }
 
 // FocusSet identifies which elements should remain at full opacity when focus is active.
@@ -298,11 +299,18 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 	}
 
 	// Phase 3: Create edges
+	var warnings []string
 	for _, ed := range doc.Edges {
 		fromNode := resolveNodeRef(ed.From, nodeDict)
 		toNode := resolveNodeRef(ed.To, nodeDict)
 		if fromNode == nil || toNode == nil {
-			continue // skip unresolved references
+			if fromNode == nil {
+				warnings = append(warnings, fmt.Sprintf("edge references unknown component %q", ed.From))
+			}
+			if toNode == nil {
+				warnings = append(warnings, fmt.Sprintf("edge references unknown component %q", ed.To))
+			}
+			continue
 		}
 
 		collab := &wardley.Collaboration{
@@ -409,6 +417,7 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 		Stages:      stages,
 		Legend:      doc.Legend,
 		LegendItems: buildLegendItems(doc),
+		Warnings:    warnings,
 	}
 
 	// Phase 5: Compute focus set

@@ -1,6 +1,9 @@
 package graph
 
-import "sort"
+import (
+	"errors"
+	"sort"
+)
 
 // simpleNode is a minimal Node used by DirectedGraph.NewNode.
 type simpleNode struct {
@@ -43,12 +46,12 @@ func (g *DirectedGraph) NewNode() Node {
 	}
 }
 
-// AddNode adds n to the graph. It panics if a node with the same ID
-// already exists.
-func (g *DirectedGraph) AddNode(n Node) {
+// AddNode adds n to the graph. It returns an error if a node with the
+// same ID already exists.
+func (g *DirectedGraph) AddNode(n Node) error {
 	id := n.ID()
 	if _, exists := g.nodes[id]; exists {
-		panic("graph: node already exists")
+		return errors.New("graph: node already exists")
 	}
 	g.nodes[id] = n
 	g.cachedNodes = nil // invalidate cache
@@ -62,6 +65,7 @@ func (g *DirectedGraph) AddNode(n Node) {
 	if id >= g.nextID {
 		g.nextID = id + 1
 	}
+	return nil
 }
 
 // Node returns the node with the given ID, or nil.
@@ -88,12 +92,13 @@ func (g *DirectedGraph) Nodes() *Nodes {
 	return NewNodes(g.cachedNodes)
 }
 
-// SetEdge adds or replaces an edge. Both endpoints must already exist.
-func (g *DirectedGraph) SetEdge(e Edge) {
+// SetEdge adds or replaces an edge. It returns an error if the edge
+// would create a self-loop.
+func (g *DirectedGraph) SetEdge(e Edge) error {
 	from := e.From().ID()
 	to := e.To().ID()
 	if from == to {
-		panic("graph: self-loop")
+		return errors.New("graph: self-loop")
 	}
 	// Auto-init adjacency maps if nodes were added without them.
 	if g.from[from] == nil {
@@ -104,6 +109,7 @@ func (g *DirectedGraph) SetEdge(e Edge) {
 	}
 	g.from[from][to] = e
 	g.to[to][from] = e
+	return nil
 }
 
 // RemoveEdge removes the edge from uid to vid, if it exists.

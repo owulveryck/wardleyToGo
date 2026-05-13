@@ -79,6 +79,10 @@ func (p *Parser) Parse() (*Document, error) {
 		}
 	}
 
+	if err := p.lexer.Err(); err != nil {
+		return nil, err
+	}
+
 	return doc, nil
 }
 

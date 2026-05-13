@@ -1,6 +1,9 @@
 package wtg2
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestLexerClassification(t *testing.T) {
 	input := `// comment
@@ -84,5 +87,75 @@ func TestLexerBareComponent(t *testing.T) {
 	tok := lex.Next()
 	if tok.Type != TokenComponent {
 		t.Errorf("expected TokenComponent for bare component, got %d", tok.Type)
+	}
+}
+
+func TestLexerNestingDepthLimit(t *testing.T) {
+	// Build input with nesting deeper than maxNestingDepth
+	var sb strings.Builder
+	sb.WriteString("component Root {\n")
+	for i := 0; i < maxNestingDepth+5; i++ {
+		sb.WriteString("nested {\n")
+	}
+	for i := 0; i < maxNestingDepth+5; i++ {
+		sb.WriteString("}\n")
+	}
+	sb.WriteString("}\n")
+
+	lex := NewLexer(sb.String())
+	for {
+		tok := lex.Next()
+		if tok.Type == TokenEOF {
+			break
+		}
+	}
+	if lex.Err() == nil {
+		t.Fatal("expected nesting depth error, got nil")
+	}
+	if !strings.Contains(lex.Err().Error(), "nesting depth") {
+		t.Fatalf("unexpected error message: %v", lex.Err())
+	}
+}
+
+func TestLexerNestingWithinLimit(t *testing.T) {
+	// 3 levels of nesting — well within the limit
+	input := `component A {
+  evolution: III.5
+  sub {
+    inner {
+      deep: value
+    }
+  }
+}`
+	lex := NewLexer(input)
+	for {
+		tok := lex.Next()
+		if tok.Type == TokenEOF {
+			break
+		}
+	}
+	if lex.Err() != nil {
+		t.Fatalf("unexpected error for valid nesting: %v", lex.Err())
+	}
+}
+
+func TestParserNestingDepthError(t *testing.T) {
+	var sb strings.Builder
+	sb.WriteString("component Root {\n")
+	for i := 0; i < maxNestingDepth+5; i++ {
+		sb.WriteString("nested {\n")
+	}
+	for i := 0; i < maxNestingDepth+5; i++ {
+		sb.WriteString("}\n")
+	}
+	sb.WriteString("}\n")
+
+	p, err := NewParser(strings.NewReader(sb.String()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = p.Parse()
+	if err == nil {
+		t.Fatal("expected parser error for excessive nesting depth")
 	}
 }

@@ -6,8 +6,12 @@ func TestDirectedGraph_AddNodeAndEdge(t *testing.T) {
 	g := NewDirectedGraph()
 	n1 := g.NewNode()
 	n2 := g.NewNode()
-	g.AddNode(n1)
-	g.AddNode(n2)
+	if err := g.AddNode(n1); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n2); err != nil {
+		t.Fatal(err)
+	}
 
 	if g.Node(n1.ID()) == nil {
 		t.Fatal("expected node n1")
@@ -17,7 +21,9 @@ func TestDirectedGraph_AddNodeAndEdge(t *testing.T) {
 	}
 
 	e := SimpleEdge{F: n1, T: n2}
-	g.SetEdge(e)
+	if err := g.SetEdge(e); err != nil {
+		t.Fatal(err)
+	}
 
 	if !g.HasEdgeFromTo(n1.ID(), n2.ID()) {
 		t.Error("expected edge from n1 to n2")
@@ -34,9 +40,15 @@ func TestDirectedGraph_RemoveEdge(t *testing.T) {
 	g := NewDirectedGraph()
 	n1 := g.NewNode()
 	n2 := g.NewNode()
-	g.AddNode(n1)
-	g.AddNode(n2)
-	g.SetEdge(SimpleEdge{F: n1, T: n2})
+	if err := g.AddNode(n1); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n2); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n1, T: n2}); err != nil {
+		t.Fatal(err)
+	}
 	g.RemoveEdge(n1.ID(), n2.ID())
 
 	if g.HasEdgeFromTo(n1.ID(), n2.ID()) {
@@ -49,11 +61,21 @@ func TestDirectedGraph_FromTo(t *testing.T) {
 	n1 := g.NewNode()
 	n2 := g.NewNode()
 	n3 := g.NewNode()
-	g.AddNode(n1)
-	g.AddNode(n2)
-	g.AddNode(n3)
-	g.SetEdge(SimpleEdge{F: n1, T: n2})
-	g.SetEdge(SimpleEdge{F: n1, T: n3})
+	if err := g.AddNode(n1); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n2); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n3); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n1, T: n2}); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n1, T: n3}); err != nil {
+		t.Fatal(err)
+	}
 
 	from := g.From(n1.ID())
 	if from.Len() != 2 {
@@ -71,11 +93,21 @@ func TestDepthFirst_Walk(t *testing.T) {
 	n1 := g.NewNode()
 	n2 := g.NewNode()
 	n3 := g.NewNode()
-	g.AddNode(n1)
-	g.AddNode(n2)
-	g.AddNode(n3)
-	g.SetEdge(SimpleEdge{F: n1, T: n2})
-	g.SetEdge(SimpleEdge{F: n2, T: n3})
+	if err := g.AddNode(n1); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n2); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n3); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n1, T: n2}); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n2, T: n3}); err != nil {
+		t.Fatal(err)
+	}
 
 	var visited []int64
 	df := &DepthFirst{
@@ -90,6 +122,56 @@ func TestDepthFirst_Walk(t *testing.T) {
 	}
 }
 
+func TestDirectedGraph_AddNode_DuplicateError(t *testing.T) {
+	g := NewDirectedGraph()
+	n := g.NewNode()
+	if err := g.AddNode(n); err != nil {
+		t.Fatal(err)
+	}
+	err := g.AddNode(n)
+	if err == nil {
+		t.Fatal("expected error when adding duplicate node")
+	}
+	if g.Nodes().Len() != 1 {
+		t.Fatalf("expected 1 node after duplicate add, got %d", g.Nodes().Len())
+	}
+}
+
+func TestDirectedGraph_SetEdge_SelfLoopError(t *testing.T) {
+	g := NewDirectedGraph()
+	n := g.NewNode()
+	if err := g.AddNode(n); err != nil {
+		t.Fatal(err)
+	}
+	err := g.SetEdge(SimpleEdge{F: n, T: n})
+	if err == nil {
+		t.Fatal("expected error for self-loop edge")
+	}
+	if g.Edges().Len() != 0 {
+		t.Fatalf("expected 0 edges after self-loop attempt, got %d", g.Edges().Len())
+	}
+}
+
+func TestDirectedGraph_SetEdge_ReplaceExisting(t *testing.T) {
+	g := NewDirectedGraph()
+	n1 := g.NewNode()
+	n2 := g.NewNode()
+	if err := g.AddNode(n1); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.AddNode(n2); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n1, T: n2}); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.SetEdge(SimpleEdge{F: n1, T: n2}); err != nil {
+		t.Fatal("replacing existing edge should not error:", err)
+	}
+	if g.Edges().Len() != 1 {
+		t.Fatalf("expected 1 edge after replace, got %d", g.Edges().Len())
+	}
+}
 
 func TestIterators(t *testing.T) {
 	nodes := NewNodes([]Node{simpleNode{0}, simpleNode{1}})
