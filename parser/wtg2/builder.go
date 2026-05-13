@@ -192,13 +192,23 @@ func BuildMap(doc *Document) (*BuildResult, error) {
 
 		parentY := comp.Placement.Y
 		for _, member := range pl.Members {
-			memberComp := wardley.NewComponent(newID())
-			memberComp.Label = member.Name
-			memberComp.Configured = true
 			x, err := ParsePosition(member.Position)
 			if err != nil {
 				return nil, fmt.Errorf("pipeline member %q: %w", member.Name, err)
 			}
+
+			if existing, ok := nodeDict[member.Name]; ok {
+				if existingComp, ok := existing.node.(*wardley.Component); ok {
+					existingComp.Placement = image.Pt(x, parentY)
+					existingComp.PipelineReference = comp
+					comp.PipelinedComponents = append(comp.PipelinedComponents, existingComp)
+					continue
+				}
+			}
+
+			memberComp := wardley.NewComponent(newID())
+			memberComp.Label = member.Name
+			memberComp.Configured = true
 			memberComp.Placement = image.Pt(x, parentY)
 			memberComp.PipelineReference = comp
 			comp.PipelinedComponents = append(comp.PipelinedComponents, memberComp)
