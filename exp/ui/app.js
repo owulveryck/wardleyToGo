@@ -2649,18 +2649,25 @@ function downloadPDF() {
     var parser = new DOMParser();
     var doc = parser.parseFromString(baseSvg, 'image/svg+xml');
     var svg = doc.documentElement;
-    var componentIds = [];
+
+    var nameToId = {};
+    var idHasDesc = {};
     var groups = svg.querySelectorAll('g[id^="element_"]');
     for (var i = 0; i < groups.length; i++) {
-        var descs = groups[i].querySelectorAll('desc');
-        var hasContent = false;
-        for (var d = 0; d < descs.length; d++) {
-            if (descs[d].textContent.trim()) { hasContent = true; break; }
+        var gId = groups[i].id;
+        var innerG = groups[i].querySelector('g[transform]');
+        if (innerG) {
+            var textEl = innerG.querySelector(':scope > text');
+            if (textEl) nameToId[textEl.textContent.replace(/\s+/g, ' ').trim()] = gId;
         }
-        if (hasContent) componentIds.push(groups[i].id);
+        var descs = groups[i].querySelectorAll('desc');
+        for (var d = 0; d < descs.length; d++) {
+            if (descs[d].textContent.trim()) { idHasDesc[gId] = true; break; }
+        }
     }
 
     var componentMeta = {};
+    var componentIds = [];
     if (typeof parseWTG2ToState === 'function') {
         var stateJson = parseWTG2ToState(wtg2);
         if (typeof stateJson === 'string' && !stateJson.startsWith('error:')) {
@@ -2668,11 +2675,40 @@ function downloadPDF() {
             for (var ci = 0; ci < state.components.length; ci++) {
                 componentMeta[state.components[ci].name] = state.components[ci];
             }
+            var adj = {};
+            for (var ei = 0; ei < state.edges.length; ei++) {
+                var edge = state.edges[ei];
+                if (!adj[edge.from]) adj[edge.from] = [];
+                adj[edge.from].push(edge.to);
+            }
+            var visited = {};
+            var queue = [];
+            for (var ci = 0; ci < state.components.length; ci++) {
+                if (state.components[ci].kind === 'anchor') {
+                    queue.push(state.components[ci].name);
+                    visited[state.components[ci].name] = true;
+                }
+            }
+            while (queue.length > 0) {
+                var name = queue.shift();
+                var elemId = nameToId[name];
+                if (elemId && idHasDesc[elemId]) componentIds.push(elemId);
+                var children = adj[name] || [];
+                for (var j = 0; j < children.length; j++) {
+                    if (!visited[children[j]]) {
+                        visited[children[j]] = true;
+                        queue.push(children[j]);
+                    }
+                }
+            }
+            for (var id in idHasDesc) {
+                if (componentIds.indexOf(id) === -1) componentIds.push(id);
+            }
         }
     }
-
-    console.log('[PDF] componentMeta keys:', Object.keys(componentMeta));
-    console.log('[PDF] componentIds:', componentIds);
+    if (componentIds.length === 0) {
+        for (var id in idHasDesc) componentIds.push(id);
+    }
 
     var totalPages = 1 + componentIds.length;
     _exportCancelled = false;
