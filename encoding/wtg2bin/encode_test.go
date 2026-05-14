@@ -325,7 +325,7 @@ func TestSizeComparison(t *testing.T) {
 			t.Fatalf("parser: %v", err)
 		}
 		doc, err := p.Parse()
-		f.Close()
+		_ = f.Close()
 		if err != nil {
 			t.Fatalf("parse: %v", err)
 		}

@@ -73,7 +73,7 @@ func TestURLExampleFile(t *testing.T) {
 	if err != nil {
 		t.Skipf("cannot open example: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	p, err := wtg2.NewParser(f)
 	if err != nil {
