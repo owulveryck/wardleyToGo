@@ -455,6 +455,9 @@ const translations = {
 
 let currentLang = localStorage.getItem('wtg2-lang') || 'fr';
 
+const navigateMode = new URLSearchParams(window.location.search).has('navigate');
+if (navigateMode) document.body.classList.add('navigate-mode');
+
 function t(key, params) {
     const str = (translations[currentLang] && translations[currentLang][key])
              || translations['fr'][key] || key;
@@ -1940,7 +1943,8 @@ function canvasReset() {
         }, { passive: false });
 
         vp.addEventListener('mousedown', function(e) {
-            if (e.target.closest('svg') || e.target.closest('#canvas-controls')) return;
+            if (e.target.closest('#canvas-controls')) return;
+            if (!navigateMode && e.target.closest('svg')) return;
             _panActive = true;
             _panStartX = e.clientX;
             _panStartY = e.clientY;
@@ -3292,6 +3296,7 @@ var onboardingActive = false;
 function shouldShowOnboarding() {
     if (localStorage.getItem(ONBOARDING_KEY)) return false;
     if (new URLSearchParams(window.location.search).has('wtg2')) return false;
+    if (navigateMode) return false;
     if (window.innerWidth < 768) return false;
     return true;
 }
