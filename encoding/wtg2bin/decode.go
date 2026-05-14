@@ -29,7 +29,7 @@ func Decode(data []byte) (*wtg2.Document, error) {
 
 	if flags&flagCompressed != 0 {
 		fr := flate.NewReader(bytes.NewReader(payload))
-		defer fr.Close()
+		defer func() { _ = fr.Close() }()
 		decompressed, err := io.ReadAll(fr)
 		if err != nil {
 			return nil, fmt.Errorf("decompressing payload: %w", err)

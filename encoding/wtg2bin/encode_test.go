@@ -294,7 +294,7 @@ func testFile(t *testing.T, path string) {
 	if err != nil {
 		t.Skipf("cannot open %s: %v", path, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	p, err := wtg2.NewParser(f)
 	if err != nil {
@@ -316,12 +316,12 @@ func TestSizeComparison(t *testing.T) {
 			t.Skipf("cannot open %s: %v", path, err)
 		}
 		source, _ := os.ReadFile(path)
-		f.Close()
+		_ = f.Close()
 
 		f, _ = os.Open(path)
 		p, err := wtg2.NewParser(f)
 		if err != nil {
-			f.Close()
+			_ = f.Close()
 			t.Fatalf("parser: %v", err)
 		}
 		doc, err := p.Parse()
