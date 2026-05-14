@@ -10,6 +10,7 @@ import (
 	"syscall/js"
 
 	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/encoding/wtg2bin"
 	"github.com/owulveryck/wardleyToGo/exp/owm2wtg2"
 	"github.com/owulveryck/wardleyToGo/parser/wtg2"
 )
@@ -18,6 +19,8 @@ func main() {
 	js.Global().Set("generateSVG", js.FuncOf(generate))
 	js.Global().Set("parseWTG2ToState", js.FuncOf(parseToState))
 	js.Global().Set("convertOWMToWTG2", js.FuncOf(convertOWM))
+	js.Global().Set("encodeWTG2URL", js.FuncOf(encodeWTG2URLFn))
+	js.Global().Set("decodeWTG2URL", js.FuncOf(decodeWTG2URLFn))
 	<-make(chan bool)
 }
 
@@ -388,4 +391,50 @@ func convertOWM(_ js.Value, args []js.Value) any {
 	}
 
 	return buf.String()
+}
+
+func encodeWTG2URLFn(_ js.Value, args []js.Value) any {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered:", r)
+		}
+	}()
+	if len(args) < 1 {
+		return "error: no input provided"
+	}
+
+	input := args[0].String()
+	p, err := wtg2.NewParser(bytes.NewBufferString(input))
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	doc, err := p.Parse()
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+
+	encoded, err := wtg2bin.EncodeURL(doc)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+	return encoded
+}
+
+func decodeWTG2URLFn(_ js.Value, args []js.Value) any {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered:", r)
+		}
+	}()
+	if len(args) < 1 {
+		return "error: no input provided"
+	}
+
+	input := args[0].String()
+	doc, err := wtg2bin.DecodeURL(input)
+	if err != nil {
+		return fmt.Sprintf("error: %v", err)
+	}
+
+	return docToWTG2(doc)
 }

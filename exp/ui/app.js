@@ -236,6 +236,7 @@ const translations = {
         'menu.exportSvg': 'Export SVG',
         'menu.exportGif': 'Export GIF animé',
         'menu.exportApng': 'Export APNG animé',
+        'menu.exportPdf': 'Export PDF',
         'export.progress': 'Export en cours... {percent}%',
         'export.encoding': 'Encodage...',
         'export.cancel': 'Annuler',
@@ -401,6 +402,7 @@ const translations = {
         'menu.exportSvg': 'Export SVG',
         'menu.exportGif': 'Export animated GIF',
         'menu.exportApng': 'Export animated APNG',
+        'menu.exportPdf': 'Export PDF',
         'export.progress': 'Exporting... {percent}%',
         'export.encoding': 'Encoding...',
         'export.cancel': 'Cancel',
@@ -1864,6 +1866,7 @@ function render() {
     } else {
         output.innerHTML = result;
         initSVGInteractivity(output);
+        patchTooltipBuilder(text);
     }
     document.getElementById('status').textContent = t('status.ok');
     applyCanvasTransform();
@@ -2207,7 +2210,7 @@ function getExportSVG() {
 
 function getMapTitle() {
     const title = wizardState.meta.title || 'wardley-map';
-    return title.replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '_');
+    return title.replace(/[<>:"\/\\|?*]/g, '').replace(/\s+/g, '_');
 }
 
 function downloadSVG() {
@@ -2254,7 +2257,465 @@ function downloadPNG() {
 }
 
 // ================================================================
-// 15a. Animated Export (GIF / APNG)
+// 15a. PDF Export
+// ================================================================
+
+function svgToImageData(svgString, w, h) {
+    return new Promise(function(resolve, reject) {
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        var img = new Image();
+        var blob = new Blob([svgString], { type: 'image/svg+xml' });
+        var url = URL.createObjectURL(blob);
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, w, h);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = function() {
+            URL.revokeObjectURL(url);
+            reject(new Error('Failed to render SVG to canvas'));
+        };
+        img.src = url;
+    });
+}
+
+function patchTooltipBuilder(wtg2Text) {
+    var componentMeta = {};
+    if (typeof parseWTG2ToState === 'function') {
+        var stateJson = parseWTG2ToState(wtg2Text);
+        if (typeof stateJson === 'string' && !stateJson.startsWith('error:')) {
+            var state = JSON.parse(stateJson);
+            for (var i = 0; i < state.components.length; i++) {
+                componentMeta[state.components[i].name] = state.components[i];
+            }
+        }
+    }
+
+    var typeLabels = { build: 'Build', buy: 'Buy', outsource: 'Outsource', dataProduct: 'Data Product' };
+
+    window.buildTooltip = function(el) {
+        var ns = 'http://www.w3.org/2000/svg';
+
+        var innerG = el.querySelector('g[transform]');
+        var compName = '';
+        if (innerG) {
+            var textEl = innerG.querySelector(':scope > text');
+            if (textEl) compName = textEl.textContent.replace(/\s+/g, ' ').trim();
+        }
+
+        var meta = compName ? componentMeta[compName] : null;
+
+        var parts = [];
+        el.querySelectorAll('desc').forEach(function(d) {
+            var s = d.textContent.trim();
+            if (!s) return;
+            s.split('\n').forEach(function(line) {
+                var trimmed = line.trim();
+                if (trimmed) parts.push(trimmed);
+            });
+        });
+        if (parts.length === 0 && !compName) return null;
+
+        var maxWrap = 40;
+        var headerLines = [];
+        if (compName) headerLines.push({ text: compName, style: 'title' });
+        if (meta) {
+            var infoParts = [];
+            if (meta.type && typeLabels[meta.type]) infoParts.push(typeLabels[meta.type]);
+            infoParts.push('Evolution: ' + evoToRoman(meta.evolution));
+            if (meta.inertia > 0) infoParts.push('Inertie: ' + meta.inertia);
+            if (meta.evolving) infoParts.push('Evolue vers ' + evoToRoman(meta.evolvedTo));
+            headerLines.push({ text: infoParts.join(' · '), style: 'meta' });
+        }
+
+        var bodyLines = [];
+        for (var p = 0; p < parts.length; p++) {
+            var part = parts[p];
+            if (part.length <= maxWrap) {
+                bodyLines.push({ text: part, isLabel: false });
+            } else {
+                var wrapped = part.match(new RegExp('.{1,' + maxWrap + '}(\\s|$)', 'g')) || [part];
+                for (var w = 0; w < wrapped.length; w++) {
+                    bodyLines.push({ text: wrapped[w].trim(), isLabel: false });
+                }
+            }
+            if (p < parts.length - 1) bodyLines.push({ text: '', isLabel: false });
+        }
+        for (var i = 0; i < bodyLines.length; i++) {
+            if (/^(Asset|Cost):\s/.test(bodyLines[i].text)) bodyLines[i].isLabel = true;
+        }
+
+        var padX = 14, padY = 10;
+        var titleFontSize = 15, metaFontSize = 11, bodyFontSize = 13;
+        var lineHeight = 18;
+        var headerH = 0;
+        var maxChars = 0;
+        for (var hi = 0; hi < headerLines.length; hi++) {
+            if (headerLines[hi].text.length > maxChars) maxChars = headerLines[hi].text.length;
+            headerH += (headerLines[hi].style === 'title' ? 20 : 16);
+        }
+        var hasSeparator = headerLines.length > 0 && bodyLines.length > 0;
+        if (hasSeparator) headerH += 10;
+        for (var bi = 0; bi < bodyLines.length; bi++) {
+            if (bodyLines[bi].text.length > maxChars) maxChars = bodyLines[bi].text.length;
+        }
+
+        var boxW = Math.max(maxChars * 7.5, (compName || '').length * 8.5) + padX * 2;
+        var boxH = padY * 2 + headerH + bodyLines.length * lineHeight;
+
+        var tip = document.createElementNS(ns, 'g');
+        tip.setAttribute('class', 'tooltip-box');
+
+        var rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('x', '12');
+        rect.setAttribute('y', String(-boxH / 2));
+        rect.setAttribute('width', String(boxW));
+        rect.setAttribute('height', String(boxH));
+        rect.setAttribute('rx', '6');
+        rect.setAttribute('ry', '6');
+        rect.setAttribute('fill', 'rgba(25,25,30,0.94)');
+        rect.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+        rect.setAttribute('stroke-width', '1');
+        tip.appendChild(rect);
+
+        var cursorY = -boxH / 2 + padY;
+        for (var hi = 0; hi < headerLines.length; hi++) {
+            var hl = headerLines[hi];
+            var fs = hl.style === 'title' ? titleFontSize : metaFontSize;
+            cursorY += fs + 2;
+            var ht = document.createElementNS(ns, 'text');
+            ht.setAttribute('x', String(12 + padX));
+            ht.setAttribute('y', String(cursorY));
+            ht.setAttribute('font-size', fs + 'px');
+            ht.setAttribute('font-family', "'Outfit', sans-serif");
+            if (hl.style === 'title') {
+                ht.setAttribute('font-weight', 'bold');
+                ht.setAttribute('fill', 'white');
+            } else {
+                ht.setAttribute('fill', 'rgba(255,255,255,0.6)');
+            }
+            ht.textContent = hl.text;
+            tip.appendChild(ht);
+            cursorY += (hl.style === 'title' ? 4 : 2);
+        }
+
+        if (hasSeparator) {
+            cursorY += 5;
+            var sep = document.createElementNS(ns, 'line');
+            sep.setAttribute('x1', String(12 + padX));
+            sep.setAttribute('y1', String(cursorY));
+            sep.setAttribute('x2', String(12 + boxW - padX));
+            sep.setAttribute('y2', String(cursorY));
+            sep.setAttribute('stroke', 'rgba(255,255,255,0.2)');
+            sep.setAttribute('stroke-width', '1');
+            tip.appendChild(sep);
+            cursorY += 5;
+        }
+
+        for (var i = 0; i < bodyLines.length; i++) {
+            var line = bodyLines[i];
+            if (line.text === '') { cursorY += lineHeight; continue; }
+            cursorY += bodyFontSize + (i === 0 && !hasSeparator ? 2 : (lineHeight - bodyFontSize));
+            var bt = document.createElementNS(ns, 'text');
+            bt.setAttribute('x', String(12 + padX));
+            bt.setAttribute('y', String(cursorY));
+            bt.setAttribute('font-size', bodyFontSize + 'px');
+            bt.setAttribute('font-family', "'Outfit', sans-serif");
+            bt.setAttribute('fill', 'rgba(255,255,255,0.95)');
+
+            if (line.isLabel) {
+                var colonIdx = line.text.indexOf(': ');
+                var labelPart = line.text.substring(0, colonIdx + 1);
+                var valuePart = line.text.substring(colonIdx + 1);
+                var boldSpan = document.createElementNS(ns, 'tspan');
+                boldSpan.setAttribute('font-weight', 'bold');
+                boldSpan.setAttribute('fill', 'rgba(255,255,255,0.95)');
+                boldSpan.textContent = labelPart;
+                bt.appendChild(boldSpan);
+                var valueSpan = document.createElementNS(ns, 'tspan');
+                valueSpan.setAttribute('fill', 'rgba(255,255,255,0.75)');
+                valueSpan.textContent = valuePart;
+                bt.appendChild(valueSpan);
+            } else {
+                bt.textContent = line.text;
+            }
+            tip.appendChild(bt);
+        }
+        return tip;
+    };
+}
+
+function buildSVGTooltip(doc, componentEl, meta) {
+    var ns = 'http://www.w3.org/2000/svg';
+
+    var innerG = componentEl.querySelector('g[transform]');
+    var compName = '';
+    if (innerG) {
+        var textEl = innerG.querySelector(':scope > text');
+        if (textEl) {
+            compName = textEl.textContent.replace(/\s+/g, ' ').trim();
+        }
+    }
+
+    var parts = [];
+    var descs = componentEl.querySelectorAll('desc');
+    for (var d = 0; d < descs.length; d++) {
+        var s = descs[d].textContent.trim();
+        if (!s) continue;
+        var sublines = s.split('\n');
+        for (var k = 0; k < sublines.length; k++) {
+            var trimmed = sublines[k].trim();
+            if (trimmed) parts.push(trimmed);
+        }
+    }
+    if (parts.length === 0 && !compName) return null;
+
+    var maxWrap = 40;
+    var typeLabels = { build: 'Build', buy: 'Buy', outsource: 'Outsource', dataProduct: 'Data Product' };
+    var headerLines = [];
+    if (compName) headerLines.push({ text: compName, style: 'title' });
+    if (meta) {
+        var infoParts = [];
+        if (meta.type && typeLabels[meta.type]) infoParts.push(typeLabels[meta.type]);
+        infoParts.push('Evolution: ' + evoToRoman(meta.evolution));
+        if (meta.inertia > 0) infoParts.push('Inertie: ' + meta.inertia);
+        if (meta.evolving) infoParts.push('Evolue vers ' + evoToRoman(meta.evolvedTo));
+        headerLines.push({ text: infoParts.join(' · '), style: 'meta' });
+    }
+
+    var bodyLines = [];
+    for (var p = 0; p < parts.length; p++) {
+        var part = parts[p];
+        if (part.length <= maxWrap) {
+            bodyLines.push(part);
+        } else {
+            var wrapped = part.match(new RegExp('.{1,' + maxWrap + '}(\\s|$)', 'g')) || [part];
+            for (var w = 0; w < wrapped.length; w++) {
+                bodyLines.push(wrapped[w].trim());
+            }
+        }
+        if (p < parts.length - 1) bodyLines.push('');
+    }
+
+    var padX = 14, padY = 10;
+    var titleFontSize = 15, metaFontSize = 11, bodyFontSize = 13;
+    var lineHeight = 18;
+    var headerH = 0;
+    var maxChars = 0;
+    for (var hi = 0; hi < headerLines.length; hi++) {
+        if (headerLines[hi].text.length > maxChars) maxChars = headerLines[hi].text.length;
+        headerH += (headerLines[hi].style === 'title' ? 20 : 16);
+    }
+    var hasSeparator = headerLines.length > 0 && bodyLines.length > 0;
+    if (hasSeparator) headerH += 10;
+    for (var bi = 0; bi < bodyLines.length; bi++) {
+        if (bodyLines[bi].length > maxChars) maxChars = bodyLines[bi].length;
+    }
+
+    var boxW = Math.max(maxChars * 7.5, (compName || '').length * 8.5) + padX * 2;
+    var boxH = padY * 2 + headerH + bodyLines.length * lineHeight;
+
+    var tip = doc.createElementNS(ns, 'g');
+    tip.setAttribute('class', 'tooltip-box');
+
+    var rect = doc.createElementNS(ns, 'rect');
+    rect.setAttribute('x', '12');
+    rect.setAttribute('y', String(-boxH / 2));
+    rect.setAttribute('width', String(boxW));
+    rect.setAttribute('height', String(boxH));
+    rect.setAttribute('rx', '6');
+    rect.setAttribute('ry', '6');
+    rect.setAttribute('fill', 'rgba(25,25,30,0.94)');
+    rect.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+    rect.setAttribute('stroke-width', '1');
+    tip.appendChild(rect);
+
+    var cursorY = -boxH / 2 + padY;
+    for (var hi = 0; hi < headerLines.length; hi++) {
+        var hl = headerLines[hi];
+        var fs = hl.style === 'title' ? titleFontSize : metaFontSize;
+        cursorY += fs + 2;
+        var ht = doc.createElementNS(ns, 'text');
+        ht.setAttribute('x', String(12 + padX));
+        ht.setAttribute('y', String(cursorY));
+        ht.setAttribute('font-size', fs + 'px');
+        ht.setAttribute('font-family', "'Outfit', sans-serif");
+        if (hl.style === 'title') {
+            ht.setAttribute('font-weight', 'bold');
+            ht.setAttribute('fill', 'white');
+        } else {
+            ht.setAttribute('fill', 'rgba(255,255,255,0.6)');
+        }
+        ht.textContent = hl.text;
+        tip.appendChild(ht);
+        cursorY += (hl.style === 'title' ? 4 : 2);
+    }
+
+    if (hasSeparator) {
+        cursorY += 5;
+        var sep = doc.createElementNS(ns, 'line');
+        sep.setAttribute('x1', String(12 + padX));
+        sep.setAttribute('y1', String(cursorY));
+        sep.setAttribute('x2', String(12 + boxW - padX));
+        sep.setAttribute('y2', String(cursorY));
+        sep.setAttribute('stroke', 'rgba(255,255,255,0.2)');
+        sep.setAttribute('stroke-width', '1');
+        tip.appendChild(sep);
+        cursorY += 5;
+    }
+
+    for (var i = 0; i < bodyLines.length; i++) {
+        if (bodyLines[i] === '') { cursorY += lineHeight; continue; }
+        cursorY += bodyFontSize + (i === 0 && !hasSeparator ? 2 : (lineHeight - bodyFontSize));
+        var bt = doc.createElementNS(ns, 'text');
+        bt.setAttribute('x', String(12 + padX));
+        bt.setAttribute('y', String(cursorY));
+        bt.setAttribute('font-size', bodyFontSize + 'px');
+        bt.setAttribute('font-family', "'Outfit', sans-serif");
+        bt.setAttribute('fill', 'rgba(255,255,255,0.95)');
+        bt.textContent = bodyLines[i];
+        tip.appendChild(bt);
+    }
+    return tip;
+}
+
+function addTooltipForComponent(baseSvgString, componentId, componentMeta) {
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(baseSvgString, 'image/svg+xml');
+    var svg = doc.documentElement;
+
+    var el = svg.querySelector('#' + componentId);
+    if (!el) return baseSvgString;
+
+    var meta = null;
+    if (componentMeta) {
+        var innerG = el.querySelector('g[transform]');
+        if (innerG) {
+            var textEl = innerG.querySelector(':scope > text');
+            if (textEl) {
+                var name = textEl.textContent.replace(/\s+/g, ' ').trim();
+                if (componentMeta[name]) { meta = componentMeta[name]; }
+            }
+        }
+    }
+
+    var tip = buildSVGTooltip(doc, el, meta);
+    if (!tip) return baseSvgString;
+
+    var innerG = el.querySelector('g[transform]');
+    var transform = innerG ? innerG.getAttribute('transform') : '';
+    tip.setAttribute('data-for', componentId);
+    tip.setAttribute('transform', transform);
+
+    var tooltipLayer = svg.querySelector('#tooltip-layer');
+    if (tooltipLayer) tooltipLayer.appendChild(tip);
+
+    return new XMLSerializer().serializeToString(svg);
+}
+
+function downloadPDF() {
+    if (typeof jspdf === 'undefined' || !jspdf.jsPDF) {
+        alert('jsPDF library not loaded');
+        return;
+    }
+
+    var wtg2 = getCurrentWTG2();
+    if (!wtg2.trim() || typeof generateSVG !== 'function') return;
+
+    var resPct = getResolution();
+    var dims = getBaseDimensions();
+
+    var baseSvg = generateSVG(wtg2, true, resPct, dims[0], dims[1]);
+    if (baseSvg.startsWith('error:')) {
+        alert('SVG generation error: ' + baseSvg);
+        return;
+    }
+
+    var vbMatch = baseSvg.match(/viewBox="(\d+)\s+(\d+)\s+(\d+)\s+(\d+)"/);
+    var w = vbMatch ? parseInt(vbMatch[3], 10) : Math.round(dims[0] * resPct / 100);
+    var h = vbMatch ? parseInt(vbMatch[4], 10) : Math.round(dims[1] * resPct / 100);
+
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(baseSvg, 'image/svg+xml');
+    var svg = doc.documentElement;
+    var componentIds = [];
+    var groups = svg.querySelectorAll('g[id^="element_"]');
+    for (var i = 0; i < groups.length; i++) {
+        var descs = groups[i].querySelectorAll('desc');
+        var hasContent = false;
+        for (var d = 0; d < descs.length; d++) {
+            if (descs[d].textContent.trim()) { hasContent = true; break; }
+        }
+        if (hasContent) componentIds.push(groups[i].id);
+    }
+
+    var componentMeta = {};
+    if (typeof parseWTG2ToState === 'function') {
+        var stateJson = parseWTG2ToState(wtg2);
+        if (typeof stateJson === 'string' && !stateJson.startsWith('error:')) {
+            var state = JSON.parse(stateJson);
+            for (var ci = 0; ci < state.components.length; ci++) {
+                componentMeta[state.components[ci].name] = state.components[ci];
+            }
+        }
+    }
+
+    console.log('[PDF] componentMeta keys:', Object.keys(componentMeta));
+    console.log('[PDF] componentIds:', componentIds);
+
+    var totalPages = 1 + componentIds.length;
+    _exportCancelled = false;
+    showExportProgress(function() { _exportCancelled = true; });
+    var pageIndex = 0;
+
+    function processNext(pdf) {
+        if (_exportCancelled) { hideExportProgress(); return; }
+        if (pageIndex >= totalPages) {
+            hideExportProgress();
+            pdf.save(getMapTitle() + '.pdf');
+            return;
+        }
+
+        updateExportProgress(
+            Math.round((pageIndex / totalPages) * 100),
+            'Page ' + (pageIndex + 1) + ' / ' + totalPages
+        );
+
+        var svgForPage = baseSvg;
+        if (pageIndex > 0) {
+            svgForPage = addTooltipForComponent(baseSvg, componentIds[pageIndex - 1], componentMeta);
+        }
+
+        svgToImageData(svgForPage, w, h).then(function(dataUrl) {
+            if (pageIndex === 0) {
+                pdf = new jspdf.jsPDF({
+                    orientation: w >= h ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [w, h],
+                    hotfixes: ['px_scaling']
+                });
+            } else {
+                pdf.addPage([w, h], w >= h ? 'landscape' : 'portrait');
+            }
+            pdf.addImage(dataUrl, 'PNG', 0, 0, w, h);
+            pageIndex++;
+            setTimeout(function() { processNext(pdf); }, 50);
+        }).catch(function(err) {
+            hideExportProgress();
+            alert('Rendering error: ' + err.message);
+        });
+    }
+
+    processNext(null);
+}
+
+// ================================================================
+// 15b. Animated Export (GIF / APNG)
 // ================================================================
 
 var _exportCancelled = false;
@@ -2788,21 +3249,42 @@ async function shareURL() {
     const text = getCurrentWTG2();
     if (!text.trim()) return;
     try {
-        const compressed = await compressText(text);
-        const encoded = arrayBufferToUrlSafeBase64(compressed);
-        const url = location.origin + location.pathname + '?wtg2=' + encoded;
-        if (url.length > 8000) {
-            showToast(t('share.tooLong', { length: url.length }));
+        if (typeof window.encodeWTG2URL === 'function') {
+            const encoded = window.encodeWTG2URL(text);
+            if (typeof encoded === 'string' && !encoded.startsWith('error:')) {
+                const url = location.origin + location.pathname + '?wtg2encoded=' + encoded;
+                if (url.length > 8000) {
+                    showToast(t('share.tooLong', { length: url.length }));
+                }
+                window.history.replaceState({}, '', '?wtg2encoded=' + encoded);
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showToast(t('share.copied'));
+                } catch (e) {
+                    showToast(t('share.manual'));
+                }
+                return;
+            }
+            console.warn('[share] wtg2encoded failed:', encoded);
         }
-        window.history.replaceState({}, '', '?wtg2=' + encoded);
-        try {
-            await navigator.clipboard.writeText(url);
-            showToast(t('share.copied'));
-        } catch (e) {
-            showToast(t('share.manual'));
-        }
+        throw new Error('binary encoding unavailable');
     } catch (e) {
-        showToast(t('share.error', { message: e.message }));
+        console.warn('[share] Falling back to legacy wtg2:', e.message);
+        try {
+            const compressed = await compressText(text);
+            const legacyEncoded = arrayBufferToUrlSafeBase64(compressed);
+            const legacyUrl = location.origin + location.pathname + '?wtg2=' + legacyEncoded;
+            console.log('[share] Legacy URL:', legacyUrl);
+            window.history.replaceState({}, '', '?wtg2=' + legacyEncoded);
+            try {
+                await navigator.clipboard.writeText(legacyUrl);
+                showToast(t('share.copied'));
+            } catch (clipErr) {
+                showToast(t('share.manual'));
+            }
+        } catch (legacyErr) {
+            showToast(t('share.error', { message: legacyErr.message }));
+        }
     }
 }
 
@@ -3189,6 +3671,7 @@ document.getElementById('dl-svg').addEventListener('click', downloadSVG);
 document.getElementById('dl-png').addEventListener('click', downloadPNG);
 document.getElementById('dl-gif').addEventListener('click', downloadGIF);
 document.getElementById('dl-apng').addEventListener('click', downloadAPNG);
+document.getElementById('dl-pdf').addEventListener('click', downloadPDF);
 document.getElementById('detach').addEventListener('click', detachMap);
 document.getElementById('dl-wtg2').addEventListener('click', downloadWTG2);
 document.getElementById('import-wtg2').addEventListener('click', importWTG2);
@@ -3459,7 +3942,18 @@ const go = new Go();
         if (statusEl) statusEl.textContent = t('status.ready');
 
         const params = new URLSearchParams(window.location.search);
-        if (params.has('wtg2')) {
+        if (params.has('wtg2encoded')) {
+            try {
+                const text = window.decodeWTG2URL(params.get('wtg2encoded'));
+                if (typeof text === 'string' && !text.startsWith('error:')) {
+                    loadWTG2IntoEditor(text);
+                    return;
+                }
+                throw new Error(text);
+            } catch (e) {
+                if (statusEl) statusEl.textContent = t('status.urlError', { message: e.message });
+            }
+        } else if (params.has('wtg2')) {
             try {
                 const buffer = urlSafeBase64ToArrayBuffer(params.get('wtg2'));
                 const text = await decompressBuffer(buffer);
