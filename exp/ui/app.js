@@ -2274,7 +2274,13 @@ function svgToImageData(svgString, w, h) {
         img.onload = function() {
             ctx.drawImage(img, 0, 0, w, h);
             URL.revokeObjectURL(url);
-            resolve(canvas.toDataURL('image/png'));
+            if (typeof UPNG !== 'undefined') {
+                var imgData = ctx.getImageData(0, 0, w, h);
+                var png = UPNG.encode([imgData.data.buffer], w, h, 256);
+                resolve(new Uint8Array(png));
+            } else {
+                resolve(canvas.toDataURL('image/png'));
+            }
         };
         img.onerror = function() {
             URL.revokeObjectURL(url);
@@ -2627,7 +2633,7 @@ function downloadPDF() {
     var wtg2 = getCurrentWTG2();
     if (!wtg2.trim() || typeof generateSVG !== 'function') return;
 
-    var resPct = getResolution();
+    var resPct = 100;
     var dims = getBaseDimensions();
 
     var baseSvg = generateSVG(wtg2, true, resPct, dims[0], dims[1]);
@@ -2691,18 +2697,19 @@ function downloadPDF() {
             svgForPage = addTooltipForComponent(baseSvg, componentIds[pageIndex - 1], componentMeta);
         }
 
-        svgToImageData(svgForPage, w, h).then(function(dataUrl) {
+        svgToImageData(svgForPage, w, h).then(function(imgResult) {
             if (pageIndex === 0) {
                 pdf = new jspdf.jsPDF({
                     orientation: w >= h ? 'landscape' : 'portrait',
                     unit: 'px',
                     format: [w, h],
-                    hotfixes: ['px_scaling']
+                    hotfixes: ['px_scaling'],
+                    compress: true
                 });
             } else {
                 pdf.addPage([w, h], w >= h ? 'landscape' : 'portrait');
             }
-            pdf.addImage(dataUrl, 'PNG', 0, 0, w, h);
+            pdf.addImage(imgResult, 'PNG', 0, 0, w, h);
             pageIndex++;
             setTimeout(function() { processNext(pdf); }, 50);
         }).catch(function(err) {
