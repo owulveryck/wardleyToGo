@@ -246,7 +246,7 @@ gameplay due-diligence "Assess before acquisition" on Target Company
 gameplay two-sided-market on Marketplace
 // Also: land-grab, embrace-extend, tower-moat, FUD, signal-distortion
 
-focus Route Engine                        // highlight subtree, dim the rest
+// focus is available but should NOT be used — see Generation Guidelines
 ```
 
 ---
@@ -374,8 +374,6 @@ gameplay strangler-fig "Replace Classic Dijkstra with Predictive AI" on Route Ca
 gameplay open-source "Commoditize mapping data to reduce dependency" on OSM Data
 gameplay ILC on B2G Partner API
 
-// Focus
-focus Route Calculation Engine
 ```
 
 ---
@@ -392,14 +390,15 @@ focus Route Calculation Engine
 8. **Group by team or domain** to show ownership. Align team types to evolution phases.
 9. **Keep names readable.** Natural language with spaces, not camelCase.
 10. **Follow canonical section order:** metadata, stages/legend, nodes, edges, groups, annotations.
-11. **Annotate gameplays** when the map is competitive strategy.
-12. **Classify assets** for components where strategic value is non-obvious.
-13. **Qualify inertia** — is it tech debt, sunk cost, skills gap, contractual, or cultural?
-14. **Apply climatic patterns** — commoditization on phase III dependents, co-evolution on linked tech+practice.
-15. **Verify team-evolution alignment** — explorers own Genesis, town-planners own Commodity. Mismatches are risks.
-16. **Annotate cost** for high-budget components.
-17. **Respect the Extremistan/Mediocristan divide.** Phases I–II operate in Extremistan (power laws, unpredictable ROI, winner-takes-all). Phases III–IV operate in Mediocristan (normal distributions, predictable metrics). Do not apply uniform KPIs across all phases — a startup metric does not apply to infrastructure, and an SLA does not apply to R&D.
-18. **Flag doctrine violations.** Check for the anti-patterns below and annotate them with `warning` or `note`.
+11. **Do not use `focus`.** The `focus` keyword dims everything except one subtree, which hides context and makes the map harder to read. Let the user decide what to highlight — never add `focus` to generated maps.
+12. **Annotate gameplays** when the map is competitive strategy.
+13. **Classify assets** for components where strategic value is non-obvious.
+14. **Qualify inertia** — is it tech debt, sunk cost, skills gap, contractual, or cultural?
+15. **Apply climatic patterns** — commoditization on phase III dependents, co-evolution on linked tech+practice.
+16. **Verify team-evolution alignment** — explorers own Genesis, town-planners own Commodity. Mismatches are risks.
+17. **Annotate cost** for high-budget components.
+18. **Respect the Extremistan/Mediocristan divide.** Phases I–II operate in Extremistan (power laws, unpredictable ROI, winner-takes-all). Phases III–IV operate in Mediocristan (normal distributions, predictable metrics). Do not apply uniform KPIs across all phases — a startup metric does not apply to infrastructure, and an SLA does not apply to R&D.
+19. **Flag doctrine violations.** Check for the anti-patterns below and annotate them with `warning` or `note`.
 
 **Doctrine violations to flag:**
 
