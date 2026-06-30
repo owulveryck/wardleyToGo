@@ -6,8 +6,8 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/components"
-	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"github.com/owulveryck/wardleyToGo/v2/components"
+	"github.com/owulveryck/wardleyToGo/v2/components/wardley"
 )
 
 func (p *Parser) parseEvolve() error {

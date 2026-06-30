@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 func docToWTG2(doc *wtg2.Document) string {

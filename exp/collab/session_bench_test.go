@@ -70,8 +70,8 @@ func addBenchClients(s *Session, n int) []*Client {
 
 // --- HandleOp benchmarks ---
 
-func BenchmarkHandleOp_1Client(b *testing.B)  { benchHandleOp(b, 1) }
-func BenchmarkHandleOp_5Clients(b *testing.B) { benchHandleOp(b, 5) }
+func BenchmarkHandleOp_1Client(b *testing.B)   { benchHandleOp(b, 1) }
+func BenchmarkHandleOp_5Clients(b *testing.B)  { benchHandleOp(b, 5) }
 func BenchmarkHandleOp_10Clients(b *testing.B) { benchHandleOp(b, 10) }
 
 func benchHandleOp(b *testing.B, numClients int) {

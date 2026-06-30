@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/owulveryck/wardleyToGo/exp/owm2wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/exp/owm2wtg2"
 )
 
 func main() {

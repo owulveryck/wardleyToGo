@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/v2"
 )
 
 // AnimationData holds precomputed metadata for step-by-step SVG animation.

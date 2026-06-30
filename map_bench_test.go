@@ -11,16 +11,16 @@ type benchComponent struct {
 	position image.Point
 }
 
-func (c *benchComponent) ID() int64              { return c.id }
+func (c *benchComponent) ID() int64                { return c.id }
 func (c *benchComponent) GetPosition() image.Point { return c.position }
 
 type benchCollab struct {
 	from, to Component
 }
 
-func (c *benchCollab) From() Component      { return c.from }
-func (c *benchCollab) To() Component        { return c.to }
-func (c *benchCollab) GetType() EdgeType    { return 0 }
+func (c *benchCollab) From() Component   { return c.from }
+func (c *benchCollab) To() Component     { return c.to }
+func (c *benchCollab) GetType() EdgeType { return 0 }
 
 func buildBenchGraph(n int) *Map {
 	m := NewMap(0)

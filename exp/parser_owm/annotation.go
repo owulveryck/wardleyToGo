@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/v2"
 )
 
 func (p *Parser) parseAnnotation() error {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 func TestRoundTripEmpty(t *testing.T) {
@@ -387,11 +387,11 @@ func TestRoundTripUnknownDoctrine(t *testing.T) {
 
 func TestRoundTripUnknownEnums(t *testing.T) {
 	doc := &wtg2.Document{
-		Stages: [4]string{"", "", "", ""},
-		Nodes:  []*wtg2.NodeDecl{{Name: "X", Type: "custom-type", Asset: "custom-asset", Visibility: -1}},
-		Groups: []*wtg2.GroupDecl{{Name: "G", Team: "custom-team", Members: []string{"X"}}},
-		Signals: []*wtg2.SignalDecl{{Type: "land-grab", Target: "X"}},
-		Gameplays: []*wtg2.GameplayDecl{{Type: "custom-play", Target: "X"}},
+		Stages:      [4]string{"", "", "", ""},
+		Nodes:       []*wtg2.NodeDecl{{Name: "X", Type: "custom-type", Asset: "custom-asset", Visibility: -1}},
+		Groups:      []*wtg2.GroupDecl{{Name: "G", Team: "custom-team", Members: []string{"X"}}},
+		Signals:     []*wtg2.SignalDecl{{Type: "land-grab", Target: "X"}},
+		Gameplays:   []*wtg2.GameplayDecl{{Type: "custom-play", Target: "X"}},
 		Annotations: []*wtg2.AnnotationDecl{{Kind: "custom-kind", Text: "test", Target: "X"}},
 	}
 	assertRoundTrip(t, doc)

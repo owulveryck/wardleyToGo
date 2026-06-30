@@ -13,9 +13,9 @@ import (
 	"os"
 	"sort"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components/wardley"
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/components/wardley"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 type entry struct {

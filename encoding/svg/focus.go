@@ -3,7 +3,7 @@ package svgmap
 import (
 	"encoding/xml"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/v2"
 )
 
 // FocusTheme reduces opacity of unfocused elements when focus is active.

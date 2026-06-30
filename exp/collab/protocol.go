@@ -35,7 +35,7 @@ type HelloPayload struct {
 
 // OpPayload is sent by a client (rw) to edit the document.
 type OpPayload struct {
-	Type      string   `json:"type"`      // "insert", "delete", "replace"
+	Type      string   `json:"type"` // "insert", "delete", "replace"
 	LineStart int      `json:"lineStart"`
 	LineCount int      `json:"lineCount"` // lines affected (delete/replace)
 	Lines     []string `json:"lines"`     // new content (insert/replace)

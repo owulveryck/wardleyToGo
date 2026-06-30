@@ -6,10 +6,10 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components"
-	"github.com/owulveryck/wardleyToGo/internal/svg"
-	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/components"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/utils"
 )
 
 // Compile-time interface compliance check.

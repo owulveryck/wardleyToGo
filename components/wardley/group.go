@@ -9,8 +9,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/owulveryck/wardleyToGo/components"
-	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/components"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
 )
 
 // Group represents a visual grouping of components rendered as an organic

@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 var b64 = base64.URLEncoding.WithPadding(base64.NoPadding)

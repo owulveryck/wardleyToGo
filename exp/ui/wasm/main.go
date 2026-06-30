@@ -9,10 +9,10 @@ import (
 	"image"
 	"syscall/js"
 
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
-	"github.com/owulveryck/wardleyToGo/encoding/wtg2bin"
-	"github.com/owulveryck/wardleyToGo/exp/owm2wtg2"
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	svgmap "github.com/owulveryck/wardleyToGo/v2/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/v2/encoding/wtg2bin"
+	"github.com/owulveryck/wardleyToGo/v2/exp/owm2wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 func main() {
@@ -178,15 +178,15 @@ func parseToState(_ js.Value, args []js.Value) any {
 }
 
 type jsState struct {
-	Meta        jsMeta          `json:"meta"`
-	Stages      [4]string       `json:"stages"`
-	Components  []jsComponent   `json:"components"`
-	Edges       []jsEdge        `json:"edges"`
-	Groups      []jsGroup       `json:"groups"`
-	Annotations []jsAnnotation  `json:"annotations"`
-	Signals     []jsSignal      `json:"signals"`
-	Legend      bool            `json:"legend"`
-	Focus       string          `json:"focus"`
+	Meta        jsMeta         `json:"meta"`
+	Stages      [4]string      `json:"stages"`
+	Components  []jsComponent  `json:"components"`
+	Edges       []jsEdge       `json:"edges"`
+	Groups      []jsGroup      `json:"groups"`
+	Annotations []jsAnnotation `json:"annotations"`
+	Signals     []jsSignal     `json:"signals"`
+	Legend      bool           `json:"legend"`
+	Focus       string         `json:"focus"`
 }
 
 type jsMeta struct {

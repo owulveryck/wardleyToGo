@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	wardleyToGo "github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components/wardley"
+	wardleyToGo "github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/components/wardley"
 )
 
 func TestBuildMap_SimpleChain(t *testing.T) {

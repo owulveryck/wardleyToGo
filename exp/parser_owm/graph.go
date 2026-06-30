@@ -3,7 +3,7 @@ package owm
 import (
 	"fmt"
 
-	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"github.com/owulveryck/wardleyToGo/v2/components/wardley"
 )
 
 func (p *Parser) completeEvolve() error {

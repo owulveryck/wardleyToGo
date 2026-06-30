@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
 )
 
 func Example() {

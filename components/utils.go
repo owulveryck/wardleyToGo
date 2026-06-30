@@ -3,7 +3,7 @@ package components
 import (
 	"image"
 
-	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"github.com/owulveryck/wardleyToGo/v2/internal/utils"
 )
 
 // CalcCoords calculates the coordinates wrt to the bounds.

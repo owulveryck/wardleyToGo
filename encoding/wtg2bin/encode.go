@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 // Options controls encoding behavior.

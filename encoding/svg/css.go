@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"text/template"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/v2"
 )
 
 //go:embed assets/embeded.css

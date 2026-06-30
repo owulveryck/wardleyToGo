@@ -8,7 +8,7 @@ import (
 	"io"
 	"math"
 
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 // Decode deserializes a WTG2 binary format payload back into a Document.

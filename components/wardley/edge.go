@@ -8,10 +8,10 @@ import (
 	"image/draw"
 	"math"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/internal/drawing"
-	"github.com/owulveryck/wardleyToGo/internal/svg"
-	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/internal/drawing"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/utils"
 )
 
 // Compile-time interface compliance check.
@@ -216,13 +216,13 @@ func encodeInertiaWall(e *xml.Encoder, cx, cy int, kinds []string) error {
 	shearY := -10
 
 	// Points
-	ax, ay := cx-halfThick, cy-halfH       // A: front top-left
-	bx, by := cx+halfThick, cy-halfH       // B: front top-right
-	cx2, cy2 := cx+halfThick, cy+halfH     // C: front bottom-right
-	dx, dy := cx-halfThick, cy+halfH       // D: front bottom-left
-	ex, ey := ax+shearX, ay+shearY         // E: back top-left
-	fx, fy := bx+shearX, by+shearY         // F: back top-right
-	gx, gy := cx2+shearX, cy2+shearY       // G: back bottom-right
+	ax, ay := cx-halfThick, cy-halfH   // A: front top-left
+	bx, by := cx+halfThick, cy-halfH   // B: front top-right
+	cx2, cy2 := cx+halfThick, cy+halfH // C: front bottom-right
+	dx, dy := cx-halfThick, cy+halfH   // D: front bottom-left
+	ex, ey := ax+shearX, ay+shearY     // E: back top-left
+	fx, fy := bx+shearX, by+shearY     // F: back top-right
+	gx, gy := cx2+shearX, cy2+shearY   // G: back bottom-right
 
 	// Face 1: front face (wall thickness visible face-on)
 	if len(kinds) > 0 {

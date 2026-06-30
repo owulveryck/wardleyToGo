@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	svgmap "github.com/owulveryck/wardleyToGo/v2/encoding/svg"
 )
 
 func TestEvolutionAxisLabels_WithZoneLabels(t *testing.T) {

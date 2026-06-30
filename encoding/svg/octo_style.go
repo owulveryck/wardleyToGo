@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
 )
 
 type OctoStyle struct {

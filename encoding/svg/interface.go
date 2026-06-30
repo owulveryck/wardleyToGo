@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"image"
 
-	"github.com/owulveryck/wardleyToGo"
+	"github.com/owulveryck/wardleyToGo/v2"
 )
 
 type SVGMarshaler interface {

@@ -7,9 +7,9 @@ import (
 	"image/draw"
 	"strconv"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/internal/drawing"
-	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/internal/drawing"
+	"github.com/owulveryck/wardleyToGo/v2/internal/utils"
 )
 
 type dummyComponent struct {

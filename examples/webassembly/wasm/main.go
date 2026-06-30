@@ -8,8 +8,8 @@ import (
 	"image"
 	"syscall/js"
 
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	svgmap "github.com/owulveryck/wardleyToGo/v2/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 func main() {

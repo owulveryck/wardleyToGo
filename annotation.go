@@ -6,8 +6,8 @@ import (
 	"image/color"
 	"strconv"
 
-	"github.com/owulveryck/wardleyToGo/internal/svg"
-	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/utils"
 )
 
 // An annotation is a set of placements of a certain label

@@ -7,7 +7,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/v2/components"
 )
 
 func ExampleComponent_Draw() {

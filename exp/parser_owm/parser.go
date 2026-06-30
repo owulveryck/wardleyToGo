@@ -7,8 +7,8 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo"
-	tt "github.com/owulveryck/wardleyToGo/exp/teamtopologies"
+	"github.com/owulveryck/wardleyToGo/v2"
+	tt "github.com/owulveryck/wardleyToGo/v2/exp/teamtopologies"
 )
 
 type Parser struct {

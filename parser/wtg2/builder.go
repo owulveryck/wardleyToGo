@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components"
-	"github.com/owulveryck/wardleyToGo/components/wardley"
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
-	"github.com/owulveryck/wardleyToGo/layout"
-	"github.com/owulveryck/wardleyToGo/layout/labels"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/components"
+	"github.com/owulveryck/wardleyToGo/v2/components/wardley"
+	svgmap "github.com/owulveryck/wardleyToGo/v2/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/v2/layout"
+	"github.com/owulveryck/wardleyToGo/v2/layout/labels"
 )
 
 // BuildResult holds the map and evolution stages produced by the builder.
@@ -24,9 +24,9 @@ type BuildResult struct {
 	Stages      []svgmap.Evolution
 	Legend      bool
 	LegendItems []svgmap.LegendItem
-	Focus       *FocusSet              // nil if no focus directive is present
-	Animation   *svgmap.AnimationData  // nil until computed; populated by BuildMap
-	Warnings    []string               // non-fatal issues encountered during build
+	Focus       *FocusSet             // nil if no focus directive is present
+	Animation   *svgmap.AnimationData // nil until computed; populated by BuildMap
+	Warnings    []string              // non-fatal issues encountered during build
 }
 
 // FocusSet identifies which elements should remain at full opacity when focus is active.

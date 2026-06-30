@@ -42,10 +42,10 @@ var (
 // NodeType enum encoding.
 var (
 	nodeTypeToCode = map[string]byte{
-		"":           0,
-		"build":      1,
-		"buy":        2,
-		"outsource":  3,
+		"":          0,
+		"build":     1,
+		"buy":       2,
+		"outsource": 3,
 	}
 	codeToNodeType = reverseByteMap(nodeTypeToCode)
 )

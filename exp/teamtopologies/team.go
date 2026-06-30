@@ -5,9 +5,9 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/owulveryck/wardleyToGo/components"
-	"github.com/owulveryck/wardleyToGo/internal/svg"
-	"github.com/owulveryck/wardleyToGo/internal/utils"
+	"github.com/owulveryck/wardleyToGo/v2/components"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/utils"
 )
 
 type Team struct {

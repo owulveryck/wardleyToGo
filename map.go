@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/owulveryck/wardleyToGo/internal/graph"
+	"github.com/owulveryck/wardleyToGo/v2/internal/graph"
 )
 
 // collabEdge is an internal adapter that wraps a Collaboration to satisfy graph.Edge.

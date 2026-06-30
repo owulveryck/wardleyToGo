@@ -10,4 +10,3 @@ func (e SimpleEdge) From() Node { return e.F }
 
 // To returns the destination node.
 func (e SimpleEdge) To() Node { return e.T }
-

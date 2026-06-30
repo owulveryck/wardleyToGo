@@ -1,6 +1,6 @@
 package components
 
-import "github.com/owulveryck/wardleyToGo"
+import "github.com/owulveryck/wardleyToGo/v2"
 
 const (
 	Undefined wardleyToGo.ComponentType = iota

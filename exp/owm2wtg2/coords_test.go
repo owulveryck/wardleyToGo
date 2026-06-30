@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/owulveryck/wardleyToGo/parser/wtg2"
+	"github.com/owulveryck/wardleyToGo/v2/parser/wtg2"
 )
 
 func TestMaturityToEvolution(t *testing.T) {
@@ -18,10 +18,10 @@ func TestMaturityToEvolution(t *testing.T) {
 		{0.5, "III.0"},
 		{0.625, "III.5"},
 		{0.75, "IV.0"},
-		{1.0, "IV.9"},   // clamped to IV.9 (digit 10 → 9)
+		{1.0, "IV.9"}, // clamped to IV.9 (digit 10 → 9)
 		{0.95, "IV.8"},
 		{0.05, "I.2"},
-		{0.62, "III.5"},  // 62.0 → III phase, offset 12.0, round(12/2.5)=round(4.8)=5
+		{0.62, "III.5"}, // 62.0 → III phase, offset 12.0, round(12/2.5)=round(4.8)=5
 	}
 
 	for _, tt := range tests {

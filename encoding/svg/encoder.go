@@ -8,9 +8,9 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/encoding"
-	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/encoding"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
 )
 
 type Encoder struct {

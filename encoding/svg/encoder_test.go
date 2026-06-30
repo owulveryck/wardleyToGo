@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
+	svgmap "github.com/owulveryck/wardleyToGo/v2/encoding/svg"
 )
 
 func Example_style() {

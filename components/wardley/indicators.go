@@ -6,8 +6,8 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
 )
 
 // signalIndicator returns SVG elements for a signal icon at the given offset.

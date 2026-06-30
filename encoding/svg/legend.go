@@ -7,7 +7,7 @@ import (
 	"image/color"
 	"strings"
 
-	"github.com/owulveryck/wardleyToGo/internal/svg"
+	"github.com/owulveryck/wardleyToGo/v2/internal/svg"
 )
 
 // LegendItem describes a single entry in the legend.

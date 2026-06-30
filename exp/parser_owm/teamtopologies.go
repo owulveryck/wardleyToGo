@@ -6,8 +6,8 @@ import (
 	"strings"
 	"text/scanner"
 
-	"github.com/owulveryck/wardleyToGo/components"
-	tt "github.com/owulveryck/wardleyToGo/exp/teamtopologies"
+	"github.com/owulveryck/wardleyToGo/v2/components"
+	tt "github.com/owulveryck/wardleyToGo/v2/exp/teamtopologies"
 )
 
 func (p *Parser) parseTeam() (*tt.Team, error) {

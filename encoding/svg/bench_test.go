@@ -6,8 +6,8 @@ import (
 	"image"
 	"testing"
 
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components/wardley"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/components/wardley"
 )
 
 // buildBenchMap creates a realistic Wardley Map for benchmarking without

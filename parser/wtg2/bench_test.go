@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	svgmap "github.com/owulveryck/wardleyToGo/encoding/svg"
-	"github.com/owulveryck/wardleyToGo/layout"
+	svgmap "github.com/owulveryck/wardleyToGo/v2/encoding/svg"
+	"github.com/owulveryck/wardleyToGo/v2/layout"
 )
 
 var testData []byte

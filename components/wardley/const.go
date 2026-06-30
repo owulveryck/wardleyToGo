@@ -1,8 +1,8 @@
 package wardley
 
 import (
-	"github.com/owulveryck/wardleyToGo"
-	"github.com/owulveryck/wardleyToGo/components"
+	"github.com/owulveryck/wardleyToGo/v2"
+	"github.com/owulveryck/wardleyToGo/v2/components"
 )
 
 const (
