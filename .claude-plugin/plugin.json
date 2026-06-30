@@ -1,0 +1,5 @@
+{
+  "name": "wtg2",
+  "description": "Generate Wardley Maps in the WTG2 DSL and render them to SVG",
+  "version": "1.0.0"
+}

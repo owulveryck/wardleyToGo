@@ -1,0 +1,13 @@
+{
+  "name": "wardleyToGo",
+  "owner": {
+    "name": "Olivier Wulveryck"
+  },
+  "plugins": [
+    {
+      "name": "wtg2",
+      "source": "./",
+      "description": "Generate Wardley Maps in the WTG2 DSL and render them to SVG"
+    }
+  ]
+}
